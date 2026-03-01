@@ -1,41 +1,37 @@
 {% extends "base/base.html" %}
 {% block title %}Matriz de Asignación{% endblock %}
 {% block breadcrumb %}
-<div class="breadcrumbs text-sm mb-4">
-  <ul>
-    <li><a href="{% url 'capacity:overview' %}">Capacidad</a></li>
-    <li>Matriz</li>
-  </ul>
-</div>
+{% include "components/breadcrumb.html" with parent_url="/capacity/" parent_label="Capacidad" current="Matriz" %}
 {% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Matriz de Asignación</h1>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Matriz de Asignación" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-sm">
-        <thead>
+        <thead class="bg-base-200/50">
           <tr>
-            <th>Profesional</th>
+            <th class="text-xs uppercase tracking-wider sticky left-0 bg-base-200/50 z-10">Profesional</th>
             {% for project in projects %}
-            <th class="text-center font-mono">{{ project.code }}</th>
+            <th class="text-center font-mono text-xs uppercase tracking-wider">{{ project.code }}</th>
             {% endfor %}
-            <th class="text-center font-bold">Total</th>
+            <th class="text-center text-xs uppercase tracking-wider font-bold">Total</th>
           </tr>
         </thead>
         <tbody>
           {% for row in matrix %}
           <tr>
-            <td class="font-medium">{{ row.user.get_full_name }}</td>
+            <td class="font-medium sticky left-0 bg-base-100 z-10">{{ row.user.get_full_name }}</td>
             {% for cell in row.cells %}
             <td class="text-center {% if cell.hours > 0 %}bg-primary/10{% endif %}">
-              {% if cell.hours > 0 %}{{ cell.hours }}h{% else %}-{% endif %}
+              {% if cell.hours > 0 %}{{ cell.hours }}h{% else %}<span class="text-base-content/30">-</span>{% endif %}
             </td>
             {% endfor %}
             <td class="text-center font-bold {% if row.total_hours > 40 %}text-error{% endif %}">{{ row.total_hours }}h</td>
           </tr>
           {% empty %}
-          <tr><td colspan="{{ projects|length|add:2 }}" class="text-center py-8">No hay asignaciones.</td></tr>
+          <tr><td colspan="{{ projects|length|add:2 }}">{% include "components/empty_state.html" with message="No hay asignaciones registradas." icon="users" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

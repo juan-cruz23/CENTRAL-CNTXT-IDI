@@ -1,71 +1,76 @@
 {% extends "base/base.html" %}
 {% block title %}Alertas y Notificaciones{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Alertas y Notificaciones</h1>
+{% include "components/page_header.html" with title="Alertas y Notificaciones" %}
 
 <!-- Filters -->
-<div class="flex gap-2 mb-4 flex-wrap">
+<div class="flex flex-wrap gap-1 mb-4">
   <a href="{% url 'notifications:list' %}" class="btn btn-sm {% if not request.GET.severity and not request.GET.is_read %}btn-primary{% else %}btn-ghost{% endif %}">Todas</a>
-  <a href="?is_read=false" class="btn btn-sm {% if request.GET.is_read == 'false' %}btn-primary{% else %}btn-ghost{% endif %}">No Leídas</a>
+  <a href="?is_read=false" class="btn btn-sm {% if request.GET.is_read == 'false' %}btn-primary{% else %}btn-ghost{% endif %}">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+    No Leídas
+  </a>
   {% for code, label in severity_choices %}
   <a href="?severity={{ code }}" class="btn btn-sm {% if request.GET.severity == code %}btn-primary{% else %}btn-ghost{% endif %}">{{ label }}</a>
   {% endfor %}
 </div>
 
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
-    <table class="table table-zebra">
-      <thead>
-        <tr><th>Fecha</th><th>Severidad</th><th>Categoría</th><th>Título</th><th>Proyecto</th><th>Estado</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for alert in alerts %}
-        <tr class="{% if not alert.is_read %}font-bold bg-base-200{% endif %}">
-          <td class="text-sm">{{ alert.created_at|date:"d/m/Y H:i" }}</td>
-          <td>
-            <span class="badge badge-sm {% if alert.severity == 'CRITICAL' %}badge-error{% elif alert.severity == 'WARNING' %}badge-warning{% elif alert.severity == 'INFO' %}badge-info{% else %}badge-ghost{% endif %}">
-              {{ alert.get_severity_display }}
-            </span>
-          </td>
-          <td><span class="badge badge-outline badge-sm">{{ alert.get_category_display }}</span></td>
-          <td>{{ alert.title }}</td>
-          <td class="font-mono">{{ alert.project.code|default:"-" }}</td>
-          <td>
-            {% if alert.is_resolved %}<span class="badge badge-success badge-sm">Resuelta</span>
-            {% elif alert.is_read %}<span class="badge badge-ghost badge-sm">Leída</span>
-            {% else %}<span class="badge badge-warning badge-sm">Nueva</span>{% endif %}
-          </td>
-          <td>
-            <div class="flex gap-1">
-              {% if not alert.is_read %}
-              <form method="post" action="{% url 'notifications:mark_read' alert.pk %}" hx-post="{% url 'notifications:mark_read' alert.pk %}" hx-swap="outerHTML" hx-target="closest tr">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-ghost btn-xs">Marcar leída</button>
-              </form>
-              {% endif %}
-              {% if not alert.is_resolved %}
-              <form method="post" action="{% url 'notifications:mark_resolved' alert.pk %}" hx-post="{% url 'notifications:mark_resolved' alert.pk %}" hx-swap="outerHTML" hx-target="closest tr">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-ghost btn-xs">Resolver</button>
-              </form>
-              {% endif %}
-            </div>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="7" class="text-center py-8">No hay alertas.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% if is_paginated %}
-    <div class="flex justify-center py-4">
-      <div class="join">
-        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">Anterior</a>{% endif %}
-        <span class="join-item btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">Siguiente</a>{% endif %}
-      </div>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Fecha</th>
+            <th class="text-xs uppercase tracking-wider">Severidad</th>
+            <th class="text-xs uppercase tracking-wider">Categoría</th>
+            <th class="text-xs uppercase tracking-wider">Título</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in alerts %}
+          <tr class="{% if not alert.is_read %}font-bold bg-base-200/50{% endif %}">
+            <td class="text-sm">{{ alert.created_at|date:"d/m/Y H:i" }}</td>
+            <td>
+              <span class="badge badge-sm {% if alert.severity == 'CRITICAL' %}badge-error{% elif alert.severity == 'WARNING' %}badge-warning{% elif alert.severity == 'INFO' %}badge-info{% else %}badge-ghost{% endif %}">
+                {{ alert.get_severity_display }}
+              </span>
+            </td>
+            <td><span class="badge badge-outline badge-sm">{{ alert.get_category_display }}</span></td>
+            <td>{{ alert.title }}</td>
+            <td class="font-mono">{{ alert.project.code|default:"-" }}</td>
+            <td>
+              {% if alert.is_resolved %}<span class="badge badge-success badge-sm">Resuelta</span>
+              {% elif alert.is_read %}<span class="badge badge-ghost badge-sm">Leída</span>
+              {% else %}<span class="badge badge-warning badge-sm">Nueva</span>{% endif %}
+            </td>
+            <td>
+              <div class="flex gap-1">
+                {% if not alert.is_read %}
+                <form method="post" action="{% url 'notifications:mark_read' alert.pk %}" hx-post="{% url 'notifications:mark_read' alert.pk %}" hx-swap="outerHTML" hx-target="closest tr">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-ghost btn-xs">Marcar leída</button>
+                </form>
+                {% endif %}
+                {% if not alert.is_resolved %}
+                <form method="post" action="{% url 'notifications:mark_resolved' alert.pk %}" hx-post="{% url 'notifications:mark_resolved' alert.pk %}" hx-swap="outerHTML" hx-target="closest tr">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-ghost btn-xs text-success">Resolver</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay alertas ni notificaciones." icon="bell" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    {% endif %}
+    {% if is_paginated %}{% include "components/pagination.html" with page_obj=page_obj %}{% endif %}
   </div>
 </div>
 {% endblock %}

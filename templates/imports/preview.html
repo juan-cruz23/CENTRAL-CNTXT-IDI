@@ -1,21 +1,64 @@
 {% extends "base/base.html" %}
 {% block title %}Vista previa de importación{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/imports/" parent_label="Importar" current="Vista Previa" %}
+{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Vista previa - Trabajo #{{ job.pk }}</h1>
-<div class="card bg-base-100 shadow-md p-6">
-  <p><strong>Tipo:</strong> {{ job.get_source_type_display }}</p>
-  <p><strong>Estado:</strong> {{ job.get_status_display }}</p>
+<div class="max-w-4xl">
+  {% include "components/page_header.html" with title="Vista Previa de Importación" %}
+
+  <!-- Job Summary -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+    <div class="card-body">
+      <div class="flex flex-wrap gap-4 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-base-content/70">Trabajo:</span>
+          <span class="font-mono">#{{ job.pk }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-base-content/70">Tipo:</span>
+          <span class="badge badge-outline badge-sm">{{ job.get_source_type_display }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-base-content/70">Estado:</span>
+          <span class="badge badge-info badge-sm">{{ job.get_status_display }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {% if parse_errors %}
-  <div class="alert alert-error mt-4">
-    <ul>{% for e in parse_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  <div class="alert alert-error mb-6">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+    <div>
+      <h3 class="font-bold">Errores de análisis</h3>
+      <ul class="list-disc list-inside mt-1">
+        {% for e in parse_errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
   </div>
   {% endif %}
+
   {% if parsed_data %}
-  <pre class="bg-base-200 p-4 mt-4 rounded overflow-x-auto">{{ parsed_data }}</pre>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+    <div class="card-body p-0">
+      <div class="p-4 border-b border-base-300/30">
+        <h3 class="font-bold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+          Datos Parseados
+        </h3>
+      </div>
+      <pre class="bg-base-200/50 p-4 text-sm overflow-x-auto max-h-96 overflow-y-auto font-mono">{{ parsed_data }}</pre>
+    </div>
+  </div>
   {% endif %}
-  <div class="mt-6">
-    <a href="{% url 'imports:confirm' pk=job.pk %}" class="btn btn-primary">Confirmar importación</a>
+
+  <div class="flex justify-end gap-3">
     <a href="{% url 'imports:wizard' %}" class="btn btn-ghost">Cancelar</a>
+    <a href="{% url 'imports:confirm' pk=job.pk %}" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+      Confirmar Importación
+    </a>
   </div>
 </div>
 {% endblock %}

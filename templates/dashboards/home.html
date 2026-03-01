@@ -2,61 +2,72 @@
 {% load common_tags %}
 {% block title %}Dashboard Ejecutivo{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Dashboard Ejecutivo</h1>
+{% include "components/page_header.html" with title="Dashboard Ejecutivo" %}
 
 <!-- KPI Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">Proyectos Activos</div>
-    <div class="stat-value text-primary">{{ active_projects }}</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">Valor Portfolio</div>
-    <div class="stat-value text-sm">{{ total_portfolio_value|cop_format }}</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">SPI Promedio</div>
-    <div class="stat-value {% if avg_spi < 0.9 %}text-error{% elif avg_spi < 1.0 %}text-warning{% else %}text-success{% endif %}">
+  {% include "components/stat_card.html" with title="Proyectos Activos" value=active_projects color_class="text-primary" icon="briefcase" %}
+  {% include "components/stat_card.html" with title="Valor Portfolio" value=total_portfolio_value|cop_format icon="banknotes" %}
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50 hover:shadow-md transition-shadow">
+    <div class="stat-figure text-base-content/30">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    </div>
+    <div class="stat-title text-xs">SPI Promedio</div>
+    <div class="stat-value text-lg {% if avg_spi < 0.9 %}text-error{% elif avg_spi < 1.0 %}text-warning{% else %}text-success{% endif %}">
       {{ avg_spi|floatformat:2 }}
     </div>
-    <div class="stat-desc">Schedule Performance Index</div>
+    <div class="stat-desc">
+      {% if avg_spi >= 1.0 %}&#9650; En tiempo{% elif avg_spi >= 0.9 %}&#9660; Leve retraso{% else %}&#9660; Retraso crítico{% endif %}
+    </div>
   </div>
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">CPI Promedio</div>
-    <div class="stat-value {% if avg_cpi < 0.9 %}text-error{% elif avg_cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50 hover:shadow-md transition-shadow">
+    <div class="stat-figure text-base-content/30">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+    </div>
+    <div class="stat-title text-xs">CPI Promedio</div>
+    <div class="stat-value text-lg {% if avg_cpi < 0.9 %}text-error{% elif avg_cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">
       {{ avg_cpi|floatformat:2 }}
     </div>
-    <div class="stat-desc">Cost Performance Index</div>
+    <div class="stat-desc">
+      {% if avg_cpi >= 1.0 %}&#9650; Bajo presupuesto{% elif avg_cpi >= 0.9 %}&#9660; Leve sobrecosto{% else %}&#9660; Sobrecosto crítico{% endif %}
+    </div>
   </div>
 </div>
 
 <!-- Projects at Risk -->
 {% if projects_at_risk %}
-<div class="card bg-base-100 shadow-xl mb-8">
-  <div class="card-body">
-    <h2 class="card-title text-error">Proyectos en Riesgo</h2>
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-8">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold text-error flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+        Proyectos en Riesgo
+      </h2>
+    </div>
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
+        <thead class="bg-base-200/50">
           <tr>
-            <th>Código</th>
-            <th>Proyecto</th>
-            <th>SPI</th>
-            <th>CPI</th>
-            <th>Avance</th>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">SPI</th>
+            <th class="text-xs uppercase tracking-wider">CPI</th>
+            <th class="text-xs uppercase tracking-wider">Avance</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {% for project in projects_at_risk %}
           <tr>
-            <td class="font-mono">{{ project.code }}</td>
+            <td class="font-mono font-bold">{{ project.code }}</td>
             <td>{{ project.name }}</td>
-            <td>{{ project.latest_spi|floatformat:2 }}</td>
-            <td>{{ project.latest_cpi|floatformat:2 }}</td>
+            <td class="{% if project.latest_spi < 0.9 %}text-error font-bold{% endif %}">{{ project.latest_spi|floatformat:2 }}</td>
+            <td class="{% if project.latest_cpi < 0.9 %}text-error font-bold{% endif %}">{{ project.latest_cpi|floatformat:2 }}</td>
             <td>
-              <progress class="progress progress-error w-20" value="{{ project.current_progress_pct }}" max="100"></progress>
-              {{ project.current_progress_pct }}%
+              <div class="flex items-center gap-2">
+                <progress class="progress progress-error w-20" value="{{ project.current_progress_pct }}" max="100"></progress>
+                <span class="text-sm">{{ project.current_progress_pct }}%</span>
+              </div>
             </td>
             <td><a href="{% url 'dashboards:project' project.pk %}" class="btn btn-ghost btn-sm">Ver</a></td>
           </tr>
@@ -69,32 +80,35 @@
 {% endif %}
 
 <!-- Active Projects Grid -->
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body">
-    <h2 class="card-title">Proyectos Activos</h2>
+    <h2 class="card-title">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+      Proyectos Activos
+    </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
       {% for project in projects %}
-      <div class="card bg-base-200 shadow-md hover:shadow-lg transition-shadow">
+      <div class="card bg-base-200/50 border border-base-300/30 border-l-4 border-l-primary hover:shadow-md transition-shadow">
         <div class="card-body p-4">
           <div class="flex justify-between items-start">
             <div>
-              <span class="badge badge-outline font-mono">{{ project.code }}</span>
+              <span class="badge badge-outline font-mono text-xs">{{ project.code }}</span>
               <h3 class="font-bold mt-1">{{ project.name }}</h3>
               <p class="text-sm text-base-content/60">{{ project.client.name }}</p>
             </div>
-            <div class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %}">
+            <div class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %} badge-sm">
               {{ project.get_status_display }}
             </div>
           </div>
           <div class="mt-3">
             <div class="flex justify-between text-sm mb-1">
               <span>Avance</span>
-              <span>{{ project.current_progress_pct }}%</span>
+              <span class="font-medium">{{ project.current_progress_pct }}%</span>
             </div>
             <progress class="progress progress-primary w-full" value="{{ project.current_progress_pct }}" max="100"></progress>
           </div>
-          <div class="flex justify-between mt-2 text-sm">
-            <span>Valor: {{ project.total_value|cop_format }}</span>
+          <div class="flex justify-between mt-2 text-sm text-base-content/70">
+            <span>{{ project.total_value|cop_format }}</span>
           </div>
           <div class="card-actions justify-end mt-2">
             <a href="{% url 'dashboards:project' project.pk %}" class="btn btn-primary btn-sm">Dashboard</a>
@@ -103,8 +117,8 @@
         </div>
       </div>
       {% empty %}
-      <div class="col-span-3 text-center py-8 text-base-content/60">
-        No hay proyectos activos. <a href="{% url 'projects:create' %}" class="link link-primary">Crear proyecto</a>
+      <div class="col-span-3">
+        {% include "components/empty_state.html" with message="No hay proyectos activos." action_url=create_url action_label="Crear Proyecto" action_icon="plus" icon="folder" %}
       </div>
       {% endfor %}
     </div>

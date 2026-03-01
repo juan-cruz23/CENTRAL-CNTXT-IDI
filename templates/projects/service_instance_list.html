@@ -1,21 +1,21 @@
 {% load common_tags %}
 <table class="table table-sm table-zebra">
-  <thead>
+  <thead class="bg-base-200/50">
     <tr>
-      <th>Código</th>
-      <th>Servicio</th>
-      <th>Cant.</th>
-      <th>Valor UND</th>
-      <th>Total</th>
-      <th>Inc. %</th>
-      <th>Check</th>
-      <th>Avance %</th>
-      <th>Esperado %</th>
-      <th>Rol</th>
-      <th>Profesional</th>
-      <th>Horas Proy.</th>
-      <th>Horas Real</th>
-      <th>Desviación</th>
+      <th class="text-xs uppercase tracking-wider">Código</th>
+      <th class="text-xs uppercase tracking-wider">Servicio</th>
+      <th class="text-xs uppercase tracking-wider">Cant.</th>
+      <th class="text-xs uppercase tracking-wider">Valor UND</th>
+      <th class="text-xs uppercase tracking-wider">Total</th>
+      <th class="text-xs uppercase tracking-wider">Inc. %</th>
+      <th class="text-xs uppercase tracking-wider">Check</th>
+      <th class="text-xs uppercase tracking-wider">Avance %</th>
+      <th class="text-xs uppercase tracking-wider">Esperado %</th>
+      <th class="text-xs uppercase tracking-wider">Rol</th>
+      <th class="text-xs uppercase tracking-wider">Profesional</th>
+      <th class="text-xs uppercase tracking-wider">Horas Proy.</th>
+      <th class="text-xs uppercase tracking-wider">Horas Real</th>
+      <th class="text-xs uppercase tracking-wider">Desviación</th>
       <th></th>
     </tr>
   </thead>
@@ -52,6 +52,8 @@
         <a href="{% url 'projects:service_update' project.pk si.pk %}" class="btn btn-ghost btn-xs">Editar</a>
       </td>
     </tr>
+    {% empty %}
+    <tr><td colspan="15">{% include "components/empty_state.html" with message="No hay servicios en esta fase." icon="cog" %}</td></tr>
     {% endfor %}
   </tbody>
 </table>

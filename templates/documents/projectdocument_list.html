@@ -1,32 +1,59 @@
 {% extends "base/base.html" %}
 {% block title %}Documentos{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">Documentos</h1>
-  <a href="{% url 'documents:document_create' project_pk %}" class="btn btn-primary btn-sm">Nuevo Documento</a>
-</div>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Documentos" action_url=create_url action_label="Nuevo Documento" icon="plus" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Nombre</th><th>Tipo</th><th>Servicio</th><th>Entrega</th><th>Aprobación</th><th>Enlace</th><th></th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Tipo</th>
+            <th class="text-xs uppercase tracking-wider">Servicio</th>
+            <th class="text-xs uppercase tracking-wider">Entrega</th>
+            <th class="text-xs uppercase tracking-wider">Aprobación</th>
+            <th class="text-xs uppercase tracking-wider">Enlace</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
           {% for doc in documents %}
-          <tr>
-            <td>{{ doc.name }}</td>
+          <tr class="hover">
+            <td class="font-medium">
+              <div class="flex items-center gap-2">
+                {% if doc.document_type == 'DRAWING' %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                {% elif doc.document_type == 'REPORT' %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                {% endif %}
+                {{ doc.name }}
+              </div>
+            </td>
             <td><span class="badge badge-outline badge-sm">{{ doc.get_document_type_display }}</span></td>
             <td>{{ doc.service_instance.name|default:"-" }}</td>
             <td>{{ doc.delivery_date|date:"d/m/Y"|default:"-" }}</td>
             <td>{{ doc.approval_date|date:"d/m/Y"|default:"-" }}</td>
             <td>
-              {% if doc.access_link %}<a href="{{ doc.access_link }}" class="link link-primary text-sm" target="_blank">Abrir</a>{% elif doc.file %}<a href="{{ doc.file.url }}" class="link link-primary text-sm" target="_blank">Descargar</a>{% else %}-{% endif %}
+              {% if doc.access_link %}
+              <a href="{{ doc.access_link }}" class="btn btn-ghost btn-xs" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                Abrir
+              </a>
+              {% elif doc.file %}
+              <a href="{{ doc.file.url }}" class="btn btn-ghost btn-xs" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Descargar
+              </a>
+              {% else %}-{% endif %}
             </td>
             <td><a href="{% url 'documents:document_update' project_pk doc.pk %}" class="btn btn-ghost btn-xs">Editar</a></td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" class="text-center py-8">No hay documentos.</td></tr>
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay documentos registrados." action_url=create_url action_label="Nuevo Documento" action_icon="plus" icon="document" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

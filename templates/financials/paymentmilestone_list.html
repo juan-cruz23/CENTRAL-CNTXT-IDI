@@ -2,16 +2,25 @@
 {% load common_tags %}
 {% block title %}Hitos de Pago{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">Hitos de Pago</h1>
-  <a href="{% url 'financials:payment_create' project_pk %}" class="btn btn-primary btn-sm">Nuevo Hito</a>
-</div>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Hitos de Pago" action_url=create_url action_label="Nuevo Hito" icon="plus" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Concepto</th><th>Propuesto</th><th>IVA</th><th>Inc. %</th><th>Ejecutado</th><th>Factura</th><th>Recaudado</th><th>Diferencia</th><th>Estado</th><th></th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Concepto</th>
+            <th class="text-xs uppercase tracking-wider">Propuesto</th>
+            <th class="text-xs uppercase tracking-wider">IVA</th>
+            <th class="text-xs uppercase tracking-wider">Inc. %</th>
+            <th class="text-xs uppercase tracking-wider">Ejecutado</th>
+            <th class="text-xs uppercase tracking-wider">Factura</th>
+            <th class="text-xs uppercase tracking-wider">Recaudado</th>
+            <th class="text-xs uppercase tracking-wider">Diferencia</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
           {% for pm in payment_milestones %}
@@ -23,12 +32,12 @@
             <td class="text-right">{{ pm.executed_value|cop_format }}</td>
             <td>{{ pm.invoice_number|default:"-" }}</td>
             <td class="text-right">{{ pm.collection_value|cop_format }}</td>
-            <td class="text-right {% if pm.difference < 0 %}text-error{% endif %}">{{ pm.difference|cop_format }}</td>
+            <td class="text-right {% if pm.difference < 0 %}text-error font-bold{% endif %}">{{ pm.difference|cop_format }}</td>
             <td><span class="badge badge-outline badge-sm">{{ pm.get_status_display }}</span></td>
             <td><a href="{% url 'financials:payment_update' project_pk pm.pk %}" class="btn btn-ghost btn-xs">Editar</a></td>
           </tr>
           {% empty %}
-          <tr><td colspan="10" class="text-center py-8">No hay hitos de pago.</td></tr>
+          <tr><td colspan="10">{% include "components/empty_state.html" with message="No hay hitos de pago registrados." action_url=create_url action_label="Nuevo Hito" action_icon="plus" icon="banknotes" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

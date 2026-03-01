@@ -1,0 +1,25 @@
+<div class="flex flex-col sm:flex-row gap-3 mb-4">
+  <!-- Filter pills -->
+  {% if filters %}
+  <div class="flex flex-wrap gap-1">
+    <a href="{{ base_url }}" class="btn btn-sm {% if not current_filter %}btn-primary{% else %}btn-ghost{% endif %}">Todos</a>
+    {% for filter in filters %}
+    <a href="{{ base_url }}?{{ filter_param|default:'status' }}={{ filter.value }}" class="btn btn-sm {% if current_filter == filter.value %}btn-primary{% else %}btn-ghost{% endif %}">
+      {{ filter.label }}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Search -->
+  {% if search_url %}
+  <div class="flex-1 sm:max-w-xs sm:ml-auto">
+    <label class="input input-bordered input-sm flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+      <input type="text" placeholder="{{ search_placeholder|default:'Buscar...' }}" class="grow bg-transparent border-none outline-none text-sm"
+             hx-get="{{ search_url }}" hx-trigger="keyup changed delay:300ms"
+             hx-target="{{ search_target|default:'#table-body' }}" name="q" value="{{ request.GET.q }}" />
+    </label>
+  </div>
+  {% endif %}
+</div>

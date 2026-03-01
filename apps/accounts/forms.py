@@ -2,9 +2,10 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
 from apps.accounts.models import User
+from apps.common.forms import DaisyUIFormMixin
 
 
-class UserLoginForm(AuthenticationForm):
+class UserLoginForm(DaisyUIFormMixin, AuthenticationForm):
     """Custom login form with styled widgets."""
 
     username = forms.CharField(
@@ -28,7 +29,7 @@ class UserLoginForm(AuthenticationForm):
     )
 
 
-class UserProfileForm(forms.ModelForm):
+class UserProfileForm(DaisyUIFormMixin, forms.ModelForm):
     """Form for editing user profile basic fields."""
 
     class Meta:

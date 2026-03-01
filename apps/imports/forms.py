@@ -1,9 +1,10 @@
 from django import forms
 
+from apps.common.forms import DaisyUIFormMixin
 from apps.imports.models import ImportJob
 
 
-class ImportUploadForm(forms.Form):
+class ImportUploadForm(DaisyUIFormMixin, forms.Form):
     """Form for uploading a CSV file for import."""
 
     file = forms.FileField(

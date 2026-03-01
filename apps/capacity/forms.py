@@ -1,9 +1,10 @@
 from django import forms
 
+from apps.common.forms import DaisyUIFormMixin
 from apps.capacity.models import ProjectAllocation, TeamMemberCapacity
 
 
-class TeamMemberCapacityForm(forms.ModelForm):
+class TeamMemberCapacityForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = TeamMemberCapacity
         fields = [
@@ -26,7 +27,7 @@ class TeamMemberCapacityForm(forms.ModelForm):
         }
 
 
-class ProjectAllocationForm(forms.ModelForm):
+class ProjectAllocationForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ProjectAllocation
         fields = [

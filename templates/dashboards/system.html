@@ -2,31 +2,32 @@
 {% load common_tags %}
 {% block title %}Sistema {{ system.name }}{% endblock %}
 {% block breadcrumb %}
-<div class="breadcrumbs text-sm mb-4">
-  <ul>
-    <li><a href="{% url 'dashboards:home' %}">Dashboard</a></li>
-    <li>{{ system.name }}</li>
-  </ul>
-</div>
+{% include "components/breadcrumb.html" with parent_url="/dashboards/" parent_label="Dashboard" current=system.name %}
 {% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">{{ system.name }}</h1>
-{% if system.analogy %}<p class="text-base-content/60 mb-4">{{ system.analogy }}</p>{% endif %}
+{% include "components/page_header.html" with title=system.name %}
+
+{% if system.analogy %}<p class="text-base-content/60 -mt-4 mb-4">{{ system.analogy }}</p>{% endif %}
 {% if system.description %}<p class="mb-6">{{ system.description }}</p>{% endif %}
 
-<div class="card bg-base-100 shadow-xl">
-  <div class="card-body">
-    <h2 class="card-title">Proyectos del Sistema</h2>
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+        Proyectos del Sistema
+      </h2>
+    </div>
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
+        <thead class="bg-base-200/50">
           <tr>
-            <th>Código</th>
-            <th>Proyecto</th>
-            <th>Cliente</th>
-            <th>Estado</th>
-            <th>Avance</th>
-            <th>Líder</th>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Cliente</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Avance</th>
+            <th class="text-xs uppercase tracking-wider">Líder</th>
             <th></th>
           </tr>
         </thead>
@@ -51,7 +52,7 @@
             <td><a href="{% url 'dashboards:project' project.pk %}" class="btn btn-ghost btn-xs">Ver</a></td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" class="text-center py-8">No hay proyectos en este sistema.</td></tr>
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay proyectos en este sistema." icon="folder" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

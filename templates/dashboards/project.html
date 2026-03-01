@@ -6,83 +6,76 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 {% endblock %}
 {% block breadcrumb %}
-<div class="breadcrumbs text-sm mb-4">
-  <ul>
-    <li><a href="{% url 'dashboards:home' %}">Dashboard</a></li>
-    <li>{{ project.code }} - {{ project.name }}</li>
-  </ul>
-</div>
+{% include "components/breadcrumb.html" with parent_url="/dashboards/" parent_label="Dashboard" current=project.name %}
 {% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
   <div>
     <h1 class="text-2xl font-bold">{{ project.name }}</h1>
     <p class="text-base-content/60">{{ project.client.name }} | {{ project.get_status_display }}</p>
   </div>
-  <a href="{% url 'projects:detail' project.pk %}" class="btn btn-outline">Ver Detalle</a>
+  <a href="{% url 'projects:detail' project.pk %}" class="btn btn-outline btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+    Ver Detalle
+  </a>
 </div>
 
 <!-- KPI Row -->
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
-  <div class="stat bg-base-100 rounded-box shadow p-3">
-    <div class="stat-title text-xs">Valor</div>
-    <div class="stat-value text-sm">{{ project.total_value|cop_format }}</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow p-3">
-    <div class="stat-title text-xs">Avance</div>
-    <div class="stat-value text-sm">{{ project.current_progress_pct }}%</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow p-3">
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+  {% include "components/stat_card.html" with title="Valor" value=project.total_value|cop_format icon="banknotes" %}
+  {% include "components/stat_card.html" with title="Avance" value=project.current_progress_pct|stringformat:"d%%" icon="chart-bar" %}
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50 hover:shadow-md transition-shadow">
     <div class="stat-title text-xs">SPI</div>
-    <div class="stat-value text-sm {% if latest_snapshot.spi < 0.9 %}text-error{% endif %}">
+    <div class="stat-value text-lg {% if latest_snapshot.spi < 0.9 %}text-error{% elif latest_snapshot.spi < 1.0 %}text-warning{% else %}text-success{% endif %}">
       {{ latest_snapshot.spi|floatformat:2|default:"N/A" }}
     </div>
   </div>
-  <div class="stat bg-base-100 rounded-box shadow p-3">
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50 hover:shadow-md transition-shadow">
     <div class="stat-title text-xs">CPI</div>
-    <div class="stat-value text-sm {% if latest_snapshot.cpi < 0.9 %}text-error{% endif %}">
+    <div class="stat-value text-lg {% if latest_snapshot.cpi < 0.9 %}text-error{% elif latest_snapshot.cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">
       {{ latest_snapshot.cpi|floatformat:2|default:"N/A" }}
     </div>
   </div>
-  <div class="stat bg-base-100 rounded-box shadow p-3">
-    <div class="stat-title text-xs">Rentabilidad</div>
-    <div class="stat-value text-sm">{{ project.profitability_pct }}%</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow p-3">
-    <div class="stat-title text-xs">Satisfacción</div>
-    <div class="stat-value text-sm">{{ project.client_satisfaction_score }}%</div>
-  </div>
+  {% include "components/stat_card.html" with title="Rentabilidad" value=project.profitability_pct|stringformat:"s%%" icon="percent" %}
+  {% include "components/stat_card.html" with title="Satisfacción" value=project.client_satisfaction_score|stringformat:"s%%" icon="heart" %}
 </div>
 
 <!-- Charts Row -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-  <!-- S-Curve -->
-  <div class="card bg-base-100 shadow-xl">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h2 class="card-title">Curva S (EVM)</h2>
+      <h2 class="card-title text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+        Curva S (EVM)
+      </h2>
       <div id="scurve-chart" style="height: 350px;"></div>
     </div>
   </div>
-
-  <!-- Cash Flow -->
-  <div class="card bg-base-100 shadow-xl">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h2 class="card-title">Flujo de Caja</h2>
+      <h2 class="card-title text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        Flujo de Caja
+      </h2>
       <div id="cashflow-chart" style="height: 350px;"></div>
     </div>
   </div>
 </div>
 
 <!-- Phases and Services -->
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body">
-    <h2 class="card-title">Fases y Servicios</h2>
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+      Fases y Servicios
+    </h2>
     {% for phase in phases %}
-    <div class="collapse collapse-arrow bg-base-200 mb-2">
+    <div class="collapse collapse-arrow bg-base-200/50 border border-base-300/30 mb-2">
       <input type="checkbox" {% if forloop.first %}checked{% endif %} />
-      <div class="collapse-title font-medium">
-        {{ phase.phase.name }} - Avance: {{ phase.progress_pct }}%
-        <progress class="progress progress-primary w-32 ml-4" value="{{ phase.progress_pct }}" max="100"></progress>
+      <div class="collapse-title font-medium flex items-center gap-3">
+        {{ phase.phase.name }}
+        <progress class="progress progress-primary w-32" value="{{ phase.progress_pct }}" max="100"></progress>
+        <span class="text-sm text-base-content/60">{{ phase.progress_pct }}%</span>
       </div>
       <div class="collapse-content">
         <div class="overflow-x-auto"
@@ -93,6 +86,8 @@
         </div>
       </div>
     </div>
+    {% empty %}
+    {% include "components/empty_state.html" with message="No hay fases configuradas." icon="document" %}
     {% endfor %}
   </div>
 </div>
@@ -100,35 +95,37 @@
 
 {% block extra_js %}
 <script>
-// S-Curve Chart
+// S-Curve Chart with dark mode support
 fetch("{% url 'metrics:scurve_data' project.pk %}")
   .then(r => r.json())
   .then(data => {
+    const colors = getChartColors();
     const chart = echarts.init(document.getElementById('scurve-chart'));
     chart.setOption({
       tooltip: { trigger: 'axis' },
-      legend: { data: ['Valor Planeado (PV)', 'Valor Ganado (EV)', 'Costo Real (AC)'] },
-      xAxis: { type: 'category', data: data.dates },
-      yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M' } },
+      legend: { data: ['Valor Planeado (PV)', 'Valor Ganado (EV)', 'Costo Real (AC)'], textStyle: { color: colors.textColor } },
+      xAxis: { type: 'category', data: data.dates, axisLabel: { color: colors.textColor }, axisLine: { lineStyle: { color: colors.lineColor } } },
+      yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M', color: colors.textColor }, splitLine: { lineStyle: { color: colors.lineColor } } },
       series: [
-        { name: 'Valor Planeado (PV)', type: 'line', data: data.planned_value, smooth: true, lineStyle: { type: 'dashed' } },
-        { name: 'Valor Ganado (EV)', type: 'line', data: data.earned_value, smooth: true },
-        { name: 'Costo Real (AC)', type: 'line', data: data.actual_cost, smooth: true, lineStyle: { color: '#ef4444' } },
+        { name: 'Valor Planeado (PV)', type: 'line', data: data.planned_value, smooth: true, lineStyle: { type: 'dashed' }, areaStyle: { opacity: 0.05 } },
+        { name: 'Valor Ganado (EV)', type: 'line', data: data.earned_value, smooth: true, areaStyle: { opacity: 0.1 } },
+        { name: 'Costo Real (AC)', type: 'line', data: data.actual_cost, smooth: true, lineStyle: { color: colors.errorColor }, itemStyle: { color: colors.errorColor } },
       ]
     });
     window.addEventListener('resize', () => chart.resize());
   });
 
-// Cash Flow Chart
+// Cash Flow Chart with dark mode support
 fetch("{% url 'dashboards:cashflow_data' project.pk %}")
   .then(r => r.json())
   .then(data => {
+    const colors = getChartColors();
     const chart = echarts.init(document.getElementById('cashflow-chart'));
     chart.setOption({
       tooltip: { trigger: 'axis' },
-      legend: { data: ['Propuesto', 'Ejecutado', 'Recaudado'] },
-      xAxis: { type: 'category', data: data.labels },
-      yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M' } },
+      legend: { data: ['Propuesto', 'Ejecutado', 'Recaudado'], textStyle: { color: colors.textColor } },
+      xAxis: { type: 'category', data: data.labels, axisLabel: { color: colors.textColor }, axisLine: { lineStyle: { color: colors.lineColor } } },
+      yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M', color: colors.textColor }, splitLine: { lineStyle: { color: colors.lineColor } } },
       series: [
         { name: 'Propuesto', type: 'bar', data: data.proposed },
         { name: 'Ejecutado', type: 'bar', data: data.executed },

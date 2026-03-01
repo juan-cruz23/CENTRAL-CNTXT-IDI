@@ -4,13 +4,20 @@
 {% block extra_head %}
 <!-- AG Grid -->
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+<style>
+  .ag-theme-alpine, .ag-theme-alpine-dark { --ag-border-radius: 0.5rem; }
+</style>
 {% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Portfolio de Proyectos</h1>
+{% include "components/page_header.html" with title="Portfolio de Proyectos" %}
 
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body">
-    <div id="portfolio-grid" class="ag-theme-alpine" style="height: 600px;" x-data="portfolioGrid()" x-init="init()"></div>
+    <div id="portfolio-grid"
+         :class="$store.theme.isDark ? 'ag-theme-alpine-dark' : 'ag-theme-alpine'"
+         style="height: 600px;"
+         x-data="portfolioGrid()" x-init="init()"
+         x-effect="updateTheme($store.theme.current)"></div>
   </div>
 </div>
 {% endblock %}
@@ -19,10 +26,15 @@
 <script>
 function portfolioGrid() {
   return {
+    gridApi: null,
     init() {
       fetch("{% url 'dashboards:portfolio_data' %}")
         .then(r => r.json())
         .then(data => {
+          if (!data.projects || data.projects.length === 0) {
+            document.getElementById('portfolio-grid').innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center"><div class="text-base-content/20 mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg></div><p class="text-base-content/60 text-sm">No hay proyectos en el portfolio.</p></div>';
+            return;
+          }
           const gridOptions = {
             columnDefs: [
               { field: 'code', headerName: 'Código', width: 100, pinned: 'left' },
@@ -32,9 +44,9 @@ function portfolioGrid() {
                 cellRenderer: p => `<span class="badge badge-sm ${p.value === 'ACTIVE' ? 'badge-success' : p.value === 'PAUSED' ? 'badge-warning' : 'badge-ghost'}">${p.value}</span>` },
               { field: 'progress', headerName: 'Avance %', width: 120, type: 'numericColumn' },
               { field: 'spi', headerName: 'SPI', width: 100, type: 'numericColumn',
-                cellStyle: p => ({ color: p.value < 0.9 ? '#ef4444' : p.value < 1.0 ? '#f59e0b' : '#22c55e' }) },
+                cellStyle: p => ({ color: p.value < 0.9 ? 'oklch(var(--er))' : p.value < 1.0 ? 'oklch(var(--wa))' : 'oklch(var(--su))' }) },
               { field: 'cpi', headerName: 'CPI', width: 100, type: 'numericColumn',
-                cellStyle: p => ({ color: p.value < 0.9 ? '#ef4444' : p.value < 1.0 ? '#f59e0b' : '#22c55e' }) },
+                cellStyle: p => ({ color: p.value < 0.9 ? 'oklch(var(--er))' : p.value < 1.0 ? 'oklch(var(--wa))' : 'oklch(var(--su))' }) },
               { field: 'total_value', headerName: 'Valor Total', width: 150, type: 'numericColumn',
                 valueFormatter: p => new Intl.NumberFormat('es-CO', {style:'currency',currency:'COP',maximumFractionDigits:0}).format(p.value) },
               { field: 'leader', headerName: 'Líder', width: 130 },
@@ -44,9 +56,12 @@ function portfolioGrid() {
             defaultColDef: { sortable: true, filter: true, resizable: true },
             animateRows: true,
           };
-          const grid = document.querySelector('#portfolio-grid');
-          agGrid.createGrid(grid, gridOptions);
+          const gridEl = document.querySelector('#portfolio-grid');
+          this.gridApi = agGrid.createGrid(gridEl, gridOptions);
         });
+    },
+    updateTheme(theme) {
+      // AG Grid re-renders on class change automatically
     }
   };
 }

@@ -1,77 +1,88 @@
 {% extends "base/base.html" %}
 {% load common_tags %}
 {% block title %}Métricas EVM{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/projects/" parent_label="Proyectos" current="Métricas EVM" %}
+{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">Métricas EVM - {{ project.code }}</h1>
-  <a href="{% url 'metrics:metric_history' project.pk %}" class="btn btn-outline btn-sm">Historial</a>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Métricas EVM</h1>
+    <p class="text-base-content/60 mt-1">Proyecto: <strong>{{ project.code }}</strong></p>
+  </div>
+  <a href="{% url 'metrics:metric_history' project.pk %}" class="btn btn-outline btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+    Historial
+  </a>
 </div>
 
 {% if snapshot %}
 <!-- KPI Cards -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">SPI</div>
-    <div class="stat-value text-lg {% if spi_status == 'critical' %}text-error{% elif spi_status == 'warning' %}text-warning{% elif spi_status == 'ahead' %}text-info{% else %}text-success{% endif %}">
-      {{ snapshot.spi|floatformat:4 }}
-    </div>
-    <div class="stat-desc">Schedule Performance</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">CPI</div>
-    <div class="stat-value text-lg {% if cpi_status == 'critical' %}text-error{% elif cpi_status == 'warning' %}text-warning{% elif cpi_status == 'ahead' %}text-info{% else %}text-success{% endif %}">
-      {{ snapshot.cpi|floatformat:4 }}
-    </div>
-    <div class="stat-desc">Cost Performance</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">EAC</div>
-    <div class="stat-value text-sm">{{ snapshot.eac|cop_format }}</div>
-    <div class="stat-desc">Estimate at Completion</div>
-  </div>
-  <div class="stat bg-base-100 rounded-box shadow">
-    <div class="stat-title">Avance</div>
-    <div class="stat-value text-lg">{{ snapshot.overall_progress_pct|floatformat:1 }}%</div>
-    <div class="stat-desc">vs {{ snapshot.expected_progress_pct|floatformat:1 }}% esperado</div>
-  </div>
+  {% include "components/stat_card.html" with title="SPI" value=snapshot.spi|floatformat:4 color_class="text-success" icon="chart-bar" desc="Schedule Performance" %}
+  {% include "components/stat_card.html" with title="CPI" value=snapshot.cpi|floatformat:4 color_class="text-success" icon="chart-bar" desc="Cost Performance" %}
+  {% include "components/stat_card.html" with title="EAC" value=snapshot.eac|cop_format icon="banknotes" desc="Estimate at Completion" %}
+  {% include "components/stat_card.html" with title="Avance" value=snapshot.overall_progress_pct|floatformat:1 icon="percent" desc=snapshot.expected_progress_pct|floatformat:1 %}
 </div>
 
 <!-- EVM Detail Table -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-  <div class="card bg-base-100 shadow">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h3 class="font-bold mb-4">Valores Base</h3>
-      <div class="grid grid-cols-2 gap-2 text-sm">
-        <span class="font-medium">BAC:</span><span>{{ snapshot.bac|cop_format }}</span>
-        <span class="font-medium">Planned Value (PV):</span><span>{{ snapshot.planned_value|cop_format }}</span>
-        <span class="font-medium">Earned Value (EV):</span><span>{{ snapshot.earned_value|cop_format }}</span>
-        <span class="font-medium">Actual Cost (AC):</span><span>{{ snapshot.actual_cost|cop_format }}</span>
-      </div>
+      <h3 class="font-bold flex items-center gap-2 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+        Valores Base
+      </h3>
+      <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+        <dt class="font-medium text-base-content/70">BAC</dt><dd>{{ snapshot.bac|cop_format }}</dd>
+        <dt class="font-medium text-base-content/70">Planned Value (PV)</dt><dd>{{ snapshot.planned_value|cop_format }}</dd>
+        <dt class="font-medium text-base-content/70">Earned Value (EV)</dt><dd>{{ snapshot.earned_value|cop_format }}</dd>
+        <dt class="font-medium text-base-content/70">Actual Cost (AC)</dt><dd>{{ snapshot.actual_cost|cop_format }}</dd>
+      </dl>
     </div>
   </div>
-  <div class="card bg-base-100 shadow">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h3 class="font-bold mb-4">Varianzas y Proyecciones</h3>
-      <div class="grid grid-cols-2 gap-2 text-sm">
-        <span class="font-medium">SV:</span><span class="{% if snapshot.schedule_variance < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.schedule_variance|cop_format }}</span>
-        <span class="font-medium">CV:</span><span class="{% if snapshot.cost_variance < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.cost_variance|cop_format }}</span>
-        <span class="font-medium">ETC:</span><span>{{ snapshot.etc|cop_format }}</span>
-        <span class="font-medium">VAC:</span><span class="{% if snapshot.vac < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.vac|cop_format }}</span>
-      </div>
+      <h3 class="font-bold flex items-center gap-2 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/></svg>
+        Varianzas y Proyecciones
+      </h3>
+      <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+        <dt class="font-medium text-base-content/70">SV</dt>
+        <dd class="{% if snapshot.schedule_variance < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.schedule_variance|cop_format }}</dd>
+        <dt class="font-medium text-base-content/70">CV</dt>
+        <dd class="{% if snapshot.cost_variance < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.cost_variance|cop_format }}</dd>
+        <dt class="font-medium text-base-content/70">ETC</dt><dd>{{ snapshot.etc|cop_format }}</dd>
+        <dt class="font-medium text-base-content/70">VAC</dt>
+        <dd class="{% if snapshot.vac < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.vac|cop_format }}</dd>
+      </dl>
     </div>
   </div>
 </div>
 
 <!-- S-Curve Chart -->
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body">
-    <h2 class="card-title">Curva S</h2>
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/></svg>
+        Curva S
+      </h2>
+      <div class="flex gap-1">
+        <button class="btn btn-ghost btn-xs" onclick="scurveChart.dispatchAction({type:'dataZoom',start:0,end:100})">Reset</button>
+        <button class="btn btn-ghost btn-xs" onclick="downloadChart()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    </div>
     <div id="scurve-chart" style="height:400px;"></div>
   </div>
 </div>
 {% else %}
-<div class="alert alert-info">
-  <span>No hay snapshots de métricas para este proyecto. Ejecute el cálculo EVM para generar datos.</span>
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body">
+    {% include "components/empty_state.html" with message="No hay snapshots de métricas para este proyecto. Ejecute el cálculo EVM para generar datos." icon="chart" %}
+  </div>
 </div>
 {% endif %}
 {% endblock %}
@@ -80,22 +91,31 @@
 {% if snapshot %}
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script>
+  let scurveChart;
+  function downloadChart() {
+    if (scurveChart) {
+      const url = scurveChart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+      const a = document.createElement('a'); a.href = url; a.download = 'curva-s-{{ project.code }}.png'; a.click();
+    }
+  }
   fetch("{% url 'metrics:scurve_data' project.pk %}")
     .then(r => r.json())
     .then(data => {
-      const chart = echarts.init(document.getElementById('scurve-chart'));
-      chart.setOption({
+      const colors = typeof getChartColors === 'function' ? getChartColors() : {};
+      scurveChart = echarts.init(document.getElementById('scurve-chart'));
+      scurveChart.setOption({
         tooltip: { trigger: 'axis' },
-        legend: { data: ['Valor Planeado', 'Valor Ganado', 'Costo Real'] },
-        xAxis: { type: 'category', data: data.dates },
-        yAxis: { type: 'value' },
+        legend: { data: ['Valor Planeado', 'Valor Ganado', 'Costo Real'], textStyle: { color: colors.textColor || '#666' } },
+        xAxis: { type: 'category', data: data.dates, axisLabel: { color: colors.textColor || '#666' } },
+        yAxis: { type: 'value', axisLabel: { color: colors.textColor || '#666' }, splitLine: { lineStyle: { color: colors.splitLineColor || '#e0e0e0' } } },
+        dataZoom: [{ type: 'inside' }],
         series: [
-          { name: 'Valor Planeado', type: 'line', data: data.planned_value, smooth: true },
-          { name: 'Valor Ganado', type: 'line', data: data.earned_value, smooth: true },
+          { name: 'Valor Planeado', type: 'line', data: data.planned_value, smooth: true, areaStyle: { opacity: 0.1 } },
+          { name: 'Valor Ganado', type: 'line', data: data.earned_value, smooth: true, areaStyle: { opacity: 0.1 } },
           { name: 'Costo Real', type: 'line', data: data.actual_cost, smooth: true, lineStyle: { type: 'dashed' } }
         ]
       });
-      window.addEventListener('resize', () => chart.resize());
+      window.addEventListener('resize', () => scurveChart.resize());
     });
 </script>
 {% endif %}

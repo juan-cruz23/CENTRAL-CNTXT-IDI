@@ -1,26 +1,41 @@
 {% extends "base/base.html" %}
 {% block title %}Capacidad del Equipo{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
   <h1 class="text-2xl font-bold">Capacidad del Equipo</h1>
   <div class="flex gap-2">
-    <a href="{% url 'capacity:heatmap' %}" class="btn btn-outline btn-sm">Mapa de Calor</a>
-    <a href="{% url 'capacity:matrix' %}" class="btn btn-outline btn-sm">Matriz</a>
-    <a href="{% url 'capacity:allocate' %}" class="btn btn-primary btn-sm">Asignar</a>
+    <a href="{% url 'capacity:heatmap' %}" class="btn btn-outline btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
+      Mapa de Calor
+    </a>
+    <a href="{% url 'capacity:matrix' %}" class="btn btn-outline btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+      Matriz
+    </a>
+    <a href="{% url 'capacity:allocate' %}" class="btn btn-primary btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+      Asignar
+    </a>
   </div>
 </div>
 
-<div class="card bg-base-100 shadow-xl">
-  <div class="card-body">
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Profesional</th><th>Horas/Semana</th><th>Horas Asignadas</th><th>Dedicación</th><th>Proyectos</th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Profesional</th>
+            <th class="text-xs uppercase tracking-wider">Horas/Semana</th>
+            <th class="text-xs uppercase tracking-wider">Horas Asignadas</th>
+            <th class="text-xs uppercase tracking-wider">Dedicación</th>
+            <th class="text-xs uppercase tracking-wider">Proyectos</th>
+          </tr>
         </thead>
         <tbody>
           {% for item in overview_data %}
-          <tr>
-            <td>{{ item.user.get_full_name }}</td>
+          <tr class="hover">
+            <td class="font-medium">{{ item.user.get_full_name }}</td>
             <td>{{ item.available_hours }}</td>
             <td>{{ item.allocated_hours }}</td>
             <td>
@@ -29,10 +44,10 @@
                 <span class="text-sm {% if item.allocation_pct > 100 %}text-error font-bold{% endif %}">{{ item.allocation_pct }}%</span>
               </div>
             </td>
-            <td>{{ item.project_count }}</td>
+            <td><span class="badge badge-ghost badge-sm">{{ item.project_count }}</span></td>
           </tr>
           {% empty %}
-          <tr><td colspan="5" class="text-center py-8">No hay datos de capacidad.</td></tr>
+          <tr><td colspan="5">{% include "components/empty_state.html" with message="No hay datos de capacidad del equipo." icon="users" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

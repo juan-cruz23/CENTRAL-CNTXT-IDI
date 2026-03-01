@@ -1,9 +1,10 @@
 from django import forms
 
+from apps.common.forms import DaisyUIFormMixin
 from apps.satisfaction.models import SatisfactionMeasurement, SatisfactionSurvey
 
 
-class SatisfactionMeasurementForm(forms.ModelForm):
+class SatisfactionMeasurementForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = SatisfactionMeasurement
         fields = [
@@ -30,7 +31,7 @@ class SatisfactionMeasurementForm(forms.ModelForm):
         }
 
 
-class SatisfactionSurveyForm(forms.ModelForm):
+class SatisfactionSurveyForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = SatisfactionSurvey
         fields = [

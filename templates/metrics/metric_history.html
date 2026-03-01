@@ -2,21 +2,28 @@
 {% load common_tags %}
 {% block title %}Historial de Métricas{% endblock %}
 {% block breadcrumb %}
-<div class="breadcrumbs text-sm mb-4">
-  <ul>
-    <li><a href="{% url 'metrics:project_metrics' project.pk %}">Métricas {{ project.code }}</a></li>
-    <li>Historial</li>
-  </ul>
-</div>
+{% include "components/breadcrumb.html" with parent_url=metrics_url parent_label="Métricas "|add:project.code current="Historial" %}
 {% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Historial de Métricas - {{ project.code }}</h1>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Historial de Métricas - "|add:project.code %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra table-sm">
-        <thead>
-          <tr><th>Fecha</th><th>PV</th><th>EV</th><th>AC</th><th>SPI</th><th>CPI</th><th>SV</th><th>CV</th><th>EAC</th><th>Avance</th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Fecha</th>
+            <th class="text-xs uppercase tracking-wider">PV</th>
+            <th class="text-xs uppercase tracking-wider">EV</th>
+            <th class="text-xs uppercase tracking-wider">AC</th>
+            <th class="text-xs uppercase tracking-wider">SPI</th>
+            <th class="text-xs uppercase tracking-wider">CPI</th>
+            <th class="text-xs uppercase tracking-wider">SV</th>
+            <th class="text-xs uppercase tracking-wider">CV</th>
+            <th class="text-xs uppercase tracking-wider">EAC</th>
+            <th class="text-xs uppercase tracking-wider">Avance</th>
+          </tr>
         </thead>
         <tbody>
           {% for snap in snapshots %}
@@ -25,28 +32,20 @@
             <td class="text-right">{{ snap.planned_value|cop_format }}</td>
             <td class="text-right">{{ snap.earned_value|cop_format }}</td>
             <td class="text-right">{{ snap.actual_cost|cop_format }}</td>
-            <td class="{% if snap.spi < 0.9 %}text-error{% elif snap.spi < 1.0 %}text-warning{% else %}text-success{% endif %}">{{ snap.spi|floatformat:4 }}</td>
-            <td class="{% if snap.cpi < 0.9 %}text-error{% elif snap.cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">{{ snap.cpi|floatformat:4 }}</td>
+            <td class="{% if snap.spi < 0.9 %}text-error font-bold{% elif snap.spi < 1.0 %}text-warning{% else %}text-success{% endif %}">{{ snap.spi|floatformat:4 }}</td>
+            <td class="{% if snap.cpi < 0.9 %}text-error font-bold{% elif snap.cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">{{ snap.cpi|floatformat:4 }}</td>
             <td class="text-right {% if snap.schedule_variance < 0 %}text-error{% endif %}">{{ snap.schedule_variance|cop_format }}</td>
             <td class="text-right {% if snap.cost_variance < 0 %}text-error{% endif %}">{{ snap.cost_variance|cop_format }}</td>
             <td class="text-right">{{ snap.eac|cop_format }}</td>
             <td>{{ snap.overall_progress_pct|floatformat:1 }}%</td>
           </tr>
           {% empty %}
-          <tr><td colspan="10" class="text-center py-8">No hay registros históricos.</td></tr>
+          <tr><td colspan="10">{% include "components/empty_state.html" with message="No hay registros históricos de métricas." icon="chart" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    {% if is_paginated %}
-    <div class="flex justify-center py-4">
-      <div class="join">
-        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">Anterior</a>{% endif %}
-        <span class="join-item btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">Siguiente</a>{% endif %}
-      </div>
-    </div>
-    {% endif %}
+    {% if is_paginated %}{% include "components/pagination.html" with page_obj=page_obj %}{% endif %}
   </div>
 </div>
 {% endblock %}

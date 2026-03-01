@@ -1,17 +1,36 @@
 {% extends "base/base.html" %}
 {% block title %}Eliminar Plantilla{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/services/templates/" parent_label="Plantillas" current="Eliminar" %}
+{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Eliminar Plantilla de Servicio</h1>
-<div class="card bg-base-100 shadow-xl max-w-lg">
-  <div class="card-body">
-    <p class="mb-4">¿Está seguro que desea eliminar la plantilla <strong>{{ object.code }} - {{ object.name }}</strong>?</p>
-    <form method="post">
-      {% csrf_token %}
-      <div class="flex gap-2">
-        <button type="submit" class="btn btn-error">Eliminar</button>
-        <a href="{% url 'services:servicetemplate_list' %}" class="btn btn-ghost">Cancelar</a>
+<div class="max-w-lg mx-auto">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body text-center">
+      <!-- Warning icon -->
+      <div class="flex justify-center mb-4">
+        <div class="bg-error/10 rounded-full p-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-error" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+          </svg>
+        </div>
       </div>
-    </form>
+      <h2 class="text-xl font-bold mb-2">Eliminar Plantilla de Servicio</h2>
+      <p class="text-base-content/70 mb-6">
+        ¿Está seguro que desea eliminar la plantilla <strong class="text-base-content">{{ object.code }} - {{ object.name }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="flex justify-center gap-3">
+          <a href="{% url 'services:servicetemplate_list' %}" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-error">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            Eliminar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}

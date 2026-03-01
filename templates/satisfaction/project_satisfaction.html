@@ -2,30 +2,49 @@
 {% load common_tags %}
 {% block title %}Satisfacción - {{ project.code }}{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
   <h1 class="text-2xl font-bold">Satisfacción - {{ project.code }}</h1>
   <div class="flex gap-2">
-    <a href="{% url 'satisfaction:cve_create' project.pk %}" class="btn btn-primary btn-sm">Nueva Medición CVE</a>
+    <a href="{% url 'satisfaction:cve_create' project.pk %}" class="btn btn-primary btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+      Nueva Medición CVE
+    </a>
     <a href="{% url 'satisfaction:survey_create' project.pk %}" class="btn btn-outline btn-sm">Nueva Encuesta</a>
   </div>
 </div>
 
 {% if radar_data %}
-<div class="card bg-base-100 shadow-xl mb-6">
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
   <div class="card-body">
-    <h2 class="card-title">Última Encuesta</h2>
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+      Última Encuesta
+    </h2>
     <div id="radar-chart" style="height:350px;"></div>
   </div>
 </div>
 {% endif %}
 
-<div class="card bg-base-100 shadow-xl">
-  <div class="card-body">
-    <h2 class="card-title">Historial de Mediciones</h2>
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+        Historial de Mediciones
+      </h2>
+    </div>
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Fecha</th><th>Hito</th><th>Emoción %</th><th>Frase %</th><th>Objeto %</th><th>CVE</th><th>Encuesta</th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Fecha</th>
+            <th class="text-xs uppercase tracking-wider">Hito</th>
+            <th class="text-xs uppercase tracking-wider">Emoción %</th>
+            <th class="text-xs uppercase tracking-wider">Frase %</th>
+            <th class="text-xs uppercase tracking-wider">Objeto %</th>
+            <th class="text-xs uppercase tracking-wider">CVE</th>
+            <th class="text-xs uppercase tracking-wider">Encuesta</th>
+          </tr>
         </thead>
         <tbody>
           {% for m in measurements %}
@@ -39,7 +58,7 @@
             <td>{% if m.survey %}<span class="badge badge-success badge-sm">{{ m.survey.total_score_pct }}%</span>{% else %}<span class="badge badge-ghost badge-sm">Pendiente</span>{% endif %}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" class="text-center py-8">No hay mediciones de satisfacción.</td></tr>
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay mediciones de satisfacción." icon="heart" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -52,6 +71,7 @@
 {% if radar_data %}
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script>
+  const colors = getChartColors();
   const chart = echarts.init(document.getElementById('radar-chart'));
   const data = {{ radar_data|safe }};
   chart.setOption({
@@ -63,9 +83,12 @@
         { name: 'Relación Equipo', max: 100 },
         { name: 'Confianza', max: 100 },
         { name: 'Valor Percibido', max: 100 }
-      ]
+      ],
+      axisName: { color: colors.textColor },
+      splitLine: { lineStyle: { color: colors.lineColor } },
+      splitArea: { areaStyle: { color: ['transparent'] } }
     },
-    series: [{ type: 'radar', data: [{ value: data, name: 'Satisfacción' }] }]
+    series: [{ type: 'radar', data: [{ value: data, name: 'Satisfacción', areaStyle: { opacity: 0.15 } }] }]
   });
   window.addEventListener('resize', () => chart.resize());
 </script>

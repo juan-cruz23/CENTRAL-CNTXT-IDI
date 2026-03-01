@@ -2,21 +2,30 @@
 {% load common_tags %}
 {% block title %}Plantillas de Servicio{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">Plantillas de Servicio</h1>
-  <a href="{% url 'services:servicetemplate_create' %}" class="btn btn-primary">Nueva Plantilla</a>
-</div>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Plantillas de Servicio" action_url=create_url action_label="Nueva Plantilla" icon="plus" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Fase</th><th>Precio Base</th><th>Horas Est.</th><th>Estado</th><th></th></tr></thead>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Categoría</th>
+            <th class="text-xs uppercase tracking-wider">Fase</th>
+            <th class="text-xs uppercase tracking-wider">Precio Base</th>
+            <th class="text-xs uppercase tracking-wider">Horas Est.</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
         <tbody>
           {% for st in service_templates %}
           <tr class="hover">
             <td class="font-mono font-bold">{{ st.code }}</td>
             <td><a href="{% url 'services:servicetemplate_detail' st.pk %}" class="link link-primary">{{ st.name }}</a></td>
-            <td>{{ st.category.name }}</td>
+            <td><span class="badge badge-outline badge-sm">{{ st.category.name }}</span></td>
             <td>{{ st.phase.name }}</td>
             <td class="text-right">{{ st.base_unit_price|cop_format }}</td>
             <td>{{ st.estimated_hours }}</td>
@@ -29,7 +38,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="8" class="text-center py-8">No hay plantillas de servicio.</td></tr>
+          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay plantillas de servicio." action_url=create_url action_label="Nueva Plantilla" action_icon="plus" icon="cog" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

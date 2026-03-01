@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation
 
 from django import forms
 
+from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
 from apps.projects.models import Client, Project, ServiceInstance
 
@@ -41,7 +42,7 @@ class COPDecimalField(forms.DecimalField):
 # ---------------------------------------------------------------------------
 # Project form
 # ---------------------------------------------------------------------------
-class ProjectForm(forms.ModelForm):
+class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
     """Form for creating and editing projects."""
 
     total_value = COPDecimalField(
@@ -109,7 +110,7 @@ class ProjectForm(forms.ModelForm):
 # ---------------------------------------------------------------------------
 # Client form
 # ---------------------------------------------------------------------------
-class ClientForm(forms.ModelForm):
+class ClientForm(DaisyUIFormMixin, forms.ModelForm):
     """Form for creating and editing clients."""
 
     class Meta:
@@ -130,7 +131,7 @@ class ClientForm(forms.ModelForm):
 # ---------------------------------------------------------------------------
 # ServiceInstance form
 # ---------------------------------------------------------------------------
-class ServiceInstanceForm(forms.ModelForm):
+class ServiceInstanceForm(DaisyUIFormMixin, forms.ModelForm):
     """
     Form for editing service instances.
     Financial fields accept COP-formatted input.

@@ -1,9 +1,20 @@
-<tr>
-  <td colspan="3">
-    <form method="post">
+<tr class="bg-base-200/30">
+  <td colspan="5">
+    <form method="post" class="flex items-end gap-3 p-3">
       {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+      {% for field in form %}
+      <div class="form-control flex-1">
+        <label class="label py-0">
+          <span class="label-text text-xs">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
+        </label>
+        {{ field }}
+        {% if field.errors %}<span class="text-error text-xs">{{ field.errors.0 }}</span>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Guardar
+      </button>
     </form>
   </td>
 </tr>

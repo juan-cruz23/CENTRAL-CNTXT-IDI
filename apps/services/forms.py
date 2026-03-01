@@ -1,9 +1,10 @@
 from django import forms
 
+from apps.common.forms import DaisyUIFormMixin
 from apps.services.models import ServiceActivity, ServiceTemplate
 
 
-class ServiceTemplateForm(forms.ModelForm):
+class ServiceTemplateForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ServiceTemplate
         fields = [
@@ -32,7 +33,7 @@ class ServiceTemplateForm(forms.ModelForm):
         }
 
 
-class ServiceActivityForm(forms.ModelForm):
+class ServiceActivityForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ServiceActivity
         fields = [

@@ -1,46 +1,73 @@
 {% extends "base/base.html" %}
 {% block title %}RFI {{ rfi.code }}{% endblock %}
 {% block breadcrumb %}
-<div class="breadcrumbs text-sm mb-4">
-  <ul>
-    <li><a href="{% url 'rfis:rfi_list' project_pk %}">RFIs</a></li>
-    <li>{{ rfi.code|default:"Detalle" }}</li>
-  </ul>
-</div>
+{% include "components/breadcrumb.html" with parent_url="/rfis/" parent_label="RFIs" current=rfi.code|default:"Detalle" %}
 {% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">RFI: {{ rfi.code|default:"Sin código" }}</h1>
-  <a href="{% url 'rfis:rfi_update' project_pk rfi.pk %}" class="btn btn-outline btn-sm">Editar</a>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">RFI: {{ rfi.code|default:"Sin código" }}</h1>
+    <p class="text-base-content/60 mt-1">Creado: {{ rfi.created_at|date:"d/m/Y H:i" }}</p>
+  </div>
+  <a href="{% url 'rfis:rfi_update' project_pk rfi.pk %}" class="btn btn-outline btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+    Editar
+  </a>
+</div>
+
+<!-- Status Timeline -->
+<div class="flex items-center gap-4 mb-6">
+  <ul class="steps steps-horizontal">
+    <li class="step step-primary">
+      <span class="text-xs">Abierto</span>
+    </li>
+    <li class="step {% if rfi.status == 'IN_PROGRESS' or rfi.status == 'CLOSED' %}step-primary{% endif %}">
+      <span class="text-xs">En Progreso</span>
+    </li>
+    <li class="step {% if rfi.status == 'CLOSED' %}step-primary{% endif %}">
+      <span class="text-xs">Cerrado</span>
+    </li>
+  </ul>
+  <span class="badge {% if rfi.status == 'OPEN' %}badge-warning{% elif rfi.status == 'CLOSED' %}badge-success{% else %}badge-info{% endif %} badge-lg">
+    {{ rfi.get_status_display }}
+  </span>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div class="card bg-base-100 shadow">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h3 class="font-bold mb-4">Información</h3>
-      <div class="grid grid-cols-2 gap-2 text-sm">
-        <span class="font-medium">Código:</span><span class="font-mono">{{ rfi.code|default:"-" }}</span>
-        <span class="font-medium">Servicio:</span><span>{{ rfi.service_instance.name|default:"-" }}</span>
-        <span class="font-medium">Profesional:</span><span>{{ rfi.professional.get_full_name|default:"-" }}</span>
-        <span class="font-medium">Disciplina Ext.:</span><span>{{ rfi.external_discipline|default:"-" }}</span>
-        <span class="font-medium">Horas Invertidas:</span><span>{{ rfi.time_invested_hours }}</span>
-        <span class="font-medium">Estado:</span>
-        <span>
-          <span class="badge {% if rfi.status == 'OPEN' %}badge-warning{% elif rfi.status == 'CLOSED' %}badge-success{% else %}badge-ghost{% endif %} badge-sm">{{ rfi.get_status_display }}</span>
-        </span>
-        <span class="font-medium">Creado:</span><span>{{ rfi.created_at|date:"d/m/Y H:i" }}</span>
-      </div>
+      <h3 class="font-bold flex items-center gap-2 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        Información
+      </h3>
+      <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+        <dt class="font-medium text-base-content/70">Código</dt><dd class="font-mono">{{ rfi.code|default:"-" }}</dd>
+        <dt class="font-medium text-base-content/70">Servicio</dt><dd>{{ rfi.service_instance.name|default:"-" }}</dd>
+        <dt class="font-medium text-base-content/70">Profesional</dt><dd>{{ rfi.professional.get_full_name|default:"-" }}</dd>
+        <dt class="font-medium text-base-content/70">Disciplina Ext.</dt><dd>{{ rfi.external_discipline|default:"-" }}</dd>
+        <dt class="font-medium text-base-content/70">Horas Invertidas</dt><dd>{{ rfi.time_invested_hours }}</dd>
+      </dl>
     </div>
   </div>
 
-  <div class="card bg-base-100 shadow">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h3 class="font-bold mb-4">Observaciones</h3>
-      <p class="text-sm whitespace-pre-wrap">{{ rfi.observations|default:"Sin observaciones." }}</p>
+      <h3 class="font-bold flex items-center gap-2 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        Observaciones
+      </h3>
+      <div class="bg-base-200/30 rounded-lg p-4">
+        <p class="text-sm whitespace-pre-wrap">{{ rfi.observations|default:"Sin observaciones." }}</p>
+      </div>
       {% if rfi.response %}
-      <div class="divider"></div>
-      <h3 class="font-bold mb-2">Respuesta</h3>
-      <p class="text-sm whitespace-pre-wrap">{{ rfi.response }}</p>
+      <div class="divider my-3"></div>
+      <h3 class="font-bold flex items-center gap-2 mb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-success" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 017 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Respuesta
+      </h3>
+      <div class="bg-success/5 border border-success/20 rounded-lg p-4">
+        <p class="text-sm whitespace-pre-wrap">{{ rfi.response }}</p>
+      </div>
       {% endif %}
     </div>
   </div>

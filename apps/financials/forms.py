@@ -1,9 +1,10 @@
 from django import forms
 
+from apps.common.forms import DaisyUIFormMixin
 from apps.financials.models import PaymentMilestone, ProfitabilitySummary
 
 
-class PaymentMilestoneForm(forms.ModelForm):
+class PaymentMilestoneForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = PaymentMilestone
         fields = [
@@ -46,7 +47,7 @@ class PaymentMilestoneForm(forms.ModelForm):
         }
 
 
-class ProfitabilitySummaryForm(forms.ModelForm):
+class ProfitabilitySummaryForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ProfitabilitySummary
         fields = [

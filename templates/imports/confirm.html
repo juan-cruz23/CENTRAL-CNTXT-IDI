@@ -1,14 +1,47 @@
 {% extends "base/base.html" %}
 {% block title %}Confirmar importación{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/imports/" parent_label="Importar" current="Confirmar" %}
+{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Confirmar importación - Trabajo #{{ job.pk }}</h1>
-<div class="card bg-base-100 shadow-md p-6">
-  <p><strong>Tipo:</strong> {{ job.get_source_type_display }}</p>
-  <p><strong>Estado:</strong> {{ job.get_status_display }}</p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-primary mt-4">Confirmar e importar</button>
-    <a href="{% url 'imports:wizard' %}" class="btn btn-ghost">Cancelar</a>
-  </form>
+<div class="max-w-lg mx-auto">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body text-center">
+      <!-- Confirmation icon -->
+      <div class="flex justify-center mb-4">
+        <div class="bg-primary/10 rounded-full p-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-primary" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <h2 class="text-xl font-bold mb-2">Confirmar Importación</h2>
+
+      <!-- Job details -->
+      <div class="flex justify-center gap-4 text-sm mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-base-content/70">Trabajo:</span>
+          <span class="font-mono font-medium">#{{ job.pk }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-base-content/70">Tipo:</span>
+          <span class="badge badge-outline badge-sm">{{ job.get_source_type_display }}</span>
+        </div>
+      </div>
+      <p class="text-base-content/70 mb-6">
+        ¿Está seguro que desea proceder con la importación? Esta acción creará o actualizará los registros correspondientes.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="flex justify-center gap-3">
+          <a href="{% url 'imports:wizard' %}" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            Confirmar e Importar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

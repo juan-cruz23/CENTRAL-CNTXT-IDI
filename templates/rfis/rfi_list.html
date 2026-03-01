@@ -1,16 +1,22 @@
 {% extends "base/base.html" %}
 {% block title %}RFIs{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">RFIs</h1>
-  <a href="{% url 'rfis:rfi_create' project_pk %}" class="btn btn-primary btn-sm">Nuevo RFI</a>
-</div>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="RFIs" action_url=create_url action_label="Nuevo RFI" icon="plus" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Código</th><th>Servicio</th><th>Profesional</th><th>Disciplina Ext.</th><th>Horas</th><th>Estado</th><th></th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Servicio</th>
+            <th class="text-xs uppercase tracking-wider">Profesional</th>
+            <th class="text-xs uppercase tracking-wider">Disciplina Ext.</th>
+            <th class="text-xs uppercase tracking-wider">Horas</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
           {% for rfi in rfis %}
@@ -26,12 +32,14 @@
               </span>
             </td>
             <td>
-              <a href="{% url 'rfis:rfi_detail' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Ver</a>
-              <a href="{% url 'rfis:rfi_update' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+              <div class="flex gap-1">
+                <a href="{% url 'rfis:rfi_detail' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Ver</a>
+                <a href="{% url 'rfis:rfi_update' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+              </div>
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" class="text-center py-8">No hay RFIs registrados.</td></tr>
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay RFIs registrados." action_url=create_url action_label="Nuevo RFI" action_icon="plus" icon="question" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

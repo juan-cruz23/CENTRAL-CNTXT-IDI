@@ -2,19 +2,34 @@
 {% load common_tags %}
 {% block title %}Financiero - Proyecto{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
   <h1 class="text-2xl font-bold">Resumen Financiero</h1>
-  <a href="{% url 'financials:payment_list' project_pk %}" class="btn btn-outline btn-sm">Ver Hitos de Pago</a>
+  <a href="{% url 'financials:payment_list' project_pk %}" class="btn btn-outline btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+    Ver Hitos de Pago
+  </a>
 </div>
 
 <!-- Payment Milestones Summary -->
-<div class="card bg-base-100 shadow-xl mb-6">
-  <div class="card-body">
-    <h2 class="card-title">Hitos de Pago</h2>
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+        Hitos de Pago
+      </h2>
+    </div>
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Concepto</th><th>Propuesto</th><th>Ejecutado</th><th>Recaudado</th><th>Estado</th><th>Fecha Factura</th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Concepto</th>
+            <th class="text-xs uppercase tracking-wider">Propuesto</th>
+            <th class="text-xs uppercase tracking-wider">Ejecutado</th>
+            <th class="text-xs uppercase tracking-wider">Recaudado</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Fecha Factura</th>
+          </tr>
         </thead>
         <tbody>
           {% for pm in payment_milestones %}
@@ -27,7 +42,7 @@
             <td>{{ pm.billing_date|date:"d/m/Y"|default:"-" }}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="6" class="text-center py-4">Sin hitos de pago registrados.</td></tr>
+          <tr><td colspan="6">{% include "components/empty_state.html" with message="Sin hitos de pago registrados." icon="banknotes" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -36,13 +51,26 @@
 </div>
 
 <!-- Profitability -->
-<div class="card bg-base-100 shadow-xl">
-  <div class="card-body">
-    <h2 class="card-title">Rentabilidad</h2>
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+        Rentabilidad
+      </h2>
+    </div>
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Hito</th><th>Valor</th><th>Costos</th><th>Ingreso</th><th>Utilidad</th><th>Margen %</th><th>Verificado</th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Hito</th>
+            <th class="text-xs uppercase tracking-wider">Valor</th>
+            <th class="text-xs uppercase tracking-wider">Costos</th>
+            <th class="text-xs uppercase tracking-wider">Ingreso</th>
+            <th class="text-xs uppercase tracking-wider">Utilidad</th>
+            <th class="text-xs uppercase tracking-wider">Margen %</th>
+            <th class="text-xs uppercase tracking-wider">Verificado</th>
+          </tr>
         </thead>
         <tbody>
           {% for ps in profitability_summaries %}
@@ -52,11 +80,11 @@
             <td class="text-right">{{ ps.total_costs|cop_format }}</td>
             <td class="text-right">{{ ps.revenue|cop_format }}</td>
             <td class="text-right">{{ ps.utility|cop_format }}</td>
-            <td class="{% if ps.margin_pct > 20 %}text-success{% elif ps.margin_pct > 0 %}text-warning{% else %}text-error{% endif %}">{{ ps.margin_pct }}%</td>
+            <td class="font-bold {% if ps.margin_pct > 20 %}text-success{% elif ps.margin_pct > 0 %}text-warning{% else %}text-error{% endif %}">{{ ps.margin_pct }}%</td>
             <td>{% if ps.is_verified %}<span class="badge badge-success badge-sm">Si</span>{% else %}<span class="badge badge-ghost badge-sm">No</span>{% endif %}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" class="text-center py-4">Sin datos de rentabilidad.</td></tr>
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="Sin datos de rentabilidad." icon="chart" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

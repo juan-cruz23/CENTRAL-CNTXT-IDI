@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" :data-theme="$store.theme.current" x-data data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,20 +7,48 @@
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5/full.css" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.store('theme', {
+        current: localStorage.getItem('theme') || 'light',
+        toggle() {
+          this.current = this.current === 'light' ? 'dark' : 'light';
+          localStorage.setItem('theme', this.current);
+        },
+        get isDark() { return this.current === 'dark'; }
+      });
+      document.documentElement.setAttribute('data-theme', Alpine.store('theme').current);
+    });
+  </script>
+  <style>[x-cloak] { display: none !important; }</style>
 </head>
-<body class="min-h-screen bg-base-200 flex items-center justify-center p-4">
-  <div class="card bg-base-100 shadow-xl w-full max-w-lg">
+<body class="min-h-screen bg-base-200 flex items-center justify-center p-4 transition-colors duration-200">
+  <!-- Dark mode toggle -->
+  <div class="absolute top-4 right-4">
+    <button @click="$store.theme.toggle()" class="btn btn-ghost btn-sm btn-square">
+      <svg x-show="!$store.theme.isDark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+      <svg x-show="$store.theme.isDark" x-cloak xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+    </button>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl border border-base-300/50 w-full max-w-lg">
+    <!-- Brand header -->
+    <div class="bg-gradient-to-r from-primary to-secondary text-primary-content p-6 rounded-t-2xl text-center">
+      <h1 class="text-2xl font-bold">CNTXT Casa de Diseño</h1>
+      <p class="text-sm opacity-80 mt-1">Encuesta de Satisfacción del Cliente</p>
+    </div>
     <div class="card-body">
-      <h1 class="text-2xl font-bold text-center mb-2">Encuesta de Satisfacción</h1>
-      <p class="text-center text-base-content/60 mb-6">CNTXT Casa de Diseño</p>
       <form method="post">
         {% csrf_token %}
         {% for field in form %}
         <div class="form-control mb-4">
-          <label class="label"><span class="label-text">{{ field.label }}</span></label>
+          <label class="label">
+            <span class="label-text font-medium">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
+          </label>
           {{ field }}
           {% if field.help_text %}<span class="text-sm text-base-content/60 mt-1">{{ field.help_text }}</span>{% endif %}
-          {% if field.errors %}<span class="text-error text-sm">{{ field.errors.0 }}</span>{% endif %}
+          {% if field.errors %}<span class="text-error text-sm mt-1">{{ field.errors.0 }}</span>{% endif %}
         </div>
         {% endfor %}
         <button type="submit" class="btn btn-primary w-full mt-4">Enviar Encuesta</button>

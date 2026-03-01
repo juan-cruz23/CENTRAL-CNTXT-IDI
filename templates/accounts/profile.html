@@ -1,13 +1,21 @@
 {% extends "base/base.html" %}
 {% block title %}Mi Perfil{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'dashboards:home' %}">Dashboard</a></li>
+    <li>Mi Perfil</li>
+  </ul>
+</div>
+{% endblock %}
 {% block content %}
 <div class="max-w-2xl mx-auto">
   <h1 class="text-2xl font-bold mb-6">Mi Perfil</h1>
-  <div class="card bg-base-100 shadow-xl">
+  <div class="card bg-base-100 shadow-sm border border-base-300/50">
     <div class="card-body">
-      <div class="flex items-center gap-4 mb-6">
+      <div class="flex items-center gap-4 mb-6 pb-6 border-b border-base-300/50">
         <div class="avatar placeholder">
-          <div class="bg-primary text-primary-content w-16 rounded-full">
+          <div class="bg-primary text-primary-content w-16 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
             <span class="text-2xl">{{ user.first_name|first }}{{ user.last_name|first }}</span>
           </div>
         </div>
@@ -18,14 +26,23 @@
       </div>
       <form method="post">
         {% csrf_token %}
-        {% for field in form %}
-        <div class="form-control mb-4">
-          <label class="label"><span class="label-text">{{ field.label }}</span></label>
-          {{ field }}
-          {% if field.errors %}<span class="text-error text-sm">{{ field.errors.0 }}</span>{% endif %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for field in form %}
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
+            </label>
+            {{ field }}
+            {% if field.help_text %}<span class="text-sm text-base-content/60 mt-1">{{ field.help_text }}</span>{% endif %}
+            {% if field.errors %}<span class="text-error text-sm mt-1">{{ field.errors.0 }}</span>{% endif %}
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary">Guardar</button>
+        <div class="divider"></div>
+        <div class="flex justify-end gap-2">
+          <a href="{% url 'dashboards:home' %}" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
       </form>
     </div>
   </div>

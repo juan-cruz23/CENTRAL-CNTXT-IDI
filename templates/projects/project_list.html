@@ -2,34 +2,40 @@
 {% load common_tags %}
 {% block title %}Proyectos{% endblock %}
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold">Proyectos</h1>
-  <a href="{% url 'projects:create' %}" class="btn btn-primary">Nuevo Proyecto</a>
-</div>
+{% include "components/page_header.html" with title="Proyectos" action_url=create_url action_label="Nuevo Proyecto" icon="plus" %}
 
 <!-- Filters -->
-<div class="flex gap-2 mb-4" x-data="{ status: '{{ request.GET.status|default:'' }}' }">
-  <a href="{% url 'projects:list' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-ghost{% endif %}">Todos</a>
-  <a href="?status=ACTIVE" class="btn btn-sm {% if request.GET.status == 'ACTIVE' %}btn-primary{% else %}btn-ghost{% endif %}">Activos</a>
-  <a href="?status=PLANNING" class="btn btn-sm {% if request.GET.status == 'PLANNING' %}btn-primary{% else %}btn-ghost{% endif %}">Planeación</a>
-  <a href="?status=PAUSED" class="btn btn-sm {% if request.GET.status == 'PAUSED' %}btn-primary{% else %}btn-ghost{% endif %}">Pausados</a>
-  <a href="?status=COMPLETED" class="btn btn-sm {% if request.GET.status == 'COMPLETED' %}btn-primary{% else %}btn-ghost{% endif %}">Completados</a>
+<div class="flex flex-col sm:flex-row gap-3 mb-4">
+  <div class="flex flex-wrap gap-1">
+    <a href="{% url 'projects:list' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-ghost{% endif %}">Todos</a>
+    <a href="?status=ACTIVE" class="btn btn-sm {% if request.GET.status == 'ACTIVE' %}btn-primary{% else %}btn-ghost{% endif %}">Activos</a>
+    <a href="?status=PLANNING" class="btn btn-sm {% if request.GET.status == 'PLANNING' %}btn-primary{% else %}btn-ghost{% endif %}">Planeación</a>
+    <a href="?status=PAUSED" class="btn btn-sm {% if request.GET.status == 'PAUSED' %}btn-primary{% else %}btn-ghost{% endif %}">Pausados</a>
+    <a href="?status=COMPLETED" class="btn btn-sm {% if request.GET.status == 'COMPLETED' %}btn-primary{% else %}btn-ghost{% endif %}">Completados</a>
+  </div>
+  <div class="sm:ml-auto sm:max-w-xs flex-1">
+    <label class="input input-bordered input-sm flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+      <input type="text" placeholder="Buscar proyecto..." class="grow bg-transparent border-none outline-none text-sm"
+             hx-get="{% url 'projects:list' %}" hx-trigger="keyup changed delay:300ms"
+             hx-target="#project-table-body" name="q" value="{{ request.GET.q }}" />
+    </label>
+  </div>
 </div>
 
-<!-- Project Table -->
-<div class="card bg-base-100 shadow-xl">
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
+        <thead class="bg-base-200/50">
           <tr>
-            <th>Código</th>
-            <th>Proyecto</th>
-            <th>Cliente</th>
-            <th>Estado</th>
-            <th>Avance</th>
-            <th>Valor</th>
-            <th>Líder</th>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Cliente</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Avance</th>
+            <th class="text-xs uppercase tracking-wider">Valor</th>
+            <th class="text-xs uppercase tracking-wider">Líder</th>
             <th></th>
           </tr>
         </thead>
@@ -54,8 +60,10 @@
             <td>{{ project.leader.get_full_name|default:"-" }}</td>
             <td>
               <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn btn-ghost btn-xs">...</div>
-                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-40 border border-base-300">
                   <li><a href="{% url 'dashboards:project' project.pk %}">Dashboard</a></li>
                   <li><a href="{% url 'projects:detail' project.pk %}">Detalle</a></li>
                   <li><a href="{% url 'projects:update' project.pk %}">Editar</a></li>
@@ -64,11 +72,12 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="8" class="text-center py-8">No hay proyectos.</td></tr>
+          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay proyectos." action_url=create_url action_label="Crear Proyecto" action_icon="plus" icon="folder" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
+    {% if is_paginated %}{% include "components/pagination.html" with page_obj=page_obj %}{% endif %}
   </div>
 </div>
 {% endblock %}

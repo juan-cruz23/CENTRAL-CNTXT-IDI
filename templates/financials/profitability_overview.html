@@ -2,28 +2,38 @@
 {% load common_tags %}
 {% block title %}Rentabilidad General{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Rentabilidad General</h1>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Rentabilidad General" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
-          <tr><th>Proyecto</th><th>Hito</th><th>Valor</th><th>Costos</th><th>Ingreso</th><th>Utilidad</th><th>Margen %</th><th>Verificado</th></tr>
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Hito</th>
+            <th class="text-xs uppercase tracking-wider">Valor</th>
+            <th class="text-xs uppercase tracking-wider">Costos</th>
+            <th class="text-xs uppercase tracking-wider">Ingreso</th>
+            <th class="text-xs uppercase tracking-wider">Utilidad</th>
+            <th class="text-xs uppercase tracking-wider">Margen %</th>
+            <th class="text-xs uppercase tracking-wider">Verificado</th>
+          </tr>
         </thead>
         <tbody>
           {% for ps in profitability_summaries %}
           <tr>
-            <td class="font-mono">{{ ps.project.code }}</td>
+            <td class="font-mono font-bold">{{ ps.project.code }}</td>
             <td>{{ ps.milestone_name }}</td>
             <td class="text-right">{{ ps.value|cop_format }}</td>
             <td class="text-right">{{ ps.total_costs|cop_format }}</td>
             <td class="text-right">{{ ps.revenue|cop_format }}</td>
             <td class="text-right">{{ ps.utility|cop_format }}</td>
-            <td class="{% if ps.margin_pct > 20 %}text-success{% elif ps.margin_pct > 0 %}text-warning{% else %}text-error{% endif %}">{{ ps.margin_pct }}%</td>
+            <td class="font-bold {% if ps.margin_pct > 20 %}text-success{% elif ps.margin_pct > 0 %}text-warning{% else %}text-error{% endif %}">{{ ps.margin_pct }}%</td>
             <td>{% if ps.is_verified %}<span class="badge badge-success badge-sm">Si</span>{% else %}<span class="badge badge-ghost badge-sm">No</span>{% endif %}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="8" class="text-center py-8">No hay datos de rentabilidad.</td></tr>
+          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay datos de rentabilidad." icon="banknotes" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

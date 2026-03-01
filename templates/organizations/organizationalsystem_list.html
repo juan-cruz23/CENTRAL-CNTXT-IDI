@@ -1,29 +1,41 @@
 {% extends "base/base.html" %}
 {% block title %}Sistemas Organizacionales{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Sistemas Organizacionales</h1>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Sistemas Organizacionales" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
-    <table class="table table-zebra">
-      <thead><tr><th>Código</th><th>Sistema</th><th>Analogía</th><th>Líder</th><th>Estado</th><th></th></tr></thead>
-      <tbody>
-        {% for system in systems %}
-        <tr>
-          <td class="font-mono font-bold">{{ system.code }}</td>
-          <td>{{ system.name }}</td>
-          <td>{{ system.analogy|default:"-" }}</td>
-          <td>{{ system.leader.get_full_name|default:"-" }}</td>
-          <td>
-            {% if system.is_active %}<span class="badge badge-success badge-sm">Activo</span>
-            {% else %}<span class="badge badge-ghost badge-sm">Inactivo</span>{% endif %}
-          </td>
-          <td><a href="{% url 'dashboards:system' system.code %}" class="btn btn-ghost btn-xs">Dashboard</a></td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="6" class="text-center py-8">No hay sistemas registrados.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Sistema</th>
+            <th class="text-xs uppercase tracking-wider">Analogía</th>
+            <th class="text-xs uppercase tracking-wider">Líder</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for system in systems %}
+          <tr class="hover">
+            <td class="font-mono font-bold">{{ system.code }}</td>
+            <td>{{ system.name }}</td>
+            <td>{{ system.analogy|default:"-" }}</td>
+            <td>{{ system.leader.get_full_name|default:"-" }}</td>
+            <td>
+              {% if system.is_active %}<span class="badge badge-success badge-sm">Activo</span>
+              {% else %}<span class="badge badge-ghost badge-sm">Inactivo</span>{% endif %}
+            </td>
+            <td><a href="{% url 'dashboards:system' system.code %}" class="btn btn-ghost btn-xs">Dashboard</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay sistemas organizacionales." icon="building" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}

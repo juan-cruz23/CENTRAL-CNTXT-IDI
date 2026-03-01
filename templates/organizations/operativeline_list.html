@@ -1,27 +1,37 @@
 {% extends "base/base.html" %}
 {% block title %}Líneas Operativas{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Líneas Operativas</h1>
-<div class="card bg-base-100 shadow-xl">
+{% include "components/page_header.html" with title="Líneas Operativas" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
-    <table class="table table-zebra">
-      <thead><tr><th>Código</th><th>Nombre</th><th>Unidad de Negocio</th><th>Estado</th></tr></thead>
-      <tbody>
-        {% for line in operative_lines %}
-        <tr>
-          <td class="font-mono font-bold">{{ line.code }}</td>
-          <td>{{ line.name }}</td>
-          <td>{{ line.business_unit.name }}</td>
-          <td>
-            {% if line.is_active %}<span class="badge badge-success badge-sm">Activo</span>
-            {% else %}<span class="badge badge-ghost badge-sm">Inactivo</span>{% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4" class="text-center py-8">No hay líneas operativas.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Unidad de Negocio</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in operative_lines %}
+          <tr class="hover">
+            <td class="font-mono font-bold">{{ line.code }}</td>
+            <td>{{ line.name }}</td>
+            <td>{{ line.business_unit.name }}</td>
+            <td>
+              {% if line.is_active %}<span class="badge badge-success badge-sm">Activo</span>
+              {% else %}<span class="badge badge-ghost badge-sm">Inactivo</span>{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">{% include "components/empty_state.html" with message="No hay líneas operativas." icon="building" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}

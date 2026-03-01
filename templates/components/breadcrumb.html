@@ -1,0 +1,7 @@
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    {% if grandparent_url %}<li><a href="{{ grandparent_url }}">{{ grandparent_label }}</a></li>{% endif %}
+    <li><a href="{{ parent_url }}">{{ parent_label }}</a></li>
+    <li>{{ current }}</li>
+  </ul>
+</div>

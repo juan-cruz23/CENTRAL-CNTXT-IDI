@@ -2,21 +2,33 @@
 {% load common_tags %}
 {% block title %}Mi Tablero{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Mi Tablero</h1>
+{% include "components/page_header.html" with title="Mi Tablero" %}
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  {% include "components/stat_card.html" with title="Proyectos Activos" value=my_projects|length color_class="text-primary" icon="briefcase" %}
+  {% include "components/stat_card.html" with title="Equipo Asignado" value=team_allocations|length color_class="text-secondary" icon="users" %}
+  {% include "components/stat_card.html" with title="Hitos Próximos" value=upcoming_milestones|length color_class="text-accent" icon="flag" %}
+</div>
 
 <!-- My Projects -->
-<div class="card bg-base-100 shadow-xl mb-6">
-  <div class="card-body">
-    <h2 class="card-title">Mis Proyectos</h2>
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+        Mis Proyectos
+      </h2>
+    </div>
     <div class="overflow-x-auto">
       <table class="table table-zebra">
-        <thead>
+        <thead class="bg-base-200/50">
           <tr>
-            <th>Código</th>
-            <th>Proyecto</th>
-            <th>Cliente</th>
-            <th>Estado</th>
-            <th>Avance</th>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Cliente</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Avance</th>
             <th></th>
           </tr>
         </thead>
@@ -40,7 +52,7 @@
             <td><a href="{% url 'dashboards:project' project.pk %}" class="btn btn-ghost btn-xs">Dashboard</a></td>
           </tr>
           {% empty %}
-          <tr><td colspan="6" class="text-center py-8">No tienes proyectos asignados.</td></tr>
+          <tr><td colspan="6">{% include "components/empty_state.html" with message="No tienes proyectos asignados." icon="folder" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -50,22 +62,27 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Team Allocations -->
-  <div class="card bg-base-100 shadow-xl">
-    <div class="card-body">
-      <h2 class="card-title">Equipo Asignado</h2>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-0">
+      <div class="p-4 border-b border-base-300/30">
+        <h2 class="font-bold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Equipo Asignado
+        </h2>
+      </div>
       <div class="overflow-x-auto">
         <table class="table table-sm">
-          <thead><tr><th>Profesional</th><th>Proyecto</th><th>Rol</th><th>Dedicación</th></tr></thead>
+          <thead class="bg-base-200/50"><tr><th class="text-xs uppercase tracking-wider">Profesional</th><th class="text-xs uppercase tracking-wider">Proyecto</th><th class="text-xs uppercase tracking-wider">Rol</th><th class="text-xs uppercase tracking-wider">Dedicación</th></tr></thead>
           <tbody>
             {% for alloc in team_allocations %}
             <tr>
               <td>{{ alloc.user.get_full_name }}</td>
-              <td>{{ alloc.project.code }}</td>
+              <td class="font-mono">{{ alloc.project.code }}</td>
               <td>{{ alloc.role.name|default:"-" }}</td>
               <td>{{ alloc.allocation_pct }}%</td>
             </tr>
             {% empty %}
-            <tr><td colspan="4" class="text-center py-4">Sin asignaciones.</td></tr>
+            <tr><td colspan="4">{% include "components/empty_state.html" with message="Sin asignaciones de equipo." icon="users" %}</td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -74,12 +91,17 @@
   </div>
 
   <!-- Upcoming Milestones -->
-  <div class="card bg-base-100 shadow-xl">
-    <div class="card-body">
-      <h2 class="card-title">Próximos Hitos</h2>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-0">
+      <div class="p-4 border-b border-base-300/30">
+        <h2 class="font-bold flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          Próximos Hitos
+        </h2>
+      </div>
       <div class="overflow-x-auto">
         <table class="table table-sm">
-          <thead><tr><th>Fecha</th><th>Proyecto</th><th>Hito</th></tr></thead>
+          <thead class="bg-base-200/50"><tr><th class="text-xs uppercase tracking-wider">Fecha</th><th class="text-xs uppercase tracking-wider">Proyecto</th><th class="text-xs uppercase tracking-wider">Hito</th></tr></thead>
           <tbody>
             {% for ms in upcoming_milestones %}
             <tr>
@@ -88,7 +110,7 @@
               <td>{{ ms.name }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="3" class="text-center py-4">Sin hitos próximos.</td></tr>
+            <tr><td colspan="3">{% include "components/empty_state.html" with message="Sin hitos próximos." icon="flag" %}</td></tr>
             {% endfor %}
           </tbody>
         </table>
