@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+{% block title %}Unidades de Negocio{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Unidades de Negocio</h1>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <table class="table table-zebra">
+      <thead><tr><th>Código</th><th>Nombre</th><th>Líder</th><th>Líneas Operativas</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for bu in business_units %}
+        <tr>
+          <td class="font-mono font-bold">{{ bu.code }}</td>
+          <td>{{ bu.name }}</td>
+          <td>{{ bu.leader.get_full_name|default:"-" }}</td>
+          <td>{{ bu.operative_lines.count }}</td>
+          <td>
+            {% if bu.is_active %}<span class="badge badge-success badge-sm">Activo</span>
+            {% else %}<span class="badge badge-ghost badge-sm">Inactivo</span>{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-8">No hay unidades de negocio.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

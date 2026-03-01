@@ -1,0 +1,42 @@
+{% extends "base/base.html" %}
+{% block title %}Capacidad del Equipo{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Capacidad del Equipo</h1>
+  <div class="flex gap-2">
+    <a href="{% url 'capacity:heatmap' %}" class="btn btn-outline btn-sm">Mapa de Calor</a>
+    <a href="{% url 'capacity:matrix' %}" class="btn btn-outline btn-sm">Matriz</a>
+    <a href="{% url 'capacity:allocate' %}" class="btn btn-primary btn-sm">Asignar</a>
+  </div>
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Profesional</th><th>Horas/Semana</th><th>Horas Asignadas</th><th>Dedicación</th><th>Proyectos</th></tr>
+        </thead>
+        <tbody>
+          {% for item in overview_data %}
+          <tr>
+            <td>{{ item.user.get_full_name }}</td>
+            <td>{{ item.available_hours }}</td>
+            <td>{{ item.allocated_hours }}</td>
+            <td>
+              <div class="flex items-center gap-2">
+                <progress class="progress {% if item.allocation_pct > 100 %}progress-error{% elif item.allocation_pct > 80 %}progress-warning{% else %}progress-primary{% endif %} w-20" value="{{ item.allocation_pct }}" max="150"></progress>
+                <span class="text-sm {% if item.allocation_pct > 100 %}text-error font-bold{% endif %}">{{ item.allocation_pct }}%</span>
+              </div>
+            </td>
+            <td>{{ item.project_count }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center py-8">No hay datos de capacidad.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

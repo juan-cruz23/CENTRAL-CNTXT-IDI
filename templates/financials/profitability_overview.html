@@ -1,0 +1,33 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Rentabilidad General{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Rentabilidad General</h1>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Proyecto</th><th>Hito</th><th>Valor</th><th>Costos</th><th>Ingreso</th><th>Utilidad</th><th>Margen %</th><th>Verificado</th></tr>
+        </thead>
+        <tbody>
+          {% for ps in profitability_summaries %}
+          <tr>
+            <td class="font-mono">{{ ps.project.code }}</td>
+            <td>{{ ps.milestone_name }}</td>
+            <td class="text-right">{{ ps.value|cop_format }}</td>
+            <td class="text-right">{{ ps.total_costs|cop_format }}</td>
+            <td class="text-right">{{ ps.revenue|cop_format }}</td>
+            <td class="text-right">{{ ps.utility|cop_format }}</td>
+            <td class="{% if ps.margin_pct > 20 %}text-success{% elif ps.margin_pct > 0 %}text-warning{% else %}text-error{% endif %}">{{ ps.margin_pct }}%</td>
+            <td>{% if ps.is_verified %}<span class="badge badge-success badge-sm">Si</span>{% else %}<span class="badge badge-ghost badge-sm">No</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="text-center py-8">No hay datos de rentabilidad.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

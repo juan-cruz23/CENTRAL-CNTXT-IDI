@@ -1,0 +1,99 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Mi Tablero{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Mi Tablero</h1>
+
+<!-- My Projects -->
+<div class="card bg-base-100 shadow-xl mb-6">
+  <div class="card-body">
+    <h2 class="card-title">Mis Proyectos</h2>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Proyecto</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Avance</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for project in my_projects %}
+          <tr class="hover">
+            <td class="font-mono font-bold">{{ project.code }}</td>
+            <td>{{ project.name }}</td>
+            <td>{{ project.client.name|default:"-" }}</td>
+            <td>
+              <span class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %} badge-sm">
+                {{ project.get_status_display }}
+              </span>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <progress class="progress progress-primary w-16" value="{{ project.current_progress_pct }}" max="100"></progress>
+                <span class="text-sm">{{ project.current_progress_pct }}%</span>
+              </div>
+            </td>
+            <td><a href="{% url 'dashboards:project' project.pk %}" class="btn btn-ghost btn-xs">Dashboard</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center py-8">No tienes proyectos asignados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- Team Allocations -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Equipo Asignado</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead><tr><th>Profesional</th><th>Proyecto</th><th>Rol</th><th>Dedicación</th></tr></thead>
+          <tbody>
+            {% for alloc in team_allocations %}
+            <tr>
+              <td>{{ alloc.user.get_full_name }}</td>
+              <td>{{ alloc.project.code }}</td>
+              <td>{{ alloc.role.name|default:"-" }}</td>
+              <td>{{ alloc.allocation_pct }}%</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-4">Sin asignaciones.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Milestones -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Próximos Hitos</h2>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead><tr><th>Fecha</th><th>Proyecto</th><th>Hito</th></tr></thead>
+          <tbody>
+            {% for ms in upcoming_milestones %}
+            <tr>
+              <td>{{ ms.planned_date|date:"d/m/Y" }}</td>
+              <td class="font-mono">{{ ms.project.code }}</td>
+              <td>{{ ms.name }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center py-4">Sin hitos próximos.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

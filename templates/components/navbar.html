@@ -1,0 +1,46 @@
+<div class="navbar bg-base-100 shadow-lg sticky top-0 z-50">
+  <div class="flex-1">
+    <a href="{% url 'dashboards:home' %}" class="btn btn-ghost text-xl font-bold">
+      CNTXT <span class="text-primary">Central</span>
+    </a>
+  </div>
+  <div class="flex-none gap-2">
+    <!-- Search -->
+    <div class="form-control">
+      <input type="text" placeholder="Buscar proyecto..." class="input input-bordered w-48 md:w-64"
+             hx-get="{% url 'projects:list' %}" hx-trigger="keyup changed delay:300ms"
+             hx-target="#search-results" name="q" />
+    </div>
+
+    <!-- Notifications -->
+    <div class="dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+        <div class="indicator">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          {% if unread_alert_count %}
+          <span class="badge badge-sm badge-primary indicator-item">{{ unread_alert_count }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- User Menu -->
+    {% if user.is_authenticated %}
+    <div class="dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder">
+        <div class="bg-primary text-primary-content w-10 rounded-full">
+          <span>{{ user.first_name|first }}{{ user.last_name|first }}</span>
+        </div>
+      </div>
+      <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+        <li><a href="{% url 'accounts:profile' %}">Perfil</a></li>
+        <li><a href="{% url 'dashboards:leader' %}">Mi Tablero</a></li>
+        {% if user.is_staff %}<li><a href="{% url 'admin:index' %}">Administración</a></li>{% endif %}
+        <li><a href="{% url 'accounts:logout' %}">Cerrar Sesión</a></li>
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>

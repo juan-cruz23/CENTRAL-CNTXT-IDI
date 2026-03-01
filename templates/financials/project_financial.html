@@ -1,0 +1,66 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Financiero - Proyecto{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Resumen Financiero</h1>
+  <a href="{% url 'financials:payment_list' project_pk %}" class="btn btn-outline btn-sm">Ver Hitos de Pago</a>
+</div>
+
+<!-- Payment Milestones Summary -->
+<div class="card bg-base-100 shadow-xl mb-6">
+  <div class="card-body">
+    <h2 class="card-title">Hitos de Pago</h2>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Concepto</th><th>Propuesto</th><th>Ejecutado</th><th>Recaudado</th><th>Estado</th><th>Fecha Factura</th></tr>
+        </thead>
+        <tbody>
+          {% for pm in payment_milestones %}
+          <tr>
+            <td>{{ pm.concept }}</td>
+            <td class="text-right">{{ pm.proposed_value|cop_format }}</td>
+            <td class="text-right">{{ pm.executed_value|cop_format }}</td>
+            <td class="text-right">{{ pm.collection_value|cop_format }}</td>
+            <td><span class="badge badge-outline badge-sm">{{ pm.get_status_display }}</span></td>
+            <td>{{ pm.billing_date|date:"d/m/Y"|default:"-" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center py-4">Sin hitos de pago registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Profitability -->
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h2 class="card-title">Rentabilidad</h2>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Hito</th><th>Valor</th><th>Costos</th><th>Ingreso</th><th>Utilidad</th><th>Margen %</th><th>Verificado</th></tr>
+        </thead>
+        <tbody>
+          {% for ps in profitability_summaries %}
+          <tr>
+            <td>{{ ps.milestone_name }}</td>
+            <td class="text-right">{{ ps.value|cop_format }}</td>
+            <td class="text-right">{{ ps.total_costs|cop_format }}</td>
+            <td class="text-right">{{ ps.revenue|cop_format }}</td>
+            <td class="text-right">{{ ps.utility|cop_format }}</td>
+            <td class="{% if ps.margin_pct > 20 %}text-success{% elif ps.margin_pct > 0 %}text-warning{% else %}text-error{% endif %}">{{ ps.margin_pct }}%</td>
+            <td>{% if ps.is_verified %}<span class="badge badge-success badge-sm">Si</span>{% else %}<span class="badge badge-ghost badge-sm">No</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center py-4">Sin datos de rentabilidad.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

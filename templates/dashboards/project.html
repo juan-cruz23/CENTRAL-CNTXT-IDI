@@ -1,0 +1,141 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Dashboard - {{ project.name }}{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'dashboards:home' %}">Dashboard</a></li>
+    <li>{{ project.code }} - {{ project.name }}</li>
+  </ul>
+</div>
+{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">{{ project.name }}</h1>
+    <p class="text-base-content/60">{{ project.client.name }} | {{ project.get_status_display }}</p>
+  </div>
+  <a href="{% url 'projects:detail' project.pk %}" class="btn btn-outline">Ver Detalle</a>
+</div>
+
+<!-- KPI Row -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+  <div class="stat bg-base-100 rounded-box shadow p-3">
+    <div class="stat-title text-xs">Valor</div>
+    <div class="stat-value text-sm">{{ project.total_value|cop_format }}</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow p-3">
+    <div class="stat-title text-xs">Avance</div>
+    <div class="stat-value text-sm">{{ project.current_progress_pct }}%</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow p-3">
+    <div class="stat-title text-xs">SPI</div>
+    <div class="stat-value text-sm {% if latest_snapshot.spi < 0.9 %}text-error{% endif %}">
+      {{ latest_snapshot.spi|floatformat:2|default:"N/A" }}
+    </div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow p-3">
+    <div class="stat-title text-xs">CPI</div>
+    <div class="stat-value text-sm {% if latest_snapshot.cpi < 0.9 %}text-error{% endif %}">
+      {{ latest_snapshot.cpi|floatformat:2|default:"N/A" }}
+    </div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow p-3">
+    <div class="stat-title text-xs">Rentabilidad</div>
+    <div class="stat-value text-sm">{{ project.profitability_pct }}%</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow p-3">
+    <div class="stat-title text-xs">Satisfacción</div>
+    <div class="stat-value text-sm">{{ project.client_satisfaction_score }}%</div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <!-- S-Curve -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Curva S (EVM)</h2>
+      <div id="scurve-chart" style="height: 350px;"></div>
+    </div>
+  </div>
+
+  <!-- Cash Flow -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Flujo de Caja</h2>
+      <div id="cashflow-chart" style="height: 350px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Phases and Services -->
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h2 class="card-title">Fases y Servicios</h2>
+    {% for phase in phases %}
+    <div class="collapse collapse-arrow bg-base-200 mb-2">
+      <input type="checkbox" {% if forloop.first %}checked{% endif %} />
+      <div class="collapse-title font-medium">
+        {{ phase.phase.name }} - Avance: {{ phase.progress_pct }}%
+        <progress class="progress progress-primary w-32 ml-4" value="{{ phase.progress_pct }}" max="100"></progress>
+      </div>
+      <div class="collapse-content">
+        <div class="overflow-x-auto"
+             hx-get="{% url 'projects:phase_services' project.pk phase.pk %}"
+             hx-trigger="revealed"
+             hx-swap="innerHTML">
+          <div class="loading loading-spinner loading-md"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// S-Curve Chart
+fetch("{% url 'metrics:scurve_data' project.pk %}")
+  .then(r => r.json())
+  .then(data => {
+    const chart = echarts.init(document.getElementById('scurve-chart'));
+    chart.setOption({
+      tooltip: { trigger: 'axis' },
+      legend: { data: ['Valor Planeado (PV)', 'Valor Ganado (EV)', 'Costo Real (AC)'] },
+      xAxis: { type: 'category', data: data.dates },
+      yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M' } },
+      series: [
+        { name: 'Valor Planeado (PV)', type: 'line', data: data.planned_value, smooth: true, lineStyle: { type: 'dashed' } },
+        { name: 'Valor Ganado (EV)', type: 'line', data: data.earned_value, smooth: true },
+        { name: 'Costo Real (AC)', type: 'line', data: data.actual_cost, smooth: true, lineStyle: { color: '#ef4444' } },
+      ]
+    });
+    window.addEventListener('resize', () => chart.resize());
+  });
+
+// Cash Flow Chart
+fetch("{% url 'dashboards:cashflow_data' project.pk %}")
+  .then(r => r.json())
+  .then(data => {
+    const chart = echarts.init(document.getElementById('cashflow-chart'));
+    chart.setOption({
+      tooltip: { trigger: 'axis' },
+      legend: { data: ['Propuesto', 'Ejecutado', 'Recaudado'] },
+      xAxis: { type: 'category', data: data.labels },
+      yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M' } },
+      series: [
+        { name: 'Propuesto', type: 'bar', data: data.proposed },
+        { name: 'Ejecutado', type: 'bar', data: data.executed },
+        { name: 'Recaudado', type: 'bar', data: data.collected },
+      ]
+    });
+    window.addEventListener('resize', () => chart.resize());
+  });
+</script>
+{% endblock %}

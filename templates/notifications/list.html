@@ -1,0 +1,71 @@
+{% extends "base/base.html" %}
+{% block title %}Alertas y Notificaciones{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Alertas y Notificaciones</h1>
+
+<!-- Filters -->
+<div class="flex gap-2 mb-4 flex-wrap">
+  <a href="{% url 'notifications:list' %}" class="btn btn-sm {% if not request.GET.severity and not request.GET.is_read %}btn-primary{% else %}btn-ghost{% endif %}">Todas</a>
+  <a href="?is_read=false" class="btn btn-sm {% if request.GET.is_read == 'false' %}btn-primary{% else %}btn-ghost{% endif %}">No Leídas</a>
+  {% for code, label in severity_choices %}
+  <a href="?severity={{ code }}" class="btn btn-sm {% if request.GET.severity == code %}btn-primary{% else %}btn-ghost{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <table class="table table-zebra">
+      <thead>
+        <tr><th>Fecha</th><th>Severidad</th><th>Categoría</th><th>Título</th><th>Proyecto</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for alert in alerts %}
+        <tr class="{% if not alert.is_read %}font-bold bg-base-200{% endif %}">
+          <td class="text-sm">{{ alert.created_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            <span class="badge badge-sm {% if alert.severity == 'CRITICAL' %}badge-error{% elif alert.severity == 'WARNING' %}badge-warning{% elif alert.severity == 'INFO' %}badge-info{% else %}badge-ghost{% endif %}">
+              {{ alert.get_severity_display }}
+            </span>
+          </td>
+          <td><span class="badge badge-outline badge-sm">{{ alert.get_category_display }}</span></td>
+          <td>{{ alert.title }}</td>
+          <td class="font-mono">{{ alert.project.code|default:"-" }}</td>
+          <td>
+            {% if alert.is_resolved %}<span class="badge badge-success badge-sm">Resuelta</span>
+            {% elif alert.is_read %}<span class="badge badge-ghost badge-sm">Leída</span>
+            {% else %}<span class="badge badge-warning badge-sm">Nueva</span>{% endif %}
+          </td>
+          <td>
+            <div class="flex gap-1">
+              {% if not alert.is_read %}
+              <form method="post" action="{% url 'notifications:mark_read' alert.pk %}" hx-post="{% url 'notifications:mark_read' alert.pk %}" hx-swap="outerHTML" hx-target="closest tr">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-xs">Marcar leída</button>
+              </form>
+              {% endif %}
+              {% if not alert.is_resolved %}
+              <form method="post" action="{% url 'notifications:mark_resolved' alert.pk %}" hx-post="{% url 'notifications:mark_resolved' alert.pk %}" hx-swap="outerHTML" hx-target="closest tr">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-xs">Resolver</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-8">No hay alertas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if is_paginated %}
+    <div class="flex justify-center py-4">
+      <div class="join">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">Anterior</a>{% endif %}
+        <span class="join-item btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">Siguiente</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

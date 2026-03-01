@@ -1,0 +1,17 @@
+{% extends "base/base.html" %}
+{% block title %}Eliminar Plantilla{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Eliminar Plantilla de Servicio</h1>
+<div class="card bg-base-100 shadow-xl max-w-lg">
+  <div class="card-body">
+    <p class="mb-4">¿Está seguro que desea eliminar la plantilla <strong>{{ object.code }} - {{ object.name }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="flex gap-2">
+        <button type="submit" class="btn btn-error">Eliminar</button>
+        <a href="{% url 'services:servicetemplate_list' %}" class="btn btn-ghost">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

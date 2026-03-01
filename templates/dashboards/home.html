@@ -1,0 +1,113 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Dashboard Ejecutivo{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Dashboard Ejecutivo</h1>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">Proyectos Activos</div>
+    <div class="stat-value text-primary">{{ active_projects }}</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">Valor Portfolio</div>
+    <div class="stat-value text-sm">{{ total_portfolio_value|cop_format }}</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">SPI Promedio</div>
+    <div class="stat-value {% if avg_spi < 0.9 %}text-error{% elif avg_spi < 1.0 %}text-warning{% else %}text-success{% endif %}">
+      {{ avg_spi|floatformat:2 }}
+    </div>
+    <div class="stat-desc">Schedule Performance Index</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">CPI Promedio</div>
+    <div class="stat-value {% if avg_cpi < 0.9 %}text-error{% elif avg_cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">
+      {{ avg_cpi|floatformat:2 }}
+    </div>
+    <div class="stat-desc">Cost Performance Index</div>
+  </div>
+</div>
+
+<!-- Projects at Risk -->
+{% if projects_at_risk %}
+<div class="card bg-base-100 shadow-xl mb-8">
+  <div class="card-body">
+    <h2 class="card-title text-error">Proyectos en Riesgo</h2>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Proyecto</th>
+            <th>SPI</th>
+            <th>CPI</th>
+            <th>Avance</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for project in projects_at_risk %}
+          <tr>
+            <td class="font-mono">{{ project.code }}</td>
+            <td>{{ project.name }}</td>
+            <td>{{ project.latest_spi|floatformat:2 }}</td>
+            <td>{{ project.latest_cpi|floatformat:2 }}</td>
+            <td>
+              <progress class="progress progress-error w-20" value="{{ project.current_progress_pct }}" max="100"></progress>
+              {{ project.current_progress_pct }}%
+            </td>
+            <td><a href="{% url 'dashboards:project' project.pk %}" class="btn btn-ghost btn-sm">Ver</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Active Projects Grid -->
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h2 class="card-title">Proyectos Activos</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+      {% for project in projects %}
+      <div class="card bg-base-200 shadow-md hover:shadow-lg transition-shadow">
+        <div class="card-body p-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="badge badge-outline font-mono">{{ project.code }}</span>
+              <h3 class="font-bold mt-1">{{ project.name }}</h3>
+              <p class="text-sm text-base-content/60">{{ project.client.name }}</p>
+            </div>
+            <div class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %}">
+              {{ project.get_status_display }}
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="flex justify-between text-sm mb-1">
+              <span>Avance</span>
+              <span>{{ project.current_progress_pct }}%</span>
+            </div>
+            <progress class="progress progress-primary w-full" value="{{ project.current_progress_pct }}" max="100"></progress>
+          </div>
+          <div class="flex justify-between mt-2 text-sm">
+            <span>Valor: {{ project.total_value|cop_format }}</span>
+          </div>
+          <div class="card-actions justify-end mt-2">
+            <a href="{% url 'dashboards:project' project.pk %}" class="btn btn-primary btn-sm">Dashboard</a>
+            <a href="{% url 'projects:detail' project.pk %}" class="btn btn-ghost btn-sm">Detalle</a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-3 text-center py-8 text-base-content/60">
+        No hay proyectos activos. <a href="{% url 'projects:create' %}" class="link link-primary">Crear proyecto</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base/base.html" %}
+{% block title %}Documentos{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Documentos</h1>
+  <a href="{% url 'documents:document_create' project_pk %}" class="btn btn-primary btn-sm">Nuevo Documento</a>
+</div>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Nombre</th><th>Tipo</th><th>Servicio</th><th>Entrega</th><th>Aprobación</th><th>Enlace</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for doc in documents %}
+          <tr>
+            <td>{{ doc.name }}</td>
+            <td><span class="badge badge-outline badge-sm">{{ doc.get_document_type_display }}</span></td>
+            <td>{{ doc.service_instance.name|default:"-" }}</td>
+            <td>{{ doc.delivery_date|date:"d/m/Y"|default:"-" }}</td>
+            <td>{{ doc.approval_date|date:"d/m/Y"|default:"-" }}</td>
+            <td>
+              {% if doc.access_link %}<a href="{{ doc.access_link }}" class="link link-primary text-sm" target="_blank">Abrir</a>{% elif doc.file %}<a href="{{ doc.file.url }}" class="link link-primary text-sm" target="_blank">Descargar</a>{% else %}-{% endif %}
+            </td>
+            <td><a href="{% url 'documents:document_update' project_pk doc.pk %}" class="btn btn-ghost btn-xs">Editar</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center py-8">No hay documentos.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Sistema {{ system.name }}{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'dashboards:home' %}">Dashboard</a></li>
+    <li>{{ system.name }}</li>
+  </ul>
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">{{ system.name }}</h1>
+{% if system.analogy %}<p class="text-base-content/60 mb-4">{{ system.analogy }}</p>{% endif %}
+{% if system.description %}<p class="mb-6">{{ system.description }}</p>{% endif %}
+
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h2 class="card-title">Proyectos del Sistema</h2>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Proyecto</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Avance</th>
+            <th>Líder</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for project in projects %}
+          <tr class="hover">
+            <td class="font-mono font-bold">{{ project.code }}</td>
+            <td>{{ project.name }}</td>
+            <td>{{ project.client.name|default:"-" }}</td>
+            <td>
+              <span class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %} badge-sm">
+                {{ project.get_status_display }}
+              </span>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <progress class="progress progress-primary w-16" value="{{ project.current_progress_pct }}" max="100"></progress>
+                <span class="text-sm">{{ project.current_progress_pct }}%</span>
+              </div>
+            </td>
+            <td>{{ project.leader.get_full_name|default:"-" }}</td>
+            <td><a href="{% url 'dashboards:project' project.pk %}" class="btn btn-ghost btn-xs">Ver</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center py-8">No hay proyectos en este sistema.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

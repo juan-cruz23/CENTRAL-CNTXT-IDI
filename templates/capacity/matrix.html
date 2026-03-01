@@ -1,0 +1,45 @@
+{% extends "base/base.html" %}
+{% block title %}Matriz de Asignación{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'capacity:overview' %}">Capacidad</a></li>
+    <li>Matriz</li>
+  </ul>
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Matriz de Asignación</h1>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Profesional</th>
+            {% for project in projects %}
+            <th class="text-center font-mono">{{ project.code }}</th>
+            {% endfor %}
+            <th class="text-center font-bold">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in matrix %}
+          <tr>
+            <td class="font-medium">{{ row.user.get_full_name }}</td>
+            {% for cell in row.cells %}
+            <td class="text-center {% if cell.hours > 0 %}bg-primary/10{% endif %}">
+              {% if cell.hours > 0 %}{{ cell.hours }}h{% else %}-{% endif %}
+            </td>
+            {% endfor %}
+            <td class="text-center font-bold {% if row.total_hours > 40 %}text-error{% endif %}">{{ row.total_hours }}h</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="{{ projects|length|add:2 }}" class="text-center py-8">No hay asignaciones.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

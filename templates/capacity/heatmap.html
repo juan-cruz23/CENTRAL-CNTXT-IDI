@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+{% block title %}Mapa de Calor - Capacidad{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'capacity:overview' %}">Capacidad</a></li>
+    <li>Mapa de Calor</li>
+  </ul>
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Mapa de Calor de Capacidad</h1>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <div id="heatmap-chart" style="height:500px;"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+  fetch("{% url 'capacity:heatmap' %}", { headers: { 'Accept': 'application/json' } })
+    .then(r => r.json())
+    .then(data => {
+      const chart = echarts.init(document.getElementById('heatmap-chart'));
+      chart.setOption({
+        tooltip: { position: 'top' },
+        grid: { top: 40, bottom: 80, left: 120 },
+        xAxis: { type: 'category', data: data.weeks || [], axisLabel: { rotate: 45 } },
+        yAxis: { type: 'category', data: data.users || [] },
+        visualMap: { min: 0, max: 60, calculable: true, orient: 'horizontal', left: 'center', bottom: 10, inRange: { color: ['#eef2ff','#818cf8','#ef4444'] } },
+        series: [{ type: 'heatmap', data: data.values || [], label: { show: true }, emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' } } }]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    })
+    .catch(() => {
+      document.getElementById('heatmap-chart').innerHTML = '<p class="text-center text-base-content/60 py-12">No hay datos suficientes para el mapa de calor.</p>';
+    });
+</script>
+{% endblock %}

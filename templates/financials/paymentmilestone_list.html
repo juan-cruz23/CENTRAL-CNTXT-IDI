@@ -1,0 +1,38 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Hitos de Pago{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Hitos de Pago</h1>
+  <a href="{% url 'financials:payment_create' project_pk %}" class="btn btn-primary btn-sm">Nuevo Hito</a>
+</div>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Concepto</th><th>Propuesto</th><th>IVA</th><th>Inc. %</th><th>Ejecutado</th><th>Factura</th><th>Recaudado</th><th>Diferencia</th><th>Estado</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for pm in payment_milestones %}
+          <tr>
+            <td>{{ pm.concept }}</td>
+            <td class="text-right">{{ pm.proposed_value|cop_format }}</td>
+            <td class="text-right">{{ pm.iva_value|cop_format }}</td>
+            <td>{{ pm.incidence_pct }}%</td>
+            <td class="text-right">{{ pm.executed_value|cop_format }}</td>
+            <td>{{ pm.invoice_number|default:"-" }}</td>
+            <td class="text-right">{{ pm.collection_value|cop_format }}</td>
+            <td class="text-right {% if pm.difference < 0 %}text-error{% endif %}">{{ pm.difference|cop_format }}</td>
+            <td><span class="badge badge-outline badge-sm">{{ pm.get_status_display }}</span></td>
+            <td><a href="{% url 'financials:payment_update' project_pk pm.pk %}" class="btn btn-ghost btn-xs">Editar</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="10" class="text-center py-8">No hay hitos de pago.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

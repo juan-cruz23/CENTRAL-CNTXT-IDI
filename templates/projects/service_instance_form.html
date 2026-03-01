@@ -1,0 +1,16 @@
+{% extends "base/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Editar instancia de servicio{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Editar instancia de servicio</h1>
+<div class="card bg-base-100 shadow-md p-6">
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <div class="mt-4">
+      <button type="submit" class="btn btn-primary">Guardar</button>
+      <a href="{% url 'projects:detail' pk=project.pk %}" class="btn btn-ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

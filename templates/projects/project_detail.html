@@ -1,0 +1,132 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}{{ project.code }} - {{ project.name }}{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'projects:list' %}">Proyectos</a></li>
+    <li>{{ project.code }} - {{ project.name }}</li>
+  </ul>
+</div>
+{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">{{ project.code }} - {{ project.name }}</h1>
+    <p class="text-base-content/60">{{ project.client.name }} | {{ project.location }} | {{ project.get_access_type_display }}</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'dashboards:project' project.pk %}" class="btn btn-primary btn-sm">Dashboard</a>
+    <a href="{% url 'projects:update' project.pk %}" class="btn btn-outline btn-sm">Editar</a>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div role="tablist" class="tabs tabs-bordered mb-6" x-data="{ tab: 'info' }">
+  <a role="tab" class="tab" :class="{ 'tab-active': tab === 'info' }" @click="tab = 'info'">Información</a>
+  <a role="tab" class="tab" :class="{ 'tab-active': tab === 'prereqs' }" @click="tab = 'prereqs'">Pre-requisitos</a>
+  <a role="tab" class="tab" :class="{ 'tab-active': tab === 'services' }" @click="tab = 'services'">Servicios</a>
+  <a role="tab" class="tab" :class="{ 'tab-active': tab === 'financial' }" @click="tab = 'financial'">Financiero</a>
+  <a role="tab" class="tab" :class="{ 'tab-active': tab === 'docs' }" @click="tab = 'docs'">Documentos</a>
+  <a role="tab" class="tab" :class="{ 'tab-active': tab === 'rfis' }" @click="tab = 'rfis'">RFIs</a>
+</div>
+
+<!-- Info Tab -->
+<div x-show="tab === 'info'">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h3 class="font-bold mb-4">Datos Generales</h3>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <span class="font-medium">Categoría:</span><span>{{ project.category }}</span>
+          <span class="font-medium">Cliente:</span><span>{{ project.client.name }} ({{ project.client.get_category_display }})</span>
+          <span class="font-medium">Ubicación:</span><span>{{ project.location }}</span>
+          <span class="font-medium">Línea Operativa:</span><span>{{ project.operative_line|default:"-" }}</span>
+          <span class="font-medium">Líder:</span><span>{{ project.leader.get_full_name|default:"-" }}</span>
+          <span class="font-medium">Estado:</span><span>{{ project.get_status_display }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h3 class="font-bold mb-4">Cronograma</h3>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <span class="font-medium">Inicio Planeado:</span><span>{{ project.planned_start_date|date:"d/m/Y"|default:"-" }}</span>
+          <span class="font-medium">Inicio Real:</span><span>{{ project.actual_start_date|date:"d/m/Y"|default:"-" }}</span>
+          <span class="font-medium">Fin Planeado:</span><span>{{ project.planned_end_date|date:"d/m/Y"|default:"-" }}</span>
+          <span class="font-medium">Fin Real:</span><span>{{ project.actual_end_date|date:"d/m/Y"|default:"-" }}</span>
+          <span class="font-medium">Avance:</span><span>{{ project.current_progress_pct }}%</span>
+          <span class="font-medium">Desviación:</span><span>{{ project.schedule_deviation_pct }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Prerequisites Tab -->
+<div x-show="tab === 'prereqs'" x-cloak>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="font-bold mb-4">Pre-requisitos de Planeación</h3>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr><th>Categoría</th><th>Tipo</th><th>Estado</th><th>Peso</th></tr>
+          </thead>
+          <tbody>
+            {% for prereq in project.prerequisites.all %}
+            <tr>
+              <td>{{ prereq.get_category_display }}</td>
+              <td>{{ prereq.prerequisite_type }}</td>
+              <td>
+                {% if prereq.is_completed %}
+                <span class="badge badge-success badge-sm">Completado</span>
+                {% else %}
+                <span class="badge badge-warning badge-sm">Pendiente</span>
+                {% endif %}
+              </td>
+              <td>{{ prereq.weight_pct }}%</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Services Tab -->
+<div x-show="tab === 'services'" x-cloak>
+  {% for phase in project.phase_instances.all %}
+  <div class="card bg-base-100 shadow mb-4">
+    <div class="card-body">
+      <h3 class="font-bold">{{ phase.phase.name }} - {{ phase.total_value|cop_format }}</h3>
+      <div hx-get="{% url 'projects:phase_services' project.pk phase.pk %}" hx-trigger="revealed" hx-swap="innerHTML">
+        <span class="loading loading-spinner"></span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Financial Tab -->
+<div x-show="tab === 'financial'" x-cloak>
+  <div hx-get="{% url 'financials:project_financial' project.pk %}" hx-trigger="revealed" hx-swap="innerHTML">
+    <span class="loading loading-spinner"></span>
+  </div>
+</div>
+
+<!-- Documents Tab -->
+<div x-show="tab === 'docs'" x-cloak>
+  <div hx-get="{% url 'documents:document_list' project.pk %}" hx-trigger="revealed" hx-swap="innerHTML">
+    <span class="loading loading-spinner"></span>
+  </div>
+</div>
+
+<!-- RFIs Tab -->
+<div x-show="tab === 'rfis'" x-cloak>
+  <div hx-get="{% url 'rfis:rfi_list' project.pk %}" hx-trigger="revealed" hx-swap="innerHTML">
+    <span class="loading loading-spinner"></span>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+.git
+.claude
+__pycache__
+*.pyc
+.env
+node_modules
+.venv
+media/
+docker/postgres-data/
+Documentacion/

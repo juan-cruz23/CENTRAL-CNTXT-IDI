@@ -1,0 +1,26 @@
+{% extends "base/base.html" %}
+{% block title %}Importar Datos{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Importar Datos desde Google Sheets</h1>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">C.O.R. Data Proyectos</h2>
+      <p>Importar datos completos de un proyecto desde la hoja C.O.R. (CSV).</p>
+      <p class="text-sm text-base-content/60">Incluye: información general, pre-requisitos, servicios, financiero, documentos y RFIs.</p>
+      <div class="card-actions justify-end mt-4">
+        <a href="{% url 'imports:upload' %}?type=COR_SHEET" class="btn btn-primary">Importar C.O.R.</a>
+      </div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Festivos Colombia</h2>
+      <p>Importar o actualizar el calendario de días festivos de Colombia.</p>
+      <div class="card-actions justify-end mt-4">
+        <a href="{% url 'imports:upload' %}?type=HOLIDAYS" class="btn btn-outline">Importar Festivos</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

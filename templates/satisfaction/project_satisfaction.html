@@ -1,0 +1,73 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Satisfacción - {{ project.code }}{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Satisfacción - {{ project.code }}</h1>
+  <div class="flex gap-2">
+    <a href="{% url 'satisfaction:cve_create' project.pk %}" class="btn btn-primary btn-sm">Nueva Medición CVE</a>
+    <a href="{% url 'satisfaction:survey_create' project.pk %}" class="btn btn-outline btn-sm">Nueva Encuesta</a>
+  </div>
+</div>
+
+{% if radar_data %}
+<div class="card bg-base-100 shadow-xl mb-6">
+  <div class="card-body">
+    <h2 class="card-title">Última Encuesta</h2>
+    <div id="radar-chart" style="height:350px;"></div>
+  </div>
+</div>
+{% endif %}
+
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h2 class="card-title">Historial de Mediciones</h2>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Fecha</th><th>Hito</th><th>Emoción %</th><th>Frase %</th><th>Objeto %</th><th>CVE</th><th>Encuesta</th></tr>
+        </thead>
+        <tbody>
+          {% for m in measurements %}
+          <tr>
+            <td>{{ m.measurement_date|date:"d/m/Y" }}</td>
+            <td>{{ m.milestone.name|default:"-" }}</td>
+            <td>{{ m.observed_emotion_pct }}%</td>
+            <td>{{ m.spontaneous_phrase_pct }}%</td>
+            <td>{{ m.symbolic_object_pct }}%</td>
+            <td class="font-bold {% if m.cve_score >= 80 %}text-success{% elif m.cve_score >= 60 %}text-warning{% else %}text-error{% endif %}">{{ m.cve_score }}%</td>
+            <td>{% if m.survey %}<span class="badge badge-success badge-sm">{{ m.survey.total_score_pct }}%</span>{% else %}<span class="badge badge-ghost badge-sm">Pendiente</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center py-8">No hay mediciones de satisfacción.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if radar_data %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+  const chart = echarts.init(document.getElementById('radar-chart'));
+  const data = {{ radar_data|safe }};
+  chart.setOption({
+    radar: {
+      indicator: [
+        { name: 'Sensación General', max: 100 },
+        { name: 'Claridad y Apoyo', max: 100 },
+        { name: 'Esfuerzo Personal', max: 100 },
+        { name: 'Relación Equipo', max: 100 },
+        { name: 'Confianza', max: 100 },
+        { name: 'Valor Percibido', max: 100 }
+      ]
+    },
+    series: [{ type: 'radar', data: [{ value: data, name: 'Satisfacción' }] }]
+  });
+  window.addEventListener('resize', () => chart.resize());
+</script>
+{% endif %}
+{% endblock %}

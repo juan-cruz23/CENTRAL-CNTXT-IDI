@@ -1,0 +1,102 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Métricas EVM{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">Métricas EVM - {{ project.code }}</h1>
+  <a href="{% url 'metrics:metric_history' project.pk %}" class="btn btn-outline btn-sm">Historial</a>
+</div>
+
+{% if snapshot %}
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">SPI</div>
+    <div class="stat-value text-lg {% if spi_status == 'critical' %}text-error{% elif spi_status == 'warning' %}text-warning{% elif spi_status == 'ahead' %}text-info{% else %}text-success{% endif %}">
+      {{ snapshot.spi|floatformat:4 }}
+    </div>
+    <div class="stat-desc">Schedule Performance</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">CPI</div>
+    <div class="stat-value text-lg {% if cpi_status == 'critical' %}text-error{% elif cpi_status == 'warning' %}text-warning{% elif cpi_status == 'ahead' %}text-info{% else %}text-success{% endif %}">
+      {{ snapshot.cpi|floatformat:4 }}
+    </div>
+    <div class="stat-desc">Cost Performance</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">EAC</div>
+    <div class="stat-value text-sm">{{ snapshot.eac|cop_format }}</div>
+    <div class="stat-desc">Estimate at Completion</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow">
+    <div class="stat-title">Avance</div>
+    <div class="stat-value text-lg">{{ snapshot.overall_progress_pct|floatformat:1 }}%</div>
+    <div class="stat-desc">vs {{ snapshot.expected_progress_pct|floatformat:1 }}% esperado</div>
+  </div>
+</div>
+
+<!-- EVM Detail Table -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="font-bold mb-4">Valores Base</h3>
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <span class="font-medium">BAC:</span><span>{{ snapshot.bac|cop_format }}</span>
+        <span class="font-medium">Planned Value (PV):</span><span>{{ snapshot.planned_value|cop_format }}</span>
+        <span class="font-medium">Earned Value (EV):</span><span>{{ snapshot.earned_value|cop_format }}</span>
+        <span class="font-medium">Actual Cost (AC):</span><span>{{ snapshot.actual_cost|cop_format }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="font-bold mb-4">Varianzas y Proyecciones</h3>
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <span class="font-medium">SV:</span><span class="{% if snapshot.schedule_variance < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.schedule_variance|cop_format }}</span>
+        <span class="font-medium">CV:</span><span class="{% if snapshot.cost_variance < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.cost_variance|cop_format }}</span>
+        <span class="font-medium">ETC:</span><span>{{ snapshot.etc|cop_format }}</span>
+        <span class="font-medium">VAC:</span><span class="{% if snapshot.vac < 0 %}text-error{% else %}text-success{% endif %}">{{ snapshot.vac|cop_format }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S-Curve Chart -->
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h2 class="card-title">Curva S</h2>
+    <div id="scurve-chart" style="height:400px;"></div>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+  <span>No hay snapshots de métricas para este proyecto. Ejecute el cálculo EVM para generar datos.</span>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if snapshot %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script>
+  fetch("{% url 'metrics:scurve_data' project.pk %}")
+    .then(r => r.json())
+    .then(data => {
+      const chart = echarts.init(document.getElementById('scurve-chart'));
+      chart.setOption({
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['Valor Planeado', 'Valor Ganado', 'Costo Real'] },
+        xAxis: { type: 'category', data: data.dates },
+        yAxis: { type: 'value' },
+        series: [
+          { name: 'Valor Planeado', type: 'line', data: data.planned_value, smooth: true },
+          { name: 'Valor Ganado', type: 'line', data: data.earned_value, smooth: true },
+          { name: 'Costo Real', type: 'line', data: data.actual_cost, smooth: true, lineStyle: { type: 'dashed' } }
+        ]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    });
+</script>
+{% endif %}
+{% endblock %}

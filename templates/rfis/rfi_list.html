@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+{% block title %}RFIs{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">RFIs</h1>
+  <a href="{% url 'rfis:rfi_create' project_pk %}" class="btn btn-primary btn-sm">Nuevo RFI</a>
+</div>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr><th>Código</th><th>Servicio</th><th>Profesional</th><th>Disciplina Ext.</th><th>Horas</th><th>Estado</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for rfi in rfis %}
+          <tr class="hover">
+            <td class="font-mono font-bold">{{ rfi.code|default:"-" }}</td>
+            <td>{{ rfi.service_instance.name|default:"-" }}</td>
+            <td>{{ rfi.professional.get_full_name|default:"-" }}</td>
+            <td>{{ rfi.external_discipline|default:"-" }}</td>
+            <td>{{ rfi.time_invested_hours }}</td>
+            <td>
+              <span class="badge {% if rfi.status == 'OPEN' %}badge-warning{% elif rfi.status == 'CLOSED' %}badge-success{% else %}badge-ghost{% endif %} badge-sm">
+                {{ rfi.get_status_display }}
+              </span>
+            </td>
+            <td>
+              <a href="{% url 'rfis:rfi_detail' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Ver</a>
+              <a href="{% url 'rfis:rfi_update' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center py-8">No hay RFIs registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

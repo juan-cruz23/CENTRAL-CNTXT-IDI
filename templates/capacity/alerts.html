@@ -1,0 +1,46 @@
+{% extends "base/base.html" %}
+{% block title %}Alertas de Capacidad{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'capacity:overview' %}">Capacidad</a></li>
+    <li>Alertas</li>
+  </ul>
+</div>
+{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Alertas de Capacidad</h1>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <table class="table table-zebra">
+      <thead>
+        <tr><th>Semana</th><th>Profesional</th><th>Tipo</th><th>Horas Asignadas</th><th>Horas Disponibles</th><th>Detalles</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        {% for alert in alerts %}
+        <tr>
+          <td>{{ alert.week_start|date:"d/m/Y" }}</td>
+          <td>{{ alert.user.get_full_name }}</td>
+          <td><span class="badge badge-outline badge-sm">{{ alert.get_alert_type_display }}</span></td>
+          <td class="{% if alert.allocated_hours > alert.available_hours %}text-error font-bold{% endif %}">{{ alert.allocated_hours }}h</td>
+          <td>{{ alert.available_hours }}h</td>
+          <td class="max-w-xs truncate">{{ alert.details|default:"-" }}</td>
+          <td>{% if alert.is_resolved %}<span class="badge badge-success badge-sm">Resuelta</span>{% else %}<span class="badge badge-warning badge-sm">Pendiente</span>{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-8">No hay alertas de capacidad.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if is_paginated %}
+    <div class="flex justify-center py-4">
+      <div class="join">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">Anterior</a>{% endif %}
+        <span class="join-item btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">Siguiente</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

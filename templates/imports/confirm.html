@@ -1,0 +1,14 @@
+{% extends "base/base.html" %}
+{% block title %}Confirmar importación{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Confirmar importación - Trabajo #{{ job.pk }}</h1>
+<div class="card bg-base-100 shadow-md p-6">
+  <p><strong>Tipo:</strong> {{ job.get_source_type_display }}</p>
+  <p><strong>Estado:</strong> {{ job.get_status_display }}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary mt-4">Confirmar e importar</button>
+    <a href="{% url 'imports:wizard' %}" class="btn btn-ghost">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

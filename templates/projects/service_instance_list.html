@@ -1,0 +1,57 @@
+{% load common_tags %}
+<table class="table table-sm table-zebra">
+  <thead>
+    <tr>
+      <th>Código</th>
+      <th>Servicio</th>
+      <th>Cant.</th>
+      <th>Valor UND</th>
+      <th>Total</th>
+      <th>Inc. %</th>
+      <th>Check</th>
+      <th>Avance %</th>
+      <th>Esperado %</th>
+      <th>Rol</th>
+      <th>Profesional</th>
+      <th>Horas Proy.</th>
+      <th>Horas Real</th>
+      <th>Desviación</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for si in service_instances %}
+    <tr class="{% if si.is_milestone %}bg-warning/10 font-bold{% endif %} {% if si.is_review_period %}bg-info/10 italic{% endif %}">
+      <td class="font-mono">{{ si.code }}</td>
+      <td class="max-w-xs truncate" title="{{ si.name }}">{{ si.name }}</td>
+      <td>{{ si.quantity }}</td>
+      <td class="text-right">{{ si.unit_price|cop_format }}</td>
+      <td class="text-right font-medium">{{ si.total_value|cop_format }}</td>
+      <td>{{ si.incidence_pct }}%</td>
+      <td>
+        <input type="checkbox" class="checkbox checkbox-sm checkbox-primary"
+               {% if si.is_checked %}checked{% endif %}
+               hx-post="{% url 'projects:service_update' project.pk si.pk %}"
+               hx-vals='{"is_checked": "toggle"}'
+               hx-swap="none" />
+      </td>
+      <td>
+        <span class="{% if si.progress_pct > 0 and si.progress_pct >= si.expected_progress_pct %}text-success{% elif si.progress_pct > 0 %}text-warning{% endif %}">
+          {{ si.progress_pct }}%
+        </span>
+      </td>
+      <td>{{ si.expected_progress_pct }}%</td>
+      <td>{{ si.responsible_role.code|default:"-" }}</td>
+      <td>{{ si.assigned_professional.get_full_name|default:"-" }}</td>
+      <td>{{ si.projected_hours }}</td>
+      <td>{{ si.actual_hours }}</td>
+      <td class="{% if si.operative_deviation_pct > 10 %}text-error{% elif si.operative_deviation_pct > 0 %}text-warning{% elif si.operative_deviation_pct < 0 %}text-success{% endif %}">
+        {{ si.operative_deviation_pct }}%
+      </td>
+      <td>
+        <a href="{% url 'projects:service_update' project.pk si.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

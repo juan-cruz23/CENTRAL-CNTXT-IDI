@@ -1,0 +1,89 @@
+[project]
+name = "central-contexto"
+version = "2.0.0"
+description = "Central Contexto 2.0 - Plataforma de gestión de proyectos para CNTXT Casa de Diseño"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [{ name = "CNTXT Casa de Diseño" }]
+
+dependencies = [
+    # Core
+    "Django>=5.1,<7",
+    "psycopg[binary,pool]>=3.1,<4",
+    "redis>=5,<6",
+    "celery[redis]>=5.4,<6",
+    "django-celery-beat>=2,<3",
+    # APIs
+    "djangorestframework>=3.15,<4",
+    # Frontend/Templates
+    "django-htmx>=1,<2",
+    "django-crispy-forms>=2,<3",
+    "crispy-tailwind>=1,<2",
+    # Cache/Performance
+    "whitenoise>=6.7,<7",
+    # Security
+    "django-axes>=7,<8",
+    "django-cors-headers>=4,<5",
+    "python-decouple>=3,<4",
+    # Files/Media
+    "Pillow>=10,<12",
+    # Reports
+    "openpyxl>=3,<4",
+    # Monitoring
+    "sentry-sdk[django]>=2,<3",
+    # Server
+    "gunicorn>=22,<26",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "pytest-django>=4.8,<5",
+    "factory-boy>=3,<4",
+    "faker>=30,<40",
+    "pytest-cov>=5,<6",
+    "django-silk>=5,<6",
+    "ruff>=0.4",
+    "djlint>=1",
+    "django-debug-toolbar>=4,<5",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "DJ",  # flake8-django
+]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config", "domain", "infrastructure"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py", "tests.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --no-header -q"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.djlint]
+profile = "django"
+indent = 2
+max_line_length = 120
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends._legacy:_Backend"

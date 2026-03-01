@@ -1,0 +1,54 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Portfolio{% endblock %}
+{% block extra_head %}
+<!-- AG Grid -->
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Portfolio de Proyectos</h1>
+
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <div id="portfolio-grid" class="ag-theme-alpine" style="height: 600px;" x-data="portfolioGrid()" x-init="init()"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function portfolioGrid() {
+  return {
+    init() {
+      fetch("{% url 'dashboards:portfolio_data' %}")
+        .then(r => r.json())
+        .then(data => {
+          const gridOptions = {
+            columnDefs: [
+              { field: 'code', headerName: 'Código', width: 100, pinned: 'left' },
+              { field: 'name', headerName: 'Proyecto', width: 200 },
+              { field: 'client', headerName: 'Cliente', width: 150 },
+              { field: 'status', headerName: 'Estado', width: 120,
+                cellRenderer: p => `<span class="badge badge-sm ${p.value === 'ACTIVE' ? 'badge-success' : p.value === 'PAUSED' ? 'badge-warning' : 'badge-ghost'}">${p.value}</span>` },
+              { field: 'progress', headerName: 'Avance %', width: 120, type: 'numericColumn' },
+              { field: 'spi', headerName: 'SPI', width: 100, type: 'numericColumn',
+                cellStyle: p => ({ color: p.value < 0.9 ? '#ef4444' : p.value < 1.0 ? '#f59e0b' : '#22c55e' }) },
+              { field: 'cpi', headerName: 'CPI', width: 100, type: 'numericColumn',
+                cellStyle: p => ({ color: p.value < 0.9 ? '#ef4444' : p.value < 1.0 ? '#f59e0b' : '#22c55e' }) },
+              { field: 'total_value', headerName: 'Valor Total', width: 150, type: 'numericColumn',
+                valueFormatter: p => new Intl.NumberFormat('es-CO', {style:'currency',currency:'COP',maximumFractionDigits:0}).format(p.value) },
+              { field: 'leader', headerName: 'Líder', width: 130 },
+              { field: 'deviation', headerName: 'Desviación %', width: 130, type: 'numericColumn' },
+            ],
+            rowData: data.projects,
+            defaultColDef: { sortable: true, filter: true, resizable: true },
+            animateRows: true,
+          };
+          const grid = document.querySelector('#portfolio-grid');
+          agGrid.createGrid(grid, gridOptions);
+        });
+    }
+  };
+}
+</script>
+{% endblock %}

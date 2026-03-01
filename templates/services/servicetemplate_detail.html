@@ -1,0 +1,68 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}{{ service_template.code }} - {{ service_template.name }}{% endblock %}
+{% block breadcrumb %}
+<div class="breadcrumbs text-sm mb-4">
+  <ul>
+    <li><a href="{% url 'services:servicetemplate_list' %}">Plantillas de Servicio</a></li>
+    <li>{{ service_template.code }}</li>
+  </ul>
+</div>
+{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold">{{ service_template.code }} - {{ service_template.name }}</h1>
+  <div class="flex gap-2">
+    <a href="{% url 'services:servicetemplate_update' service_template.pk %}" class="btn btn-outline btn-sm">Editar</a>
+    <a href="{% url 'services:servicetemplate_list' %}" class="btn btn-ghost btn-sm">Volver</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="font-bold mb-4">Información General</h3>
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <span class="font-medium">Código:</span><span class="font-mono">{{ service_template.code }}</span>
+        <span class="font-medium">Categoría:</span><span>{{ service_template.category.name }}</span>
+        <span class="font-medium">Fase:</span><span>{{ service_template.phase.name }}</span>
+        <span class="font-medium">Precio Base:</span><span>{{ service_template.base_unit_price|cop_format }}</span>
+        <span class="font-medium">Horas Estimadas:</span><span>{{ service_template.estimated_hours }}</span>
+        <span class="font-medium">Días Estimados:</span><span>{{ service_template.estimated_days }}</span>
+        <span class="font-medium">Margen Objetivo:</span><span>{{ service_template.target_margin_pct }}%</span>
+        <span class="font-medium">Estado:</span>
+        <span>{% if service_template.is_active %}<span class="badge badge-success badge-sm">Activa</span>{% else %}<span class="badge badge-ghost badge-sm">Inactiva</span>{% endif %}</span>
+      </div>
+      {% if service_template.description %}
+      <div class="mt-4">
+        <span class="font-medium text-sm">Descripción:</span>
+        <p class="mt-1 text-sm">{{ service_template.description }}</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="font-bold mb-4">Actividades</h3>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead><tr><th>#</th><th>Actividad</th><th>Rol</th><th>Horas</th></tr></thead>
+          <tbody>
+            {% for act in service_template.activities.all %}
+            <tr>
+              <td>{{ act.order }}</td>
+              <td>{{ act.name }}</td>
+              <td>{{ act.responsible_role.name|default:"-" }}</td>
+              <td>{{ act.estimated_hours }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-4">Sin actividades definidas.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

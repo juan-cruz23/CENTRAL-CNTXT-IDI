@@ -1,0 +1,27 @@
+{% extends "base/base.html" %}
+{% block title %}Categorías de Proyecto{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Categorías de Proyecto</h1>
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body p-0">
+    <table class="table table-zebra">
+      <thead><tr><th>Código</th><th>Nombre</th><th>Descripción</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td class="font-mono font-bold">{{ cat.code }}</td>
+          <td>{{ cat.name }}</td>
+          <td class="max-w-md truncate">{{ cat.description|default:"-" }}</td>
+          <td>
+            {% if cat.is_active %}<span class="badge badge-success badge-sm">Activa</span>
+            {% else %}<span class="badge badge-ghost badge-sm">Inactiva</span>{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center py-8">No hay categorías.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
