@@ -35,7 +35,7 @@ FROM dependencies AS production
 
 COPY . .
 
-RUN python manage.py collectstatic --noinput
+RUN SECRET_KEY=build-placeholder ALLOWED_HOSTS=* python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
