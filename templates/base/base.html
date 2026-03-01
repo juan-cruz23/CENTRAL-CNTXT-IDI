@@ -46,10 +46,10 @@
 
   {% include "components/navbar.html" %}
 
-  <div class="flex">
-    {% include "components/sidebar.html" %}
+  {% include "components/sidebar.html" %}
 
-    <main class="flex-1 p-4 lg:p-6 min-w-0">
+  <div class="flex">
+    <main class="flex-1 p-4 lg:p-6 min-w-0 max-w-7xl mx-auto w-full">
       <!-- Toast messages -->
       {% if messages %}
       <div id="toast-container" class="mb-4 space-y-2">
