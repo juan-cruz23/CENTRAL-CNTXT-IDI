@@ -46,6 +46,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         context["status_choices"] = Project.Status.choices
         context["current_status"] = self.request.GET.get("status", "")
         context["search_query"] = self.request.GET.get("q", "")
+        context["create_url"] = reverse_lazy("projects:create")
         return context
 
 
@@ -217,6 +218,7 @@ class ClientListView(LoginRequiredMixin, ListView):
         context["category_choices"] = Client.Category.choices
         context["current_category"] = self.request.GET.get("category", "")
         context["search_query"] = self.request.GET.get("q", "")
+        context["create_url"] = reverse_lazy("projects:client_create")
         return context
 
 

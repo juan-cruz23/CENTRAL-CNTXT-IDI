@@ -6,6 +6,7 @@ from django.db.models import Avg, Count, DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic import DetailView, TemplateView
 
 from apps.metrics.models import ProjectMetricSnapshot
@@ -111,6 +112,8 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
         ).annotate(
             service_count=Count("service_instances"),
         )
+
+        context["create_url"] = reverse_lazy("projects:create")
 
         return context
 

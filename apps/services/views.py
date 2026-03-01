@@ -33,6 +33,11 @@ class ServiceTemplateListView(LoginRequiredMixin, ListView):
     template_name = "services/servicetemplate_list.html"
     context_object_name = "service_templates"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["create_url"] = reverse_lazy("services:servicetemplate_create")
+        return context
+
 
 class ServiceTemplateDetailView(LoginRequiredMixin, DetailView):
     model = ServiceTemplate

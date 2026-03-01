@@ -37,6 +37,10 @@ class PaymentMilestoneListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["project_pk"] = self.kwargs["project_pk"]
+        context["create_url"] = reverse(
+            "financials:payment_create",
+            kwargs={"project_pk": self.kwargs["project_pk"]},
+        )
         return context
 
 
