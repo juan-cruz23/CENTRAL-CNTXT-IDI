@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Central Contexto 2.0{% endblock %} | CNTXT</title>
 
-  <!-- Tailwind CSS via CDN (dev) - Replace with Vite build in production -->
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@5/full.css" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- daisyUI 5 (pure CSS) + Tailwind CSS 4 browser runtime -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   <!-- HTMX -->
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
