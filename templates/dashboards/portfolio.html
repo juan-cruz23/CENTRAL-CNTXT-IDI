@@ -31,7 +31,7 @@ function portfolioGrid() {
       fetch("{% url 'dashboards:portfolio_data' %}")
         .then(r => r.json())
         .then(data => {
-          if (!data.projects || data.projects.length === 0) {
+          if (!data || data.length === 0) {
             document.getElementById('portfolio-grid').innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center"><div class="text-base-content/20 mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg></div><p class="text-base-content/60 text-sm">No hay proyectos en el portfolio.</p></div>';
             return;
           }
@@ -52,7 +52,7 @@ function portfolioGrid() {
               { field: 'leader', headerName: 'Líder', width: 130 },
               { field: 'deviation', headerName: 'Desviación %', width: 130, type: 'numericColumn' },
             ],
-            rowData: data.projects,
+            rowData: data,
             defaultColDef: { sortable: true, filter: true, resizable: true },
             animateRows: true,
           };
