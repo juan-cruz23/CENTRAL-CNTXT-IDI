@@ -19,13 +19,39 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 SECURE_HSTS_SECONDS = 31_536_000  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default="True", cast=bool)
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# ---------------------------------------------------------------------------
+# CSRF  --  trusted origins for Cloud Run
+# ---------------------------------------------------------------------------
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="",
+    cast=Csv(),
+)
+
+# ---------------------------------------------------------------------------
+# Cache  --  local memory when Redis is not available (Cloud Run)
+# ---------------------------------------------------------------------------
+if not config("REDIS_URL", default=""):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
+
+# ---------------------------------------------------------------------------
+# Celery  --  disable when Redis is not available
+# ---------------------------------------------------------------------------
+if not config("CELERY_BROKER_URL", default=""):
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
 
 # ---------------------------------------------------------------------------
 # WhiteNoise  --  compressed + hashed static files
