@@ -1,67 +1,169 @@
 {% extends "base/base.html" %}
 {% load common_tags %}
 {% block title %}Portfolio{% endblock %}
-{% block extra_head %}
-<!-- AG Grid -->
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
-<style>
-  .ag-theme-alpine, .ag-theme-alpine-dark { --ag-border-radius: 0.5rem; }
-</style>
-{% endblock %}
 {% block content %}
 {% include "components/page_header.html" with title="Portfolio de Proyectos" %}
 
-<div class="card bg-base-100 shadow-sm border border-base-300/30">
-  <div class="card-body">
-    <div id="portfolio-grid"
-         :class="$store.theme.isDark ? 'ag-theme-alpine-dark' : 'ag-theme-alpine'"
-         style="height: 600px;"
-         x-data="portfolioGrid()" x-init="init()"
-         x-effect="updateTheme($store.theme.current)"></div>
+<div x-data="portfolioTable()" x-init="loadData()">
+  <!-- Filters -->
+  <div class="flex flex-col sm:flex-row gap-3 mb-4">
+    <div class="flex flex-wrap gap-1">
+      <button @click="filterStatus = ''" class="btn btn-sm" :class="filterStatus === '' ? 'btn-primary' : 'btn-ghost'">Todos</button>
+      <button @click="filterStatus = 'Activo'" class="btn btn-sm" :class="filterStatus === 'Activo' ? 'btn-primary' : 'btn-ghost'">Activos</button>
+      <button @click="filterStatus = 'Planeación'" class="btn btn-sm" :class="filterStatus === 'Planeación' ? 'btn-primary' : 'btn-ghost'">Planeación</button>
+      <button @click="filterStatus = 'Completado'" class="btn btn-sm" :class="filterStatus === 'Completado' ? 'btn-primary' : 'btn-ghost'">Completados</button>
+    </div>
+    <div class="sm:ml-auto sm:max-w-xs flex-1">
+      <label class="input input-bordered input-sm flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <input type="text" x-model="search" placeholder="Buscar proyecto..." class="grow bg-transparent border-none outline-none text-sm" />
+      </label>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-0">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead class="bg-base-200/50">
+            <tr>
+              <template x-for="col in columns" :key="col.field">
+                <th @click="toggleSort(col.field)" class="cursor-pointer select-none text-xs uppercase tracking-wider hover:bg-base-300/50 transition-colors">
+                  <div class="flex items-center gap-1">
+                    <span x-text="col.label"></span>
+                    <span x-show="sortField === col.field" class="text-primary">
+                      <svg x-show="sortDir === 'asc'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+                      <svg x-show="sortDir === 'desc'" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </span>
+                  </div>
+                </th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-if="loading">
+              <tr><td colspan="9" class="text-center py-8"><span class="loading loading-spinner loading-md"></span></td></tr>
+            </template>
+            <template x-if="!loading && filteredRows().length === 0">
+              <tr><td colspan="9">
+                {% include "components/empty_state.html" with message="No hay proyectos que coincidan." icon="folder" %}
+              </td></tr>
+            </template>
+            <template x-for="row in filteredRows()" :key="row.code">
+              <tr class="hover">
+                <td class="font-mono font-bold text-sm" x-text="row.code"></td>
+                <td>
+                  <div class="font-medium text-sm" x-text="row.name"></div>
+                  <div class="text-xs opacity-60" x-text="row.client"></div>
+                </td>
+                <td>
+                  <span class="badge badge-sm"
+                        :class="row.status === 'Activo' ? 'badge-success' : row.status === 'Completado' ? 'badge-info' : row.status === 'Pausado' ? 'badge-warning' : 'badge-ghost'"
+                        x-text="row.status"></span>
+                </td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <progress class="progress progress-primary w-16" :value="row.progress" max="100"></progress>
+                    <span class="text-sm" x-text="row.progress + '%'"></span>
+                  </div>
+                </td>
+                <td>
+                  <span class="font-mono text-sm font-semibold"
+                        :class="row.spi === null ? 'opacity-40' : row.spi < 0.9 ? 'text-error' : row.spi < 1.0 ? 'text-warning' : 'text-success'"
+                        x-text="row.spi !== null ? row.spi.toFixed(2) : '—'"></span>
+                </td>
+                <td>
+                  <span class="font-mono text-sm font-semibold"
+                        :class="row.cpi === null ? 'opacity-40' : row.cpi < 0.9 ? 'text-error' : row.cpi < 1.0 ? 'text-warning' : 'text-success'"
+                        x-text="row.cpi !== null ? row.cpi.toFixed(2) : '—'"></span>
+                </td>
+                <td class="text-sm" x-text="new Intl.NumberFormat('es-CO', {style:'currency',currency:'COP',maximumFractionDigits:0}).format(row.total_value)"></td>
+                <td class="text-sm" x-text="row.leader || '—'"></td>
+                <td>
+                  <span class="font-mono text-sm"
+                        :class="row.deviation > 0 ? 'text-success' : row.deviation < 0 ? 'text-error' : ''"
+                        x-text="(row.deviation > 0 ? '+' : '') + row.deviation + '%'"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary row -->
+      <div class="p-4 border-t border-base-300 bg-base-200/30" x-show="!loading && rows.length > 0">
+        <div class="flex flex-wrap gap-6 text-sm">
+          <div><span class="opacity-60">Proyectos:</span> <span class="font-semibold" x-text="filteredRows().length"></span></div>
+          <div><span class="opacity-60">Valor total:</span> <span class="font-semibold" x-text="new Intl.NumberFormat('es-CO', {style:'currency',currency:'COP',maximumFractionDigits:0}).format(filteredRows().reduce((s,r) => s + r.total_value, 0))"></span></div>
+          <div><span class="opacity-60">SPI prom:</span> <span class="font-semibold" x-text="(() => { const vals = filteredRows().filter(r => r.spi !== null); return vals.length ? (vals.reduce((s,r) => s + r.spi, 0) / vals.length).toFixed(2) : '—'; })()"></span></div>
+          <div><span class="opacity-60">CPI prom:</span> <span class="font-semibold" x-text="(() => { const vals = filteredRows().filter(r => r.cpi !== null); return vals.length ? (vals.reduce((s,r) => s + r.cpi, 0) / vals.length).toFixed(2) : '—'; })()"></span></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function portfolioGrid() {
+function portfolioTable() {
   return {
-    gridApi: null,
-    init() {
+    rows: [],
+    loading: true,
+    search: '',
+    filterStatus: '',
+    sortField: 'code',
+    sortDir: 'asc',
+    columns: [
+      { field: 'code', label: 'Código' },
+      { field: 'name', label: 'Proyecto' },
+      { field: 'status', label: 'Estado' },
+      { field: 'progress', label: 'Avance' },
+      { field: 'spi', label: 'SPI' },
+      { field: 'cpi', label: 'CPI' },
+      { field: 'total_value', label: 'Valor' },
+      { field: 'leader', label: 'Líder' },
+      { field: 'deviation', label: 'Desviación' },
+    ],
+    loadData() {
       fetch("{% url 'dashboards:portfolio_data' %}")
         .then(r => r.json())
-        .then(data => {
-          if (!data || data.length === 0) {
-            document.getElementById('portfolio-grid').innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center"><div class="text-base-content/20 mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg></div><p class="text-base-content/60 text-sm">No hay proyectos en el portfolio.</p></div>';
-            return;
-          }
-          const gridOptions = {
-            columnDefs: [
-              { field: 'code', headerName: 'Código', width: 100, pinned: 'left' },
-              { field: 'name', headerName: 'Proyecto', width: 200 },
-              { field: 'client', headerName: 'Cliente', width: 150 },
-              { field: 'status', headerName: 'Estado', width: 120,
-                cellRenderer: p => `<span class="badge badge-sm ${p.value === 'ACTIVE' ? 'badge-success' : p.value === 'PAUSED' ? 'badge-warning' : 'badge-ghost'}">${p.value}</span>` },
-              { field: 'progress', headerName: 'Avance %', width: 120, type: 'numericColumn' },
-              { field: 'spi', headerName: 'SPI', width: 100, type: 'numericColumn',
-                cellStyle: p => ({ color: p.value < 0.9 ? 'oklch(var(--er))' : p.value < 1.0 ? 'oklch(var(--wa))' : 'oklch(var(--su))' }) },
-              { field: 'cpi', headerName: 'CPI', width: 100, type: 'numericColumn',
-                cellStyle: p => ({ color: p.value < 0.9 ? 'oklch(var(--er))' : p.value < 1.0 ? 'oklch(var(--wa))' : 'oklch(var(--su))' }) },
-              { field: 'total_value', headerName: 'Valor Total', width: 150, type: 'numericColumn',
-                valueFormatter: p => new Intl.NumberFormat('es-CO', {style:'currency',currency:'COP',maximumFractionDigits:0}).format(p.value) },
-              { field: 'leader', headerName: 'Líder', width: 130 },
-              { field: 'deviation', headerName: 'Desviación %', width: 130, type: 'numericColumn' },
-            ],
-            rowData: data,
-            defaultColDef: { sortable: true, filter: true, resizable: true },
-            animateRows: true,
-          };
-          const gridEl = document.querySelector('#portfolio-grid');
-          this.gridApi = agGrid.createGrid(gridEl, gridOptions);
-        });
+        .then(data => { this.rows = data; this.loading = false; })
+        .catch(() => { this.loading = false; });
     },
-    updateTheme(theme) {
-      // AG Grid re-renders on class change automatically
+    toggleSort(field) {
+      if (this.sortField === field) {
+        this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        this.sortField = field;
+        this.sortDir = 'asc';
+      }
+    },
+    filteredRows() {
+      let result = this.rows;
+      if (this.filterStatus) {
+        result = result.filter(r => r.status === this.filterStatus);
+      }
+      if (this.search) {
+        const q = this.search.toLowerCase();
+        result = result.filter(r =>
+          r.code.toLowerCase().includes(q) ||
+          r.name.toLowerCase().includes(q) ||
+          r.client.toLowerCase().includes(q) ||
+          (r.leader && r.leader.toLowerCase().includes(q))
+        );
+      }
+      const field = this.sortField;
+      const dir = this.sortDir === 'asc' ? 1 : -1;
+      result = [...result].sort((a, b) => {
+        const va = a[field] ?? -Infinity;
+        const vb = b[field] ?? -Infinity;
+        if (va < vb) return -1 * dir;
+        if (va > vb) return 1 * dir;
+        return 0;
+      });
+      return result;
     }
   };
 }
