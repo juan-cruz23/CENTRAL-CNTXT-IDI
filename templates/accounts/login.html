@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" :data-theme="$store.theme.current" x-data data-theme="light">
+<html lang="es" :data-theme="$store.theme.current" x-data data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
   <script>
     document.addEventListener('alpine:init', () => {
       Alpine.store('theme', {
-        current: localStorage.getItem('theme') || 'light',
+        current: localStorage.getItem('theme') || 'dark',
         toggle() {
           this.current = this.current === 'light' ? 'dark' : 'light';
           localStorage.setItem('theme', this.current);
