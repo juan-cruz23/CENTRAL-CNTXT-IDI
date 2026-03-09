@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Avg, Count, DecimalField, F, Q, Sum, Value
+from django.db.models import Avg, Count, DecimalField, F, OuterRef, Q, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -17,6 +17,7 @@ from apps.projects.models import (
     ProjectPhaseInstance,
     ServiceInstance,
 )
+from domain.financials.services import CashFlowService
 
 
 # ---------------------------------------------------------------------------
@@ -34,6 +35,39 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         active_projects = Project.objects.filter(status=Project.Status.ACTIVE)
+
+        # Apply filters
+        status_filter = self.request.GET.get("status")
+        if status_filter:
+            active_projects = Project.objects.filter(status=status_filter)
+
+        client_filter = self.request.GET.get("client")
+        if client_filter:
+            active_projects = active_projects.filter(client_id=client_filter)
+
+        tp_filter = self.request.GET.get("third_party")
+        if tp_filter:
+            active_projects = active_projects.filter(third_party_id=tp_filter)
+
+        bu_filter = self.request.GET.get("bu")
+        if bu_filter:
+            active_projects = active_projects.filter(business_unit__code=bu_filter)
+
+        context["current_status"] = status_filter or ""
+        context["current_bu"] = bu_filter or ""
+        context["status_choices"] = Project.Status.choices
+
+        try:
+            from apps.organizations.models import BusinessUnit
+            context["business_units"] = BusinessUnit.objects.all()
+        except Exception:
+            context["business_units"] = []
+
+        try:
+            from apps.terceros.models import ThirdParty
+            context["third_parties"] = ThirdParty.objects.filter(is_active=True).order_by("name")
+        except Exception:
+            context["third_parties"] = []
 
         # ------------------------------------------------------------------
         # Portfolio-wide KPIs
@@ -107,10 +141,16 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
         # ------------------------------------------------------------------
         # Active projects with annotations for the summary table
         # ------------------------------------------------------------------
+        latest_snap_sub = ProjectMetricSnapshot.objects.filter(
+            project=OuterRef("pk")
+        ).order_by("-snapshot_date")
+
         context["projects"] = active_projects.select_related(
-            "client", "leader", "category", "operative_line"
+            "client", "leader", "category", "operative_line", "third_party"
         ).annotate(
             service_count=Count("service_instances"),
+            latest_spi=Subquery(latest_snap_sub.values("spi")[:1]),
+            latest_cpi=Subquery(latest_snap_sub.values("cpi")[:1]),
         )
 
         context["create_url"] = reverse_lazy("projects:create")
@@ -494,3 +534,84 @@ def cashflow_data_api(request, project_pk):
             "collected": collected,
         }
     )
+
+
+# ---------------------------------------------------------------------------
+# API: Periodic Cashflow (monthly, not per-milestone)
+# ---------------------------------------------------------------------------
+@login_required
+def periodic_cashflow_api(request, project_pk):
+    """Return monthly cash flow data for a project."""
+    get_object_or_404(Project, pk=project_pk)
+    data = CashFlowService.get_periodic_cashflow(project_id=project_pk)
+    return JsonResponse(data)
+
+
+@login_required
+def company_cashflow_api(request):
+    """Return aggregated cash flow for the whole company."""
+    data = CashFlowService.get_periodic_cashflow()
+    return JsonResponse(data)
+
+
+@login_required
+def bu_cashflow_api(request, bu_code):
+    """Return cash flow aggregated by business unit."""
+    data = CashFlowService.get_periodic_cashflow(business_unit_code=bu_code)
+    return JsonResponse(data)
+
+
+# ---------------------------------------------------------------------------
+# API: Gantt Chart Data
+# ---------------------------------------------------------------------------
+@login_required
+def gantt_data_api(request):
+    """
+    Timeline data for ECharts Gantt chart.
+    Returns list of projects with start/end dates and progress.
+    """
+    projects = Project.objects.filter(
+        status=Project.Status.ACTIVE
+    ).order_by("planned_start_date")
+
+    data = []
+    for p in projects:
+        data.append({
+            "name": f"{p.code} - {p.name}",
+            "start": p.planned_start_date.isoformat() if p.planned_start_date else None,
+            "end": p.planned_end_date.isoformat() if p.planned_end_date else None,
+            "progress": float(p.current_progress_pct),
+            "status": p.status,
+        })
+
+    return JsonResponse(data, safe=False)
+
+
+# ---------------------------------------------------------------------------
+# API: Portfolio by Business Unit
+# ---------------------------------------------------------------------------
+@login_required
+def portfolio_by_bu_api(request):
+    """Portfolio value grouped by Business Unit."""
+    from apps.organizations.models import BusinessUnit
+
+    data = []
+    for bu in BusinessUnit.objects.all():
+        agg = Project.objects.filter(
+            business_unit=bu, status=Project.Status.ACTIVE,
+        ).aggregate(
+            total=Coalesce(
+                Sum("total_value"),
+                Value(Decimal("0")),
+                output_field=DecimalField(),
+            ),
+            count=Count("id"),
+        )
+        data.append({
+            "name": bu.name,
+            "code": bu.code,
+            "total_value": float(agg["total"]),
+            "project_count": agg["count"],
+        })
+
+    return JsonResponse(data, safe=False)

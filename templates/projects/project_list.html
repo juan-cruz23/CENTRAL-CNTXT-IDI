@@ -41,7 +41,7 @@
         </thead>
         <tbody id="project-table-body">
           {% for project in object_list %}
-          <tr class="hover">
+          <tr class="hover cursor-pointer" onclick="window.location='{% url 'projects:detail' project.pk %}'">
             <td class="font-mono font-bold">{{ project.code }}</td>
             <td>{{ project.name }}</td>
             <td>{{ project.client.name }}</td>
@@ -58,7 +58,7 @@
             </td>
             <td class="text-sm">{{ project.total_value|cop_format }}</td>
             <td>{{ project.leader.get_full_name|default:"-" }}</td>
-            <td>
+            <td onclick="event.stopPropagation()">
               <div class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>

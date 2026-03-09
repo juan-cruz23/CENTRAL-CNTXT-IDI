@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.services import views
+from apps.services import views, views_pricing
 
 app_name = "services"
 
@@ -39,5 +39,21 @@ urlpatterns = [
         "templates/<int:pk>/delete/",
         views.ServiceTemplateDeleteView.as_view(),
         name="servicetemplate_delete",
+    ),
+    # Pricing change requests
+    path(
+        "pricing-requests/",
+        views_pricing.PricingChangeRequestListView.as_view(),
+        name="pricing_request_list",
+    ),
+    path(
+        "pricing-requests/<int:si_pk>/crear/",
+        views_pricing.PricingChangeRequestCreateView.as_view(),
+        name="pricing_request_create",
+    ),
+    path(
+        "pricing-requests/<int:pk>/revisar/",
+        views_pricing.PricingChangeRequestReviewView.as_view(),
+        name="pricing_request_review",
     ),
 ]

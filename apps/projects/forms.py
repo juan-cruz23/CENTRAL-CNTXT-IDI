@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 
 from django import forms
+from django.db.models import Case, Value, When
 
 from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
@@ -213,6 +214,7 @@ class ServiceInstanceForm(DaisyUIFormMixin, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
         for field_name in (
             "projected_start_date",
@@ -221,3 +223,32 @@ class ServiceInstanceForm(DaisyUIFormMixin, forms.ModelForm):
             "actual_end_date",
         ):
             self.fields[field_name].input_formats = ["%Y-%m-%d"]
+
+        # Smart ordering: professionals allocated to this project first
+        if self.project and "assigned_professional" in self.fields:
+            from apps.capacity.models import ProjectAllocation
+
+            allocated_user_ids = ProjectAllocation.objects.filter(
+                project=self.project,
+            ).values_list("user_id", flat=True).distinct()
+
+            from apps.accounts.models import User
+
+            self.fields["assigned_professional"].queryset = (
+                User.objects.filter(is_active=True)
+                .annotate(
+                    is_allocated=Case(
+                        When(pk__in=allocated_user_ids, then=Value(0)),
+                        default=Value(1),
+                    )
+                )
+                .order_by("is_allocated", "first_name", "last_name")
+            )
+
+            # HTMX validation: check allocation when professional changes
+            self.fields["assigned_professional"].widget.attrs.update({
+                "hx-get": f"/proyectos/{self.project.pk}/validar-asignacion/",
+                "hx-target": "#assignment-warning",
+                "hx-trigger": "change",
+                "hx-include": "[name='assigned_professional']",
+            })

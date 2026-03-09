@@ -1,0 +1,72 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Prorrateo - {{ period }}{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/financiero/prorrateo/" parent_label="Prorrateo" current=period.period %}
+{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Prorrateo {{ period.period }}</h1>
+    <p class="text-base-content/60">{{ period.start_date|date:"d/m/Y" }} - {{ period.end_date|date:"d/m/Y" }}</p>
+  </div>
+  <div>
+    {% if period.is_closed %}
+    <span class="badge badge-success">Cerrado</span>
+    {% else %}
+    <span class="badge badge-warning">Abierto</span>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+    <div class="stat-title text-xs">Costos Totales Distribuidos</div>
+    <div class="stat-value text-lg">{{ period.total_costs|cop_format }}</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+    <div class="stat-title text-xs">Proyectos Asignados</div>
+    <div class="stat-value text-lg">{{ allocations|length }}</div>
+  </div>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Tipo</th>
+            <th class="text-xs uppercase tracking-wider text-right">% Asignación</th>
+            <th class="text-xs uppercase tracking-wider text-right">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alloc in allocations %}
+          <tr class="hover">
+            <td>
+              <span class="font-mono">{{ alloc.project.code }}</span> - {{ alloc.project.name }}
+            </td>
+            <td><span class="badge badge-outline badge-sm">{{ alloc.get_cost_type_display }}</span></td>
+            <td class="text-right">{{ alloc.allocation_pct|floatformat:2 }}%</td>
+            <td class="text-right font-medium">{{ alloc.allocated_amount|cop_format }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">{% include "components/empty_state.html" with message="No hay asignaciones." icon="document" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if period.notes %}
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mt-4">
+  <div class="card-body">
+    <h3 class="font-bold text-sm">Notas</h3>
+    <p class="text-sm">{{ period.notes }}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

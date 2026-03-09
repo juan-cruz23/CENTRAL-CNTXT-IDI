@@ -1,0 +1,174 @@
+{% extends "base/base.html" %}
+{% block title %}Vista previa - Auxiliar Contable Loggro{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/importar/" parent_label="Importar" current="Vista Previa Loggro" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-6xl">
+  {% include "components/page_header.html" with title="Vista Previa - Auxiliar Contable Loggro" %}
+
+  <!-- Job Summary -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+    <div class="card-body">
+      <div class="flex flex-wrap gap-4 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-base-content/70">Trabajo:</span>
+          <span class="font-mono">#{{ job.pk }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-base-content/70">Tipo:</span>
+          <span class="badge badge-outline badge-sm">{{ job.get_source_type_display }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-base-content/70">Estado:</span>
+          <span class="badge badge-info badge-sm">{{ job.get_status_display }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if parse_errors %}
+  <div class="alert alert-error mb-6">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+    <div>
+      <h3 class="font-bold">Errores de analisis</h3>
+      <ul class="list-disc list-inside mt-1">
+        {% for e in parse_errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if parsed_data %}
+  <!-- Summary Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+      <div class="stat-title text-xs">Registros</div>
+      <div class="stat-value text-lg text-primary">{{ parsed_data.total_rows|default:"0" }}</div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+      <div class="stat-title text-xs">Cuentas</div>
+      <div class="stat-value text-lg">{{ accounts_count }}</div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+      <div class="stat-title text-xs">Centros de Costo</div>
+      <div class="stat-value text-lg">{{ cost_centers_count }}</div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+      <div class="stat-title text-xs">Errores</div>
+      <div class="stat-value text-lg {% if errors_count > 0 %}text-error{% else %}text-success{% endif %}">{{ errors_count }}</div>
+    </div>
+  </div>
+
+  <!-- Accounts Found -->
+  {% if parsed_data.accounts %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+    <div class="card-body p-0">
+      <div class="p-4 border-b border-base-300/30">
+        <h3 class="font-bold text-sm">Cuentas Contables Detectadas ({{ accounts_count }})</h3>
+      </div>
+      <div class="overflow-x-auto max-h-48 overflow-y-auto">
+        <table class="table table-sm">
+          <thead class="bg-base-200/50 sticky top-0"><tr><th class="text-xs">Codigo</th><th class="text-xs">Nombre</th></tr></thead>
+          <tbody>
+            {% for code, name in parsed_data.accounts.items %}
+            <tr><td class="font-mono text-xs">{{ code }}</td><td class="text-xs">{{ name }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Cost Centers Found -->
+  {% if parsed_data.cost_centers %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+    <div class="card-body p-0">
+      <div class="p-4 border-b border-base-300/30">
+        <h3 class="font-bold text-sm">Centros de Costo Detectados ({{ cost_centers_count }})</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead class="bg-base-200/50"><tr><th class="text-xs">Codigo</th><th class="text-xs">Nombre</th></tr></thead>
+          <tbody>
+            {% for code, name in parsed_data.cost_centers.items %}
+            <tr><td class="font-mono text-xs">{{ code }}</td><td class="text-xs">{{ name }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Sample Records -->
+  {% if parsed_data.records %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+    <div class="card-body p-0">
+      <div class="p-4 border-b border-base-300/30">
+        <h3 class="font-bold text-sm">Primeros Registros (muestra)</h3>
+      </div>
+      <div class="overflow-x-auto max-h-96 overflow-y-auto">
+        <table class="table table-sm">
+          <thead class="bg-base-200/50 sticky top-0">
+            <tr>
+              <th class="text-xs">Fecha</th>
+              <th class="text-xs">Cuenta</th>
+              <th class="text-xs">C. Costo</th>
+              <th class="text-xs">Tercero</th>
+              <th class="text-xs">Descripcion</th>
+              <th class="text-xs text-right">Debito</th>
+              <th class="text-xs text-right">Credito</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rec in sample_records %}
+            <tr>
+              <td class="text-xs whitespace-nowrap">{{ rec.document_date }}</td>
+              <td class="font-mono text-xs">{{ rec.account_code }}</td>
+              <td class="text-xs">{{ rec.cost_center_code|default:"-" }}</td>
+              <td class="text-xs">{{ rec.third_party_nit|default:"-" }}</td>
+              <td class="text-xs max-w-48 truncate">{{ rec.description|truncatechars:40 }}</td>
+              <td class="text-xs text-right font-mono">{{ rec.debit|floatformat:0 }}</td>
+              <td class="text-xs text-right font-mono">{{ rec.credit|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if parsed_data.records|length > 20 %}
+      <div class="p-3 text-center text-sm text-base-content/60">
+        Mostrando 20 de {{ parsed_data.total_rows }} registros
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if parsed_data.errors %}
+  <div class="alert alert-warning mb-6">
+    <div>
+      <h3 class="font-bold text-sm">Advertencias del parser ({{ parsed_data.errors|length }})</h3>
+      <ul class="list-disc list-inside mt-1 text-xs max-h-32 overflow-y-auto">
+        {% for e in parsed_data.errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+  {% endif %}
+
+  <div class="flex justify-end gap-3">
+    <a href="{% url 'imports:wizard' %}" class="btn btn-ghost">Cancelar</a>
+    {% if parsed_data and not parse_errors %}
+    <form method="post" action="{% url 'imports:confirm' pk=job.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Confirmar Importacion ({{ parsed_data.total_rows }} registros)
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

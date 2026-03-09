@@ -54,6 +54,14 @@ class ProjectMetricSnapshot(TimeStampedModel):
         help_text="Actual Cost = SUM(service.real_operative_cost).",
     )
 
+    planned_cost = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        verbose_name="PC",
+        help_text="Planned Cost = SUM(service.estimated_operative_cost * service.expected_progress_pct / 100).",
+    )
+
     # ------------------------------------------------------------------
     # Performance Indices
     # ------------------------------------------------------------------

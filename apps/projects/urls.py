@@ -37,6 +37,12 @@ urlpatterns = [
         views.ServiceInstanceUpdateView.as_view(),
         name="service_update",
     ),
+    # Validation (HTMX)
+    path(
+        "<int:pk>/validar-asignacion/",
+        views.ValidateAssignmentView.as_view(),
+        name="validate_assignment",
+    ),
     # Clients
     path(
         "clientes/",

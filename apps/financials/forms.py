@@ -1,7 +1,7 @@
 from django import forms
 
 from apps.common.forms import DaisyUIFormMixin
-from apps.financials.models import PaymentMilestone, ProfitabilitySummary
+from apps.financials.models import CostCenterMapping, PaymentMilestone, ProfitabilitySummary
 
 
 class PaymentMilestoneForm(DaisyUIFormMixin, forms.ModelForm):
@@ -45,6 +45,39 @@ class PaymentMilestoneForm(DaisyUIFormMixin, forms.ModelForm):
             ),
             "notes": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         }
+
+
+class CostCenterMappingForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = CostCenterMapping
+        fields = ["cost_center_code", "cost_center_name", "project", "business_unit"]
+        widgets = {
+            "cost_center_code": forms.TextInput(attrs={"readonly": True}),
+            "cost_center_name": forms.TextInput(attrs={"readonly": True}),
+            "project": forms.Select(),
+            "business_unit": forms.Select(),
+        }
+
+
+class AccountingTransactionFilterForm(forms.Form):
+    """Filter form for the accounting overview."""
+
+    period = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "input input-bordered input-sm w-28", "placeholder": "YYYY-MM"}),
+    )
+    account_code = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "input input-bordered input-sm w-32", "placeholder": "Cuenta"}),
+    )
+    cost_center = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "input input-bordered input-sm w-32", "placeholder": "C. Costo"}),
+    )
+    third_party_nit = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "input input-bordered input-sm w-32", "placeholder": "NIT"}),
+    )
 
 
 class ProfitabilitySummaryForm(DaisyUIFormMixin, forms.ModelForm):

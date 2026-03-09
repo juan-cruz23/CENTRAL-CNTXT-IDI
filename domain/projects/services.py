@@ -102,6 +102,43 @@ class ProjectService:
         return project
 
     @classmethod
+    def update_phase_progress(cls, phase_instance_id: int):
+        """
+        Recalculate a phase instance's progress from its service instances.
+
+        Formula:
+            progress = sum(si.total_value * si.progress_pct)
+                       / sum(si.total_value)
+
+        Returns:
+            The updated ProjectPhaseInstance instance.
+        """
+        from apps.projects.models import ProjectPhaseInstance
+
+        phase_instance = ProjectPhaseInstance.objects.get(pk=phase_instance_id)
+        service_instances = phase_instance.service_instances.all()
+
+        total_weighted = cls.ZERO
+        total_value = cls.ZERO
+
+        for si in service_instances:
+            si_value = Decimal(str(si.total_value or 0))
+            si_progress = Decimal(str(si.progress_pct or 0))
+            total_weighted += si_value * si_progress
+            total_value += si_value
+
+        if total_value > cls.ZERO:
+            progress = (total_weighted / total_value).quantize(
+                Decimal("0.01"), rounding=ROUND_HALF_UP
+            )
+        else:
+            progress = cls.ZERO
+
+        phase_instance.progress_pct = progress
+        phase_instance.save(update_fields=["progress_pct", "updated_at"])
+        return phase_instance
+
+    @classmethod
     def update_project_deviation(cls, project_id: int):
         """
         Calculate schedule deviation by comparing actual vs planned dates.

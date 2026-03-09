@@ -1,41 +1,63 @@
 {% extends "base/base.html" %}
-{% block title %}Matriz de Asignación{% endblock %}
-{% block breadcrumb %}
-{% include "components/breadcrumb.html" with parent_url="/capacity/" parent_label="Capacidad" current="Matriz" %}
-{% endblock %}
+{% block title %}Matriz de Asignacion{% endblock %}
 {% block content %}
-{% include "components/page_header.html" with title="Matriz de Asignación" %}
+{% include "capacity/_nav_tabs.html" %}
 
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
-      <table class="table table-sm">
+      <table class="table table-sm table-pin-cols">
         <thead class="bg-base-200/50">
           <tr>
-            <th class="text-xs uppercase tracking-wider sticky left-0 bg-base-200/50 z-10">Profesional</th>
+            <th class="text-xs uppercase tracking-wider bg-base-200/50 z-10">Profesional</th>
             {% for project in projects %}
-            <th class="text-center font-mono text-xs uppercase tracking-wider">{{ project.code }}</th>
+            <th class="text-center text-xs">
+              <a href="{% url 'dashboards:project' project.pk %}" class="link link-hover font-mono">{{ project.code }}</a>
+            </th>
             {% endfor %}
-            <th class="text-center text-xs uppercase tracking-wider font-bold">Total</th>
+            <th class="text-center text-xs uppercase tracking-wider font-bold">Asignado</th>
+            <th class="text-center text-xs uppercase tracking-wider">Disponible</th>
+            <th class="text-center text-xs uppercase tracking-wider">Libre</th>
           </tr>
         </thead>
         <tbody>
           {% for row in matrix %}
-          <tr>
-            <td class="font-medium sticky left-0 bg-base-100 z-10">{{ row.user.get_full_name }}</td>
+          <tr class="{% if row.overloaded %}bg-error/5{% endif %}">
+            <td class="font-medium bg-base-100 z-10">
+              <div class="flex items-center gap-2">
+                <div class="avatar placeholder">
+                  <div class="bg-{% if row.overloaded %}error{% else %}primary{% endif %} text-{% if row.overloaded %}error{% else %}primary{% endif %}-content w-6 rounded-full">
+                    <span class="text-[10px]">{{ row.user.first_name|first }}{{ row.user.last_name|first }}</span>
+                  </div>
+                </div>
+                <span class="text-sm">{{ row.user.get_full_name }}</span>
+              </div>
+            </td>
             {% for cell in row.cells %}
-            <td class="text-center {% if cell.hours > 0 %}bg-primary/10{% endif %}">
-              {% if cell.hours > 0 %}{{ cell.hours }}h{% else %}<span class="text-base-content/30">-</span>{% endif %}
+            <td class="text-center font-mono text-sm {% if cell.hours > 0 %}bg-primary/10{% endif %}">
+              {% if cell.hours > 0 %}{{ cell.hours }}h{% else %}<span class="text-base-content/20">-</span>{% endif %}
             </td>
             {% endfor %}
-            <td class="text-center font-bold {% if row.total_hours > 40 %}text-error{% endif %}">{{ row.total_hours }}h</td>
+            <td class="text-center font-mono font-bold text-sm {% if row.overloaded %}text-error{% endif %}">{{ row.total_hours }}h</td>
+            <td class="text-center font-mono text-sm opacity-60">{{ row.available_hours }}h</td>
+            <td class="text-center font-mono text-sm font-bold {% if row.free_hours < 0 %}text-error{% elif row.free_hours > 15 %}text-success{% else %}text-warning{% endif %}">
+              {% if row.free_hours >= 0 %}{{ row.free_hours }}h{% else %}{{ row.free_hours }}h{% endif %}
+            </td>
           </tr>
           {% empty %}
-          <tr><td colspan="{{ projects|length|add:2 }}">{% include "components/empty_state.html" with message="No hay asignaciones registradas." icon="users" %}</td></tr>
+          <tr><td colspan="{{ projects|length|add:4 }}">{% include "components/empty_state.html" with message="No hay asignaciones registradas." icon="users" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
 </div>
+
+{% if projects %}
+<div class="mt-4 text-xs opacity-60">
+  {% for project in projects %}
+  <span class="inline-block mr-4 mb-1"><span class="font-mono font-bold">{{ project.code }}</span> {{ project.name }}</span>
+  {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

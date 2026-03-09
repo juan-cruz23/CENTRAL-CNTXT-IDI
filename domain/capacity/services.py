@@ -256,6 +256,59 @@ class CapacityService:
                 )
 
 
+    @classmethod
+    def validate_assignment(cls, user_id: int, project_id: int) -> dict:
+        """
+        Check if a user has an active ProjectAllocation for the given project.
+
+        Returns:
+            dict with keys:
+                has_allocation   -- True if user is allocated to the project
+                warning_message  -- message if no allocation, else None
+                allocation       -- allocation details dict or None
+        """
+        from apps.accounts.models import User
+        from apps.capacity.models import ProjectAllocation
+
+        today = date.today()
+        allocation = (
+            ProjectAllocation.objects.filter(
+                user_id=user_id,
+                project_id=project_id,
+                start_date__lte=today,
+            )
+            .filter(Q(end_date__isnull=True) | Q(end_date__gte=today))
+            .select_related("role")
+            .first()
+        )
+
+        if allocation:
+            return {
+                "has_allocation": True,
+                "warning_message": None,
+                "allocation": {
+                    "role": str(allocation.role) if allocation.role else "",
+                    "weekly_hours": float(allocation.weekly_hours),
+                    "start_date": str(allocation.start_date),
+                },
+            }
+
+        try:
+            user = User.objects.get(pk=user_id)
+            name = user.get_full_name() or user.username
+        except User.DoesNotExist:
+            name = f"Usuario #{user_id}"
+
+        return {
+            "has_allocation": False,
+            "warning_message": (
+                f"{name} no tiene una asignación de capacidad activa en este proyecto. "
+                f"Considere crear una asignación antes de asignar servicios."
+            ),
+            "allocation": None,
+        }
+
+
 class AllocationService:
     """Operations for managing project allocations."""
 
@@ -384,6 +437,48 @@ class AllocationService:
             )
 
         return matrix
+
+    @classmethod
+    def validate_new_allocation(
+        cls, user_id: int, weekly_hours: float, start_date: date = None
+    ) -> dict:
+        """
+        Check if adding weekly_hours to a user would cause overload.
+
+        Returns:
+            dict with keys:
+                would_overload   -- True if total would exceed available
+                warning_message  -- descriptive message if overload, else None
+                current_allocated -- current hours allocated
+                new_total        -- projected total after adding
+                available        -- available hours per week
+        """
+        if start_date is None:
+            start_date = date.today()
+        week_start = start_date - timedelta(days=start_date.weekday())
+
+        capacity_data = CapacityService.get_user_capacity(user_id, week_start)
+        current = capacity_data["allocated_hours"]
+        available = capacity_data["available_hours"]
+        new_total = round(current + weekly_hours, 2)
+        would_overload = new_total > available
+
+        warning = None
+        if would_overload:
+            overage = round(new_total - available, 2)
+            warning = (
+                f"Sobrecarga de {overage}h. "
+                f"Carga actual: {current}h + nueva: {weekly_hours}h = {new_total}h. "
+                f"Disponible: {available}h."
+            )
+
+        return {
+            "would_overload": would_overload,
+            "warning_message": warning,
+            "current_allocated": current,
+            "new_total": new_total,
+            "available": available,
+        }
 
     @classmethod
     def simulate_new_project(cls, project_hours: dict) -> dict:

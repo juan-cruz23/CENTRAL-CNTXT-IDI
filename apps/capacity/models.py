@@ -88,6 +88,15 @@ class ProjectAllocation(TimeStampedModel):
         default=0,
         verbose_name="porcentaje de asignación",
     )
+    service_instance = models.ForeignKey(
+        "projects.ServiceInstance",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="capacity_allocations",
+        verbose_name="instancia de servicio",
+        help_text="Opcional: vincular esta asignación a un servicio específico.",
+    )
     notes = models.TextField(
         blank=True,
         verbose_name="notas",

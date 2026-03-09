@@ -1,0 +1,64 @@
+{% extends "base/base.html" %}
+{% block title %}Revisar Solicitud PCR-{{ pcr.pk }}{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/servicios/pricing-requests/" parent_label="Solicitudes de Precio" current="Revisar" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  {% include "components/page_header.html" with title="Revisar Solicitud de Cambio de Precio" %}
+
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
+    <div class="card-body">
+      <h3 class="font-bold text-sm mb-2">Detalle de la Solicitud</h3>
+      <div class="grid grid-cols-2 gap-y-2 text-sm">
+        <span class="text-base-content/60">Servicio</span>
+        <span>{{ pcr.service_instance.code }} - {{ pcr.service_instance.name }}</span>
+        <span class="text-base-content/60">Proyecto</span>
+        <span>{{ pcr.service_instance.project }}</span>
+        <span class="text-base-content/60">Solicitante</span>
+        <span>{{ pcr.requested_by.get_full_name }}</span>
+        <span class="text-base-content/60">Fecha</span>
+        <span>{{ pcr.created_at|date:"d/m/Y H:i" }}</span>
+      </div>
+      <div class="divider my-2"></div>
+      <div class="grid grid-cols-3 gap-2 text-sm">
+        <span></span>
+        <span class="font-bold text-center">Actual</span>
+        <span class="font-bold text-center">Propuesto</span>
+        <span class="text-base-content/60">Precio unitario</span>
+        <span class="text-center">${{ pcr.current_unit_price|floatformat:0 }}</span>
+        <span class="text-center font-medium text-primary">${{ pcr.proposed_unit_price|floatformat:0 }}</span>
+        <span class="text-base-content/60">Horas proyectadas</span>
+        <span class="text-center">{{ pcr.current_projected_hours }}</span>
+        <span class="text-center font-medium text-primary">{{ pcr.proposed_projected_hours }}</span>
+      </div>
+      <div class="mt-3">
+        <span class="text-sm text-base-content/60">Justificación</span>
+        <p class="text-sm mt-1 bg-base-200/50 p-3 rounded-lg">{{ pcr.justification }}</p>
+      </div>
+    </div>
+  </div>
+
+  {% if pcr.status == 'PENDING' %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-control mb-4">
+          <label class="label"><span class="label-text font-medium">Notas de revisión</span></label>
+          <textarea name="review_notes" class="textarea textarea-bordered w-full" rows="2" placeholder="Comentarios opcionales..."></textarea>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button type="submit" name="action" value="reject" class="btn btn-error btn-outline">Rechazar</button>
+          <button type="submit" name="action" value="approve" class="btn btn-success">Aprobar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert {% if pcr.status == 'APPROVED' %}alert-success{% else %}alert-error{% endif %}">
+    <span>Esta solicitud fue {{ pcr.get_status_display|lower }} por {{ pcr.reviewed_by.get_full_name }} el {{ pcr.reviewed_at|date:"d/m/Y H:i" }}.</span>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

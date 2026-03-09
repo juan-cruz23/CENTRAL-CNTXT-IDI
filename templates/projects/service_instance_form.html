@@ -26,9 +26,24 @@
             {{ field }}
             {% if field.help_text %}<span class="label-text-alt text-base-content/60 mt-1">{{ field.help_text }}</span>{% endif %}
             {% if field.errors %}<span class="label-text-alt text-error mt-1">{{ field.errors.0 }}</span>{% endif %}
+            {% if field.name == 'assigned_professional' %}
+            <div id="assignment-warning"></div>
+            {% endif %}
           </div>
           {% endfor %}
         </div>
+        {% if not has_pricing_permission %}
+        <div class="alert alert-warning mt-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.072 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+          <div>
+            <p class="text-sm font-medium">Los campos de precio y horas estan protegidos.</p>
+            <p class="text-xs">Si necesita modificarlos, solicite un cambio a Direccion Operativa.</p>
+          </div>
+          <a href="{% url 'services:pricing_request_create' si_pk=object.pk %}" class="btn btn-warning btn-sm">
+            Solicitar Cambio de Precio
+          </a>
+        </div>
+        {% endif %}
         <div class="divider"></div>
         <div class="flex justify-end gap-3">
           <a href="{% url 'projects:detail' pk=project.pk %}" class="btn btn-ghost">Cancelar</a>

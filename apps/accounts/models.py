@@ -52,6 +52,8 @@ class Role(models.Model):
         DM = "DM", "Director de Medios"
         AI_I = "AI_I", "AI Individual"
         AI_M = "AI_M", "AI Masivo"
+        DO = "DO", "Dirección Operativa"
+        LP = "LP", "Líder de Proyecto"
 
     code = models.CharField(
         max_length=10,

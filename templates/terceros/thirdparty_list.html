@@ -1,0 +1,94 @@
+{% extends "base/base.html" %}
+{% block title %}Terceros{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Terceros" action_url=create_url action_label="Nuevo Tercero" icon="plus" %}
+
+<!-- Filters -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
+  <div class="card-body py-3">
+    <form method="get" class="flex flex-wrap items-end gap-3">
+      <div class="form-control w-48">
+        <label class="label py-0"><span class="label-text text-xs">Buscar</span></label>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Nombre, empresa, NIT..."
+               class="input input-bordered input-sm w-full" />
+      </div>
+      <div class="form-control w-44">
+        <label class="label py-0"><span class="label-text text-xs">Tipo</span></label>
+        <select name="relationship_type" class="select select-bordered select-sm w-full">
+          <option value="">Todos</option>
+          {% for code, label in relationship_types %}
+          <option value="{{ code }}" {% if current_type == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-control w-32">
+        <label class="label py-0"><span class="label-text text-xs">Estado</span></label>
+        <select name="is_active" class="select select-bordered select-sm w-full">
+          <option value="">Todos</option>
+          <option value="true" {% if current_active == "true" %}selected{% endif %}>Activos</option>
+          <option value="false" {% if current_active == "false" %}selected{% endif %}>Inactivos</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+      <a href="{% url 'terceros:list' %}" class="btn btn-ghost btn-sm">Limpiar</a>
+    </form>
+  </div>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Empresa</th>
+            <th class="text-xs uppercase tracking-wider">Tipo</th>
+            <th class="text-xs uppercase tracking-wider">Categoría</th>
+            <th class="text-xs uppercase tracking-wider">Ciudad</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tp in third_parties %}
+          <tr class="hover">
+            <td class="font-medium">
+              <a href="{% url 'terceros:detail' tp.pk %}" class="link link-hover">{{ tp.name }}</a>
+            </td>
+            <td>{{ tp.company|default:"-" }}</td>
+            <td>
+              <span class="badge badge-outline badge-sm">{{ tp.get_relationship_type_display }}</span>
+            </td>
+            <td>
+              {% if tp.client_category %}
+              <span class="badge badge-sm {% if tp.client_category == 'BLACK' %}badge-neutral{% elif tp.client_category == 'GOLD' %}badge-warning{% elif tp.client_category == 'SILVER' %}badge-ghost{% else %}badge-info{% endif %}">
+                {{ tp.get_client_category_display }}
+              </span>
+              {% else %}-{% endif %}
+            </td>
+            <td>{{ tp.city|default:"-" }}</td>
+            <td>
+              {% if tp.is_active %}
+              <span class="badge badge-success badge-sm">Activo</span>
+              {% else %}
+              <span class="badge badge-error badge-sm">Inactivo</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'terceros:update' tp.pk %}" class="btn btn-ghost btn-sm">Editar</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay terceros registrados." action_url=create_url action_label="Nuevo Tercero" action_icon="plus" icon="users" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if is_paginated %}
+{% include "components/pagination.html" %}
+{% endif %}
+{% endblock %}

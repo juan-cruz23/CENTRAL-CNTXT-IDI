@@ -99,6 +99,14 @@ class Project(TimeStampedModel):
         related_name="projects",
         verbose_name="cliente",
     )
+    third_party = models.ForeignKey(
+        "terceros.ThirdParty",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
+        verbose_name="tercero",
+    )
     category = models.ForeignKey(
         "services.ProjectCategory",
         on_delete=models.SET_NULL,

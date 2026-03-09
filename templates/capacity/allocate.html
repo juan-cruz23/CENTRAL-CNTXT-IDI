@@ -1,43 +1,83 @@
 {% extends "base/base.html" %}
 {% block title %}Asignar Recurso{% endblock %}
-{% block breadcrumb %}
-{% include "components/breadcrumb.html" with parent_url="/capacity/" parent_label="Capacidad" current="Asignar Recurso" %}
-{% endblock %}
 {% block content %}
-<div class="max-w-2xl">
-  {% include "components/page_header.html" with title="Asignar Recurso a Proyecto" %}
+{% include "capacity/_nav_tabs.html" %}
 
-  <div class="card bg-base-100 shadow-sm border border-base-300/30">
-    <div class="card-body">
-      <form method="post">
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-        <div class="alert alert-error mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
-          {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
-        </div>
-        {% endif %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          {% for field in form %}
-          <div class="form-control {% if field.name == 'notes' %}md:col-span-2{% endif %}">
-            <label class="label" for="{{ field.id_for_label }}">
-              <span class="label-text font-medium">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
-            </label>
-            {{ field }}
-            {% if field.help_text %}<span class="label-text-alt text-base-content/60 mt-1">{{ field.help_text }}</span>{% endif %}
-            {% if field.errors %}<span class="label-text-alt text-error mt-1">{{ field.errors.0 }}</span>{% endif %}
+{% if for_project %}
+<div class="alert alert-info mb-4">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  <span>Asignando recurso al proyecto <strong>{{ for_project.code }}</strong> - {{ for_project.name }}</span>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Form -->
+  <div class="lg:col-span-2">
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="alert alert-error mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+            {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+          </div>
+          {% endif %}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            {% for field in form %}
+            <div class="form-control {% if field.name == 'notes' %}md:col-span-2{% endif %}">
+              <label class="label" for="{{ field.id_for_label }}">
+                <span class="label-text font-medium">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
+              </label>
+              {{ field }}
+              {% if field.help_text %}<span class="label-text-alt text-base-content/60 mt-1">{{ field.help_text }}</span>{% endif %}
+              {% if field.errors %}<span class="label-text-alt text-error mt-1">{{ field.errors.0 }}</span>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          <div id="allocation-warning"></div>
+          <div class="divider"></div>
+          <div class="flex justify-end gap-3">
+            <a href="{% if for_project %}{% url 'projects:detail' for_project.pk %}{% else %}{% url 'capacity:overview' %}{% endif %}" class="btn btn-ghost">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+              Asignar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Load Reference -->
+  <div class="lg:col-span-1">
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body p-4">
+        <h3 class="font-bold text-sm mb-3 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          Carga Actual del Equipo
+        </h3>
+        <div class="space-y-2">
+          {% for s in load_summary %}
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <div class="avatar placeholder">
+                <div class="bg-{% if s.overloaded %}error{% elif s.free < 8 %}warning{% else %}primary{% endif %} text-{% if s.overloaded %}error{% elif s.free < 8 %}warning{% else %}primary{% endif %}-content w-6 rounded-full">
+                  <span class="text-[10px]">{{ s.user.first_name|first }}{{ s.user.last_name|first }}</span>
+                </div>
+              </div>
+              <span>{{ s.user.first_name }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-mono text-xs {% if s.overloaded %}text-error{% endif %}">{{ s.allocated }}/{{ s.available }}h</span>
+              <span class="badge badge-xs {% if s.overloaded %}badge-error{% elif s.free < 8 %}badge-warning{% else %}badge-success{% endif %}">
+                {% if s.free >= 0 %}{{ s.free }}h{% else %}{{ s.free }}h{% endif %}
+              </span>
+            </div>
           </div>
           {% endfor %}
         </div>
-        <div class="divider"></div>
-        <div class="flex justify-end gap-3">
-          <a href="{% url 'capacity:overview' %}" class="btn btn-ghost">Cancelar</a>
-          <button type="submit" class="btn btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
-            Asignar
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>

@@ -1,0 +1,108 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Transacciones Contables{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/financiero/prorrateo/" parent_label="Financiero" current="Contabilidad" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-6xl">
+  {% include "components/page_header.html" with title="Transacciones Contables (Loggro)" subtitle="Transacciones importadas del auxiliar contable" %}
+
+  <!-- Filters -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+    <div class="card-body p-3">
+      <form method="get" class="flex flex-wrap items-end gap-3">
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Periodo</span></label>
+          {{ filter_form.period }}
+        </div>
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Cuenta</span></label>
+          {{ filter_form.account_code }}
+        </div>
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Centro Costo</span></label>
+          {{ filter_form.cost_center }}
+        </div>
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">NIT Tercero</span></label>
+          {{ filter_form.third_party_nit }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+        {% if request.GET.period or request.GET.account_code or request.GET.cost_center or request.GET.third_party_nit %}
+        <a href="{% url 'financials:accounting_overview' %}" class="btn btn-ghost btn-sm">Limpiar</a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  {% if transactions %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-0">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra table-sm">
+          <thead class="bg-base-200/50">
+            <tr>
+              <th class="text-xs uppercase tracking-wider">Fecha</th>
+              <th class="text-xs uppercase tracking-wider">Cuenta</th>
+              <th class="text-xs uppercase tracking-wider">C. Costo</th>
+              <th class="text-xs uppercase tracking-wider">Tercero</th>
+              <th class="text-xs uppercase tracking-wider">Descripcion</th>
+              <th class="text-xs uppercase tracking-wider text-right">Debito</th>
+              <th class="text-xs uppercase tracking-wider text-right">Credito</th>
+              <th class="text-xs uppercase tracking-wider text-right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for txn in transactions %}
+            <tr>
+              <td class="text-sm whitespace-nowrap">{{ txn.document_date|date:"Y-m-d" }}</td>
+              <td class="text-sm">
+                <span class="font-mono text-xs">{{ txn.account.account_code }}</span>
+                <br><span class="text-xs text-base-content/60">{{ txn.account.name|truncatechars:30 }}</span>
+              </td>
+              <td class="text-sm">
+                {% if txn.cost_center %}
+                <span class="text-xs">{{ txn.cost_center.cost_center_code }}</span>
+                {% else %}
+                <span class="text-base-content/40">-</span>
+                {% endif %}
+              </td>
+              <td class="text-sm">
+                {% if txn.third_party_nit %}
+                <span class="font-mono text-xs">{{ txn.third_party_nit }}</span>
+                <br><span class="text-xs text-base-content/60">{{ txn.third_party_name|truncatechars:25 }}</span>
+                {% else %}
+                <span class="text-base-content/40">-</span>
+                {% endif %}
+              </td>
+              <td class="text-xs max-w-48 truncate">{{ txn.description|truncatechars:50 }}</td>
+              <td class="text-sm text-right font-mono">{% if txn.debit %}{{ txn.debit|floatformat:0 }}{% endif %}</td>
+              <td class="text-sm text-right font-mono">{% if txn.credit %}{{ txn.credit|floatformat:0 }}{% endif %}</td>
+              <td class="text-sm text-right font-mono font-medium">{{ txn.balance|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      {% if is_paginated %}
+      <div class="flex justify-center p-4">
+        <div class="join">
+          {% if page_obj.has_previous %}
+          <a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">Anterior</a>
+          {% endif %}
+          <button class="join-item btn btn-sm btn-active">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</button>
+          {% if page_obj.has_next %}
+          <a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">Siguiente</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  {% include "components/empty_state.html" with message="No hay transacciones contables importadas." icon="document" action_url="/importar/" action_label="Importar Loggro" action_icon="upload" %}
+  {% endif %}
+</div>
+{% endblock %}

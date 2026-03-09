@@ -18,6 +18,10 @@
 
   <!-- Alpine theme store -->
   <script>
+    // Force dark as default if no preference saved
+    if (!localStorage.getItem('theme')) {
+      localStorage.setItem('theme', 'dark');
+    }
     document.addEventListener('alpine:init', () => {
       Alpine.store('theme', {
         current: localStorage.getItem('theme') || 'dark',
@@ -27,7 +31,6 @@
         },
         get isDark() { return this.current === 'dark'; }
       });
-      // Apply saved theme immediately
       document.documentElement.setAttribute('data-theme', Alpine.store('theme').current);
     });
   </script>

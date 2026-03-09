@@ -1,39 +1,47 @@
 {% extends "base/base.html" %}
 {% block title %}Alertas de Capacidad{% endblock %}
-{% block breadcrumb %}
-{% include "components/breadcrumb.html" with parent_url="/capacity/" parent_label="Capacidad" current="Alertas" %}
-{% endblock %}
 {% block content %}
-{% include "components/page_header.html" with title="Alertas de Capacidad" %}
+{% include "capacity/_nav_tabs.html" %}
 
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
-      <table class="table table-zebra">
+      <table class="table">
         <thead class="bg-base-200/50">
           <tr>
             <th class="text-xs uppercase tracking-wider">Semana</th>
             <th class="text-xs uppercase tracking-wider">Profesional</th>
             <th class="text-xs uppercase tracking-wider">Tipo</th>
-            <th class="text-xs uppercase tracking-wider">Horas Asignadas</th>
-            <th class="text-xs uppercase tracking-wider">Horas Disponibles</th>
-            <th class="text-xs uppercase tracking-wider">Detalles</th>
-            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider text-center">Asignadas</th>
+            <th class="text-xs uppercase tracking-wider text-center">Disponibles</th>
+            <th class="text-xs uppercase tracking-wider">Detalle</th>
           </tr>
         </thead>
         <tbody>
           {% for alert in alerts %}
-          <tr>
-            <td>{{ alert.week_start|date:"d/m/Y" }}</td>
-            <td>{{ alert.user.get_full_name }}</td>
-            <td><span class="badge badge-outline badge-sm">{{ alert.get_alert_type_display }}</span></td>
-            <td class="{% if alert.allocated_hours > alert.available_hours %}text-error font-bold{% endif %}">{{ alert.allocated_hours }}h</td>
-            <td>{{ alert.available_hours }}h</td>
-            <td class="max-w-xs truncate">{{ alert.details|default:"-" }}</td>
-            <td>{% if alert.is_resolved %}<span class="badge badge-success badge-sm">Resuelta</span>{% else %}<span class="badge badge-warning badge-sm">Pendiente</span>{% endif %}</td>
+          <tr class="hover">
+            <td class="font-mono text-sm">{{ alert.week_start|date:"d/m/Y" }}</td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="avatar placeholder">
+                  <div class="bg-{% if alert.alert_type == 'OVERLOAD' %}error{% elif alert.alert_type == 'UNDERLOAD' %}info{% else %}warning{% endif %} text-{% if alert.alert_type == 'OVERLOAD' %}error{% elif alert.alert_type == 'UNDERLOAD' %}info{% else %}warning{% endif %}-content w-6 rounded-full">
+                    <span class="text-[10px]">{{ alert.user.first_name|first }}{{ alert.user.last_name|first }}</span>
+                  </div>
+                </div>
+                {{ alert.user.get_full_name }}
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-sm {% if alert.alert_type == 'OVERLOAD' %}badge-error{% elif alert.alert_type == 'UNDERLOAD' %}badge-info{% else %}badge-warning{% endif %}">
+                {{ alert.get_alert_type_display }}
+              </span>
+            </td>
+            <td class="text-center font-mono {% if alert.allocated_hours > alert.available_hours %}text-error font-bold{% endif %}">{{ alert.allocated_hours }}h</td>
+            <td class="text-center font-mono">{{ alert.available_hours }}h</td>
+            <td class="max-w-sm text-sm opacity-80">{{ alert.details|default:"-" }}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay alertas de capacidad." icon="bell" %}</td></tr>
+          <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay alertas pendientes. Todo el equipo esta dentro de su capacidad." icon="bell" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Prorrateo de Costos{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Prorrateo de Costos" %}
+
+<!-- Run new allocation -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body">
+    <h2 class="card-title text-base">Ejecutar Prorrateo</h2>
+    <form method="get" action="{% url 'financials:cost_allocation_run' %}" class="flex items-end gap-3">
+      <div class="form-control w-48">
+        <label class="label"><span class="label-text text-xs">Periodo (YYYY-MM)</span></label>
+        <input type="month" name="period" class="input input-bordered input-sm w-full" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Previsualizar</button>
+    </form>
+  </div>
+</div>
+
+<!-- History -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold">Periodos Ejecutados</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Periodo</th>
+            <th class="text-xs uppercase tracking-wider">Costos Totales</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for period in periods %}
+          <tr class="hover">
+            <td class="font-mono font-bold">{{ period.period }}</td>
+            <td>{{ period.total_costs|cop_format }}</td>
+            <td>
+              {% if period.is_closed %}
+              <span class="badge badge-success badge-sm">Cerrado</span>
+              {% else %}
+              <span class="badge badge-warning badge-sm">Abierto</span>
+              {% endif %}
+            </td>
+            <td class="text-sm">{{ period.created_at|date:"d/m/Y" }}</td>
+            <td><a href="{% url 'financials:cost_allocation_detail' period.pk %}" class="btn btn-ghost btn-sm">Ver</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5">{% include "components/empty_state.html" with message="No hay periodos de prorrateo." icon="document" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

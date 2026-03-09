@@ -4,9 +4,33 @@
 {% include "components/breadcrumb.html" with parent_url="/" parent_label="Inicio" current="Importar Datos" %}
 {% endblock %}
 {% block content %}
-{% include "components/page_header.html" with title="Importar Datos desde Google Sheets" %}
+{% include "components/page_header.html" with title="Importar Datos" %}
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <!-- Loggro Accounting Import Card -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 hover:shadow-md transition-shadow">
+    <div class="card-body">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="bg-success/10 rounded-lg p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-success" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="card-title text-lg">Auxiliar Contable Loggro</h2>
+        </div>
+      </div>
+      <p class="text-sm">Importar el auxiliar contable exportado desde Loggro (Excel .xlsx).</p>
+      <p class="text-xs text-base-content/60 mt-2">Crea cuentas contables, centros de costo y transacciones. Base para prorrateo de costos.</p>
+      <div class="card-actions justify-end mt-4">
+        <a href="{% url 'imports:upload' %}?type=LOGGRO_ACCOUNTING" class="btn btn-success btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          Importar Loggro
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- COR Import Card -->
   <div class="card bg-base-100 shadow-sm border border-base-300/30 hover:shadow-md transition-shadow">
     <div class="card-body">
@@ -21,7 +45,7 @@
         </div>
       </div>
       <p class="text-sm">Importar datos completos de un proyecto desde la hoja C.O.R. (CSV).</p>
-      <p class="text-xs text-base-content/60 mt-2">Incluye: información general, pre-requisitos, servicios, financiero, documentos y RFIs.</p>
+      <p class="text-xs text-base-content/60 mt-2">Incluye: informacion general, pre-requisitos, servicios, financiero, documentos y RFIs.</p>
       <div class="card-actions justify-end mt-4">
         <a href="{% url 'imports:upload' %}?type=COR_SHEET" class="btn btn-primary btn-sm">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
@@ -44,7 +68,7 @@
           <h2 class="card-title text-lg">Festivos Colombia</h2>
         </div>
       </div>
-      <p class="text-sm">Importar o actualizar el calendario de días festivos de Colombia.</p>
+      <p class="text-sm">Importar o actualizar el calendario de dias festivos de Colombia.</p>
       <div class="card-actions justify-end mt-4">
         <a href="{% url 'imports:upload' %}?type=HOLIDAYS" class="btn btn-outline btn-sm">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
@@ -54,4 +78,57 @@
     </div>
   </div>
 </div>
+
+<!-- Recent Import Jobs -->
+{% if recent_jobs %}
+<div class="mt-8">
+  <h3 class="text-lg font-semibold mb-3">Importaciones Recientes</h3>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-0">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra table-sm">
+          <thead class="bg-base-200/50">
+            <tr>
+              <th class="text-xs uppercase">ID</th>
+              <th class="text-xs uppercase">Tipo</th>
+              <th class="text-xs uppercase">Estado</th>
+              <th class="text-xs uppercase">Registros</th>
+              <th class="text-xs uppercase">Fecha</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in recent_jobs %}
+            <tr>
+              <td class="font-mono">#{{ job.pk }}</td>
+              <td>{{ job.get_source_type_display }}</td>
+              <td>
+                <span class="badge badge-sm {% if job.status == 'COMPLETED' %}badge-success{% elif job.status == 'FAILED' %}badge-error{% elif job.status == 'PREVIEWED' %}badge-warning{% else %}badge-ghost{% endif %}">
+                  {{ job.get_status_display }}
+                </span>
+              </td>
+              <td class="text-sm">
+                {% if job.records_imported is not None %}
+                  {{ job.records_imported }}/{{ job.records_total }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td class="text-sm">{{ job.created_at|date:"d/m/Y H:i" }}</td>
+              <td>
+                {% if job.status == 'PREVIEWED' %}
+                <a href="{% url 'imports:preview' job.pk %}" class="btn btn-ghost btn-xs">Revisar</a>
+                {% elif job.status == 'UPLOADED' %}
+                <a href="{% url 'imports:preview' job.pk %}" class="btn btn-ghost btn-xs">Preview</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}

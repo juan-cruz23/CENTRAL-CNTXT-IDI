@@ -7,6 +7,7 @@ from django.views.generic import DetailView, FormView, TemplateView
 from apps.imports.forms import ImportUploadForm
 from apps.imports.models import ImportJob
 from apps.imports.parsers import CORSheetParser
+from apps.imports.parsers_loggro import LoggroAccountingParser
 
 
 # ---------------------------------------------------------------------------
@@ -41,6 +42,21 @@ class UploadCSVView(LoginRequiredMixin, FormView):
 
     template_name = "imports/upload.html"
     form_class = ImportUploadForm
+
+    def get_initial(self):
+        initial = super().get_initial()
+        source_type = self.request.GET.get("type")
+        if source_type:
+            initial["source_type"] = source_type
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        source_type = self.request.GET.get("type", "")
+        type_labels = dict(ImportJob.SourceType.choices)
+        if source_type in type_labels:
+            context["selected_type_label"] = type_labels[source_type]
+        return context
 
     def form_valid(self, form):
         uploaded_file = form.cleaned_data["file"]
@@ -80,6 +96,11 @@ class PreviewImportView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return ImportJob.objects.filter(uploaded_by=self.request.user)
 
+    def get_template_names(self):
+        if self.object.source_type == ImportJob.SourceType.LOGGRO_ACCOUNTING:
+            return ["imports/preview_loggro.html"]
+        return [self.template_name]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         job = self.object
@@ -93,11 +114,22 @@ class PreviewImportView(LoginRequiredMixin, DetailView):
                 parsed_data = parser.parse()
             except Exception as exc:
                 parse_errors.append(str(exc))
+        elif job.source_type == ImportJob.SourceType.LOGGRO_ACCOUNTING:
+            try:
+                parser = LoggroAccountingParser(job.file.path)
+                parsed_data = parser.parse()
+            except Exception as exc:
+                parse_errors.append(str(exc))
+
+            # Extra context for Loggro-specific template
+            if parsed_data:
+                context["accounts_count"] = len(parsed_data.get("accounts", {}))
+                context["cost_centers_count"] = len(parsed_data.get("cost_centers", {}))
+                context["errors_count"] = len(parsed_data.get("errors", []))
+                context["sample_records"] = parsed_data.get("records", [])[:20]
         elif job.source_type == ImportJob.SourceType.FINANCIAL:
-            # Financial parser placeholder
             parsed_data = {"info": "Vista previa de Control Financiero pendiente."}
         elif job.source_type == ImportJob.SourceType.HOLIDAYS:
-            # Holidays parser placeholder
             parsed_data = {"info": "Vista previa de Festivos pendiente."}
 
         context["parsed_data"] = parsed_data
@@ -153,6 +185,12 @@ class ConfirmImportView(LoginRequiredMixin, DetailView):
                 parser = CORSheetParser(job.file.path)
                 parsed_data = parser.parse()
                 records_total, records_imported, errors = self._import_cor_data(
+                    parsed_data, job
+                )
+            elif job.source_type == ImportJob.SourceType.LOGGRO_ACCOUNTING:
+                parser = LoggroAccountingParser(job.file.path)
+                parsed_data = parser.parse()
+                records_total, records_imported, errors = self._import_loggro_data(
                     parsed_data, job
                 )
             elif job.source_type == ImportJob.SourceType.FINANCIAL:
@@ -225,5 +263,87 @@ class ConfirmImportView(LoginRequiredMixin, DetailView):
                     errors.append(
                         f"Error importando servicio {svc.get('code', '?')}: {exc}"
                     )
+
+        return records_total, records_imported, errors
+
+    @staticmethod
+    def _import_loggro_data(parsed_data, job):
+        """
+        Process parsed Loggro accounting data.
+        Auto-creates AccountingAccount and CostCenterMapping records,
+        then creates AccountingTransaction records.
+        Returns (records_total, records_imported, errors).
+        """
+        from apps.financials.models import (
+            AccountingAccount,
+            AccountingTransaction,
+            CostCenterMapping,
+        )
+
+        errors = []
+        records = parsed_data.get("records", [])
+        records_total = len(records)
+        records_imported = 0
+
+        # Auto-create accounts
+        for code, name in parsed_data.get("accounts", {}).items():
+            if code:
+                account_type = ""
+                first_digit = code[0] if code else ""
+                type_map = {
+                    "1": "ASSET", "2": "LIABILITY", "3": "EQUITY",
+                    "4": "REVENUE", "5": "EXPENSE", "6": "COST",
+                    "7": "COST",
+                }
+                account_type = type_map.get(first_digit, "")
+                AccountingAccount.objects.update_or_create(
+                    account_code=code,
+                    defaults={"name": name, "account_type": account_type},
+                )
+
+        # Auto-create cost centers
+        for code, name in parsed_data.get("cost_centers", {}).items():
+            if code:
+                CostCenterMapping.objects.get_or_create(
+                    cost_center_code=code,
+                    defaults={"cost_center_name": name},
+                )
+
+        # Build lookups
+        account_lookup = {a.account_code: a for a in AccountingAccount.objects.all()}
+        cc_lookup = {c.cost_center_code: c for c in CostCenterMapping.objects.all()}
+
+        # Create transactions in bulk
+        txns_to_create = []
+        for idx, record in enumerate(records):
+            try:
+                account = account_lookup.get(record["account_code"])
+                if not account:
+                    errors.append(f"Fila {idx + 1}: cuenta {record['account_code']} no encontrada.")
+                    continue
+
+                cost_center = cc_lookup.get(record.get("cost_center_code", ""))
+
+                txns_to_create.append(AccountingTransaction(
+                    import_job=job,
+                    document_date=record["document_date"],
+                    document_type=record.get("document_type", ""),
+                    document_number=record.get("document_number", ""),
+                    account=account,
+                    cost_center=cost_center,
+                    third_party_nit=record.get("third_party_nit", ""),
+                    third_party_name=record.get("third_party_name", ""),
+                    description=record.get("description", ""),
+                    debit=record.get("debit", 0),
+                    credit=record.get("credit", 0),
+                    balance=record.get("balance", 0),
+                    period=record.get("period", ""),
+                ))
+                records_imported += 1
+            except Exception as exc:
+                errors.append(f"Fila {idx + 1}: {exc}")
+
+        if txns_to_create:
+            AccountingTransaction.objects.bulk_create(txns_to_create, batch_size=500)
 
         return records_total, records_imported, errors

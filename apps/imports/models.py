@@ -13,6 +13,7 @@ class ImportJob(TimeStampedModel):
         COR_SHEET = "COR_SHEET", "C.O.R. Data Proyectos"
         FINANCIAL = "FINANCIAL", "Control Financiero"
         HOLIDAYS = "HOLIDAYS", "Festivos"
+        LOGGRO_ACCOUNTING = "LOGGRO_ACCOUNTING", "Auxiliar Contable Loggro"
 
     class Status(models.TextChoices):
         UPLOADED = "UPLOADED", "Subido"

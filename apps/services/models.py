@@ -136,6 +136,86 @@ class ServiceTemplate(TimeStampedModel):
         return f"{self.code} - {self.name}"
 
 
+class PricingChangeRequest(TimeStampedModel):
+    """
+    Request to change pricing/hours of a ServiceInstance.
+    Used when a project leader (LP) needs to modify values
+    that are restricted to Dirección Operativa (DO).
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "En Revisión"
+        APPROVED = "APPROVED", "Aprobado"
+        REJECTED = "REJECTED", "Rechazado"
+
+    service_instance = models.ForeignKey(
+        "projects.ServiceInstance",
+        on_delete=models.CASCADE,
+        related_name="pricing_requests",
+        verbose_name="instancia de servicio",
+    )
+    requested_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.CASCADE,
+        related_name="pricing_requests_made",
+        verbose_name="solicitado por",
+    )
+    reviewed_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="pricing_requests_reviewed",
+        verbose_name="revisado por",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        verbose_name="estado",
+    )
+
+    # Snapshot of current values
+    current_unit_price = models.DecimalField(
+        max_digits=14, decimal_places=2, default=0,
+        verbose_name="precio unitario actual",
+    )
+    current_projected_hours = models.DecimalField(
+        max_digits=8, decimal_places=2, default=0,
+        verbose_name="horas proyectadas actuales",
+    )
+
+    # Proposed values
+    proposed_unit_price = models.DecimalField(
+        max_digits=14, decimal_places=2, default=0,
+        verbose_name="precio unitario propuesto",
+    )
+    proposed_projected_hours = models.DecimalField(
+        max_digits=8, decimal_places=2, default=0,
+        verbose_name="horas proyectadas propuestas",
+    )
+
+    justification = models.TextField(
+        verbose_name="justificación",
+    )
+    review_notes = models.TextField(
+        blank=True,
+        verbose_name="notas de revisión",
+    )
+    reviewed_at = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name="fecha de revisión",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "solicitud de cambio de precio"
+        verbose_name_plural = "solicitudes de cambio de precio"
+
+    def __str__(self):
+        return f"PCR-{self.pk} ({self.service_instance.code}) - {self.get_status_display()}"
+
+
 class ServiceActivity(TimeStampedModel):
     """
     Represents an individual activity within a service template.

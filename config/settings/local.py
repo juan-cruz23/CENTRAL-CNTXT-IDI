@@ -57,6 +57,9 @@ except ImportError:
 # WhiteNoise  --  use plain storage in development
 # ---------------------------------------------------------------------------
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },

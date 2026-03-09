@@ -1,0 +1,65 @@
+{% extends "base/base.html" %}
+{% block title %}Solicitudes de Cambio de Precio{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Solicitudes de Cambio de Precio" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
+  <div class="card-body py-3">
+    <form method="get" class="flex items-end gap-3">
+      <div class="form-control w-40">
+        <label class="label py-0"><span class="label-text text-xs">Estado</span></label>
+        <select name="status" class="select select-bordered select-sm w-full">
+          <option value="">Todos</option>
+          {% for code, label in status_choices %}
+          <option value="{{ code }}" {% if current_status == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+    </form>
+  </div>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">ID</th>
+            <th class="text-xs uppercase tracking-wider">Servicio</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Solicitante</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pcr in requests %}
+          <tr class="hover">
+            <td class="font-mono">PCR-{{ pcr.pk }}</td>
+            <td>{{ pcr.service_instance.code }} - {{ pcr.service_instance.name|truncatechars:40 }}</td>
+            <td>{{ pcr.service_instance.project.code }}</td>
+            <td>{{ pcr.requested_by.get_full_name }}</td>
+            <td>
+              <span class="badge badge-sm {% if pcr.status == 'PENDING' %}badge-warning{% elif pcr.status == 'APPROVED' %}badge-success{% else %}badge-error{% endif %}">
+                {{ pcr.get_status_display }}
+              </span>
+            </td>
+            <td class="text-sm">{{ pcr.created_at|date:"d/m/Y" }}</td>
+            <td>
+              {% if can_review and pcr.status == 'PENDING' %}
+              <a href="{% url 'services:pricing_request_review' pcr.pk %}" class="btn btn-primary btn-sm">Revisar</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay solicitudes." icon="document" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -42,6 +42,7 @@ urlpatterns = [
     path("importar/", include("apps.imports.urls", namespace="imports")),
     path("notificaciones/", include("apps.notifications.urls", namespace="notifications")),
     path("organizacion/", include("apps.organizations.urls", namespace="organizations")),
+    path("terceros/", include("apps.terceros.urls", namespace="terceros")),
     # -----------------------------------------------------------------------
     # REST API
     # -----------------------------------------------------------------------

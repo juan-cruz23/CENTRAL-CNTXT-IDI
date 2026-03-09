@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% block title %}Mapeo de Centros de Costo{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/financiero/prorrateo/" parent_label="Prorrateo" current="Centros de Costo" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-5xl">
+  {% include "components/page_header.html" with title="Mapeo de Centros de Costo" subtitle="Asocie cada centro de costo de Loggro a un proyecto o unidad de negocio" %}
+
+  {% if mappings %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-0">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead class="bg-base-200/50">
+            <tr>
+              <th class="text-xs uppercase tracking-wider">Codigo</th>
+              <th class="text-xs uppercase tracking-wider">Nombre</th>
+              <th class="text-xs uppercase tracking-wider">Proyecto</th>
+              <th class="text-xs uppercase tracking-wider">Unidad de Negocio</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for mapping in mappings %}
+            <tr>
+              <td class="font-mono font-bold">{{ mapping.cost_center_code }}</td>
+              <td>{{ mapping.cost_center_name }}</td>
+              <td>
+                {% if mapping.project %}
+                  <span class="badge badge-primary badge-sm">{{ mapping.project.code }}</span>
+                  {{ mapping.project.name }}
+                {% else %}
+                  <span class="text-base-content/40">Sin asignar</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if mapping.business_unit %}
+                  <span class="badge badge-outline badge-sm">{{ mapping.business_unit.name }}</span>
+                {% else %}
+                  <span class="text-base-content/40">Sin asignar</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'financials:cost_center_mapping_update' mapping.pk %}" class="btn btn-ghost btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                  Editar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  {% include "components/empty_state.html" with message="No hay centros de costo importados. Importe un auxiliar contable de Loggro primero." icon="document" action_url="/importar/" action_label="Importar" action_icon="upload" %}
+  {% endif %}
+</div>
+{% endblock %}

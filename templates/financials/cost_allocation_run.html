@@ -1,0 +1,74 @@
+{% extends "base/base.html" %}
+{% block title %}Ejecutar Prorrateo - {{ period }}{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/financiero/prorrateo/" parent_label="Prorrateo" current="Ejecutar" %}
+{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Previsualización del Prorrateo" %}
+
+{% if preview %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+    <div class="stat-title text-xs">Periodo</div>
+    <div class="stat-value text-lg font-mono">{{ preview.period }}</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+    <div class="stat-title text-xs">Costos Totales</div>
+    <div class="stat-value text-lg">${{ preview.total_costs|floatformat:0 }}</div>
+  </div>
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+    <div class="stat-title text-xs">Horas Totales</div>
+    <div class="stat-value text-lg">{{ preview.total_hours|floatformat:1 }}h</div>
+  </div>
+</div>
+
+{% if preview.projects %}
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider text-right">Horas</th>
+            <th class="text-xs uppercase tracking-wider text-right">% Asignación</th>
+            <th class="text-xs uppercase tracking-wider text-right">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in preview.projects %}
+          <tr class="hover">
+            <td class="font-mono">{{ p.project_code }}</td>
+            <td>{{ p.project_name }}</td>
+            <td class="text-right">{{ p.hours|floatformat:1 }}</td>
+            <td class="text-right">{{ p.pct|floatformat:2 }}%</td>
+            <td class="text-right font-medium">${{ p.amount|floatformat:0 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<form method="post" action="{% url 'financials:cost_allocation_run' %}">
+  {% csrf_token %}
+  <input type="hidden" name="period" value="{{ period }}" />
+  <div class="flex justify-end gap-3">
+    <a href="{% url 'financials:cost_allocation_overview' %}" class="btn btn-ghost">Cancelar</a>
+    <button type="submit" class="btn btn-primary">Confirmar y Ejecutar</button>
+  </div>
+</form>
+{% else %}
+<div class="alert alert-warning">
+  <span>{{ preview.message|default:"No hay datos para asignar." }}</span>
+</div>
+{% endif %}
+
+{% else %}
+<div class="alert alert-info">
+  <span>Seleccione un periodo para previsualizar el prorrateo.</span>
+</div>
+{% endif %}
+{% endblock %}

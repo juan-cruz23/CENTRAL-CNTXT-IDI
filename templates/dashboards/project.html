@@ -3,7 +3,6 @@
 {% block title %}Dashboard - {{ project.name }}{% endblock %}
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 {% endblock %}
 {% block breadcrumb %}
 {% include "components/breadcrumb.html" with parent_url="/dashboards/" parent_label="Dashboard" current=project.name %}
@@ -12,7 +11,7 @@
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
   <div>
     <h1 class="text-2xl font-bold">{{ project.name }}</h1>
-    <p class="text-base-content/60">{{ project.client.name }} | {{ project.get_status_display }}</p>
+    <p class="text-base-content/60">{{ project.third_party.name|default:project.client.name }} | {{ project.get_status_display }}</p>
   </div>
   <a href="{% url 'projects:detail' project.pk %}" class="btn btn-outline btn-sm">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
@@ -37,25 +36,33 @@
     </div>
   </div>
   {% include "components/stat_card.html" with title="Rentabilidad" value=project.profitability_pct|stringformat:"s%%" icon="percent" %}
-  {% include "components/stat_card.html" with title="Satisfacción" value=project.client_satisfaction_score|stringformat:"s%%" icon="heart" %}
+  {% include "components/stat_card.html" with title="Satisfaccion" value=project.client_satisfaction_score|stringformat:"s%%" icon="heart" %}
 </div>
 
 <!-- Charts Row -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <!-- S-Curve with mode tabs -->
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h2 class="card-title text-base">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
-        Curva S (EVM)
-      </h2>
+      <div class="flex items-center justify-between">
+        <h2 class="card-title text-base">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+          Curva S (EVM)
+        </h2>
+        <div x-data="{ mode: 'cost' }" class="flex gap-1">
+          <button @click="mode='cost'; loadSCurve('cost')" class="btn btn-xs" :class="mode==='cost' ? 'btn-primary' : 'btn-ghost'">Costos</button>
+          <button @click="mode='execution'; loadSCurve('execution')" class="btn btn-xs" :class="mode==='execution' ? 'btn-primary' : 'btn-ghost'">Ejecucion</button>
+        </div>
+      </div>
       <div id="scurve-chart" style="height: 350px;"></div>
     </div>
   </div>
+  <!-- Periodic Cash Flow -->
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
       <h2 class="card-title text-base">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        Flujo de Caja
+        Flujo de Caja (Mensual)
       </h2>
       <div id="cashflow-chart" style="height: 350px;"></div>
     </div>
@@ -95,41 +102,68 @@
 
 {% block extra_js %}
 <script>
-// S-Curve Chart with dark mode support
-fetch("{% url 'metrics:scurve_data' project.pk %}")
-  .then(r => r.json())
-  .then(data => {
-    const colors = getChartColors();
-    const chart = echarts.init(document.getElementById('scurve-chart'));
-    chart.setOption({
-      tooltip: { trigger: 'axis' },
-      legend: { data: ['Valor Planeado (PV)', 'Valor Ganado (EV)', 'Costo Real (AC)'], textStyle: { color: colors.textColor } },
-      xAxis: { type: 'category', data: data.dates, axisLabel: { color: colors.textColor }, axisLine: { lineStyle: { color: colors.lineColor } } },
-      yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M', color: colors.textColor }, splitLine: { lineStyle: { color: colors.lineColor } } },
-      series: [
-        { name: 'Valor Planeado (PV)', type: 'line', data: data.planned_value, smooth: true, lineStyle: { type: 'dashed' }, areaStyle: { opacity: 0.05 } },
-        { name: 'Valor Ganado (EV)', type: 'line', data: data.earned_value, smooth: true, areaStyle: { opacity: 0.1 } },
-        { name: 'Costo Real (AC)', type: 'line', data: data.actual_cost, smooth: true, lineStyle: { color: colors.errorColor }, itemStyle: { color: colors.errorColor } },
-      ]
-    });
-    window.addEventListener('resize', () => chart.resize());
-  });
+// S-Curve Chart - supports cost and execution modes
+let scurveChart = null;
 
-// Cash Flow Chart with dark mode support
-fetch("{% url 'dashboards:cashflow_data' project.pk %}")
+function loadSCurve(mode) {
+  const url = "{% url 'metrics:scurve_data' project.pk %}" + "?mode=" + mode;
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      const colors = getChartColors();
+      if (!scurveChart) {
+        scurveChart = echarts.init(document.getElementById('scurve-chart'));
+        window.addEventListener('resize', () => scurveChart.resize());
+      }
+
+      let option;
+      if (mode === 'execution') {
+        option = {
+          tooltip: { trigger: 'axis', valueFormatter: v => v.toFixed(1) + '%' },
+          legend: { data: ['% Planeado', '% Real'], textStyle: { color: colors.textColor } },
+          xAxis: { type: 'category', data: data.dates, axisLabel: { color: colors.textColor }, axisLine: { lineStyle: { color: colors.lineColor } } },
+          yAxis: { type: 'value', min: 0, max: 100, axisLabel: { formatter: '{value}%', color: colors.textColor }, splitLine: { lineStyle: { color: colors.lineColor } } },
+          series: [
+            { name: '% Planeado', type: 'line', data: data.planned_progress_pct, smooth: true, lineStyle: { type: 'dashed', color: '#3b82f6' }, itemStyle: { color: '#3b82f6' } },
+            { name: '% Real', type: 'line', data: data.actual_progress_pct, smooth: true, lineStyle: { color: '#22c55e' }, itemStyle: { color: '#22c55e' }, areaStyle: { opacity: 0.1 } },
+          ]
+        };
+      } else {
+        option = {
+          tooltip: { trigger: 'axis' },
+          legend: { data: ['Valor Planeado (PV)', 'Valor Ganado (EV)', 'Costo Real (AC)', 'Costo Planeado (PC)'], textStyle: { color: colors.textColor } },
+          xAxis: { type: 'category', data: data.dates, axisLabel: { color: colors.textColor }, axisLine: { lineStyle: { color: colors.lineColor } } },
+          yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M', color: colors.textColor }, splitLine: { lineStyle: { color: colors.lineColor } } },
+          series: [
+            { name: 'Valor Planeado (PV)', type: 'line', data: data.planned_value, smooth: true, lineStyle: { type: 'dashed', color: '#22c55e' }, itemStyle: { color: '#22c55e' }, areaStyle: { opacity: 0.05 } },
+            { name: 'Valor Ganado (EV)', type: 'line', data: data.earned_value, smooth: true, lineStyle: { color: '#22c55e' }, itemStyle: { color: '#22c55e' }, areaStyle: { opacity: 0.1 } },
+            { name: 'Costo Real (AC)', type: 'line', data: data.actual_cost, smooth: true, lineStyle: { color: '#ef4444' }, itemStyle: { color: '#ef4444' } },
+            { name: 'Costo Planeado (PC)', type: 'line', data: data.planned_cost || [], smooth: true, lineStyle: { type: 'dashed', color: '#3b82f6' }, itemStyle: { color: '#3b82f6' } },
+          ]
+        };
+      }
+      scurveChart.setOption(option, true);
+    });
+}
+
+// Load cost mode by default
+loadSCurve('cost');
+
+// Periodic Cash Flow Chart
+fetch("{% url 'dashboards:periodic_cashflow' project.pk %}")
   .then(r => r.json())
   .then(data => {
     const colors = getChartColors();
     const chart = echarts.init(document.getElementById('cashflow-chart'));
     chart.setOption({
       tooltip: { trigger: 'axis' },
-      legend: { data: ['Propuesto', 'Ejecutado', 'Recaudado'], textStyle: { color: colors.textColor } },
-      xAxis: { type: 'category', data: data.labels, axisLabel: { color: colors.textColor }, axisLine: { lineStyle: { color: colors.lineColor } } },
+      legend: { data: ['Proyectado', 'Facturado', 'Recaudado'], textStyle: { color: colors.textColor } },
+      xAxis: { type: 'category', data: data.periods, axisLabel: { color: colors.textColor }, axisLine: { lineStyle: { color: colors.lineColor } } },
       yAxis: { type: 'value', axisLabel: { formatter: v => '$' + (v/1e6).toFixed(1) + 'M', color: colors.textColor }, splitLine: { lineStyle: { color: colors.lineColor } } },
       series: [
-        { name: 'Propuesto', type: 'bar', data: data.proposed },
-        { name: 'Ejecutado', type: 'bar', data: data.executed },
-        { name: 'Recaudado', type: 'bar', data: data.collected },
+        { name: 'Proyectado', type: 'bar', data: data.projected, itemStyle: { color: '#3b82f6' } },
+        { name: 'Facturado', type: 'bar', data: data.invoiced, itemStyle: { color: '#eab308' } },
+        { name: 'Recaudado', type: 'bar', data: data.collected, itemStyle: { color: '#22c55e' } },
       ]
     });
     window.addEventListener('resize', () => chart.resize());

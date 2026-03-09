@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 
 from apps.projects.forms import ClientForm, ProjectForm, ServiceInstanceForm
 from apps.projects.models import (
@@ -12,6 +13,7 @@ from apps.projects.models import (
     ProjectPhaseInstance,
     ServiceInstance,
 )
+from apps.services.mixins import has_pricing_permission
 
 
 # ---------------------------------------------------------------------------
@@ -154,9 +156,27 @@ class ServiceInstanceUpdateView(LoginRequiredMixin, UpdateView):
             project_id=self.kwargs["pk"],
         ).select_related("project", "phase_instance")
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["project"] = self.object.project
+        return kwargs
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if not has_pricing_permission(self.request.user):
+            for field_name in ("unit_price", "projected_hours", "quantity"):
+                if field_name in form.fields:
+                    form.fields[field_name].widget.attrs["readonly"] = True
+                    form.fields[field_name].widget.attrs["class"] = (
+                        form.fields[field_name].widget.attrs.get("class", "")
+                        + " opacity-50 cursor-not-allowed"
+                    )
+        return form
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["project"] = self.object.project
+        context["has_pricing_permission"] = has_pricing_permission(self.request.user)
         return context
 
     def get_success_url(self):
@@ -188,6 +208,27 @@ class ServiceInstanceUpdateView(LoginRequiredMixin, UpdateView):
                 {"form": form, "service_instance": self.object},
             )
         return super().form_invalid(form)
+
+
+class ValidateAssignmentView(LoginRequiredMixin, View):
+    """HTMX endpoint: check if assigned professional has allocation in project."""
+
+    def get(self, request, pk):
+        user_id = request.GET.get("assigned_professional")
+        if not user_id:
+            return HttpResponse("")
+
+        from domain.capacity.services import CapacityService
+
+        result = CapacityService.validate_assignment(int(user_id), pk)
+        if result["has_allocation"]:
+            return HttpResponse("")
+
+        return TemplateResponse(
+            request,
+            "projects/partials/assignment_warning.html",
+            {"warning": result["warning_message"], "project_pk": pk},
+        )
 
 
 # ---------------------------------------------------------------------------

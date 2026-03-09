@@ -57,9 +57,12 @@ class SCurveDataView(LoginRequiredMixin, View):
         project = get_object_or_404(Project, pk=project_pk)
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
+        mode = request.GET.get("mode", "cost")
 
         generator = SCurveGenerator(project)
-        data = generator.generate(start_date=start_date, end_date=end_date)
+        data = generator.generate(
+            start_date=start_date, end_date=end_date, mode=mode,
+        )
 
         return JsonResponse(data, safe=False)
 

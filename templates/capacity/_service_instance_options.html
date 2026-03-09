@@ -1,0 +1,4 @@
+<option value="">--- Opcional: vincular a servicio ---</option>
+{% for si in services %}
+<option value="{{ si.pk }}">{{ si.code }} - {{ si.name }}</option>
+{% endfor %}

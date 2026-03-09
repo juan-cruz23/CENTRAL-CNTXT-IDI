@@ -1,0 +1,114 @@
+<!-- HTMX partial: Team allocations for a project -->
+{% if team %}
+<div class="overflow-x-auto">
+  <table class="table">
+    <thead class="bg-base-200/50">
+      <tr>
+        <th class="text-xs uppercase tracking-wider">Profesional</th>
+        <th class="text-xs uppercase tracking-wider">Rol</th>
+        <th class="text-xs uppercase tracking-wider text-center">Horas/Sem</th>
+        <th class="text-xs uppercase tracking-wider text-center">Carga Total</th>
+        <th class="text-xs uppercase tracking-wider">Dedicacion Global</th>
+        <th class="text-xs uppercase tracking-wider text-center">Periodo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in team %}
+      <tr class="hover cursor-pointer" x-data="{ open: false }" @click="open = !open">
+        <td>
+          <div class="flex items-center gap-2">
+            <div class="avatar placeholder">
+              <div class="bg-{% if m.pct > 100 %}error{% elif m.pct > 85 %}warning{% else %}primary{% endif %} text-{% if m.pct > 100 %}error{% elif m.pct > 85 %}warning{% else %}primary{% endif %}-content w-8 rounded-full">
+                <span class="text-xs">{{ m.user.first_name|first }}{{ m.user.last_name|first }}</span>
+              </div>
+            </div>
+            <div>
+              <div class="font-medium">{{ m.user.get_full_name }}</div>
+              {% if m.services %}
+              <div class="text-xs opacity-50">{{ m.services|length }} servicio{{ m.services|length|pluralize:"s" }}</div>
+              {% endif %}
+            </div>
+            {% if m.services %}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-40 transition-transform" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            {% endif %}
+          </div>
+        </td>
+        <td>
+          {% if m.role %}
+          <span class="badge badge-ghost badge-sm">{{ m.role.name }}</span>
+          {% else %}
+          <span class="text-base-content/30">-</span>
+          {% endif %}
+        </td>
+        <td class="text-center font-mono font-bold">{{ m.hours_this_project }}h</td>
+        <td class="text-center font-mono text-sm {% if m.pct > 100 %}text-error{% endif %}">{{ m.total_allocated }}/{{ m.available }}h</td>
+        <td>
+          <div class="flex items-center gap-2">
+            <progress class="progress {% if m.pct > 100 %}progress-error{% elif m.pct > 85 %}progress-warning{% else %}progress-primary{% endif %} w-20" value="{{ m.pct }}" max="120"></progress>
+            <span class="text-xs font-mono {% if m.pct > 100 %}text-error font-bold{% endif %}">{{ m.pct }}%</span>
+          </div>
+        </td>
+        <td class="text-center text-xs font-mono opacity-70">
+          {{ m.start_date|date:"d/m" }}{% if m.end_date %} - {{ m.end_date|date:"d/m" }}{% else %} →{% endif %}
+        </td>
+      </tr>
+      {% if m.services %}
+      <tr x-show="open" x-cloak x-data @click.stop>
+        <td colspan="6" class="bg-base-200/30 p-0">
+          <div class="px-12 py-3">
+            <table class="table table-xs">
+              <thead>
+                <tr class="text-xs opacity-60">
+                  <th>Codigo</th>
+                  <th>Servicio</th>
+                  <th class="text-center">Avance</th>
+                  <th class="text-center">Horas Proy.</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for svc in m.services %}
+                <tr>
+                  <td class="font-mono text-xs font-bold">{{ svc.code }}</td>
+                  <td class="text-sm">{{ svc.name|truncatechars:50 }}</td>
+                  <td class="text-center">
+                    <div class="flex items-center justify-center gap-1">
+                      <progress class="progress progress-primary w-12" value="{{ svc.progress_pct }}" max="100"></progress>
+                      <span class="text-xs font-mono">{{ svc.progress_pct }}%</span>
+                    </div>
+                  </td>
+                  <td class="text-center font-mono text-xs">{{ svc.projected_hours }}h</td>
+                  <td>
+                    <a href="{% url 'projects:service_update' pk=svc.project_pk si_pk=svc.pk %}" class="btn btn-ghost btn-xs">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="p-4 border-t border-base-300/30 flex justify-between items-center">
+  <span class="text-sm opacity-60">{{ team|length }} profesional{{ team|length|pluralize:"es" }} asignado{{ team|length|pluralize:"s" }}</span>
+  <a href="{% url 'capacity:allocate' %}?project={{ project_pk }}" class="btn btn-accent btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    Asignar Recurso
+  </a>
+</div>
+{% else %}
+<div class="p-8 text-center">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-base-content/20 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+  <p class="text-base-content/50 mb-4">No hay equipo asignado a este proyecto</p>
+  <a href="{% url 'capacity:allocate' %}?project={{ project_pk }}" class="btn btn-accent btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    Asignar Primer Recurso
+  </a>
+</div>
+{% endif %}

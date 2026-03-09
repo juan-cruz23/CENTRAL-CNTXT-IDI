@@ -8,6 +8,70 @@ and cash-flow chart data generation.
 from decimal import ROUND_HALF_UP, Decimal
 
 
+class CashFlowService:
+    """Generates periodic (monthly) cash flow data."""
+
+    @staticmethod
+    def get_periodic_cashflow(
+        project_id=None,
+        business_unit_code=None,
+        start_period=None,
+        end_period=None,
+    ) -> dict:
+        """
+        Generate monthly cash flow data.
+
+        Groups PaymentMilestone values by month:
+        - projected: proposed_value by billing_date month
+        - invoiced: invoice_value by billing_date month
+        - collected: collection_value by collection_date month
+
+        Returns:
+            {periods: [...], projected: [...], invoiced: [...], collected: [...]}
+        """
+        from collections import defaultdict
+
+        from apps.financials.models import PaymentMilestone
+
+        qs = PaymentMilestone.objects.all()
+        if project_id:
+            qs = qs.filter(project_id=project_id)
+        if business_unit_code:
+            qs = qs.filter(project__business_unit__code=business_unit_code)
+
+        projected_by_month = defaultdict(float)
+        invoiced_by_month = defaultdict(float)
+        collected_by_month = defaultdict(float)
+
+        for pm in qs:
+            if pm.billing_date:
+                month_key = pm.billing_date.strftime("%Y-%m")
+                projected_by_month[month_key] += float(pm.proposed_value or 0)
+                invoiced_by_month[month_key] += float(pm.invoice_value or 0)
+            if pm.collection_date:
+                c_month = pm.collection_date.strftime("%Y-%m")
+                collected_by_month[c_month] += float(pm.collection_value or 0)
+
+        # Merge all months and sort
+        all_months = sorted(
+            set(projected_by_month.keys())
+            | set(invoiced_by_month.keys())
+            | set(collected_by_month.keys())
+        )
+
+        if start_period:
+            all_months = [m for m in all_months if m >= start_period]
+        if end_period:
+            all_months = [m for m in all_months if m <= end_period]
+
+        return {
+            "periods": all_months,
+            "projected": [projected_by_month.get(m, 0) for m in all_months],
+            "invoiced": [invoiced_by_month.get(m, 0) for m in all_months],
+            "collected": [collected_by_month.get(m, 0) for m in all_months],
+        }
+
+
 class FinancialService:
     """Operations on project financial data (payments, cash flow, summaries)."""
 

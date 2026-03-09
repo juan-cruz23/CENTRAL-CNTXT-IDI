@@ -1,0 +1,56 @@
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-8">
+  <div class="card-body">
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+      Portfolio por Unidad de Negocio
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <div id="bu-pie-chart" style="height: 280px;"></div>
+      <div id="bu-table-container">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th class="text-xs uppercase tracking-wider">Unidad</th>
+              <th class="text-xs uppercase tracking-wider text-right">Proyectos</th>
+              <th class="text-xs uppercase tracking-wider text-right">Valor Total</th>
+            </tr>
+          </thead>
+          <tbody id="bu-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  fetch("{% url 'dashboards:portfolio_by_bu' %}")
+    .then(r => r.json())
+    .then(data => {
+      if (!data.length) return;
+      const colors = getChartColors();
+
+      // Pie chart
+      const chart = echarts.init(document.getElementById('bu-pie-chart'));
+      chart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: ${c:,.0f} ({d}%)' },
+        series: [{
+          type: 'pie',
+          radius: ['40%', '70%'],
+          label: { color: colors.textColor },
+          data: data.map(d => ({ name: d.name || d.code, value: d.total || 0 }))
+        }]
+      });
+      window.addEventListener('resize', () => chart.resize());
+
+      // Table
+      const tbody = document.getElementById('bu-table-body');
+      data.forEach(d => {
+        const row = document.createElement('tr');
+        const val = (d.total || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+        row.innerHTML = `<td class="font-medium">${d.name || d.code}</td><td class="text-right">${d.count || 0}</td><td class="text-right">${val}</td>`;
+        tbody.appendChild(row);
+      });
+    });
+});
+</script>

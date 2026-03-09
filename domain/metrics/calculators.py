@@ -60,6 +60,7 @@ class EVMCalculator:
         planned_value = self.ZERO
         earned_value = self.ZERO
         actual_cost = self.ZERO
+        planned_cost = self.ZERO
 
         # Accumulators for weighted progress calculation
         weighted_progress_sum = self.ZERO
@@ -71,10 +72,12 @@ class EVMCalculator:
             si_progress = Decimal(str(si.progress_pct or 0))
             si_expected = Decimal(str(si.expected_progress_pct or 0))
             si_actual_cost = Decimal(str(si.real_operative_cost or 0))
+            si_estimated_cost = Decimal(str(si.estimated_operative_cost or 0))
 
             planned_value += si_value * si_expected / self.HUNDRED
             earned_value += si_value * si_progress / self.HUNDRED
             actual_cost += si_actual_cost
+            planned_cost += si_estimated_cost * si_expected / self.HUNDRED
 
             weighted_progress_sum += si_value * si_progress
             weighted_expected_sum += si_value * si_expected
@@ -143,6 +146,7 @@ class EVMCalculator:
             "planned_value": planned_value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
             "earned_value": earned_value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
             "actual_cost": actual_cost.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
+            "planned_cost": planned_cost.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
             "spi": spi.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP),
             "cpi": cpi.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP),
             "schedule_variance": schedule_variance.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
@@ -201,20 +205,18 @@ class SCurveGenerator:
         """
         self.project = project
 
-    def generate(self, start_date=None, end_date=None) -> dict:
+    def generate(self, start_date=None, end_date=None, mode="cost") -> dict:
         """
         Generate S-Curve data from historical snapshots.
 
         Args:
             start_date: Optional start date filter (str 'YYYY-MM-DD' or date).
             end_date: Optional end date filter (str 'YYYY-MM-DD' or date).
+            mode: "cost" for cost-based S-curve (PV, EV, AC, PC),
+                  "execution" for progress-based S-curve (planned %, actual %).
 
         Returns:
-            dict with keys:
-                - dates: list of date strings (ISO format)
-                - planned_value: list of float values
-                - earned_value: list of float values
-                - actual_cost: list of float values
+            dict with S-curve data series.
         """
         from apps.metrics.models import ProjectMetricSnapshot
 
@@ -227,11 +229,34 @@ class SCurveGenerator:
         if end_date:
             queryset = queryset.filter(snapshot_date__lte=end_date)
 
+        if mode == "execution":
+            snapshots = queryset.values_list(
+                "snapshot_date",
+                "expected_progress_pct",
+                "overall_progress_pct",
+            )
+            if snapshots:
+                dates = []
+                planned_progress = []
+                actual_progress = []
+                for snap_date, expected, actual in snapshots:
+                    dates.append(snap_date.isoformat())
+                    planned_progress.append(float(expected))
+                    actual_progress.append(float(actual))
+                return {
+                    "dates": dates,
+                    "planned_progress_pct": planned_progress,
+                    "actual_progress_pct": actual_progress,
+                }
+            return {"dates": [], "planned_progress_pct": [], "actual_progress_pct": []}
+
+        # Default: cost mode
         snapshots = queryset.values_list(
             "snapshot_date",
             "planned_value",
             "earned_value",
             "actual_cost",
+            "planned_cost",
         )
 
         if snapshots:
@@ -239,18 +264,21 @@ class SCurveGenerator:
             planned_values = []
             earned_values = []
             actual_costs = []
+            planned_costs = []
 
-            for snap_date, pv, ev, ac in snapshots:
+            for snap_date, pv, ev, ac, pc in snapshots:
                 dates.append(snap_date.isoformat())
                 planned_values.append(float(pv))
                 earned_values.append(float(ev))
                 actual_costs.append(float(ac))
+                planned_costs.append(float(pc))
 
             return {
                 "dates": dates,
                 "planned_value": planned_values,
                 "earned_value": earned_values,
                 "actual_cost": actual_costs,
+                "planned_cost": planned_costs,
             }
 
         # ------------------------------------------------------------------

@@ -1,0 +1,76 @@
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-8">
+  <div class="card-body">
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+      Timeline de Proyectos
+    </h2>
+    <div id="gantt-chart" style="height: 400px;"></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  fetch("{% url 'dashboards:gantt_data' %}")
+    .then(r => r.json())
+    .then(data => {
+      if (!data.length) return;
+      const colors = getChartColors();
+      const chart = echarts.init(document.getElementById('gantt-chart'));
+      const categories = data.map(d => d.name);
+      const barData = data.map((d, i) => {
+        if (!d.start || !d.end) return null;
+        const startTime = new Date(d.start).getTime();
+        const endTime = new Date(d.end).getTime();
+        const progressColor = d.progress >= 80 ? '#22c55e' : d.progress >= 50 ? '#eab308' : '#ef4444';
+        return {
+          name: d.name,
+          value: [i, startTime, endTime, d.progress],
+          itemStyle: { color: progressColor, opacity: 0.8 }
+        };
+      }).filter(Boolean);
+
+      chart.setOption({
+        tooltip: {
+          formatter: function(p) {
+            const start = new Date(p.value[1]).toLocaleDateString('es-CO');
+            const end = new Date(p.value[2]).toLocaleDateString('es-CO');
+            return `<strong>${p.name}</strong><br/>Inicio: ${start}<br/>Fin: ${end}<br/>Avance: ${p.value[3]}%`;
+          }
+        },
+        grid: { left: '22%', right: '5%', top: '5%', bottom: '10%' },
+        xAxis: {
+          type: 'time',
+          axisLabel: { color: colors.textColor },
+          axisLine: { lineStyle: { color: colors.lineColor } }
+        },
+        yAxis: {
+          type: 'category',
+          data: categories,
+          inverse: true,
+          axisLabel: { color: colors.textColor, fontSize: 11, width: 180, overflow: 'truncate' },
+          axisLine: { lineStyle: { color: colors.lineColor } }
+        },
+        series: [{
+          type: 'custom',
+          renderItem: function(params, api) {
+            const catIdx = api.value(0);
+            const start = api.coord([api.value(1), catIdx]);
+            const end = api.coord([api.value(2), catIdx]);
+            const height = api.size([0, 1])[1] * 0.6;
+            return {
+              type: 'rect',
+              shape: echarts.graphic.clipRectByRect(
+                { x: start[0], y: start[1] - height / 2, width: end[0] - start[0], height: height },
+                { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height }
+              ),
+              style: api.style()
+            };
+          },
+          encode: { x: [1, 2], y: 0 },
+          data: barData
+        }]
+      });
+      window.addEventListener('resize', () => chart.resize());
+    });
+});
+</script>

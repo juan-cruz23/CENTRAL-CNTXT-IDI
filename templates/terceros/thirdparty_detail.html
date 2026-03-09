@@ -1,0 +1,116 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}{{ third_party.name }}{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/terceros/" parent_label="Terceros" current=third_party.name %}
+{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">{{ third_party.name }}</h1>
+    <p class="text-base-content/60">
+      <span class="badge badge-outline">{{ third_party.get_relationship_type_display }}</span>
+      {% if third_party.client_category %}
+      <span class="badge badge-sm {% if third_party.client_category == 'BLACK' %}badge-neutral{% elif third_party.client_category == 'GOLD' %}badge-warning{% else %}badge-ghost{% endif %}">{{ third_party.get_client_category_display }}</span>
+      {% endif %}
+      {% if not third_party.is_active %}<span class="badge badge-error badge-sm">Inactivo</span>{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'terceros:update' third_party.pk %}" class="btn btn-outline btn-sm">Editar</a>
+</div>
+
+<!-- Info -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <h2 class="card-title text-base">Información</h2>
+      <div class="grid grid-cols-2 gap-y-2 text-sm">
+        <span class="text-base-content/60">Empresa</span>
+        <span>{{ third_party.company|default:"-" }}</span>
+        <span class="text-base-content/60">NIT</span>
+        <span>{{ third_party.nit|default:"-" }}</span>
+        <span class="text-base-content/60">Email</span>
+        <span>{{ third_party.email|default:"-" }}</span>
+        <span class="text-base-content/60">Teléfono</span>
+        <span>{{ third_party.phone|default:"-" }}</span>
+        <span class="text-base-content/60">Ciudad</span>
+        <span>{{ third_party.city|default:"-" }}</span>
+      </div>
+      {% if third_party.notes %}
+      <div class="mt-3">
+        <span class="text-sm text-base-content/60">Notas</span>
+        <p class="text-sm mt-1">{{ third_party.notes }}</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Contacts -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <h2 class="card-title text-base">Contactos</h2>
+      {% if contacts %}
+      <div class="space-y-3">
+        {% for contact in contacts %}
+        <div class="flex items-start gap-3 p-2 rounded-lg bg-base-200/50">
+          <div class="avatar placeholder">
+            <div class="bg-primary text-primary-content w-8 rounded-full">
+              <span class="text-xs">{{ contact.name|first }}</span>
+            </div>
+          </div>
+          <div class="text-sm">
+            <p class="font-medium">{{ contact.name }}{% if contact.is_primary %} <span class="badge badge-primary badge-xs">Principal</span>{% endif %}</p>
+            {% if contact.role %}<p class="text-base-content/60">{{ contact.role }}</p>{% endif %}
+            {% if contact.email %}<p>{{ contact.email }}</p>{% endif %}
+            {% if contact.phone %}<p>{{ contact.phone }}</p>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-base-content/60">No hay contactos registrados.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Associated Projects -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body">
+    <h2 class="card-title text-base">Proyectos Asociados</h2>
+    {% if projects %}
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Avance</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for project in projects %}
+          <tr class="hover">
+            <td class="font-mono">{{ project.code }}</td>
+            <td>{{ project.name }}</td>
+            <td><span class="badge badge-sm {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %}">{{ project.get_status_display }}</span></td>
+            <td>
+              <div class="flex items-center gap-2">
+                <progress class="progress progress-primary w-16" value="{{ project.current_progress_pct }}" max="100"></progress>
+                <span class="text-xs">{{ project.current_progress_pct }}%</span>
+              </div>
+            </td>
+            <td><a href="{% url 'dashboards:project' project.pk %}" class="btn btn-ghost btn-xs">Ver</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-sm text-base-content/60">No hay proyectos asociados.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

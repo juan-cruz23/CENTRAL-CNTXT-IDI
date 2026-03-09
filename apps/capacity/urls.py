@@ -6,6 +6,9 @@ from apps.capacity.views import (
     CapacityAlertListView,
     CapacityHeatmapView,
     CapacityOverviewView,
+    ProjectTeamView,
+    ServiceInstanceOptionsView,
+    ValidateAllocationView,
 )
 
 app_name = "capacity"
@@ -16,4 +19,7 @@ urlpatterns = [
     path("matriz/", AllocationMatrixView.as_view(), name="matrix"),
     path("alertas/", CapacityAlertListView.as_view(), name="alerts"),
     path("asignar/", AllocationCreateView.as_view(), name="allocate"),
+    path("servicios-opciones/", ServiceInstanceOptionsView.as_view(), name="service_instance_options"),
+    path("validar-asignacion/", ValidateAllocationView.as_view(), name="validate_allocation"),
+    path("proyecto/<int:project_pk>/equipo/", ProjectTeamView.as_view(), name="project_team"),
 ]
