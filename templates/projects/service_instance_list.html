@@ -1,59 +1,68 @@
 {% load common_tags %}
-<table class="table table-sm table-zebra">
+<div class="overflow-x-auto w-full">
+<table class="table table-sm table-zebra w-full">
   <thead class="bg-base-200/50">
     <tr>
-      <th class="text-xs uppercase tracking-wider">Código</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap">Código</th>
       <th class="text-xs uppercase tracking-wider">Servicio</th>
-      <th class="text-xs uppercase tracking-wider">Cant.</th>
-      <th class="text-xs uppercase tracking-wider">Valor UND</th>
-      <th class="text-xs uppercase tracking-wider">Total</th>
-      <th class="text-xs uppercase tracking-wider">Inc. %</th>
-      <th class="text-xs uppercase tracking-wider">Check</th>
-      <th class="text-xs uppercase tracking-wider">Avance %</th>
-      <th class="text-xs uppercase tracking-wider">Esperado %</th>
-      <th class="text-xs uppercase tracking-wider">Rol</th>
-      <th class="text-xs uppercase tracking-wider">Profesional</th>
-      <th class="text-xs uppercase tracking-wider">Horas Proy.</th>
-      <th class="text-xs uppercase tracking-wider">Horas Real</th>
-      <th class="text-xs uppercase tracking-wider">Desviación</th>
-      <th></th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">Cant.</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-right">Valor UND</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-right">Total</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">Inc.%</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">Check</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">Avance%</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">Esp.%</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap">Profesional</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">H.Proy</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">H.Real</th>
+      <th class="text-xs uppercase tracking-wider whitespace-nowrap text-center">Desv.</th>
+      <th class="text-xs uppercase tracking-wider"></th>
     </tr>
   </thead>
   <tbody>
     {% for si in service_instances %}
-    <tr class="{% if si.is_milestone %}bg-warning/10 font-bold{% endif %} {% if si.is_review_period %}bg-info/10 italic{% endif %}">
-      <td class="font-mono">{{ si.code }}</td>
-      <td class="max-w-xs truncate" title="{{ si.name }}">{{ si.name }}</td>
-      <td>{{ si.quantity }}</td>
-      <td class="text-right">{{ si.unit_price|cop_format }}</td>
-      <td class="text-right font-medium">{{ si.total_value|cop_format }}</td>
-      <td>{{ si.incidence_pct }}%</td>
-      <td>
+    <tr id="si-{{ si.pk }}" class="{% if si.is_milestone %}bg-warning/10 font-bold{% endif %} {% if si.is_review_period %}bg-info/10 italic{% endif %}">
+      <td class="font-mono whitespace-nowrap text-xs">{{ si.code }}</td>
+      <td class="max-w-[200px] truncate" title="{{ si.name }}">{{ si.name }}</td>
+      <td class="text-center">{{ si.quantity }}</td>
+      <td class="text-right whitespace-nowrap">{{ si.unit_price|cop_format }}</td>
+      <td class="text-right whitespace-nowrap font-medium">{{ si.total_value|cop_format }}</td>
+      <td class="text-center">{{ si.incidence_pct }}%</td>
+      <td class="text-center">
         <input type="checkbox" class="checkbox checkbox-sm checkbox-primary"
                {% if si.is_checked %}checked{% endif %}
                hx-post="{% url 'projects:service_update' project.pk si.pk %}"
                hx-vals='{"is_checked": "toggle"}'
                hx-swap="none" />
       </td>
-      <td>
+      <td class="text-center">
         <span class="{% if si.progress_pct > 0 and si.progress_pct >= si.expected_progress_pct %}text-success{% elif si.progress_pct > 0 %}text-warning{% endif %}">
           {{ si.progress_pct }}%
         </span>
       </td>
-      <td>{{ si.expected_progress_pct }}%</td>
-      <td>{{ si.responsible_role.code|default:"-" }}</td>
-      <td>{{ si.assigned_professional.get_full_name|default:"-" }}</td>
-      <td>{{ si.projected_hours }}</td>
-      <td>{{ si.actual_hours }}</td>
-      <td class="{% if si.operative_deviation_pct > 10 %}text-error{% elif si.operative_deviation_pct > 0 %}text-warning{% elif si.operative_deviation_pct < 0 %}text-success{% endif %}">
+      <td class="text-center">{{ si.expected_progress_pct }}%</td>
+      <td class="whitespace-nowrap text-sm">{{ si.assigned_professional.get_full_name|default:"-" }}</td>
+      <td class="text-center">{{ si.projected_hours }}</td>
+      <td class="text-center">{{ si.actual_hours }}</td>
+      <td class="text-center {% if si.operative_deviation_pct > 10 %}text-error{% elif si.operative_deviation_pct > 0 %}text-warning{% elif si.operative_deviation_pct < 0 %}text-success{% endif %}">
         {{ si.operative_deviation_pct }}%
       </td>
       <td>
-        <a href="{% url 'projects:service_update' project.pk si.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+        <div class="flex gap-1">
+          <a href="{% url 'projects:service_update' project.pk si.pk %}" class="btn btn-ghost btn-xs whitespace-nowrap">Editar</a>
+          <button class="btn btn-ghost btn-xs text-error"
+                  hx-delete="{% url 'projects:service_delete' project.pk si.pk %}"
+                  hx-target="#si-{{ si.pk }}"
+                  hx-swap="outerHTML"
+                  hx-confirm="Eliminar este servicio?">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="15">{% include "components/empty_state.html" with message="No hay servicios en esta fase." icon="cog" %}</td></tr>
+    <tr><td colspan="14">{% include "components/empty_state.html" with message="No hay servicios en esta fase." icon="cog" %}</td></tr>
     {% endfor %}
   </tbody>
 </table>
+</div>

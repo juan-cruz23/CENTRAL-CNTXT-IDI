@@ -1,0 +1,101 @@
+{% load common_tags %}
+<!-- Payment Milestones Summary -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
+      <h2 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+        Hitos de Pago
+      </h2>
+      <a href="{% url 'financials:payment_create' project_pk %}" class="btn btn-primary btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Agregar Hito de Pago
+      </a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Concepto</th>
+            <th class="text-xs uppercase tracking-wider">Propuesto</th>
+            <th class="text-xs uppercase tracking-wider">Ejecutado</th>
+            <th class="text-xs uppercase tracking-wider">Recaudado</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider">Fecha Factura</th>
+            <th class="text-xs uppercase tracking-wider"></th>
+          </tr>
+        </thead>
+        <tbody id="payment-milestones-tbody">
+          {% for pm in payment_milestones %}
+          <tr id="pm-{{ pm.pk }}">
+            <td>{{ pm.concept }}</td>
+            <td class="text-right">{{ pm.proposed_value|cop_format }}</td>
+            <td class="text-right">{{ pm.executed_value|cop_format }}</td>
+            <td class="text-right">{{ pm.collection_value|cop_format }}</td>
+            <td><span class="badge badge-outline badge-sm">{{ pm.get_status_display }}</span></td>
+            <td>{{ pm.billing_date|date:"d/m/Y"|default:"-" }}</td>
+            <td>
+              <div class="flex gap-1">
+                <a href="{% url 'financials:payment_update' project_pk pm.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+                <button class="btn btn-ghost btn-xs text-error"
+                        hx-delete="{% url 'financials:payment_delete' project_pk pm.pk %}"
+                        hx-target="#pm-{{ pm.pk }}"
+                        hx-swap="outerHTML"
+                        hx-confirm="Eliminar este hito de pago?">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="Sin hitos de pago registrados." icon="banknotes" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Profitability — Auto-calculated KPIs -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30">
+      <h2 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+        Rentabilidad (Calculado)
+      </h2>
+    </div>
+    <div class="p-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Valor Total Proyecto</div>
+          <div class="stat-value text-lg">{{ profitability.total_value|cop_format }}</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Total Facturado</div>
+          <div class="stat-value text-lg">{{ profitability.total_invoiced|cop_format }}</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Total Recaudado</div>
+          <div class="stat-value text-lg">{{ profitability.total_collected|cop_format }}</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Costo Operativo Real</div>
+          <div class="stat-value text-lg">{{ profitability.total_cost|cop_format }}</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Utilidad</div>
+          <div class="stat-value text-lg {% if profitability.utility > 0 %}text-success{% elif profitability.utility < 0 %}text-error{% endif %}">
+            {{ profitability.utility|cop_format }}
+          </div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Margen %</div>
+          <div class="stat-value text-lg {% if profitability.margin_pct > 20 %}text-success{% elif profitability.margin_pct > 0 %}text-warning{% else %}text-error{% endif %}">
+            {{ profitability.margin_pct }}%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

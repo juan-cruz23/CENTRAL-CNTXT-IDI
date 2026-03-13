@@ -1,0 +1,69 @@
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
+      <h3 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        RFIs (Solicitudes de Información)
+      </h3>
+      <a href="{{ create_url }}" class="btn btn-primary btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Nuevo RFI
+      </a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Servicio</th>
+            <th class="text-xs uppercase tracking-wider">Profesional</th>
+            <th class="text-xs uppercase tracking-wider">Disciplina Ext.</th>
+            <th class="text-xs uppercase tracking-wider">Horas</th>
+            <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rfi in rfis %}
+          <tr id="rfi-{{ rfi.pk }}" class="hover">
+            <td class="font-mono font-bold">{{ rfi.code|default:"-" }}</td>
+            <td>{{ rfi.service_instance.name|default:"-" }}</td>
+            <td>{{ rfi.professional.get_full_name|default:"-" }}</td>
+            <td>{{ rfi.external_discipline|default:"-" }}</td>
+            <td>{{ rfi.time_invested_hours }}</td>
+            <td>
+              <span class="badge {% if rfi.status == 'OPEN' %}badge-warning{% elif rfi.status == 'CLOSED' %}badge-success{% else %}badge-ghost{% endif %} badge-sm">
+                {{ rfi.get_status_display }}
+              </span>
+            </td>
+            <td>
+              <div class="flex gap-1">
+                <a href="{% url 'rfis:rfi_detail' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Ver</a>
+                <a href="{% url 'rfis:rfi_update' project_pk rfi.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+                <button class="btn btn-ghost btn-xs text-error"
+                        hx-delete="{% url 'rfis:rfi_delete' project_pk rfi.pk %}"
+                        hx-target="#rfi-{{ rfi.pk }}"
+                        hx-swap="outerHTML"
+                        hx-confirm="Eliminar este RFI?">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay RFIs registrados." icon="question" %}</td></tr>
+          {% endfor %}
+        </tbody>
+        {% if total_hours %}
+        <tfoot>
+          <tr class="bg-base-200/50">
+            <td colspan="4" class="text-right font-bold text-sm">Total Horas Invertidas:</td>
+            <td class="font-bold text-sm">{{ total_hours }}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>

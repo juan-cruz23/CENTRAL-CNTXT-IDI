@@ -1,0 +1,26 @@
+<tr id="milestone-{{ milestone.pk }}">
+  <td>
+    <span class="badge {% if milestone.milestone_type == 'KICKOFF' %}badge-primary{% elif milestone.milestone_type == 'FINAL_DELIVERY' %}badge-success{% elif milestone.milestone_type == 'CLIENT_REVIEW' %}badge-warning{% else %}badge-ghost{% endif %} badge-sm">
+      {{ milestone.get_milestone_type_display }}
+    </span>
+  </td>
+  <td class="font-mono text-xs">{{ milestone.code }}</td>
+  <td>{{ milestone.name }}</td>
+  <td>{{ milestone.planned_date|date:"d/m/Y"|default:"-" }}</td>
+  <td>
+    {% if milestone.actual_date %}
+    <span class="{% if milestone.actual_date > milestone.planned_date %}text-error{% else %}text-success{% endif %}">
+      {{ milestone.actual_date|date:"d/m/Y" }}
+    </span>
+    {% else %}-{% endif %}
+  </td>
+  <td>
+    <button class="btn btn-ghost btn-xs text-error"
+            hx-delete="{% url 'projects:milestone_delete' project.pk milestone.pk %}"
+            hx-target="#milestone-{{ milestone.pk }}"
+            hx-swap="outerHTML"
+            hx-confirm="Eliminar este hito?">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+    </button>
+  </td>
+</tr>

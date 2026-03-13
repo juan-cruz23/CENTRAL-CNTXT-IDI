@@ -1,12 +1,14 @@
 from decimal import Decimal
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Avg, Count, DecimalField, F, OuterRef, Q, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import DetailView, TemplateView
 
 from apps.metrics.models import ProjectMetricSnapshot
@@ -408,6 +410,40 @@ class LeaderDashboardView(LoginRequiredMixin, TemplateView):
         )
 
         return context
+
+
+# ---------------------------------------------------------------------------
+# Recalculate Metrics (Bloque 7)
+# ---------------------------------------------------------------------------
+class RecalculateMetricsView(LoginRequiredMixin, View):
+    """Recalculate EVM metrics for a project and create a new snapshot."""
+
+    def post(self, request, project_pk):
+        project = get_object_or_404(Project, pk=project_pk)
+        from domain.metrics.calculators import EVMCalculator
+
+        calculator = EVMCalculator(project)
+        snapshot = calculator.create_snapshot()
+
+        # Also update project-level metrics
+        metrics = calculator.calculate()
+        project.current_progress_pct = metrics["overall_progress_pct"]
+        project.schedule_deviation_pct = metrics["schedule_deviation_pct"]
+        project.profitability_pct = metrics["projected_margin_pct"]
+        project.save(update_fields=[
+            "current_progress_pct",
+            "schedule_deviation_pct",
+            "profitability_pct",
+        ])
+
+        if request.headers.get("HX-Request"):
+            return HttpResponse(
+                f'<div class="alert alert-success alert-sm">'
+                f'<span>Métricas recalculadas. SPI={snapshot.spi}, CPI={snapshot.cpi}</span>'
+                f'</div>'
+            )
+        messages.success(request, f"Métricas recalculadas para {project.code}.")
+        return redirect("dashboards:project", project_pk=project_pk)
 
 
 # ---------------------------------------------------------------------------

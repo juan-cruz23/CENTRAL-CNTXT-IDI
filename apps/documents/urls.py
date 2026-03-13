@@ -20,4 +20,9 @@ urlpatterns = [
         views.ProjectDocumentUpdateView.as_view(),
         name="document_update",
     ),
+    path(
+        "proyecto/<int:project_pk>/<int:pk>/eliminar/",
+        views.ProjectDocumentDeleteView.as_view(),
+        name="document_delete",
+    ),
 ]

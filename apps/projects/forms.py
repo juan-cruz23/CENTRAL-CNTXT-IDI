@@ -5,7 +5,7 @@ from django.db.models import Case, Value, When
 
 from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
-from apps.projects.models import Client, Project, ServiceInstance
+from apps.projects.models import Client, Milestone, Project, ProjectPrerequisite, ServiceInstance
 
 
 # ---------------------------------------------------------------------------
@@ -106,6 +106,22 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             "actual_end_date",
         ):
             self.fields[field_name].input_formats = ["%Y-%m-%d"]
+
+
+# ---------------------------------------------------------------------------
+# Prerequisite form
+# ---------------------------------------------------------------------------
+class PrerequisiteForm(DaisyUIFormMixin, forms.ModelForm):
+    """Inline form for adding a prerequisite."""
+
+    class Meta:
+        model = ProjectPrerequisite
+        fields = ["category", "prerequisite_type", "name", "weight_pct"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["prerequisite_type"].widget.attrs["placeholder"] = "Ej. Planos, Contrato..."
+        self.fields["name"].widget.attrs["placeholder"] = "Descripción breve"
 
 
 # ---------------------------------------------------------------------------
@@ -252,3 +268,62 @@ class ServiceInstanceForm(DaisyUIFormMixin, forms.ModelForm):
                 "hx-trigger": "change",
                 "hx-include": "[name='assigned_professional']",
             })
+
+
+# ---------------------------------------------------------------------------
+# Milestone form
+# ---------------------------------------------------------------------------
+class MilestoneForm(DaisyUIFormMixin, forms.ModelForm):
+    """Inline form for adding a milestone."""
+
+    class Meta:
+        model = Milestone
+        fields = ["milestone_type", "code", "name", "planned_date", "actual_date", "notes"]
+        widgets = {
+            "planned_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "actual_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "notes": forms.Textarea(attrs={"rows": 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ("planned_date", "actual_date"):
+            self.fields[field_name].input_formats = ["%Y-%m-%d"]
+
+
+# ---------------------------------------------------------------------------
+# ServiceInstance create form (reduced fields)
+# ---------------------------------------------------------------------------
+class ServiceInstanceCreateForm(DaisyUIFormMixin, forms.ModelForm):
+    """Simplified form for creating a new service instance."""
+
+    unit_price = COPDecimalField(
+        max_digits=14,
+        decimal_places=2,
+        required=False,
+        label="Precio unitario",
+    )
+
+    class Meta:
+        model = ServiceInstance
+        fields = [
+            "service_template",
+            "code",
+            "name",
+            "quantity",
+            "unit_price",
+            "assigned_professional",
+            "projected_start_date",
+            "projected_end_date",
+        ]
+        widgets = {
+            "projected_start_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+            "projected_end_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        self.phase_instance = kwargs.pop("phase_instance", None)
+        super().__init__(*args, **kwargs)
+        for field_name in ("projected_start_date", "projected_end_date"):
+            self.fields[field_name].input_formats = ["%Y-%m-%d"]

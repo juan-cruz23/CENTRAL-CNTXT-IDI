@@ -5,6 +5,7 @@ from apps.dashboards.views import (
     LeaderDashboardView,
     PortfolioDashboardView,
     ProjectDashboardView,
+    RecalculateMetricsView,
     SystemDashboardView,
     bu_cashflow_api,
     cashflow_data_api,
@@ -24,6 +25,11 @@ urlpatterns = [
         "proyecto/<int:project_pk>/",
         ProjectDashboardView.as_view(),
         name="project",
+    ),
+    path(
+        "proyecto/<int:project_pk>/recalcular-metricas/",
+        RecalculateMetricsView.as_view(),
+        name="recalculate_metrics",
     ),
     path(
         "sistema/<str:system_code>/",

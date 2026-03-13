@@ -25,4 +25,9 @@ urlpatterns = [
         views.RFIUpdateView.as_view(),
         name="rfi_update",
     ),
+    path(
+        "proyecto/<int:project_pk>/<int:pk>/eliminar/",
+        views.RFIDeleteView.as_view(),
+        name="rfi_delete",
+    ),
 ]

@@ -1,0 +1,105 @@
+{% load common_tags %}
+<!-- Satisfaction Tab Content -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
+      <h3 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+        Mediciones CVE (Calidad de Valor Emocional)
+      </h3>
+      <a href="{% url 'satisfaction:cve_create' project.pk %}" class="btn btn-primary btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Nueva Medición
+      </a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Fecha</th>
+            <th class="text-xs uppercase tracking-wider">Hito</th>
+            <th class="text-xs uppercase tracking-wider text-center">Emoción %</th>
+            <th class="text-xs uppercase tracking-wider text-center">Frase %</th>
+            <th class="text-xs uppercase tracking-wider text-center">Objeto %</th>
+            <th class="text-xs uppercase tracking-wider text-center">CVE Score</th>
+            <th class="text-xs uppercase tracking-wider text-center">Encuesta</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in satisfaction_measurements %}
+          <tr>
+            <td>{{ m.measurement_date|date:"d/m/Y" }}</td>
+            <td>{{ m.milestone.name|default:"-" }}</td>
+            <td class="text-center">{{ m.observed_emotion_pct }}%</td>
+            <td class="text-center">{{ m.spontaneous_phrase_pct }}%</td>
+            <td class="text-center">{{ m.symbolic_object_pct }}%</td>
+            <td class="text-center font-bold {% if m.cve_score >= 80 %}text-success{% elif m.cve_score >= 60 %}text-warning{% else %}text-error{% endif %}">
+              {{ m.cve_score }}%
+            </td>
+            <td class="text-center">
+              {% if m.survey %}
+              <span class="badge badge-success badge-sm">{{ m.survey.total_score_pct }}%</span>
+              {% else %}
+              <span class="badge badge-ghost badge-sm">Sin encuesta</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay mediciones de satisfacción." icon="heart" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Encuesta de Asertividad (último resultado) -->
+{% with latest=satisfaction_measurements.first %}
+{% if latest and latest.survey %}
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
+      <h3 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+        Última Encuesta de Asertividad
+      </h3>
+      <a href="{% url 'satisfaction:survey_create' project.pk %}" class="btn btn-outline btn-sm">Nueva Encuesta</a>
+    </div>
+    <div class="p-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Sensación General</div>
+          <div class="stat-value text-lg">{{ latest.survey.general_sensation }}%</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Claridad y Acompañamiento</div>
+          <div class="stat-value text-lg">{{ latest.survey.clarity_and_support }}%</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Esfuerzo Personal</div>
+          <div class="stat-value text-lg">{{ latest.survey.personal_effort }}%</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Relación con Equipo</div>
+          <div class="stat-value text-lg">{{ latest.survey.team_relationship }}%</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Confianza</div>
+          <div class="stat-value text-lg">{{ latest.survey.confidence }}%</div>
+        </div>
+        <div class="stat bg-base-200/30 rounded-box p-3">
+          <div class="stat-title text-xs">Valor Percibido</div>
+          <div class="stat-value text-lg">{{ latest.survey.perceived_value }}%</div>
+        </div>
+      </div>
+      <div class="mt-3 text-center">
+        <span class="text-sm text-base-content/60">Puntuación Total:</span>
+        <span class="text-lg font-bold {% if latest.survey.total_score_pct >= 80 %}text-success{% elif latest.survey.total_score_pct >= 60 %}text-warning{% else %}text-error{% endif %}">
+          {{ latest.survey.total_score_pct }}%
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endwith %}

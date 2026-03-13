@@ -26,6 +26,11 @@ urlpatterns = [
         name="payment_update",
     ),
     path(
+        "proyecto/<int:project_pk>/pagos/<int:pk>/eliminar/",
+        views.PaymentMilestoneDeleteView.as_view(),
+        name="payment_delete",
+    ),
+    path(
         "rentabilidad/",
         views.ProfitabilityOverviewView.as_view(),
         name="profitability_overview",

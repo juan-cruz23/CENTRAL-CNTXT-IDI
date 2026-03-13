@@ -1,0 +1,46 @@
+<tr id="service-create-form-row">
+  <td colspan="14">
+    <form hx-post="{% url 'projects:service_create' project.pk phase_instance.pk %}"
+          hx-target="closest div.overflow-x-auto"
+          hx-swap="innerHTML"
+          class="flex flex-wrap items-end gap-2 py-2">
+      {% csrf_token %}
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Código</span></label>
+        <input type="text" name="code" class="input input-bordered input-sm w-24" placeholder="Ej. D0.1" required />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Nombre</span></label>
+        <input type="text" name="name" class="input input-bordered input-sm w-48" placeholder="Nombre del servicio" required />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Cantidad</span></label>
+        <input type="number" name="quantity" value="1" step="0.01" min="0" class="input input-bordered input-sm w-20" />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Precio UND</span></label>
+        <input type="text" name="unit_price" class="input input-bordered input-sm w-32" placeholder="$0" />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Inicio</span></label>
+        <input type="date" name="projected_start_date" class="input input-bordered input-sm w-36" />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Fin</span></label>
+        <input type="date" name="projected_end_date" class="input input-bordered input-sm w-36" />
+      </div>
+      <div class="flex gap-1">
+        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        <button type="button" class="btn btn-ghost btn-sm"
+                onclick="this.closest('tr').remove()">Cancelar</button>
+      </div>
+      {% if form.errors %}
+      <div class="text-error text-xs w-full">
+        {% for field, errors in form.errors.items %}
+          {{ field }}: {{ errors.0 }}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </form>
+  </td>
+</tr>

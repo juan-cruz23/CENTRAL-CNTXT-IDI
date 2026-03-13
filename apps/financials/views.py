@@ -1,5 +1,12 @@
+from decimal import Decimal
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import DecimalField, Sum, Value
+from django.db.models.functions import Coalesce
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
 from apps.financials.forms import (
@@ -20,16 +27,61 @@ class ProjectFinancialView(LoginRequiredMixin, TemplateView):
 
     template_name = "financials/project_financial.html"
 
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            return ["financials/project_financial_partial.html"]
+        return [self.template_name]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project_pk = self.kwargs["project_pk"]
         context["payment_milestones"] = PaymentMilestone.objects.filter(
             project_id=project_pk
         )
-        context["profitability_summaries"] = ProfitabilitySummary.objects.filter(
-            project_id=project_pk
-        )
         context["project_pk"] = project_pk
+
+        # Auto-calculated profitability (Bloque 3b)
+        from apps.projects.models import Project, ServiceInstance
+
+        project = get_object_or_404(Project, pk=project_pk)
+        payment_agg = PaymentMilestone.objects.filter(
+            project_id=project_pk
+        ).aggregate(
+            total_invoiced=Coalesce(
+                Sum("executed_value"),
+                Value(Decimal("0")),
+                output_field=DecimalField(),
+            ),
+            total_collected=Coalesce(
+                Sum("collection_value"),
+                Value(Decimal("0")),
+                output_field=DecimalField(),
+            ),
+        )
+        total_cost = ServiceInstance.objects.filter(
+            project_id=project_pk
+        ).aggregate(
+            total=Coalesce(
+                Sum("real_operative_cost"),
+                Value(Decimal("0")),
+                output_field=DecimalField(),
+            ),
+        )["total"]
+        collected = payment_agg["total_collected"]
+        utility = collected - total_cost
+        if project.total_value and project.total_value > 0:
+            margin_pct = (utility / project.total_value * 100).quantize(Decimal("0.01"))
+        else:
+            margin_pct = Decimal("0")
+
+        context["profitability"] = {
+            "total_value": project.total_value,
+            "total_invoiced": payment_agg["total_invoiced"],
+            "total_collected": collected,
+            "total_cost": total_cost,
+            "utility": utility,
+            "margin_pct": margin_pct,
+        }
         return context
 
 
@@ -90,6 +142,15 @@ class PaymentMilestoneUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["project_pk"] = self.kwargs["project_pk"]
         return context
+
+
+class PaymentMilestoneDeleteView(LoginRequiredMixin, View):
+    """HTMX endpoint: delete a payment milestone."""
+
+    def delete(self, request, project_pk, pk):
+        pm = get_object_or_404(PaymentMilestone, pk=pk, project_id=project_pk)
+        pm.delete()
+        return HttpResponse("")
 
 
 class CostCenterMappingListView(LoginRequiredMixin, ListView):

@@ -1,0 +1,48 @@
+<tr id="milestone-form-row">
+  <td colspan="6">
+    <form hx-post="{% url 'projects:milestone_create' project.pk %}"
+          hx-target="#milestone-form-row"
+          hx-swap="outerHTML"
+          class="flex flex-wrap items-end gap-2 py-2">
+      {% csrf_token %}
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Tipo</span></label>
+        <select name="milestone_type" class="select select-bordered select-sm w-full" required>
+          <option value="">--</option>
+          <option value="KICKOFF">Kick-off</option>
+          <option value="PHASE_DELIVERY">Entrega de Fase</option>
+          <option value="CLIENT_REVIEW">Revisión de Cliente</option>
+          <option value="FINAL_DELIVERY">Entrega Final</option>
+        </select>
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Código</span></label>
+        <input type="text" name="code" class="input input-bordered input-sm w-28" placeholder="Ej. HITO 1" required />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Nombre</span></label>
+        <input type="text" name="name" class="input input-bordered input-sm w-48" placeholder="Ej. ENTREGA FASE 1" required />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Fecha Planeada</span></label>
+        <input type="date" name="planned_date" class="input input-bordered input-sm w-36" />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Fecha Real</span></label>
+        <input type="date" name="actual_date" class="input input-bordered input-sm w-36" />
+      </div>
+      <div class="flex gap-1">
+        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        <button type="button" class="btn btn-ghost btn-sm"
+                onclick="this.closest('tr').remove()">Cancelar</button>
+      </div>
+      {% if form.errors %}
+      <div class="text-error text-xs w-full">
+        {% for field, errors in form.errors.items %}
+          {{ errors.0 }}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </form>
+  </td>
+</tr>
