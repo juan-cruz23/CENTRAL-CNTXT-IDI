@@ -21,4 +21,14 @@ urlpatterns = [
         views.ProfileView.as_view(),
         name="profile",
     ),
+    path(
+        "usuarios/",
+        views.UserManagementView.as_view(),
+        name="user_management",
+    ),
+    path(
+        "usuarios/<int:pk>/roles/",
+        views.UserRoleUpdateView.as_view(),
+        name="user_role_update",
+    ),
 ]

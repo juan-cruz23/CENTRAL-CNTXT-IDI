@@ -118,6 +118,14 @@ class ServiceTemplate(TimeStampedModel):
         default=20,
         verbose_name="margen objetivo (%)",
     )
+    operative_line = models.ForeignKey(
+        "organizations.OperativeLine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="service_templates",
+        verbose_name="l\u00ednea operativa",
+    )
     description = models.TextField(
         blank=True,
         verbose_name="descripci\u00f3n",

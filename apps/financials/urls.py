@@ -35,6 +35,16 @@ urlpatterns = [
         views.ProfitabilityOverviewView.as_view(),
         name="profitability_overview",
     ),
+    path(
+        "rentabilidad-real/",
+        views.RealProfitabilityView.as_view(),
+        name="real_profitability",
+    ),
+    path(
+        "rentabilidad-real/recalcular/",
+        views.RecalculateCostsView.as_view(),
+        name="recalculate_costs",
+    ),
     # Cost center mapping
     path(
         "centros-costo/",

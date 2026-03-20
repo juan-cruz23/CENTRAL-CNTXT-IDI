@@ -1,0 +1,156 @@
+{% extends "base/base.html" %}
+{% block title %}Gestión de Usuarios y Roles{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Usuarios y Roles</h1>
+    <p class="text-sm text-base-content/60 mt-1">Asigna roles a cada miembro del equipo para controlar acceso a módulos</p>
+  </div>
+</div>
+
+<!-- Role legend -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body p-4">
+    <h3 class="text-sm font-semibold mb-3">Roles y Permisos</h3>
+    <div class="flex flex-wrap gap-2">
+      {% for role in all_roles %}
+      <div class="tooltip" data-tip="{{ role.description|default:role.name }}">
+        <span class="badge badge-outline gap-1">
+          <span class="font-mono font-bold">{{ role.code }}</span>
+          {{ role.name }}
+          {% if role.code == 'DO' %}
+            <span class="badge badge-xs badge-primary">Financiero + Pricing</span>
+          {% elif role.code == 'LA' %}
+            <span class="badge badge-xs badge-info">Financiero</span>
+          {% elif role.code == 'LP' or role.code == 'DM' %}
+            <span class="badge badge-xs badge-accent">Ejecutivo</span>
+          {% elif role.code == 'INT' %}
+            <span class="badge badge-xs badge-warning">Operativo</span>
+          {% else %}
+            <span class="badge badge-xs badge-ghost">Básico</span>
+          {% endif %}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Users table -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Usuario</th>
+            <th class="text-xs uppercase tracking-wider">Roles Actuales</th>
+            <th class="text-xs uppercase tracking-wider">Acceso</th>
+            <th class="text-xs uppercase tracking-wider">Asignar Roles</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in user_list %}
+          <tr class="hover" id="user-row-{{ item.user.pk }}">
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="avatar placeholder">
+                  <div class="bg-primary/10 text-primary w-10 rounded-full">
+                    <span class="text-sm font-bold">{{ item.user.first_name|first }}{{ item.user.last_name|first }}</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="font-semibold">{{ item.user.get_full_name }}</div>
+                  <div class="text-xs text-base-content/50">{{ item.user.username }}{% if item.user.is_staff %} <span class="badge badge-xs badge-primary">staff</span>{% endif %}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-wrap gap-1">
+                {% for role in item.roles %}
+                <span class="badge badge-sm {% if role == item.primary_role %}badge-primary{% else %}badge-outline{% endif %}">
+                  {{ role.code }}
+                </span>
+                {% empty %}
+                <span class="text-xs text-base-content/40">Sin rol</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-wrap gap-1">
+                {% if item.user.is_staff %}
+                  <span class="badge badge-xs badge-success">Todo</span>
+                {% else %}
+                  {% for role in item.roles %}
+                    {% if role.code == 'DO' %}
+                      <span class="badge badge-xs badge-primary">Financiero</span>
+                      <span class="badge badge-xs badge-primary">Pricing</span>
+                    {% elif role.code == 'LA' %}
+                      <span class="badge badge-xs badge-info">Financiero</span>
+                    {% elif role.code == 'LP' or role.code == 'DM' %}
+                      <span class="badge badge-xs badge-accent">Ejecutivo</span>
+                    {% elif role.code == 'INT' %}
+                      <span class="badge badge-xs badge-warning">Operativo</span>
+                    {% else %}
+                      <span class="badge badge-xs badge-ghost">Básico</span>
+                    {% endif %}
+                  {% empty %}
+                    <span class="badge badge-xs badge-ghost">Solo lectura</span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              <form method="post" action="{% url 'accounts:user_role_update' item.user.pk %}"
+                    x-data="{ open: false }" class="relative">
+                {% csrf_token %}
+                <button type="button" @click="open = !open" class="btn btn-ghost btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  Editar
+                </button>
+
+                <div x-show="open" @click.outside="open = false" x-cloak x-transition
+                     class="absolute right-0 top-full mt-1 z-50 bg-base-100 shadow-xl rounded-xl border border-base-300 p-4 w-72">
+                  <h4 class="font-semibold text-sm mb-3">Roles para {{ item.user.first_name }}</h4>
+
+                  <div class="space-y-2 mb-3">
+                    {% for role in all_roles %}
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-base-200 rounded-lg p-1.5 -mx-1.5">
+                      <input type="checkbox" name="roles" value="{{ role.pk }}"
+                             class="checkbox checkbox-sm checkbox-primary"
+                             {% if role.pk in item.current_role_ids %}checked{% endif %}>
+                      <span class="font-mono text-xs font-bold w-8">{{ role.code }}</span>
+                      <span class="text-sm flex-1">{{ role.name }}</span>
+                    </label>
+                    {% endfor %}
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="text-xs text-base-content/50 block mb-1">Rol principal</label>
+                    <select name="primary_role" class="select select-bordered select-xs w-full">
+                      <option value="">Ninguno</option>
+                      {% for role in all_roles %}
+                      <option value="{{ role.pk }}" {% if item.primary_role and role.pk == item.primary_role.pk %}selected{% endif %}>
+                        {{ role.code }} - {{ role.name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <div class="flex justify-end gap-2">
+                    <button type="button" @click="open = false" class="btn btn-ghost btn-xs">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-xs">Guardar</button>
+                  </div>
+                </div>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,5 +1,128 @@
+from django.contrib.auth.mixins import AccessMixin
+from django.http import HttpResponseForbidden
+
 from apps.common.models import AuditLog
 
+
+# ---------------------------------------------------------------------------
+# Role-based access control
+# ---------------------------------------------------------------------------
+
+# Roles that can see financial data (rentabilidad, contabilidad, prorrateo)
+FINANCIAL_ROLES = {"DO", "LA"}
+
+# Roles that can edit pricing/service values
+PRICING_EDIT_ROLES = {"DO"}
+
+# Roles that can see the executive dashboard with strategic data
+EXECUTIVE_ROLES = {"DO", "LA", "LP", "DM"}
+
+# Roles with full operational access (capacity, heatmap, etc.)
+OPERATIONAL_ROLES = {"DO", "LA", "LP", "DM", "INT"}
+
+
+def get_user_role_codes(user):
+    """Returns a set of role codes assigned to the user."""
+    if not user.is_authenticated:
+        return set()
+    return set(user.user_roles.values_list("role__code", flat=True))
+
+
+def user_has_any_role(user, role_codes):
+    """Check if user has any of the given role codes."""
+    if user.is_staff:
+        return True
+    return bool(get_user_role_codes(user) & set(role_codes))
+
+
+def user_can_view_financials(user):
+    """Can the user see financial data?"""
+    return user_has_any_role(user, FINANCIAL_ROLES)
+
+
+def user_can_edit_pricing(user):
+    """Can the user edit pricing/service template values?"""
+    return user_has_any_role(user, PRICING_EDIT_ROLES)
+
+
+def user_can_view_executive(user):
+    """Can the user see executive/strategic dashboards?"""
+    return user_has_any_role(user, EXECUTIVE_ROLES)
+
+
+def user_can_view_operations(user):
+    """Can the user see operational views?"""
+    return user_has_any_role(user, OPERATIONAL_ROLES)
+
+
+class RoleRequiredMixin(AccessMixin):
+    """
+    Mixin that requires the user to have at least one of the specified roles.
+    Usage:
+        class MyView(RoleRequiredMixin, TemplateView):
+            required_roles = {"DO", "LA"}
+    """
+
+    required_roles = set()
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        if not user_has_any_role(request.user, self.required_roles):
+            return HttpResponseForbidden(
+                '<div style="text-align:center;padding:4rem">'
+                '<h2 style="font-size:1.25rem;font-weight:bold;color:#ef4444">Acceso Restringido</h2>'
+                '<p style="opacity:0.6;margin-top:0.5rem">No tienes permisos para acceder a esta sección.</p>'
+                '<a href="/" style="margin-top:1rem;display:inline-block">Ir al Inicio</a>'
+                '</div>'
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+
+class FinancialAccessMixin(RoleRequiredMixin):
+    """Restricts access to financial views (DO, LA roles or staff)."""
+    required_roles = FINANCIAL_ROLES
+
+
+class PricingEditMixin(RoleRequiredMixin):
+    """Restricts pricing edit access (DO role or staff)."""
+    required_roles = PRICING_EDIT_ROLES
+
+
+class ExecutiveAccessMixin(RoleRequiredMixin):
+    """Restricts access to executive dashboards."""
+    required_roles = EXECUTIVE_ROLES
+
+
+class OperationalAccessMixin(RoleRequiredMixin):
+    """Restricts access to operational views."""
+    required_roles = OPERATIONAL_ROLES
+
+
+def role_permissions(request):
+    """
+    Context processor that adds role-based permission flags to all templates.
+    Add 'apps.common.mixins.role_permissions' to TEMPLATES context_processors.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return {
+            "can_view_financials": False,
+            "can_edit_pricing": False,
+            "can_view_executive": False,
+            "can_view_operations": False,
+        }
+    return {
+        "can_view_financials": user_can_view_financials(user),
+        "can_edit_pricing": user_can_edit_pricing(user),
+        "can_view_executive": user_can_view_executive(user),
+        "can_view_operations": user_can_view_operations(user),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Audit
+# ---------------------------------------------------------------------------
 
 class AuditMixin:
     """

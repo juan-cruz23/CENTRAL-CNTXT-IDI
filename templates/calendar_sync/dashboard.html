@@ -1,0 +1,165 @@
+{% extends "base/base.html" %}
+{% block title %}Google Calendar - Sincronización{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Google Calendar</h1>
+    <p class="text-sm text-base-content/60 mt-1">Importa reuniones y asígnalas a proyectos automáticamente</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'calendar_sync:event_list' %}" class="btn btn-ghost btn-sm">Ver Eventos</a>
+    {% if is_connected %}
+    <span class="badge badge-success gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+      Conectado
+    </span>
+    {% else %}
+    <span class="badge badge-warning gap-1">Sin conectar</span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold text-primary">{{ total_hours_week }}h</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Horas esta semana</div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold text-accent">{{ total_events }}</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Eventos importados</div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold text-success">{{ matched_events }}</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Asignados</div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold text-warning">{{ unmatched_count }}</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Sin asignar</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-6">
+  <!-- Weekly summary -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <h2 class="card-title text-base">Resumen Semanal</h2>
+      {% if weekly_summary %}
+      <div class="space-y-2 mt-2">
+        {% for item in weekly_summary %}
+        <div class="flex items-center justify-between p-2 bg-base-200/50 rounded-lg">
+          <div>
+            <span class="font-mono text-xs text-base-content/50">{{ item.project__code }}</span>
+            <span class="text-sm ml-1">{{ item.project__name }}</span>
+          </div>
+          <span class="font-bold text-primary">{{ item.total_hours|floatformat:1 }}h</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-base-content/50 mt-2">No hay eventos asignados esta semana.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Unmatched events -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <h2 class="card-title text-base">Eventos sin asignar</h2>
+      {% if unmatched_events %}
+      <div class="space-y-2 mt-2">
+        {% for event in unmatched_events %}
+        <div class="flex items-center gap-2 p-2 bg-base-200/50 rounded-lg" x-data="{ open: false }">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm truncate">{{ event.title }}</div>
+            <div class="text-xs text-base-content/40">{{ event.start_time|date:"d/m H:i" }} · {{ event.duration_hours }}h</div>
+          </div>
+          <div class="relative" x-data="{ showSelect: false }">
+            <button class="btn btn-ghost btn-xs" @click="showSelect = !showSelect">Asignar</button>
+            <div x-show="showSelect" @click.outside="showSelect = false" x-cloak
+                 class="absolute right-0 top-full mt-1 z-50 bg-base-100 shadow-lg rounded-lg border border-base-300 p-2 w-48">
+              {% for proj in active_projects %}
+              <form method="post" action="{% url 'calendar_sync:assign_event' event.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="project_id" value="{{ proj.pk }}">
+                <button type="submit" class="btn btn-ghost btn-xs btn-block justify-start text-left">
+                  <span class="font-mono text-xs">{{ proj.code }}</span> {{ proj.name|truncatechars:20 }}
+                </button>
+              </form>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-base-content/50 mt-2">Todos los eventos están asignados.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Keyword mappings -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mt-6">
+  <div class="card-body">
+    <h2 class="card-title text-base">Mapeo de Palabras Clave</h2>
+    <p class="text-xs text-base-content/50 mb-3">Si el título del evento contiene la palabra clave, se asigna automáticamente al proyecto.</p>
+
+    <div class="flex flex-wrap gap-2 mb-4">
+      {% for km in keyword_mappings %}
+      <div class="flex items-center gap-1 badge badge-lg badge-outline">
+        <span class="text-xs">"{{ km.keyword }}" → <strong>{{ km.project.code }}</strong></span>
+        <form method="post" action="{% url 'calendar_sync:keyword_delete' km.pk %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-ghost btn-xs btn-circle">×</button>
+        </form>
+      </div>
+      {% empty %}
+      <p class="text-sm text-base-content/50">No hay mapeos configurados.</p>
+      {% endfor %}
+    </div>
+
+    <form method="post" action="{% url 'calendar_sync:keyword_create' %}" class="flex gap-2">
+      {% csrf_token %}
+      <input type="text" name="keyword" placeholder="Palabra clave..." class="input input-bordered input-sm flex-1" required>
+      <select name="project_id" class="select select-bordered select-sm" required>
+        <option value="">Proyecto...</option>
+        {% for proj in active_projects %}
+        <option value="{{ proj.pk }}">{{ proj.code }} - {{ proj.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary btn-sm">Agregar</button>
+    </form>
+  </div>
+</div>
+
+{% if not is_connected %}
+<!-- Setup instructions -->
+<div class="card bg-base-100 shadow-sm border border-warning/30 mt-6">
+  <div class="card-body">
+    <h2 class="card-title text-base text-warning">Configuración Pendiente</h2>
+    <div class="text-sm text-base-content/70 space-y-2 mt-2">
+      <p>Para conectar Google Calendar se requiere:</p>
+      <ol class="list-decimal list-inside space-y-1">
+        <li>Crear un proyecto en Google Cloud Console</li>
+        <li>Habilitar la Google Calendar API</li>
+        <li>Configurar OAuth2 (client ID + secret)</li>
+        <li>Agregar las credenciales en las variables de entorno</li>
+      </ol>
+      <p class="mt-2">Las variables necesarias son: <code class="text-xs">GOOGLE_CLIENT_ID</code>, <code class="text-xs">GOOGLE_CLIENT_SECRET</code>, <code class="text-xs">GOOGLE_REDIRECT_URI</code></p>
+      <p class="text-xs text-base-content/40 mt-2">Mientras tanto, puedes importar eventos manualmente o cargar datos desde la sección de importación.</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -40,6 +40,22 @@ urlpatterns = [
         views.ServiceTemplateDeleteView.as_view(),
         name="servicetemplate_delete",
     ),
+    # Pricing dashboard
+    path(
+        "pricing/",
+        views.PricingDashboardView.as_view(),
+        name="pricing_dashboard",
+    ),
+    path(
+        "pricing/<int:pk>/editar/",
+        views.ServiceTemplateInlineEditView.as_view(),
+        name="pricing_inline_edit",
+    ),
+    path(
+        "pricing/<int:pk>/cancelar/",
+        views.ServiceTemplateInlineCancelView.as_view(),
+        name="pricing_inline_cancel",
+    ),
     # Pricing change requests
     path(
         "pricing-requests/",

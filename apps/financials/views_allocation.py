@@ -4,11 +4,12 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView, TemplateView
 
+from apps.common.mixins import FinancialAccessMixin
 from apps.financials.models import CostAllocation, CostAllocationPeriod
 from domain.financials.cost_allocation import CostAllocationEngine
 
 
-class CostAllocationOverviewView(LoginRequiredMixin, TemplateView):
+class CostAllocationOverviewView(FinancialAccessMixin, TemplateView):
     """Overview of cost allocation periods."""
 
     template_name = "financials/cost_allocation_overview.html"
@@ -19,7 +20,7 @@ class CostAllocationOverviewView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class CostAllocationRunView(LoginRequiredMixin, TemplateView):
+class CostAllocationRunView(FinancialAccessMixin, TemplateView):
     """Preview and execute cost allocation for a period."""
 
     template_name = "financials/cost_allocation_run.html"
@@ -55,7 +56,7 @@ class CostAllocationRunView(LoginRequiredMixin, TemplateView):
         return redirect("financials:cost_allocation_overview")
 
 
-class CostAllocationDetailView(LoginRequiredMixin, DetailView):
+class CostAllocationDetailView(FinancialAccessMixin, DetailView):
     """Detail view for a specific allocation period."""
 
     model = CostAllocationPeriod

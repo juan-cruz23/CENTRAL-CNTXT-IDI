@@ -79,6 +79,23 @@
   </div>
 </div>
 
+<!-- Gantt Chart -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body">
+    <h2 class="card-title text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+      Cronograma del Proyecto
+    </h2>
+    <div class="flex flex-wrap gap-3 text-xs mt-1 mb-2">
+      <span class="flex items-center gap-1"><span class="w-3 h-2.5 rounded inline-block" style="background:rgba(59,130,246,0.7)"></span> Planeado</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-2.5 rounded inline-block" style="background:rgba(34,197,94,0.7)"></span> Real</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-2.5 rounded inline-block" style="background:rgba(250,204,21,0.6)"></span> En progreso</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-2.5 rounded inline-block" style="background:rgba(239,68,68,0.4)"></span> Sin avance</span>
+    </div>
+    <div id="gantt-chart" style="height:500px;"></div>
+  </div>
+</div>
+
 <!-- Phases and Services -->
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body">
@@ -158,6 +175,114 @@ function loadSCurve(mode) {
 
 // Load cost mode by default
 loadSCurve('cost');
+
+// Project Gantt Chart
+fetch("{% url 'dashboards:project_gantt' project.pk %}")
+  .then(r => r.json())
+  .then(data => {
+    const el = document.getElementById('gantt-chart');
+    if (!data.categories || data.categories.length === 0) {
+      el.innerHTML = '<div class="text-center py-16 text-base-content/50">No hay datos de cronograma. Configura fechas en las fases y servicios del proyecto.</div>';
+      return;
+    }
+
+    const colors = getChartColors();
+    const chart = echarts.init(el);
+
+    // Calculate chart height based on number of items
+    const itemHeight = 32;
+    const chartHeight = Math.max(300, data.categories.length * itemHeight + 100);
+    el.style.height = chartHeight + 'px';
+    chart.resize();
+
+    // Custom render for Gantt bars
+    function renderGanttItem(params, api) {
+      const catIdx = api.value(0);
+      const startDate = api.coord([api.value(1), catIdx]);
+      const endDate = api.coord([api.value(2), catIdx]);
+      const barHeight = api.size([0, 1])[1] * 0.35;
+
+      const rectShape = echarts.graphic.clipRectByRect(
+        { x: startDate[0], y: startDate[1] - barHeight, width: endDate[0] - startDate[0], height: barHeight * 2 },
+        { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height }
+      );
+
+      return rectShape && echarts.graphic.Group && {
+        type: 'rect',
+        transition: ['shape'],
+        shape: rectShape,
+        style: api.style(),
+      };
+    }
+
+    // Today marker
+    const today = new Date().toISOString().split('T')[0];
+
+    chart.setOption({
+      tooltip: {
+        formatter: function(params) {
+          if (!params.value) return '';
+          const cat = data.categories[params.value[0]];
+          const start = params.value[1];
+          const end = params.value[2];
+          const progress = params.value[3];
+          const type = params.seriesName;
+          return `<b>${cat}</b><br>${type}<br>${start} → ${end}<br>Avance: ${progress}%`;
+        }
+      },
+      grid: { left: 250, right: 40, top: 30, bottom: 30 },
+      xAxis: {
+        type: 'time',
+        axisLabel: { color: colors.textColor, fontSize: 10 },
+        axisLine: { lineStyle: { color: colors.lineColor } },
+        splitLine: { show: true, lineStyle: { color: colors.lineColor, type: 'dashed', opacity: 0.3 } },
+      },
+      yAxis: {
+        type: 'category',
+        data: data.categories,
+        inverse: true,
+        axisLabel: {
+          color: function(value) {
+            return value.startsWith('  ') ? colors.textColor : colors.isDark ? '#7480ff' : '#570df8';
+          },
+          fontSize: 11,
+          fontWeight: function(value) { return value.startsWith('  ') ? 'normal' : 'bold'; },
+          width: 230,
+          overflow: 'truncate',
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+      },
+      series: [
+        {
+          name: 'Planeado',
+          type: 'custom',
+          renderItem: renderGanttItem,
+          encode: { x: [1, 2], y: 0 },
+          data: data.planned,
+        },
+        {
+          name: 'Real',
+          type: 'custom',
+          renderItem: renderGanttItem,
+          encode: { x: [1, 2], y: 0 },
+          data: data.actual,
+        },
+      ],
+      dataZoom: [{ type: 'inside', xAxisIndex: 0 }],
+    });
+
+    // Add today marker line
+    chart.setOption({
+      series: chart.getOption().series,
+      xAxis: Object.assign(chart.getOption().xAxis[0], {}),
+    });
+
+    window.addEventListener('resize', () => chart.resize());
+  })
+  .catch(() => {
+    document.getElementById('gantt-chart').innerHTML = '<div class="text-center py-16 text-base-content/50">Error al cargar el cronograma.</div>';
+  });
 
 // Periodic Cash Flow Chart
 fetch("{% url 'dashboards:periodic_cashflow' project.pk %}")

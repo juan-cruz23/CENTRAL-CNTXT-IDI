@@ -15,14 +15,33 @@
   <span class="flex items-center gap-1"><span class="w-4 h-3 rounded bg-warning/50 inline-block"></span> Alto (35-40h)</span>
   <span class="flex items-center gap-1"><span class="w-4 h-3 rounded bg-error/70 inline-block"></span> Sobrecargado (&gt;40h)</span>
 </div>
+<p class="text-xs text-base-content/40 mt-2">Haz clic en una celda para ver el detalle de actividades asignadas.</p>
+
+<!-- Drilldown Modal -->
+<dialog id="drilldown-modal" class="modal">
+  <div class="modal-box max-w-lg">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+    <div id="drilldown-content">
+      <div class="flex justify-center py-8">
+        <span class="loading loading-spinner loading-md"></span>
+      </div>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script>
+  let heatmapData = null;
+
   fetch("{% url 'capacity:heatmap' %}", { headers: { 'Accept': 'application/json' } })
     .then(r => r.json())
     .then(data => {
+      heatmapData = data;
       if (!data.weeks.length) {
         document.getElementById('heatmap-chart').innerHTML = '<div class="text-center py-16 text-base-content/50">No hay datos de asignacion para mostrar.</div>';
         return;
@@ -51,7 +70,7 @@
             const status = hours > cap ? '<span style="color:#ef4444">SOBRECARGA</span>' :
                            hours > cap * 0.85 ? '<span style="color:#f59e0b">ALTO</span>' :
                            '<span style="color:#22c55e">OK</span>';
-            return `<b>${user}</b><br>Semana ${week}<br>${hours}h / ${cap}h (${pct}%)<br>${status}`;
+            return `<b>${user}</b><br>Semana ${week}<br>${hours}h / ${cap}h (${pct}%)<br>${status}<br><i style="opacity:0.6">Clic para ver detalle</i>`;
           }
         },
         grid: { top: 30, bottom: 70, left: 140, right: 20 },
@@ -100,6 +119,36 @@
           }
         }]
       });
+
+      // Click handler for drill-down
+      chart.on('click', function(params) {
+        if (params.componentType !== 'series') return;
+        const weekIdx = params.value[0];
+        const userIdx = params.value[1];
+        const userId = data.user_ids[userIdx];
+        const weekDate = data.week_dates[weekIdx];
+
+        if (!userId || !weekDate) return;
+
+        const modal = document.getElementById('drilldown-modal');
+        const content = document.getElementById('drilldown-content');
+        content.innerHTML = '<div class="flex justify-center py-8"><span class="loading loading-spinner loading-md"></span></div>';
+        modal.showModal();
+
+        fetch(`{% url 'capacity:heatmap_drilldown' %}?user_id=${userId}&week=${weekDate}`)
+          .then(r => r.text())
+          .then(html => { content.innerHTML = html; })
+          .catch(() => { content.innerHTML = '<div class="text-center py-8 text-error">Error al cargar el detalle.</div>'; });
+      });
+
+      // Cursor style on hover
+      chart.getZr().on('mousemove', function(e) {
+        const target = e.target;
+        if (target) {
+          chart.getZr().setCursorStyle('pointer');
+        }
+      });
+
       window.addEventListener('resize', () => chart.resize());
     })
     .catch(() => {

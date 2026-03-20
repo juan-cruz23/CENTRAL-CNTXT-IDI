@@ -175,9 +175,16 @@ class CapacityHeatmapView(LoginRequiredMixin, CapacityContextMixin, TemplateView
 
         values = [[wi, ui, round(h, 1)] for (wi, ui), h in grid.items()]
 
+        # Build user_ids list in same order as user_names
+        user_ids = [None] * len(user_names)
+        for uid, idx in user_set.items():
+            user_ids[idx] = uid
+
         return JsonResponse({
             "weeks": week_labels,
+            "week_dates": [w.isoformat() for w in weeks],
             "users": user_names,
+            "user_ids": user_ids,
             "values": values,
             "capacities": user_caps,
         })
@@ -427,6 +434,85 @@ class ServiceInstanceOptionsView(LoginRequiredMixin, TemplateView):
             ).order_by("code")
         context["services"] = services
         return context
+
+
+class HeatmapDrilldownView(LoginRequiredMixin, View):
+    """HTMX endpoint: returns detail of a user's allocations for a specific week."""
+
+    def get(self, request):
+        from apps.accounts.models import User
+
+        user_id = request.GET.get("user_id")
+        week_date = request.GET.get("week")
+        if not user_id or not week_date:
+            return HttpResponse("")
+
+        try:
+            user_id = int(user_id)
+            from datetime import datetime
+            week_start = datetime.strptime(week_date, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return HttpResponse("")
+
+        week_end = week_start + timedelta(days=6)
+        user = User.objects.filter(pk=user_id).first()
+        if not user:
+            return HttpResponse("")
+
+        # Get allocations active during this week
+        allocations = ProjectAllocation.objects.filter(
+            user_id=user_id,
+            start_date__lte=week_end,
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=week_start),
+        ).select_related("project", "role", "service_instance")
+
+        # Get capacity
+        cap = TeamMemberCapacity.objects.filter(
+            user_id=user_id,
+            effective_from__lte=week_start,
+        ).filter(
+            Q(effective_until__isnull=True) | Q(effective_until__gte=week_start),
+        ).first()
+        available_hours = int(cap.weekly_available_hours) if cap else 40
+
+        # Get assigned services for each project
+        project_details = []
+        total_hours = 0
+        for alloc in allocations:
+            services = ServiceInstance.objects.filter(
+                project=alloc.project,
+                assigned_professional_id=user_id,
+            ).values_list("code", "name", "progress_pct")
+
+            svc_list = [
+                {"code": s[0], "name": s[1], "progress": float(s[2] or 0)}
+                for s in services
+            ]
+
+            hours = int(alloc.weekly_hours)
+            total_hours += hours
+            project_details.append({
+                "project_code": alloc.project.code,
+                "project_name": alloc.project.name,
+                "role": alloc.role.name if alloc.role else "-",
+                "hours": hours,
+                "services": svc_list,
+            })
+
+        return TemplateResponse(
+            request,
+            "capacity/_heatmap_drilldown.html",
+            {
+                "user_name": user.get_full_name() or user.username,
+                "week_start": week_start,
+                "week_end": week_end,
+                "project_details": project_details,
+                "total_hours": total_hours,
+                "available_hours": available_hours,
+                "utilization_pct": round(total_hours / available_hours * 100) if available_hours else 0,
+            },
+        )
 
 
 class ValidateAllocationView(LoginRequiredMixin, View):

@@ -43,6 +43,8 @@ urlpatterns = [
     path("notificaciones/", include("apps.notifications.urls", namespace="notifications")),
     path("organizacion/", include("apps.organizations.urls", namespace="organizations")),
     path("terceros/", include("apps.terceros.urls", namespace="terceros")),
+    path("tiempos/", include("apps.timetracking.urls", namespace="timetracking")),
+    path("calendario/", include("apps.calendar_sync.urls", namespace="calendar_sync")),
     # -----------------------------------------------------------------------
     # REST API
     # -----------------------------------------------------------------------
@@ -59,6 +61,8 @@ urlpatterns = [
     path("api/importar/", include("apps.imports.api_urls", namespace="api-imports")),
     path("api/notificaciones/", include("apps.notifications.api_urls", namespace="api-notifications")),
     path("api/organizacion/", include("apps.organizations.api_urls", namespace="api-organizations")),
+    path("api/tiempos/", include("apps.timetracking.api_urls", namespace="api-timetracking")),
+    path("api/calendario/", include("apps.calendar_sync.api_urls", namespace="api-calendar_sync")),
 ]
 
 # ---------------------------------------------------------------------------

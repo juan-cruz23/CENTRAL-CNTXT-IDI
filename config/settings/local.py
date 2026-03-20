@@ -69,3 +69,8 @@ STORAGES = {
 # CORS  --  allow all in development
 # ---------------------------------------------------------------------------
 CORS_ALLOW_ALL_ORIGINS = True
+
+# ---------------------------------------------------------------------------
+# Disable COOP header in development (causes warnings over HTTP)
+# ---------------------------------------------------------------------------
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None

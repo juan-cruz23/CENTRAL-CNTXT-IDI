@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% block title %}Historial de Distribución{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Historial</h1>
+    <p class="text-sm text-base-content/60 mt-1">Tus distribuciones semanales enviadas</p>
+  </div>
+  <a href="{% url 'timetracking:widget' %}" class="btn btn-primary btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    Semana Actual
+  </a>
+</div>
+
+<div class="grid gap-4">
+  {% for dist in distributions %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <span class="font-semibold">Semana {{ dist.week_start|date:"d M, Y" }}</span>
+          <span class="badge badge-success badge-xs ml-2">Enviada</span>
+        </div>
+        <span class="text-xs text-base-content/50">{{ dist.submitted_at|date:"d/m/Y H:i" }}</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {% for entry in dist.entries.all %}
+        <div class="flex items-center gap-1.5 bg-base-200 rounded-lg px-3 py-1.5 text-sm">
+          <span class="font-mono text-xs text-base-content/50">{{ entry.project.code }}</span>
+          <span class="font-bold text-primary">{{ entry.percentage }}%</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body text-center py-12">
+      <p class="text-base-content/50">No has enviado distribuciones aún.</p>
+      <a href="{% url 'timetracking:widget' %}" class="btn btn-primary btn-sm mt-4">Completar Semana Actual</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="flex justify-center mt-6">
+  <div class="join">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="join-item btn btn-sm">«</a>
+    {% endif %}
+    <span class="join-item btn btn-sm btn-disabled">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="join-item btn btn-sm">»</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

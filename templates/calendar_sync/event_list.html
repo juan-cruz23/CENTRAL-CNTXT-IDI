@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+{% block title %}Eventos de Calendario{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Eventos Importados</h1>
+    <p class="text-sm text-base-content/60 mt-1">Eventos de Google Calendar asignados a proyectos</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'calendar_sync:dashboard' %}" class="btn btn-ghost btn-sm">Dashboard</a>
+    <a href="?match=unmatched" class="btn btn-sm {% if request.GET.match == 'unmatched' %}btn-warning{% else %}btn-ghost{% endif %}">Sin asignar</a>
+    <a href="?match=matched" class="btn btn-sm {% if request.GET.match == 'matched' %}btn-success{% else %}btn-ghost{% endif %}">Asignados</a>
+    <a href="{% url 'calendar_sync:event_list' %}" class="btn btn-sm {% if not request.GET.match %}btn-primary{% else %}btn-ghost{% endif %}">Todos</a>
+  </div>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-sm">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Fecha</th>
+            <th class="text-xs uppercase tracking-wider">Evento</th>
+            <th class="text-xs uppercase tracking-wider w-20 text-right">Duración</th>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider">Método</th>
+            <th class="text-xs uppercase tracking-wider w-12">Reunión</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+          <tr class="hover">
+            <td class="text-sm">{{ event.start_time|date:"d/m/Y H:i" }}</td>
+            <td class="text-sm">{{ event.title|truncatechars:50 }}</td>
+            <td class="text-right font-mono text-sm">{{ event.duration_hours }}h</td>
+            <td>
+              {% if event.project %}
+              <span class="badge badge-outline badge-sm">{{ event.project.code }}</span>
+              {% else %}
+              <span class="badge badge-warning badge-sm">Sin asignar</span>
+              {% endif %}
+            </td>
+            <td class="text-xs text-base-content/50">{{ event.get_match_method_display }}</td>
+            <td class="text-center">
+              {% if event.is_meeting %}
+              <span class="badge badge-info badge-xs">Si</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center py-8 text-base-content/50">No hay eventos importados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="flex justify-center mt-6">
+  <div class="join">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.match %}&match={{ request.GET.match }}{% endif %}" class="join-item btn btn-sm">«</a>
+    {% endif %}
+    <span class="join-item btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.match %}&match={{ request.GET.match }}{% endif %}" class="join-item btn btn-sm">»</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

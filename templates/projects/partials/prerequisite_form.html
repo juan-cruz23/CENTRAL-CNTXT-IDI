@@ -1,0 +1,44 @@
+<tr id="prereq-form-row">
+  <td colspan="5">
+    <form hx-post="{% url 'projects:prerequisite_create' project.pk %}"
+          hx-target="#prereq-form-row"
+          hx-swap="outerHTML"
+          class="flex flex-wrap items-end gap-2 py-2">
+      {% csrf_token %}
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Categoría</span></label>
+        <select name="category" class="select select-bordered select-sm w-full" required>
+          <option value="">--</option>
+          <option value="PREREQUISITO">Prerequisito</option>
+          <option value="GESTION_RIESGO">Gestión de Riesgo</option>
+          <option value="COMUNICACION">Comunicación</option>
+        </select>
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Tipo</span></label>
+        <input type="text" name="prerequisite_type" class="input input-bordered input-sm w-40" placeholder="Ej. Planos, Contrato..." required />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Nombre</span></label>
+        <input type="text" name="name" class="input input-bordered input-sm w-48" placeholder="Descripción breve" required />
+      </div>
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Peso %</span></label>
+        <input type="number" name="weight_pct" value="12.50" step="0.01" min="0" max="100" class="input input-bordered input-sm w-20" required />
+      </div>
+      <div class="flex gap-1">
+        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        <button type="button" class="btn btn-ghost btn-sm"
+                hx-get="javascript:void(0)"
+                onclick="this.closest('tr').remove()">Cancelar</button>
+      </div>
+      {% if form.errors %}
+      <div class="text-error text-xs w-full">
+        {% for field, errors in form.errors.items %}
+          {{ errors.0 }}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </form>
+  </td>
+</tr>

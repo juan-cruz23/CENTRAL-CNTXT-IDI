@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from django.contrib import messages
@@ -621,6 +622,105 @@ def gantt_data_api(request):
         })
 
     return JsonResponse(data, safe=False)
+
+
+# ---------------------------------------------------------------------------
+# API: Project Gantt (phases + services)
+# ---------------------------------------------------------------------------
+@login_required
+def project_gantt_api(request, project_pk):
+    """
+    Gantt data for a single project.
+    Returns phases and their services with planned/actual dates and progress.
+    """
+    from datetime import timedelta
+
+    project = get_object_or_404(Project, pk=project_pk)
+    phases = ProjectPhaseInstance.objects.filter(
+        project=project,
+    ).select_related("phase").order_by("order")
+
+    categories = []  # y-axis labels
+    planned_data = []  # planned bars
+    actual_data = []   # actual bars
+    milestones_data = []
+
+    idx = 0
+    for phase in phases:
+        # Phase bar
+        categories.append(f"Fase {phase.order}: {phase.phase.name}")
+        p_start = phase.planned_start_date
+        p_end = phase.planned_end_date
+        a_start = phase.actual_start_date
+        a_end = phase.actual_end_date
+
+        if p_start and p_end:
+            planned_data.append({
+                "value": [idx, p_start.isoformat(), p_end.isoformat(), float(phase.progress_pct)],
+                "itemStyle": {"color": "rgba(59,130,246,0.7)", "borderRadius": 4},
+            })
+        if a_start:
+            a_end_val = a_end or date.today()
+            actual_data.append({
+                "value": [idx, a_start.isoformat(), a_end_val.isoformat(), float(phase.progress_pct)],
+                "itemStyle": {"color": "rgba(34,197,94,0.7)", "borderRadius": 4},
+            })
+        idx += 1
+
+        # Service bars under this phase
+        services = ServiceInstance.objects.filter(
+            project=project,
+            phase_instance=phase,
+        ).order_by("code")
+
+        for svc in services:
+            categories.append(f"  {svc.code} {svc.name[:40]}")
+            s_start = svc.projected_start_date
+            s_end = svc.projected_end_date
+            sa_start = svc.actual_start_date
+            sa_end = svc.actual_end_date
+            progress = float(svc.progress_pct or 0)
+
+            if s_start and s_end:
+                color = "rgba(59,130,246,0.4)"
+                planned_data.append({
+                    "value": [idx, s_start.isoformat(), s_end.isoformat(), progress],
+                    "itemStyle": {"color": color, "borderRadius": 3},
+                })
+            if sa_start:
+                sa_end_val = sa_end or date.today()
+                # Color by progress
+                if progress >= 100:
+                    bar_color = "rgba(34,197,94,0.6)"
+                elif progress > 0:
+                    bar_color = "rgba(250,204,21,0.6)"
+                else:
+                    bar_color = "rgba(239,68,68,0.4)"
+                actual_data.append({
+                    "value": [idx, sa_start.isoformat(), sa_end_val.isoformat(), progress],
+                    "itemStyle": {"color": bar_color, "borderRadius": 3},
+                })
+            idx += 1
+
+    # Milestones
+    from apps.projects.models import Milestone as MilestoneModel
+    for m in MilestoneModel.objects.filter(project=project).order_by("planned_date"):
+        if m.planned_date:
+            milestones_data.append({
+                "name": m.name,
+                "date": m.planned_date.isoformat(),
+                "actual_date": m.actual_date.isoformat() if m.actual_date else None,
+                "type": m.milestone_type,
+            })
+
+    return JsonResponse({
+        "categories": categories,
+        "planned": planned_data,
+        "actual": actual_data,
+        "milestones": milestones_data,
+        "project_start": project.planned_start_date.isoformat() if project.planned_start_date else None,
+        "project_end": project.planned_end_date.isoformat() if project.planned_end_date else None,
+    })
 
 
 # ---------------------------------------------------------------------------

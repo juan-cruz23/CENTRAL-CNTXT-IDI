@@ -14,6 +14,7 @@ from apps.dashboards.views import (
     periodic_cashflow_api,
     portfolio_by_bu_api,
     portfolio_data_api,
+    project_gantt_api,
 )
 
 app_name = "dashboards"
@@ -55,5 +56,10 @@ urlpatterns = [
         name="bu_cashflow",
     ),
     path("api/gantt-data/", gantt_data_api, name="gantt_data"),
+    path(
+        "api/project-gantt/<int:project_pk>/",
+        project_gantt_api,
+        name="project_gantt",
+    ),
     path("api/portfolio-by-bu/", portfolio_by_bu_api, name="portfolio_by_bu"),
 ]

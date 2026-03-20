@@ -1,0 +1,158 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Rentabilidad Real{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Rentabilidad Real</h1>
+    <p class="text-sm text-base-content/60 mt-1">Costos reales por proyecto basados en la distribución de tiempo del equipo</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'financials:profitability_overview' %}" class="btn btn-ghost btn-sm">Rentabilidad Estándar</a>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold text-primary">${{ totals.fee|floatformat:0|intcomma }}</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Fee Total</div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold text-error">${{ totals.cost|floatformat:0|intcomma }}</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Costo Real Total</div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold {% if totals.utility >= 0 %}text-success{% else %}text-error{% endif %}">${{ totals.utility|floatformat:0|intcomma }}</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Utilidad</div>
+    </div>
+  </div>
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body p-4">
+      <div class="text-2xl font-bold {% if totals.margin_pct >= 20 %}text-success{% elif totals.margin_pct >= 10 %}text-warning{% else %}text-error{% endif %}">{{ totals.margin_pct }}%</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Margen</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recalculate -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body p-4">
+    <form method="post" action="{% url 'financials:recalculate_costs' %}" class="flex items-end gap-3">
+      {% csrf_token %}
+      <div class="form-control">
+        <label class="label"><span class="label-text text-xs">Año</span></label>
+        <input type="number" name="year" value="2026" min="2024" max="2030" class="input input-bordered input-sm w-24">
+      </div>
+      <div class="form-control">
+        <label class="label"><span class="label-text text-xs">Mes</span></label>
+        <select name="month" class="select select-bordered select-sm">
+          <option value="1">Enero</option>
+          <option value="2">Febrero</option>
+          <option value="3" selected>Marzo</option>
+          <option value="4">Abril</option>
+          <option value="5">Mayo</option>
+          <option value="6">Junio</option>
+          <option value="7">Julio</option>
+          <option value="8">Agosto</option>
+          <option value="9">Septiembre</option>
+          <option value="10">Octubre</option>
+          <option value="11">Noviembre</option>
+          <option value="12">Diciembre</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        Recalcular Costos
+      </button>
+      <span class="text-xs text-base-content/40">Agrega las distribuciones de tiempo enviadas al cálculo de costos</span>
+    </form>
+  </div>
+</div>
+
+<!-- Project profitability table -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Proyecto</th>
+            <th class="text-xs uppercase tracking-wider text-right">Fee</th>
+            <th class="text-xs uppercase tracking-wider text-right">Costo Real</th>
+            <th class="text-xs uppercase tracking-wider text-right">Utilidad</th>
+            <th class="text-xs uppercase tracking-wider text-right">Margen</th>
+            <th class="text-xs uppercase tracking-wider w-32">Salud</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in profitability %}
+          <tr class="hover">
+            <td>
+              <div class="font-semibold">{{ item.project.name }}</div>
+              <div class="text-xs text-base-content/50">{{ item.project.code }}</div>
+            </td>
+            <td class="text-right font-mono">${{ item.fee|floatformat:0|intcomma }}</td>
+            <td class="text-right font-mono">
+              {% if item.total_cost > 0 %}
+                ${{ item.total_cost|floatformat:0|intcomma }}
+              {% else %}
+                <span class="text-base-content/30">Sin datos</span>
+              {% endif %}
+            </td>
+            <td class="text-right font-mono {% if item.utility >= 0 %}text-success{% else %}text-error{% endif %}">
+              {% if item.total_cost > 0 %}
+                ${{ item.utility|floatformat:0|intcomma }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td class="text-right font-bold {% if item.margin_pct >= 20 %}text-success{% elif item.margin_pct >= 10 %}text-warning{% else %}text-error{% endif %}">
+              {% if item.total_cost > 0 %}
+                {{ item.margin_pct }}%
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td>
+              {% if item.total_cost > 0 %}
+              <progress class="progress w-full {% if item.margin_pct >= 20 %}progress-success{% elif item.margin_pct >= 10 %}progress-warning{% else %}progress-error{% endif %}"
+                        value="{{ item.margin_pct }}" max="50"></progress>
+              {% else %}
+              <span class="text-xs text-base-content/30">Pendiente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-12 text-base-content/50">
+              No hay proyectos activos.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- How it works -->
+<div class="mt-6 card bg-base-200/50 border border-base-300/20">
+  <div class="card-body p-4">
+    <h3 class="text-sm font-semibold mb-2">¿Cómo funciona?</h3>
+    <div class="text-xs text-base-content/60 space-y-1">
+      <p>1. Cada miembro del equipo reporta su distribución semanal de tiempo en <a href="{% url 'timetracking:widget' %}" class="link link-primary">Mi Tiempo</a></p>
+      <p>2. El sistema calcula: <code class="bg-base-300 px-1 rounded">costo semanal persona × porcentaje asignado = costo real por proyecto</code></p>
+      <p>3. Costo semanal = (tarifa hora + sobrecosto) × horas disponibles semanales</p>
+      <p>4. Haz clic en "Recalcular Costos" para actualizar los datos del mes seleccionado</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

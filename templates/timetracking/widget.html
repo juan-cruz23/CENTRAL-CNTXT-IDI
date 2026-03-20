@@ -1,0 +1,99 @@
+{% extends "base/base.html" %}
+{% block title %}Distribución Semanal{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Distribución Semanal</h1>
+    <p class="text-sm text-base-content/60 mt-1">¿Cómo distribuiste tu tiempo esta semana?</p>
+  </div>
+  <a href="{% url 'timetracking:history' %}" class="btn btn-ghost btn-sm">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    Historial
+  </a>
+</div>
+
+<!-- Week navigation -->
+<div class="flex items-center justify-center gap-4 mb-6">
+  <a href="?week={{ prev_week }}" class="btn btn-ghost btn-sm btn-circle">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+  </a>
+  <div class="text-center">
+    <div class="font-semibold">{{ week_start|date:"d M" }} — {{ week_end|date:"d M, Y" }}</div>
+    {% if is_current_week %}<span class="badge badge-primary badge-xs">Semana actual</span>{% endif %}
+    {% if is_submitted %}<span class="badge badge-success badge-xs">Enviada</span>{% endif %}
+  </div>
+  <a href="?week={{ next_week }}" class="btn btn-ghost btn-sm btn-circle">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+  </a>
+</div>
+
+<!-- Distribution Widget -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30"
+     x-data="{
+       sliders: { {% for item in projects_with_pct %}'p{{ item.project.pk }}': {{ item.percentage }}{% if not forloop.last %}, {% endif %}{% endfor %} },
+       get totalPct() {
+         return Object.values(this.sliders).reduce((a, b) => a + b, 0);
+       }
+     }">
+  <div class="card-body">
+    <!-- Total bar -->
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-sm font-semibold">Total:</span>
+      <div class="flex items-center gap-3">
+        <progress class="progress w-48"
+                  :class="totalPct === 100 ? 'progress-success' : totalPct > 100 ? 'progress-error' : 'progress-warning'"
+                  :value="totalPct" max="100"></progress>
+        <span class="font-mono font-bold text-lg"
+              :class="totalPct === 100 ? 'text-success' : totalPct > 100 ? 'text-error' : 'text-warning'"
+              x-text="totalPct + '%'"></span>
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'timetracking:submit' %}">
+      {% csrf_token %}
+      <input type="hidden" name="week_start" value="{{ week_start|date:'Y-m-d' }}">
+
+      <div class="space-y-3">
+        {% for item in projects_with_pct %}
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition-colors">
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm truncate">{{ item.project.name }}</div>
+            <div class="text-xs text-base-content/50">{{ item.project.code }}</div>
+          </div>
+          <div class="flex items-center gap-2 w-56">
+            <input type="range" name="project_{{ item.project.pk }}"
+                   min="0" max="100" step="5"
+                   x-model.number="sliders.p{{ item.project.pk }}"
+                   class="range range-sm range-primary flex-1"
+                   {% if is_submitted %}disabled{% endif %}>
+            <span class="font-mono text-sm w-12 text-right font-bold"
+                  :class="sliders.p{{ item.project.pk }} > 0 ? 'text-primary' : 'text-base-content/30'"
+                  x-text="sliders.p{{ item.project.pk }} + '%'"></span>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-8 text-base-content/50">
+          No hay proyectos activos para reportar.
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if projects_with_pct and not is_submitted %}
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="submit" class="btn btn-primary" :disabled="totalPct !== 100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+          Enviar Semana
+        </button>
+      </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<!-- Tip -->
+<div class="mt-4 text-xs text-base-content/40 text-center">
+  Mueve los sliders para indicar qué porcentaje de tu semana dedicaste a cada proyecto. Debe sumar 100%.
+</div>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+<tr id="st-row-{{ st.pk }}" class="bg-primary/5">
+  <td class="font-mono font-bold text-sm">{{ st.code }}</td>
+  <td><input type="text" name="name" value="{{ st.name }}" class="input input-bordered input-xs w-full" form="edit-form-{{ st.pk }}"></td>
+  <td class="text-sm">{{ st.phase.name }}</td>
+  <td><input type="number" name="base_unit_price" value="{{ st.base_unit_price }}" step="0.01" class="input input-bordered input-xs w-24 text-right" form="edit-form-{{ st.pk }}"></td>
+  <td><input type="number" name="estimated_hours" value="{{ st.estimated_hours }}" step="0.01" class="input input-bordered input-xs w-16 text-right" form="edit-form-{{ st.pk }}"></td>
+  <td><input type="number" name="target_margin_pct" value="{{ st.target_margin_pct }}" step="0.01" class="input input-bordered input-xs w-16 text-right" form="edit-form-{{ st.pk }}"></td>
+  <td>
+    <input type="checkbox" name="is_active" {% if st.is_active %}checked{% endif %} class="checkbox checkbox-xs checkbox-primary" form="edit-form-{{ st.pk }}">
+  </td>
+  <td class="flex gap-1">
+    <form id="edit-form-{{ st.pk }}" hx-post="{% url 'services:pricing_inline_edit' st.pk %}" hx-target="#st-row-{{ st.pk }}" hx-swap="outerHTML">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success btn-xs">Guardar</button>
+    </form>
+    <button class="btn btn-ghost btn-xs"
+            hx-get="{% url 'services:pricing_inline_cancel' st.pk %}"
+            hx-target="#st-row-{{ st.pk }}"
+            hx-swap="outerHTML">
+      Cancelar
+    </button>
+  </td>
+</tr>

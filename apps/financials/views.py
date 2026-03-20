@@ -4,11 +4,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import DecimalField, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView
 
+from apps.common.mixins import FinancialAccessMixin
 from apps.financials.forms import (
     AccountingTransactionFilterForm,
     CostCenterMappingForm,
@@ -22,7 +23,7 @@ from apps.financials.models import (
 )
 
 
-class ProjectFinancialView(LoginRequiredMixin, TemplateView):
+class ProjectFinancialView(FinancialAccessMixin, TemplateView):
     """Vista general financiera de un proyecto: hitos de pago y rentabilidad."""
 
     template_name = "financials/project_financial.html"
@@ -153,7 +154,7 @@ class PaymentMilestoneDeleteView(LoginRequiredMixin, View):
         return HttpResponse("")
 
 
-class CostCenterMappingListView(LoginRequiredMixin, ListView):
+class CostCenterMappingListView(FinancialAccessMixin, ListView):
     """Lista de centros de costo con mapeo a proyectos/BU."""
 
     model = CostCenterMapping
@@ -166,7 +167,7 @@ class CostCenterMappingListView(LoginRequiredMixin, ListView):
         ).order_by("cost_center_code")
 
 
-class CostCenterMappingUpdateView(LoginRequiredMixin, UpdateView):
+class CostCenterMappingUpdateView(FinancialAccessMixin, UpdateView):
     """Actualizar mapeo de un centro de costo."""
 
     model = CostCenterMapping
@@ -177,7 +178,7 @@ class CostCenterMappingUpdateView(LoginRequiredMixin, UpdateView):
         return reverse("financials:cost_center_mapping")
 
 
-class AccountingOverviewView(LoginRequiredMixin, ListView):
+class AccountingOverviewView(FinancialAccessMixin, ListView):
     """Lista paginada de transacciones contables importadas de Loggro."""
 
     model = AccountingTransaction
@@ -214,9 +215,85 @@ class AccountingOverviewView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProfitabilityOverviewView(LoginRequiredMixin, ListView):
+class ProfitabilityOverviewView(FinancialAccessMixin, ListView):
     """Vista general de rentabilidad de todos los proyectos."""
 
     model = ProfitabilitySummary
     template_name = "financials/profitability_overview.html"
     context_object_name = "profitability_summaries"
+
+
+class RealProfitabilityView(FinancialAccessMixin, TemplateView):
+    """Rentabilidad real basada en distribución de tiempo del equipo."""
+
+    template_name = "financials/real_profitability.html"
+
+    def get_context_data(self, **kwargs):
+        from datetime import date
+        from django.db.models import Sum
+        from apps.projects.models import Project
+        from apps.financials.models import CostAllocation, PaymentMilestone
+        from domain.financials.time_cost_engine import get_project_profitability
+
+        context = super().get_context_data(**kwargs)
+
+        active_projects = Project.objects.filter(status="ACTIVE").order_by("code")
+        profitability = []
+        total_fee = Decimal("0")
+        total_cost = Decimal("0")
+
+        for project in active_projects:
+            data = get_project_profitability(project.pk)
+            profitability.append(data)
+            total_fee += data["fee"]
+            total_cost += data["total_cost"]
+
+        total_utility = total_fee - total_cost
+        total_margin = (
+            (total_utility / total_fee * Decimal("100")).quantize(Decimal("0.01"))
+            if total_fee > 0 else Decimal("0")
+        )
+
+        context["profitability"] = profitability
+        context["totals"] = {
+            "fee": total_fee,
+            "cost": total_cost,
+            "utility": total_utility,
+            "margin_pct": total_margin,
+        }
+
+        # Available periods for recalculation
+        from apps.financials.models import CostAllocationPeriod
+        context["periods"] = CostAllocationPeriod.objects.filter(
+            allocations__cost_type="OPERATIVE"
+        ).distinct().order_by("-period")
+
+        return context
+
+
+class RecalculateCostsView(FinancialAccessMixin, View):
+    """Recalculate cost allocations for a given month."""
+
+    def post(self, request):
+        from django.contrib import messages
+        from domain.financials.time_cost_engine import save_month_allocations
+
+        year = int(request.POST.get("year", 0))
+        month = int(request.POST.get("month", 0))
+
+        if not year or not month:
+            messages.error(request, "Año y mes son requeridos.")
+            return redirect("financials:real_profitability")
+
+        result = save_month_allocations(year, month)
+        if result["saved"]:
+            messages.success(
+                request,
+                f"Costos recalculados para {result['period']}: "
+                f"{len(result['projects'])} proyectos, "
+                f"${float(result['total_cost']):,.0f} distribuidos.",
+            )
+        else:
+            messages.warning(request, result.get("message", "Sin datos."))
+
+        return redirect("financials:real_profitability")
