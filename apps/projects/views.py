@@ -54,6 +54,14 @@ class ProjectListView(LoginRequiredMixin, ListView):
         qs = super().get_queryset().select_related(
             "client", "leader", "business_unit", "operative_line", "category",
         )
+        user = self.request.user
+        # Visibilidad: staff o can_access_all_projects ven todo; el resto solo sus proyectos
+        if not user.is_staff:
+            can_see_all = user.user_roles.filter(
+                role__can_access_all_projects=True
+            ).exists()
+            if not can_see_all:
+                qs = qs.filter(leader=user)
         status = self.request.GET.get("status")
         if status:
             qs = qs.filter(status=status)

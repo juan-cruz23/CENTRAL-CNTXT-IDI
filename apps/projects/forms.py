@@ -3,6 +3,7 @@ from decimal import Decimal, InvalidOperation
 from django import forms
 from django.db.models import Case, Value, When
 
+from apps.accounts.models import User
 from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
 from apps.geography.models import Country, Municipality
@@ -113,6 +114,13 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             if fname in self.fields:
                 cls = self.fields[fname].widget.attrs.get("class", "")
                 self.fields[fname].widget.attrs["class"] = (cls + " js-select2").strip()
+
+        # Filtrar líderes: solo usuarios con al menos un rol is_leader=True
+        leader_qs = User.objects.filter(
+            user_roles__role__is_leader=True, is_active=True
+        ).distinct().order_by("first_name", "last_name")
+        if leader_qs.exists():
+            self.fields["leader"].queryset = leader_qs
 
         if not self.instance.pk:
             self.fields.pop("code")
@@ -267,6 +275,12 @@ class ServiceInstanceForm(DaisyUIFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
         super().__init__(*args, **kwargs)
+        # Filtrar responsables: solo usuarios con al menos un rol asignado
+        prof_qs = User.objects.filter(
+            user_roles__isnull=False, is_active=True
+        ).distinct().order_by("first_name", "last_name")
+        if prof_qs.exists():
+            self.fields["assigned_professional"].queryset = prof_qs
         for field_name in (
             "projected_start_date",
             "actual_start_date",
