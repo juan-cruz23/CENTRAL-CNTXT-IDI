@@ -15,6 +15,7 @@ from apps.projects.forms import (
     ClientForm,
     MilestoneForm,
     PrerequisiteForm,
+    PrerequisiteTemplateForm,
     ProjectForm,
     ScopeForm,
     ServiceInstanceCreateForm,
@@ -23,6 +24,7 @@ from apps.projects.forms import (
 from apps.projects.models import (
     Client,
     Milestone,
+    PrerequisiteTemplate,
     Project,
     ProjectPhaseInstance,
     ProjectPrerequisite,
@@ -271,7 +273,11 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         )
         max_code = max((int(c) for c in existing), default=237)
         form.instance.code = str(max_code + 1)
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        # Auto-load prerequisite templates for the selected category
+        if self.object.category_id:
+            _load_prerequisite_templates(self.object)
+        return response
 
     def get_success_url(self):
         return reverse_lazy("projects:detail", kwargs={"pk": self.object.pk})
@@ -695,3 +701,97 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy("projects:client_list")
+
+
+# ---------------------------------------------------------------------------
+# Prerequisite template helpers
+# ---------------------------------------------------------------------------
+def _load_prerequisite_templates(project):
+    """Create ProjectPrerequisite instances from templates for the project's category."""
+    templates = PrerequisiteTemplate.objects.filter(
+        project_category=project.category
+    )
+    for tpl in templates:
+        ProjectPrerequisite.objects.get_or_create(
+            project=project,
+            category=tpl.category,
+            prerequisite_type=tpl.prerequisite_type,
+            defaults={"name": tpl.name, "weight_pct": tpl.weight_pct},
+        )
+
+
+# ---------------------------------------------------------------------------
+# Prerequisite load-template HTMX endpoint
+# ---------------------------------------------------------------------------
+class PrerequisiteLoadTemplateView(LoginRequiredMixin, View):
+    """HTMX endpoint: load prerequisite templates for the project's category."""
+
+    def post(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+        if not project.category_id:
+            return HttpResponse(
+                '<div class="alert alert-warning text-sm">El proyecto no tiene categoría asignada.</div>'
+            )
+        created_count = 0
+        templates = PrerequisiteTemplate.objects.filter(project_category=project.category)
+        if not templates.exists():
+            return HttpResponse(
+                '<div class="alert alert-info text-sm">No hay plantillas configuradas para esta categoría.</div>'
+            )
+        for tpl in templates:
+            _, created = ProjectPrerequisite.objects.get_or_create(
+                project=project,
+                category=tpl.category,
+                prerequisite_type=tpl.prerequisite_type,
+                defaults={"name": tpl.name, "weight_pct": tpl.weight_pct},
+            )
+            if created:
+                created_count += 1
+        prereqs = project.prerequisites.all()
+        return TemplateResponse(
+            request,
+            "projects/partials/prereqs_tbody.html",
+            {"prereqs": prereqs, "project": project, "loaded_count": created_count},
+        )
+
+
+# ---------------------------------------------------------------------------
+# PrerequisiteTemplate CRUD (Maestros)
+# ---------------------------------------------------------------------------
+class PrerequisiteTemplateListView(LoginRequiredMixin, ListView):
+    model = PrerequisiteTemplate
+    template_name = "projects/prerequisite_template_list.html"
+    context_object_name = "templates"
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("project_category")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["create_url"] = reverse_lazy("projects:prereq_template_create")
+        return context
+
+
+class PrerequisiteTemplateCreateView(LoginRequiredMixin, CreateView):
+    model = PrerequisiteTemplate
+    form_class = PrerequisiteTemplateForm
+    template_name = "projects/prerequisite_template_form.html"
+
+    def get_success_url(self):
+        return reverse_lazy("projects:prereq_template_list")
+
+
+class PrerequisiteTemplateUpdateView(LoginRequiredMixin, UpdateView):
+    model = PrerequisiteTemplate
+    form_class = PrerequisiteTemplateForm
+    template_name = "projects/prerequisite_template_form.html"
+
+    def get_success_url(self):
+        return reverse_lazy("projects:prereq_template_list")
+
+
+class PrerequisiteTemplateDeleteView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        tpl = get_object_or_404(PrerequisiteTemplate, pk=pk)
+        tpl.delete()
+        return HttpResponse(status=204, headers={"HX-Redirect": reverse_lazy("projects:prereq_template_list")})

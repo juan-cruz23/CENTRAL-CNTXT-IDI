@@ -113,4 +113,31 @@ urlpatterns = [
         views.ClientCreateView.as_view(),
         name="client_create",
     ),
+    # Prerequisite: load template (HTMX)
+    path(
+        "<int:pk>/prerequisitos/cargar-plantilla/",
+        views.PrerequisiteLoadTemplateView.as_view(),
+        name="prerequisite_load_template",
+    ),
+    # PrerequisiteTemplate CRUD (Maestros)
+    path(
+        "maestros/plantillas-prerequisitos/",
+        views.PrerequisiteTemplateListView.as_view(),
+        name="prereq_template_list",
+    ),
+    path(
+        "maestros/plantillas-prerequisitos/crear/",
+        views.PrerequisiteTemplateCreateView.as_view(),
+        name="prereq_template_create",
+    ),
+    path(
+        "maestros/plantillas-prerequisitos/<int:pk>/editar/",
+        views.PrerequisiteTemplateUpdateView.as_view(),
+        name="prereq_template_update",
+    ),
+    path(
+        "maestros/plantillas-prerequisitos/<int:pk>/eliminar/",
+        views.PrerequisiteTemplateDeleteView.as_view(),
+        name="prereq_template_delete",
+    ),
 ]

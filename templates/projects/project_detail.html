@@ -285,14 +285,27 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
             Pre-requisitos de Planeación
           </h3>
-          <button class="btn btn-primary btn-sm"
-                  hx-get="{% url 'projects:prerequisite_create' project.pk %}"
-                  hx-target="#prereqs-tbody"
-                  hx-swap="beforeend"
-                  onclick="if(document.getElementById('prereq-form-row'))return false;">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-            Agregar
-          </button>
+          <div class="flex gap-2">
+            {% if project.category %}
+            <button class="btn btn-outline btn-sm"
+                    hx-post="{% url 'projects:prerequisite_load_template' project.pk %}"
+                    hx-target="#prereqs-tbody"
+                    hx-swap="innerHTML"
+                    hx-confirm="¿Cargar prerequisitos estándar para la categoría '{{ project.category }}'? Los existentes no serán duplicados."
+                    title="Cargar plantilla de categoría">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Cargar plantilla
+            </button>
+            {% endif %}
+            <button class="btn btn-primary btn-sm"
+                    hx-get="{% url 'projects:prerequisite_create' project.pk %}"
+                    hx-target="#prereqs-tbody"
+                    hx-swap="beforeend"
+                    onclick="if(document.getElementById('prereq-form-row'))return false;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+              Agregar
+            </button>
+          </div>
         </div>
         <div class="overflow-x-auto">
           <table class="table table-zebra">

@@ -1,0 +1,12 @@
+{% if loaded_count %}
+<tr id="load-template-msg" hx-swap-oob="outerHTML:#load-template-msg">
+  <td colspan="6">
+    <div class="alert alert-success text-sm py-2">{{ loaded_count }} prerequisito{{ loaded_count|pluralize }} cargado{{ loaded_count|pluralize }} desde la plantilla.</div>
+  </td>
+</tr>
+{% endif %}
+{% for prereq in prereqs %}
+{% include "projects/partials/prerequisite_row.html" with prereq=prereq project=project %}
+{% empty %}
+<tr id="prereqs-empty-state"><td colspan="6">{% include "components/empty_state.html" with message="No hay pre-requisitos definidos" icon="document" %}</td></tr>
+{% endfor %}

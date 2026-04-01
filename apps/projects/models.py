@@ -371,6 +371,67 @@ class ProjectPrerequisite(TimeStampedModel):
 
 
 # ---------------------------------------------------------------------------
+# PrerequisiteTemplate
+# ---------------------------------------------------------------------------
+class PrerequisiteTemplate(TimeStampedModel):
+    """
+    Defines a set of standard prerequisites for a given project category.
+    When a project is created (or when the user clicks 'Cargar plantilla'),
+    these items are automatically created as ProjectPrerequisite instances.
+    """
+
+    project_category = models.ForeignKey(
+        "services.ProjectCategory",
+        on_delete=models.CASCADE,
+        related_name="prerequisite_templates",
+        verbose_name="categoría de proyecto",
+    )
+    category = models.CharField(
+        max_length=30,
+        choices=ProjectPrerequisite.Category.choices,
+        verbose_name="categoría de prerequisito",
+    )
+    prerequisite_type = models.CharField(
+        max_length=100,
+        verbose_name="tipo de prerequisito",
+        help_text='Ej. "Técnicos", "Ficha de Proyecto", "Canal de Slack".',
+    )
+    name = models.CharField(
+        max_length=200,
+        verbose_name="nombre",
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name="descripción / notas",
+    )
+    weight_pct = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal("8.33"),
+        verbose_name="peso (%)",
+    )
+    reference_link = models.URLField(
+        blank=True,
+        verbose_name="enlace de referencia",
+        help_text="URL a un documento o recurso de referencia.",
+    )
+    reference_file = models.FileField(
+        upload_to="prereq_templates/",
+        blank=True,
+        null=True,
+        verbose_name="archivo adjunto",
+    )
+
+    class Meta:
+        ordering = ["project_category", "category", "prerequisite_type"]
+        verbose_name = "plantilla de prerequisito"
+        verbose_name_plural = "plantillas de prerequisitos"
+
+    def __str__(self):
+        return f"{self.project_category} — {self.prerequisite_type}"
+
+
+# ---------------------------------------------------------------------------
 # ProjectPhaseInstance
 # ---------------------------------------------------------------------------
 class ProjectPhaseInstance(TimeStampedModel):

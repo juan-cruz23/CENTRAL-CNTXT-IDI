@@ -3,6 +3,7 @@ from django.contrib import admin
 from apps.projects.models import (
     Client,
     Milestone,
+    PrerequisiteTemplate,
     Project,
     ProjectPhaseInstance,
     ProjectPrerequisite,
@@ -334,6 +335,13 @@ class ServiceInstanceAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+
+@admin.register(PrerequisiteTemplate)
+class PrerequisiteTemplateAdmin(admin.ModelAdmin):
+    list_display = ("project_category", "category", "prerequisite_type", "name", "weight_pct")
+    list_filter = ("project_category", "category")
+    search_fields = ("name", "prerequisite_type", "project_category__name")
 
 
 @admin.register(Milestone)

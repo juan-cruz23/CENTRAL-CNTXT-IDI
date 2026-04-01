@@ -6,7 +6,7 @@ from django.db.models import Case, Value, When
 from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
 from apps.geography.models import Country, Municipality
-from apps.projects.models import Client, Milestone, Project, ProjectPrerequisite, ProjectScope, ServiceInstance
+from apps.projects.models import Client, Milestone, PrerequisiteTemplate, Project, ProjectPrerequisite, ProjectScope, ServiceInstance
 
 
 # ---------------------------------------------------------------------------
@@ -142,6 +142,16 @@ class PrerequisiteForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ProjectPrerequisite
         fields = ["category", "prerequisite_type", "name", "weight_pct"]
+
+
+# ---------------------------------------------------------------------------
+# PrerequisiteTemplate form
+# ---------------------------------------------------------------------------
+class PrerequisiteTemplateForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = PrerequisiteTemplate
+        fields = ["project_category", "category", "prerequisite_type", "name", "notes", "weight_pct", "reference_link", "reference_file"]
+        widgets = {"notes": forms.Textarea(attrs={"rows": 2})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
