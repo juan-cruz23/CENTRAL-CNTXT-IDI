@@ -8,6 +8,7 @@ from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
 from apps.geography.models import Country, Municipality
 from apps.projects.models import Client, Milestone, PrerequisiteTemplate, Project, ProjectPrerequisite, ProjectScope, ServiceInstance
+from apps.services.models import ProjectCategory
 
 
 # ---------------------------------------------------------------------------
@@ -114,6 +115,10 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             if fname in self.fields:
                 cls = self.fields[fname].widget.attrs.get("class", "")
                 self.fields[fname].widget.attrs["class"] = (cls + " js-select2").strip()
+
+        # Filtrar categorías activas
+        if "category" in self.fields:
+            self.fields["category"].queryset = ProjectCategory.objects.filter(is_active=True).order_by("code")
 
         # Filtrar líderes: solo usuarios con al menos un rol is_leader=True
         leader_qs = User.objects.filter(

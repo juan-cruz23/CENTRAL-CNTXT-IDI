@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from decimal import Decimal
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -17,7 +17,7 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import ServiceTemplateForm
+from apps.services.forms import ProjectCategoryForm, ServiceTemplateForm
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
     ProjectCategory,
@@ -26,10 +26,43 @@ from apps.services.models import (
 )
 
 
-class ProjectCategoryListView(LoginRequiredMixin, ListView):
+class StaffRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
+
+
+class ProjectCategoryListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
     model = ProjectCategory
     template_name = "services/projectcategory_list.html"
     context_object_name = "categories"
+
+    def get_queryset(self):
+        return ProjectCategory.objects.order_by("code")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["create_url"] = reverse_lazy("services:category_create")
+        return context
+
+
+class ProjectCategoryCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = ProjectCategory
+    form_class = ProjectCategoryForm
+    template_name = "services/projectcategory_form.html"
+    success_url = reverse_lazy("services:category_list")
+
+
+class ProjectCategoryUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = ProjectCategory
+    form_class = ProjectCategoryForm
+    template_name = "services/projectcategory_form.html"
+    success_url = reverse_lazy("services:category_list")
+
+
+class ProjectCategoryDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = ProjectCategory
+    template_name = "services/projectcategory_confirm_delete.html"
+    success_url = reverse_lazy("services:category_list")
 
 
 class ProjectPhaseListView(LoginRequiredMixin, ListView):

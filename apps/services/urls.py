@@ -11,6 +11,21 @@ urlpatterns = [
         name="category_list",
     ),
     path(
+        "categories/crear/",
+        views.ProjectCategoryCreateView.as_view(),
+        name="category_create",
+    ),
+    path(
+        "categories/<int:pk>/editar/",
+        views.ProjectCategoryUpdateView.as_view(),
+        name="category_update",
+    ),
+    path(
+        "categories/<int:pk>/eliminar/",
+        views.ProjectCategoryDeleteView.as_view(),
+        name="category_delete",
+    ),
+    path(
         "phases/",
         views.ProjectPhaseListView.as_view(),
         name="phase_list",

@@ -1,7 +1,17 @@
 {% extends "base/base.html" %}
 {% block title %}Categorías de Proyecto{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/herramientas/maestros/" parent_label="Maestros" current="Categorías de Proyecto" %}
+{% endblock %}
 {% block content %}
 {% include "components/page_header.html" with title="Categorías de Proyecto" %}
+
+<div class="flex justify-end mb-4">
+  <a href="{% url 'services:category_create' %}" class="btn btn-primary btn-sm gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    Nueva Categoría
+  </a>
+</div>
 
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
@@ -13,6 +23,7 @@
             <th class="text-xs uppercase tracking-wider">Nombre</th>
             <th class="text-xs uppercase tracking-wider">Descripción</th>
             <th class="text-xs uppercase tracking-wider">Estado</th>
+            <th class="text-xs uppercase tracking-wider text-right">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -20,14 +31,22 @@
           <tr class="hover">
             <td class="font-mono font-bold">{{ cat.code }}</td>
             <td>{{ cat.name }}</td>
-            <td class="max-w-md truncate">{{ cat.description|default:"-" }}</td>
+            <td class="max-w-md truncate text-base-content/70">{{ cat.description|default:"-" }}</td>
             <td>
               {% if cat.is_active %}<span class="badge badge-success badge-sm">Activa</span>
               {% else %}<span class="badge badge-ghost badge-sm">Inactiva</span>{% endif %}
             </td>
+            <td class="text-right">
+              <a href="{% url 'services:category_update' cat.pk %}" class="btn btn-ghost btn-xs" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              </a>
+              <a href="{% url 'services:category_delete' cat.pk %}" class="btn btn-ghost btn-xs text-error" title="Eliminar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </a>
+            </td>
           </tr>
           {% empty %}
-          <tr><td colspan="4">{% include "components/empty_state.html" with message="No hay categorías definidas." icon="folder" %}</td></tr>
+          <tr><td colspan="5">{% include "components/empty_state.html" with message="No hay categorías definidas." icon="folder" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
