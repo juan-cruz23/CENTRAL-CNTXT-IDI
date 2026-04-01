@@ -13,31 +13,69 @@
   <h1 class="text-2xl font-bold mb-6">Mi Perfil</h1>
   <div class="card bg-base-100 shadow-sm border border-base-300/50">
     <div class="card-body">
-      <div class="flex items-center gap-4 mb-6 pb-6 border-b border-base-300/50">
-        <div class="avatar placeholder">
-          <div class="bg-primary text-primary-content w-16 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-            <span class="text-2xl">{{ user.first_name|first }}{{ user.last_name|first }}</span>
-          </div>
-        </div>
-        <div>
-          <h2 class="text-xl font-bold">{{ user.get_full_name }}</h2>
-          <p class="text-base-content/60">{{ user.email }}</p>
-        </div>
-      </div>
-      <form method="post">
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {% for field in form %}
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-medium">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
-            </label>
-            {{ field }}
-            {% if field.help_text %}<span class="text-sm text-base-content/60 mt-1">{{ field.help_text }}</span>{% endif %}
-            {% if field.errors %}<span class="text-error text-sm mt-1">{{ field.errors.0 }}</span>{% endif %}
+
+        <!-- Avatar section -->
+        <div class="flex items-center gap-5 mb-6 pb-6 border-b border-base-300/50" x-data="{ preview: '{% if user.avatar %}{{ user.avatar.url }}{% endif %}' }">
+          <div class="relative">
+            <div class="avatar{% if not user.avatar %} placeholder{% endif %} cursor-pointer" @click="$refs.avatarInput.click()">
+              <div class="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 {% if not user.avatar %}bg-primary text-primary-content{% endif %} overflow-hidden">
+                <template x-if="preview">
+                  <img :src="preview" alt="Avatar" class="w-full h-full object-cover" />
+                </template>
+                <template x-if="!preview">
+                  <span class="text-2xl flex items-center justify-center h-full">{{ user.first_name|first }}{{ user.last_name|first }}</span>
+                </template>
+              </div>
+            </div>
+            <button type="button" @click="$refs.avatarInput.click()"
+                    class="absolute -bottom-1 -right-1 btn btn-circle btn-xs btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+            </button>
           </div>
-          {% endfor %}
+          <div>
+            <h2 class="text-xl font-bold">{{ user.get_full_name }}</h2>
+            <p class="text-base-content/60 text-sm">{{ user.email }}</p>
+            <p class="text-base-content/40 text-xs mt-1">Haz clic en la foto para cambiarla</p>
+          </div>
+          <input x-ref="avatarInput" type="file" name="avatar" accept="image/*" class="hidden"
+                 @change="if($event.target.files[0]) preview = URL.createObjectURL($event.target.files[0])" />
         </div>
+
+        <!-- Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.first_name.label }}</span></label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<span class="text-error text-xs">{{ form.first_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.last_name.label }}</span></label>
+            {{ form.last_name }}
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.email.label }}</span></label>
+            {{ form.email }}
+          </div>
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.phone.label }}</span></label>
+            {{ form.phone }}
+          </div>
+        </div>
+
+        <!-- Roles (read-only) -->
+        {% if user_roles %}
+        <div class="mt-4 pt-4 border-t border-base-300/50">
+          <p class="text-xs text-base-content/50 mb-2">Mis roles</p>
+          <div class="flex flex-wrap gap-1">
+            {% for ur in user_roles %}
+            <span class="badge {% if ur.is_primary %}badge-primary{% else %}badge-outline{% endif %} badge-sm">{{ ur.role.code }} — {{ ur.role.name }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
         <div class="divider"></div>
         <div class="flex justify-end gap-2">
           <a href="{% url 'dashboards:home' %}" class="btn btn-ghost">Cancelar</a>

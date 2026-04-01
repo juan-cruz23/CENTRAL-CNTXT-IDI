@@ -1,0 +1,74 @@
+{% extends "base/base.html" %}
+{% block title %}Editar Usuario{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/cuentas/usuarios/" parent_label="Usuarios" current="Editar Usuario" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-xl">
+  {% include "components/page_header.html" with title="Editar Usuario" %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="space-y-4">
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label"><span class="label-text font-medium">{{ form.first_name.label }}</span></label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}<span class="text-error text-xs">{{ form.first_name.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text font-medium">{{ form.last_name.label }}</span></label>
+              {{ form.last_name }}
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.username.label }} <span class="text-error">*</span></span></label>
+            {{ form.username }}
+            {% if form.username.errors %}<span class="text-error text-xs">{{ form.username.errors.0 }}</span>{% endif %}
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label"><span class="label-text font-medium">{{ form.email.label }}</span></label>
+              {{ form.email }}
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text font-medium">{{ form.phone.label }}</span></label>
+              {{ form.phone }}
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.new_password.label }}</span></label>
+            {{ form.new_password }}
+            <span class="label-text-alt text-base-content/50 mt-1">Déjalo vacío si no quieres cambiar la contraseña.</span>
+          </div>
+
+          <div class="space-y-2">
+            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-base-300/50 hover:bg-base-200/50">
+              {{ form.is_staff }}
+              <span class="font-medium text-sm">{{ form.is_staff.label }}</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-base-300/50 hover:bg-base-200/50">
+              {{ form.is_active }}
+              <span class="font-medium text-sm">{{ form.is_active.label }}</span>
+            </label>
+          </div>
+
+        </div>
+        <div class="divider"></div>
+        <div class="flex justify-between items-center">
+          <a href="{% url 'accounts:user_role_update' object.pk %}" class="btn btn-outline btn-sm">Asignar Roles</a>
+          <div class="flex gap-3">
+            <a href="{% url 'accounts:user_management' %}" class="btn btn-ghost">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

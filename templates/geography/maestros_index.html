@@ -1,0 +1,74 @@
+{% extends "base/base.html" %}
+{% block title %}Maestros{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Maestros" %}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+  <!-- Geografía -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 hover:shadow-md transition-shadow">
+    <div class="card-body">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="p-2 bg-primary/10 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <h3 class="font-bold text-lg">Geografía</h3>
+      </div>
+      <p class="text-sm text-base-content/60 mb-4">Países y municipios usados en proyectos.</p>
+      <div class="flex flex-col gap-2">
+        <a href="{% url 'geography:country_list' %}" class="btn btn-outline btn-sm justify-start gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
+          Países
+        </a>
+        <a href="{% url 'geography:municipality_list' %}" class="btn btn-outline btn-sm justify-start gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Municipios
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Usuarios -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 hover:shadow-md transition-shadow">
+    <div class="card-body">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="p-2 bg-secondary/10 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        </div>
+        <h3 class="font-bold text-lg">Usuarios y Accesos</h3>
+      </div>
+      <p class="text-sm text-base-content/60 mb-4">Roles, permisos y paquetes de acceso.</p>
+      <div class="flex flex-col gap-2">
+        <a href="{% url 'accounts:role_list' %}" class="btn btn-outline btn-sm justify-start gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          Roles
+        </a>
+        <a href="{% url 'accounts:access_package_list' %}" class="btn btn-outline btn-sm justify-start gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+          Paquetes de Acceso
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Proyectos -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 hover:shadow-md transition-shadow">
+    <div class="card-body">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="p-2 bg-accent/10 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+        </div>
+        <h3 class="font-bold text-lg">Proyectos</h3>
+      </div>
+      <p class="text-sm text-base-content/60 mb-4">Plantillas de prerequisitos por categoría.</p>
+      <div class="flex flex-col gap-2">
+        <a href="{% url 'projects:prereq_template_list' %}" class="btn btn-outline btn-sm justify-start gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+          Plantillas de Prerequisitos
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

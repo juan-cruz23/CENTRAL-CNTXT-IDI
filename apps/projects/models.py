@@ -75,6 +75,8 @@ class Project(TimeStampedModel):
         PREMIUM = "PREMIUM", "PREMIUM ACCESS"
         STANDARD = "STANDARD", "STANDARD ACCESS"
 
+    # kept for data-migration compatibility only
+
     class Status(models.TextChoices):
         PLANNING = "PLANNING", "Planeación"
         ACTIVE = "ACTIVE", "Activo"
@@ -125,7 +127,15 @@ class Project(TimeStampedModel):
         max_length=20,
         choices=AccessType.choices,
         default=AccessType.STANDARD,
-        verbose_name="tipo de acceso",
+        verbose_name="tipo de acceso (legado)",
+    )
+    access_package = models.ForeignKey(
+        "accounts.AccessPackage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
+        verbose_name="paquete de acceso",
     )
     location = models.CharField(
         max_length=200,

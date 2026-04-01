@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
 from apps.geography.forms import CountryForm, MunicipalityForm
 from apps.geography.models import Country, Municipality
@@ -10,6 +10,10 @@ from apps.geography.models import Country, Municipality
 class StaffRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_staff
+
+
+class MaestrosIndexView(LoginRequiredMixin, StaffRequiredMixin, TemplateView):
+    template_name = "geography/maestros_index.html"
 
 
 # ---------------------------------------------------------------------------

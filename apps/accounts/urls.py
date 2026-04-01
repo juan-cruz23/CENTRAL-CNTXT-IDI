@@ -31,4 +31,18 @@ urlpatterns = [
         views.UserRoleUpdateView.as_view(),
         name="user_role_update",
     ),
+    # Role CRUD (Maestros)
+    path("roles/", views.RoleListView.as_view(), name="role_list"),
+    path("roles/crear/", views.RoleCreateView.as_view(), name="role_create"),
+    path("roles/<int:pk>/editar/", views.RoleUpdateView.as_view(), name="role_update"),
+    path("roles/<int:pk>/eliminar/", views.RoleDeleteView.as_view(), name="role_delete"),
+    # User creation / update
+    path("usuarios/crear/", views.UserCreateView.as_view(), name="user_create"),
+    path("usuarios/<int:pk>/creado/", views.UserCreatedView.as_view(), name="user_created"),
+    path("usuarios/<int:pk>/editar/", views.UserUpdateView.as_view(), name="user_update"),
+    # AccessPackage CRUD
+    path("paquetes-acceso/", views.AccessPackageListView.as_view(), name="access_package_list"),
+    path("paquetes-acceso/crear/", views.AccessPackageCreateView.as_view(), name="access_package_create"),
+    path("paquetes-acceso/<int:pk>/editar/", views.AccessPackageUpdateView.as_view(), name="access_package_update"),
+    path("paquetes-acceso/<int:pk>/eliminar/", views.AccessPackageDeleteView.as_view(), name="access_package_delete"),
 ]

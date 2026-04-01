@@ -62,7 +62,7 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             "client",
             "category",
             "client_category",
-            "access_type",
+            "access_package",
             "location",
             "country",
             "municipality",

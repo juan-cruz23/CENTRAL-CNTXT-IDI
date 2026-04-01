@@ -1,0 +1,67 @@
+{% extends "base/base.html" %}
+{% block title %}Paquetes de Acceso{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/cuentas/usuarios/" parent_label="Usuarios" current="Paquetes de Acceso" %}
+{% endblock %}
+{% block content %}
+{% url 'accounts:access_package_create' as create_url %}
+{% include "components/page_header.html" with title="Paquetes de Acceso" action_url=create_url action_label="Nuevo Paquete" icon="plus" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Descripción</th>
+            <th class="text-xs uppercase tracking-wider text-center">Proyectos</th>
+            <th class="text-xs uppercase tracking-wider text-center">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pkg in packages %}
+          <tr id="pkg-{{ pkg.pk }}" class="hover">
+            <td><code class="badge badge-outline font-mono">{{ pkg.code }}</code></td>
+            <td class="font-semibold">{{ pkg.name }}</td>
+            <td class="text-sm text-base-content/70 max-w-sm">{{ pkg.description|truncatechars:100 }}</td>
+            <td class="text-center">
+              <span class="badge badge-ghost badge-sm">{{ pkg.project_count }}</span>
+            </td>
+            <td class="text-center">
+              {% if pkg.is_active %}
+              <span class="badge badge-success badge-sm">Activo</span>
+              {% else %}
+              <span class="badge badge-ghost badge-sm">Inactivo</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="flex gap-1 items-center">
+                <a href="{% url 'accounts:access_package_update' pkg.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+                <div id="pkg-del-{{ pkg.pk }}">
+                  {% if pkg.project_count == 0 %}
+                  <button class="btn btn-ghost btn-xs text-error"
+                          hx-post="{% url 'accounts:access_package_delete' pkg.pk %}"
+                          hx-target="#pkg-{{ pkg.pk }}"
+                          hx-swap="outerHTML"
+                          hx-confirm="¿Eliminar el paquete '{{ pkg.name }}'?">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                  {% else %}
+                  <span class="text-xs text-base-content/30" title="Tiene proyectos asociados">—</span>
+                  {% endif %}
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay paquetes de acceso definidos." icon="document" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

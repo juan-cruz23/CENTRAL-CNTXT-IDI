@@ -2,6 +2,27 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+class AccessPackage(models.Model):
+    """Paquetes de acceso disponibles en la plataforma."""
+
+    code = models.CharField(max_length=30, unique=True, verbose_name="código", help_text='Ej. "ESSENTIAL", "PREMIUM".')
+    name = models.CharField(max_length=100, verbose_name="nombre")
+    description = models.TextField(blank=True, verbose_name="descripción / qué incluye")
+    is_active = models.BooleanField(default=True, verbose_name="activo")
+
+    class Meta:
+        ordering = ["code"]
+        verbose_name = "paquete de acceso"
+        verbose_name_plural = "paquetes de acceso"
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def project_count(self):
+        return self.projects.count()
+
+
 class User(AbstractUser):
     """Custom user model for Central Contexto 2.0."""
 
@@ -44,26 +65,20 @@ class User(AbstractUser):
 class Role(models.Model):
     """Roles that can be assigned to users."""
 
-    class RoleCode(models.TextChoices):
-        LA = "LA", "Líder de Área"
-        INT = "INT", "Interventor"
-        VS = "VS", "Visor de Seguimiento"
-        VL = "VL", "Visor Libre"
-        DM = "DM", "Director de Medios"
-        AI_I = "AI_I", "AI Individual"
-        AI_M = "AI_M", "AI Masivo"
-        DO = "DO", "Dirección Operativa"
-        LP = "LP", "Líder de Proyecto"
-
     code = models.CharField(
-        max_length=10,
+        max_length=20,
         unique=True,
-        choices=RoleCode.choices,
         verbose_name="código",
+        help_text='Ej. "LP", "LA", "DO".',
     )
     name = models.CharField(
         max_length=100,
         verbose_name="nombre",
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name="descripción / permisos",
+        help_text="Describe qué puede hacer este rol en la plataforma.",
     )
     default_hourly_rate = models.DecimalField(
         max_digits=10,
@@ -71,12 +86,30 @@ class Role(models.Model):
         default=0,
         verbose_name="tarifa por hora por defecto",
     )
-    description = models.TextField(
-        blank=True,
-        verbose_name="descripción",
+
+    # Permission flags
+    is_leader = models.BooleanField(
+        default=False,
+        verbose_name="puede liderar proyectos",
+        help_text="Aparece en el selector de líder al crear/editar proyectos.",
+    )
+    can_access_financials = models.BooleanField(
+        default=False,
+        verbose_name="acceso a datos financieros",
+        help_text="Puede ver valores, tarifas y rentabilidad.",
+    )
+    can_access_all_projects = models.BooleanField(
+        default=False,
+        verbose_name="ve todos los proyectos",
+        help_text="Si está activo, ve todos los proyectos. Si no, solo los asignados.",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="activo",
     )
 
     class Meta:
+        ordering = ["code"]
         verbose_name = "rol"
         verbose_name_plural = "roles"
 

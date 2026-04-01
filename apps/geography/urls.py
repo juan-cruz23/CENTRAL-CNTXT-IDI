@@ -5,6 +5,8 @@ from apps.geography import views
 app_name = "geography"
 
 urlpatterns = [
+    # Index
+    path("", views.MaestrosIndexView.as_view(), name="index"),
     # Countries
     path("paises/", views.CountryListView.as_view(), name="country_list"),
     path("paises/crear/", views.CountryCreateView.as_view(), name="country_create"),

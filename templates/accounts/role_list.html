@@ -1,0 +1,75 @@
+{% extends "base/base.html" %}
+{% block title %}Roles{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/cuentas/usuarios/" parent_label="Usuarios" current="Roles" %}
+{% endblock %}
+{% block content %}
+{% url 'accounts:role_create' as create_url %}
+{% include "components/page_header.html" with title="Maestro de Roles" action_url=create_url action_label="Nuevo Rol" icon="plus" %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead class="bg-base-200/50">
+          <tr>
+            <th class="text-xs uppercase tracking-wider">Código</th>
+            <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Descripción</th>
+            <th class="text-xs uppercase tracking-wider text-center">Líder</th>
+            <th class="text-xs uppercase tracking-wider text-center">Financiero</th>
+            <th class="text-xs uppercase tracking-wider text-center">Todos los proyectos</th>
+            <th class="text-xs uppercase tracking-wider">Usuarios</th>
+            <th class="text-xs uppercase tracking-wider text-center">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for role in roles %}
+          <tr id="role-{{ role.pk }}" class="hover">
+            <td><span class="badge badge-outline font-mono">{{ role.code }}</span></td>
+            <td class="font-medium">{{ role.name }}</td>
+            <td class="text-sm text-base-content/70 max-w-xs truncate">{{ role.description|default:"—" }}</td>
+            <td class="text-center">
+              {% if role.is_leader %}<span class="text-success text-lg">✓</span>{% else %}<span class="text-base-content/30">—</span>{% endif %}
+            </td>
+            <td class="text-center">
+              {% if role.can_access_financials %}<span class="text-success text-lg">✓</span>{% else %}<span class="text-base-content/30">—</span>{% endif %}
+            </td>
+            <td class="text-center">
+              {% if role.can_access_all_projects %}<span class="text-success text-lg">✓</span>{% else %}<span class="text-base-content/30">—</span>{% endif %}
+            </td>
+            <td>
+              <span class="badge badge-ghost badge-sm">{{ role.user_roles.count }} usuario{{ role.user_roles.count|pluralize }}</span>
+            </td>
+            <td class="text-center">
+              {% if role.is_active %}
+              <span class="badge badge-success badge-sm">Activo</span>
+              {% else %}
+              <span class="badge badge-ghost badge-sm">Inactivo</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="flex gap-1">
+                <a href="{% url 'accounts:role_update' role.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+                {% if role.user_roles.count == 0 %}
+                <button class="btn btn-ghost btn-xs text-error"
+                        hx-post="{% url 'accounts:role_delete' role.pk %}"
+                        hx-target="#role-{{ role.pk }}"
+                        hx-swap="outerHTML"
+                        hx-confirm="¿Eliminar el rol {{ role.code }}?">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                </button>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="9">{% include "components/empty_state.html" with message="No hay roles definidos." icon="users" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
