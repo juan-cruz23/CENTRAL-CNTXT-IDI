@@ -1,0 +1,54 @@
+{% extends "base/base.html" %}
+{% block title %}Municipios{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/herramientas/maestros/paises/" parent_label="Países" current="Municipios" %}
+{% endblock %}
+{% block content %}
+{% url 'geography:municipality_create' as create_url %}
+{% include "components/page_header.html" with title="Municipios" action_url=create_url action_label="Nuevo Municipio" icon="plus" %}
+
+<form class="flex flex-wrap gap-2 mb-4 items-end"
+      hx-get="{% url 'geography:municipality_list' %}"
+      hx-trigger="change from:form, keyup changed delay:300ms from:#mun-q"
+      hx-target="#mun-tbody">
+
+  <div class="flex-1 min-w-36">
+    <label class="label py-0"><span class="label-text text-xs">País</span></label>
+    <select name="country" class="select select-bordered select-sm w-full">
+      <option value="">Todos los países</option>
+      {% for c in countries %}<option value="{{ c.pk }}" {% if current_country == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="flex-1 min-w-36">
+    <label class="label py-0"><span class="label-text text-xs">Departamento</span></label>
+    <select name="department" class="select select-bordered select-sm w-full">
+      <option value="">Todos</option>
+      {% for d in departments %}<option value="{{ d }}" {% if current_department == d %}selected{% endif %}>{{ d }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="flex-1 min-w-48">
+    <label class="label py-0"><span class="label-text text-xs">Buscar</span></label>
+    <input id="mun-q" type="text" name="q" value="{{ search_query }}" placeholder="Nombre..." class="input input-bordered input-sm w-full" />
+  </div>
+  <a href="{% url 'geography:municipality_list' %}" class="btn btn-ghost btn-sm self-end">Limpiar</a>
+</form>
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <table class="table table-zebra">
+      <thead class="bg-base-200/50">
+        <tr>
+          <th class="text-xs uppercase tracking-wider">Municipio</th>
+          <th class="text-xs uppercase tracking-wider">Departamento</th>
+          <th class="text-xs uppercase tracking-wider">País</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="mun-tbody">
+        {% include "geography/partials/municipality_rows.html" %}
+      </tbody>
+    </table>
+    {% if is_paginated %}{% include "components/pagination.html" with page_obj=page_obj %}{% endif %}
+  </div>
+</div>
+{% endblock %}

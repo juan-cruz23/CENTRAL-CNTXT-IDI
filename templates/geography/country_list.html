@@ -1,0 +1,46 @@
+{% extends "base/base.html" %}
+{% block title %}Países{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/herramientas/maestros/" parent_label="Maestros" current="Países" %}
+{% endblock %}
+{% block content %}
+{% url 'geography:country_create' as create_url %}
+{% include "components/page_header.html" with title="Países" action_url=create_url action_label="Nuevo País" icon="plus" %}
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <table class="table table-zebra">
+      <thead class="bg-base-200/50">
+        <tr>
+          <th class="text-xs uppercase tracking-wider">País</th>
+          <th class="text-xs uppercase tracking-wider">ISO</th>
+          <th class="text-xs uppercase tracking-wider">Municipios</th>
+          <th class="text-xs uppercase tracking-wider">Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for country in countries %}
+        <tr>
+          <td class="font-medium">{{ country.name }}</td>
+          <td class="font-mono">{{ country.iso_code }}</td>
+          <td>{{ country.mun_count }}</td>
+          <td>
+            {% if country.is_active %}
+            <span class="badge badge-success badge-sm">Activo</span>
+            {% else %}
+            <span class="badge badge-ghost badge-sm">Inactivo</span>
+            {% endif %}
+          </td>
+          <td class="text-right">
+            <a href="{% url 'geography:country_update' country.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+            <a href="{% url 'geography:municipality_list' %}?country={{ country.pk }}" class="btn btn-ghost btn-xs">Ver municipios</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">{% include "components/empty_state.html" with message="No hay países registrados." icon="globe" %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

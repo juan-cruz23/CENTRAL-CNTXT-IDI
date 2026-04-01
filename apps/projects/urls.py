@@ -81,6 +81,27 @@ urlpatterns = [
         views.ValidateAssignmentView.as_view(),
         name="validate_assignment",
     ),
+    # Scopes (HTMX)
+    path(
+        "<int:pk>/alcances/crear/",
+        views.ScopeCreateView.as_view(),
+        name="scope_create",
+    ),
+    path(
+        "<int:pk>/alcances/<int:scope_pk>/editar/",
+        views.ScopeEditView.as_view(),
+        name="scope_edit",
+    ),
+    path(
+        "<int:pk>/alcances/<int:scope_pk>/cancelar/",
+        views.ScopeCancelEditView.as_view(),
+        name="scope_cancel_edit",
+    ),
+    path(
+        "<int:pk>/alcances/<int:scope_pk>/eliminar/",
+        views.ScopeDeleteView.as_view(),
+        name="scope_delete",
+    ),
     # Clients
     path(
         "clientes/",

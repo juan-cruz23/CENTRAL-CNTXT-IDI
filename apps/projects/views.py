@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
@@ -9,11 +10,13 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 
+from apps.geography.models import Country, Municipality
 from apps.projects.forms import (
     ClientForm,
     MilestoneForm,
     PrerequisiteForm,
     ProjectForm,
+    ScopeForm,
     ServiceInstanceCreateForm,
     ServiceInstanceForm,
 )
@@ -23,6 +26,7 @@ from apps.projects.models import (
     Project,
     ProjectPhaseInstance,
     ProjectPrerequisite,
+    ProjectScope,
     ServiceInstance,
 )
 from apps.services.mixins import has_pricing_permission
@@ -39,15 +43,24 @@ class ProjectListView(LoginRequiredMixin, ListView):
     context_object_name = "projects"
     paginate_by = 25
 
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            return ["projects/partials/project_table_rows.html"]
+        return [self.template_name]
+
     def get_queryset(self):
         qs = super().get_queryset().select_related(
             "client", "leader", "business_unit", "operative_line", "category",
         )
-        # Filter by status
         status = self.request.GET.get("status")
         if status:
             qs = qs.filter(status=status)
-        # Search by name or code
+        leader_id = self.request.GET.get("leader")
+        if leader_id:
+            qs = qs.filter(leader_id=leader_id)
+        client_id = self.request.GET.get("client")
+        if client_id:
+            qs = qs.filter(client_id=client_id)
         search = self.request.GET.get("q")
         if search:
             qs = qs.filter(
@@ -57,10 +70,25 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        User = get_user_model()
         context["status_choices"] = Project.Status.choices
         context["current_status"] = self.request.GET.get("status", "")
+        context["current_leader"] = self.request.GET.get("leader", "")
+        context["current_client"] = self.request.GET.get("client", "")
         context["search_query"] = self.request.GET.get("q", "")
         context["create_url"] = reverse_lazy("projects:create")
+        context["leaders"] = User.objects.filter(
+            led_projects__isnull=False
+        ).distinct().order_by("first_name", "last_name")
+        context["clients"] = Client.objects.filter(
+            projects__isnull=False
+        ).distinct().order_by("name")
+        context["active_filters_count"] = sum([
+            bool(self.request.GET.get("status")),
+            bool(self.request.GET.get("leader")),
+            bool(self.request.GET.get("client")),
+            bool(self.request.GET.get("q")),
+        ])
         return context
 
 
@@ -164,6 +192,36 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         except (ImportError, Exception):
             context["satisfaction_measurements"] = []
 
+        # --- Fase actual ---
+        try:
+            phases = project.phase_instances.select_related("phase").order_by("phase__order", "phase__name")
+            current_phase = None
+            if phases.exists():
+                # Buscar la primera en progreso (>0% y <100%)
+                current_phase = phases.filter(
+                    progress_pct__gt=0, progress_pct__lt=100
+                ).first()
+                if current_phase is None:
+                    # Si ninguna en progreso, ver si todas completadas
+                    if phases.filter(progress_pct__lt=100).exists():
+                        current_phase = phases.filter(progress_pct=0).first()
+                    else:
+                        current_phase = "COMPLETED"
+            context["current_phase"] = current_phase
+        except Exception:
+            context["current_phase"] = None
+
+        # --- Documentos clave: cotización y contrato ---
+        try:
+            from apps.documents.models import ProjectDocument
+
+            docs = ProjectDocument.objects.filter(project=project)
+            context["doc_quotation"] = docs.filter(document_type="QUOTATION").order_by("-created_at").first()
+            context["doc_contract"] = docs.filter(document_type="CONTRACT").order_by("-created_at").first()
+        except (ImportError, Exception):
+            context["doc_quotation"] = None
+            context["doc_contract"] = None
+
         # --- Bloque 9: Active alerts ---
         try:
             from apps.notifications.models import Alert
@@ -188,12 +246,32 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+def _geo_context():
+    return {
+        "countries_list": Country.objects.filter(is_active=True).order_by("name"),
+        "municipalities_list": Municipality.objects.filter(is_active=True).select_related("country").order_by("department", "name"),
+    }
+
+
 class ProjectCreateView(LoginRequiredMixin, CreateView):
     """Create a new project."""
 
     model = Project
     form_class = ProjectForm
     template_name = "projects/project_form.html"
+
+    def get_context_data(self, **kwargs):
+        return {**super().get_context_data(**kwargs), **_geo_context()}
+
+    def form_valid(self, form):
+        # Generate next sequential code from existing numeric codes
+        existing = (
+            Project.objects.filter(code__regex=r"^\d+$")
+            .values_list("code", flat=True)
+        )
+        max_code = max((int(c) for c in existing), default=237)
+        form.instance.code = str(max_code + 1)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy("projects:detail", kwargs={"pk": self.object.pk})
@@ -205,6 +283,9 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = Project
     form_class = ProjectForm
     template_name = "projects/project_form.html"
+
+    def get_context_data(self, **kwargs):
+        return {**super().get_context_data(**kwargs), **_geo_context()}
 
     def get_success_url(self):
         return reverse_lazy("projects:detail", kwargs={"pk": self.object.pk})
@@ -496,6 +577,80 @@ class MilestoneDeleteView(LoginRequiredMixin, View):
     def delete(self, request, pk, milestone_pk):
         milestone = get_object_or_404(Milestone, pk=milestone_pk, project_id=pk)
         milestone.delete()
+        return HttpResponse("")
+
+
+# ---------------------------------------------------------------------------
+# Scope views
+# ---------------------------------------------------------------------------
+class ScopeCreateView(LoginRequiredMixin, View):
+    """HTMX endpoint: show form / create a new scope."""
+
+    def get(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+        form = ScopeForm()
+        return TemplateResponse(
+            request,
+            "projects/partials/scope_form.html",
+            {"form": form, "project": project},
+        )
+
+    def post(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+        form = ScopeForm(request.POST)
+        if form.is_valid():
+            scope = form.save(commit=False)
+            scope.project = project
+            scope.save()
+            return TemplateResponse(
+                request,
+                "projects/partials/scope_row.html",
+                {"scope": scope, "project": project},
+            )
+        return TemplateResponse(
+            request,
+            "projects/partials/scope_form.html",
+            {"form": form, "project": project},
+        )
+
+
+class ScopeEditView(LoginRequiredMixin, View):
+    """HTMX endpoint: show edit form / save a scope."""
+
+    def get(self, request, pk, scope_pk):
+        project = get_object_or_404(Project, pk=pk)
+        scope = get_object_or_404(ProjectScope, pk=scope_pk, project_id=pk)
+        return TemplateResponse(request, "projects/partials/scope_edit_form.html",
+                                {"scope": scope, "project": project})
+
+    def post(self, request, pk, scope_pk):
+        project = get_object_or_404(Project, pk=pk)
+        scope = get_object_or_404(ProjectScope, pk=scope_pk, project_id=pk)
+        form = ScopeForm(request.POST, instance=scope)
+        if form.is_valid():
+            form.save()
+            return TemplateResponse(request, "projects/partials/scope_row.html",
+                                    {"scope": scope, "project": project})
+        return TemplateResponse(request, "projects/partials/scope_edit_form.html",
+                                {"scope": scope, "project": project, "form": form})
+
+
+class ScopeCancelEditView(LoginRequiredMixin, View):
+    """HTMX endpoint: cancel edit, return original row."""
+
+    def get(self, request, pk, scope_pk):
+        project = get_object_or_404(Project, pk=pk)
+        scope = get_object_or_404(ProjectScope, pk=scope_pk, project_id=pk)
+        return TemplateResponse(request, "projects/partials/scope_row.html",
+                                {"scope": scope, "project": project})
+
+
+class ScopeDeleteView(LoginRequiredMixin, View):
+    """HTMX endpoint: delete a scope."""
+
+    def delete(self, request, pk, scope_pk):
+        scope = get_object_or_404(ProjectScope, pk=scope_pk, project_id=pk)
+        scope.delete()
         return HttpResponse("")
 
 

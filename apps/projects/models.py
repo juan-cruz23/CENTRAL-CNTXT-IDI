@@ -130,12 +130,20 @@ class Project(TimeStampedModel):
     location = models.CharField(
         max_length=200,
         blank=True,
-        verbose_name="ubicación",
+        verbose_name="ciudad / municipio (texto libre)",
     )
     country = models.CharField(
         max_length=100,
         default="Colombia",
         verbose_name="país",
+    )
+    municipality = models.ForeignKey(
+        "geography.Municipality",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
+        verbose_name="municipio",
     )
     status = models.CharField(
         max_length=20,
@@ -258,6 +266,45 @@ class Project(TimeStampedModel):
         ):
             return True
         return False
+
+
+# ---------------------------------------------------------------------------
+# ProjectScope
+# ---------------------------------------------------------------------------
+class ProjectScope(TimeStampedModel):
+    """Alcance contractual pactado con el cliente."""
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pendiente"
+        IN_PROGRESS = "IN_PROGRESS", "En ejecución"
+        DELIVERED = "DELIVERED", "Entregado"
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="scopes",
+        verbose_name="proyecto",
+    )
+    name = models.CharField(max_length=300, verbose_name="nombre")
+    description = models.TextField(blank=True, verbose_name="descripción")
+    value = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True, verbose_name="valor"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        verbose_name="estado",
+    )
+    notes = models.TextField(blank=True, verbose_name="notas")
+
+    class Meta:
+        ordering = ["created_at"]
+        verbose_name = "alcance contractual"
+        verbose_name_plural = "alcances contractuales"
+
+    def __str__(self):
+        return self.name
 
 
 # ---------------------------------------------------------------------------

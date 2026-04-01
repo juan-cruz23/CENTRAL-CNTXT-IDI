@@ -5,7 +5,8 @@ from django.db.models import Case, Value, When
 
 from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
-from apps.projects.models import Client, Milestone, Project, ProjectPrerequisite, ServiceInstance
+from apps.geography.models import Country, Municipality
+from apps.projects.models import Client, Milestone, Project, ProjectPrerequisite, ProjectScope, ServiceInstance
 
 
 # ---------------------------------------------------------------------------
@@ -64,6 +65,7 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             "access_type",
             "location",
             "country",
+            "municipality",
             "status",
             "business_unit",
             "operative_line",
@@ -98,7 +100,6 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make date fields accept the HTML5 date format
         for field_name in (
             "planned_start_date",
             "planned_end_date",
@@ -106,6 +107,30 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             "actual_end_date",
         ):
             self.fields[field_name].input_formats = ["%Y-%m-%d"]
+        # En creación: ocultar código (se genera automáticamente)
+        # En edición: mostrar como solo lectura
+        for fname in ("leader", "client"):
+            if fname in self.fields:
+                cls = self.fields[fname].widget.attrs.get("class", "")
+                self.fields[fname].widget.attrs["class"] = (cls + " js-select2").strip()
+
+        if not self.instance.pk:
+            self.fields.pop("code")
+        else:
+            self.fields["code"].widget.attrs["readonly"] = True
+            self.fields["code"].widget.attrs["class"] = (
+                self.fields["code"].widget.attrs.get("class", "") + " opacity-60 cursor-not-allowed"
+            )
+
+
+# ---------------------------------------------------------------------------
+# Scope form
+# ---------------------------------------------------------------------------
+class ScopeForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = ProjectScope
+        fields = ["name", "value", "status", "description"]
+        widgets = {"description": forms.Textarea(attrs={"rows": 2})}
 
 
 # ---------------------------------------------------------------------------

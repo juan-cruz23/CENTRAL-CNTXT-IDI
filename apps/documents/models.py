@@ -7,9 +7,10 @@ class ProjectDocument(TimeStampedModel):
     """Documentos asociados a un proyecto o instancia de servicio."""
 
     class DocumentType(models.TextChoices):
+        QUOTATION = "QUOTATION", "Cotización"
+        CONTRACT = "CONTRACT", "Contrato"
         DELIVERABLE = "DELIVERABLE", "Entregable"
         SUPPORT = "SUPPORT", "Soporte"
-        CONTRACT = "CONTRACT", "Contrato"
         INVOICE = "INVOICE", "Factura"
         OTHER = "OTHER", "Otro"
 

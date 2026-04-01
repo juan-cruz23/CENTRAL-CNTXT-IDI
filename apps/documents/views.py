@@ -5,7 +5,9 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, ListView, UpdateView
 
+from apps.documents.forms import ProjectDocumentForm
 from apps.documents.models import ProjectDocument
+from apps.projects.models import Project
 
 
 class ProjectDocumentListView(LoginRequiredMixin, ListView):
@@ -35,60 +37,40 @@ class ProjectDocumentListView(LoginRequiredMixin, ListView):
 
 class ProjectDocumentCreateView(LoginRequiredMixin, CreateView):
     model = ProjectDocument
+    form_class = ProjectDocumentForm
     template_name = "documents/projectdocument_form.html"
-    fields = [
-        "project",
-        "service_instance",
-        "document_type",
-        "name",
-        "access_link",
-        "file",
-        "delivery_date",
-        "approval_date",
-        "notes",
-    ]
 
     def get_initial(self):
         initial = super().get_initial()
-        initial["project"] = self.kwargs["project_pk"]
+        doc_type = self.request.GET.get("type")
+        if doc_type:
+            initial["document_type"] = doc_type
         return initial
 
+    def form_valid(self, form):
+        form.instance.project = get_object_or_404(Project, pk=self.kwargs["project_pk"])
+        return super().form_valid(form)
+
     def get_success_url(self):
-        return reverse(
-            "documents:document_list",
-            kwargs={"project_pk": self.kwargs["project_pk"]},
-        )
+        return reverse("projects:detail", kwargs={"pk": self.kwargs["project_pk"]})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["project_pk"] = self.kwargs["project_pk"]
+        context["project"] = get_object_or_404(Project, pk=self.kwargs["project_pk"])
         return context
 
 
 class ProjectDocumentUpdateView(LoginRequiredMixin, UpdateView):
     model = ProjectDocument
+    form_class = ProjectDocumentForm
     template_name = "documents/projectdocument_form.html"
-    fields = [
-        "project",
-        "service_instance",
-        "document_type",
-        "name",
-        "access_link",
-        "file",
-        "delivery_date",
-        "approval_date",
-        "notes",
-    ]
 
     def get_success_url(self):
-        return reverse(
-            "documents:document_list",
-            kwargs={"project_pk": self.kwargs["project_pk"]},
-        )
+        return reverse("projects:detail", kwargs={"pk": self.kwargs["project_pk"]})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["project_pk"] = self.kwargs["project_pk"]
+        context["project"] = get_object_or_404(Project, pk=self.kwargs["project_pk"])
         return context
 
 

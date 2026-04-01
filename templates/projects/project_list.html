@@ -2,25 +2,83 @@
 {% load common_tags %}
 {% block title %}Proyectos{% endblock %}
 {% block content %}
-{% include "components/page_header.html" with title="Proyectos" action_url=create_url action_label="Nuevo Proyecto" icon="plus" %}
+<!-- Header + botón filtros -->
+<div x-data="{ open: {{ active_filters_count|yesno:'true,false' }} }" class="mb-4">
 
-<!-- Filters -->
-<div class="flex flex-col sm:flex-row gap-3 mb-4">
-  <div class="flex flex-wrap gap-1">
-    <a href="{% url 'projects:list' %}" class="btn btn-sm {% if not request.GET.status %}btn-primary{% else %}btn-ghost{% endif %}">Todos</a>
-    <a href="?status=ACTIVE" class="btn btn-sm {% if request.GET.status == 'ACTIVE' %}btn-primary{% else %}btn-ghost{% endif %}">Activos</a>
-    <a href="?status=PLANNING" class="btn btn-sm {% if request.GET.status == 'PLANNING' %}btn-primary{% else %}btn-ghost{% endif %}">Planeación</a>
-    <a href="?status=PAUSED" class="btn btn-sm {% if request.GET.status == 'PAUSED' %}btn-primary{% else %}btn-ghost{% endif %}">Pausados</a>
-    <a href="?status=COMPLETED" class="btn btn-sm {% if request.GET.status == 'COMPLETED' %}btn-primary{% else %}btn-ghost{% endif %}">Completados</a>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+    <div class="flex items-center gap-2">
+      <h1 class="text-xl font-bold">Proyectos</h1>
+      <button type="button" @click="open = !open" class="btn btn-ghost btn-sm gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+        Filtros
+        {% if active_filters_count %}<span class="badge badge-primary badge-sm">{{ active_filters_count }}</span>{% endif %}
+      </button>
+    </div>
+    <a href="{% url 'projects:create' %}" class="btn btn-primary btn-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+      Nuevo Proyecto
+    </a>
   </div>
-  <div class="sm:ml-auto sm:max-w-xs flex-1">
-    <label class="input input-bordered input-sm flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-      <input type="text" placeholder="Buscar proyecto..." class="grow bg-transparent border-none outline-none text-sm"
-             hx-get="{% url 'projects:list' %}" hx-trigger="keyup changed delay:300ms"
-             hx-target="#project-table-body" name="q" value="{{ request.GET.q }}" />
-    </label>
-  </div>
+
+  <!-- Panel colapsable (x-show mantiene el DOM para HTMX) -->
+  <form id="filters-form"
+        x-show="open"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-1"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-1"
+        x-cloak
+        hx-get="{% url 'projects:list' %}"
+        hx-trigger="change from:#filters-form, keyup changed delay:300ms from:#filter-q"
+        hx-target="#project-table-body"
+        class="flex flex-wrap gap-2 items-end pt-3 border-t border-base-300/40">
+
+    <div class="flex-1 min-w-36">
+      <label class="label py-0"><span class="label-text text-xs">Estado</span></label>
+      <select name="status" class="select select-bordered select-sm w-full">
+        <option value="">Todos los estados</option>
+        {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if current_status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="flex-1 min-w-36">
+      <label class="label py-0"><span class="label-text text-xs">Líder</span></label>
+      <select name="leader" class="select select-bordered select-sm w-full">
+        <option value="">Todos los líderes</option>
+        {% for leader in leaders %}
+        <option value="{{ leader.pk }}" {% if current_leader == leader.pk|stringformat:"s" %}selected{% endif %}>{{ leader.get_full_name|default:leader.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="flex-1 min-w-36">
+      <label class="label py-0"><span class="label-text text-xs">Cliente</span></label>
+      <select name="client" class="select select-bordered select-sm w-full">
+        <option value="">Todos los clientes</option>
+        {% for client in clients %}
+        <option value="{{ client.pk }}" {% if current_client == client.pk|stringformat:"s" %}selected{% endif %}>{{ client.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="flex-1 min-w-48">
+      <label class="label py-0"><span class="label-text text-xs">Buscar</span></label>
+      <label class="input input-bordered input-sm flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <input id="filter-q" type="text" placeholder="Código o nombre..." class="grow bg-transparent border-none outline-none text-sm" name="q" value="{{ search_query }}" />
+      </label>
+    </div>
+
+    <div class="flex items-end">
+      <a href="{% url 'projects:list' %}" class="btn btn-ghost btn-sm">Limpiar</a>
+    </div>
+
+  </form>
+
 </div>
 
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
@@ -40,40 +98,7 @@
           </tr>
         </thead>
         <tbody id="project-table-body">
-          {% for project in object_list %}
-          <tr class="hover cursor-pointer" onclick="window.location='{% url 'projects:detail' project.pk %}'">
-            <td class="font-mono font-bold">{{ project.code }}</td>
-            <td>{{ project.name }}</td>
-            <td>{{ project.client.name }}</td>
-            <td>
-              <span class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% elif project.status == 'COMPLETED' %}badge-info{% else %}badge-ghost{% endif %} badge-sm">
-                {{ project.get_status_display }}
-              </span>
-            </td>
-            <td>
-              <div class="flex items-center gap-2">
-                <progress class="progress progress-primary w-16" value="{{ project.current_progress_pct }}" max="100"></progress>
-                <span class="text-sm">{{ project.current_progress_pct }}%</span>
-              </div>
-            </td>
-            <td class="text-sm">{{ project.total_value|cop_format }}</td>
-            <td>{{ project.leader.get_full_name|default:"-" }}</td>
-            <td onclick="event.stopPropagation()">
-              <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
-                </div>
-                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-40 border border-base-300">
-                  <li><a href="{% url 'dashboards:project' project.pk %}">Dashboard</a></li>
-                  <li><a href="{% url 'projects:detail' project.pk %}">Detalle</a></li>
-                  <li><a href="{% url 'projects:update' project.pk %}">Editar</a></li>
-                </ul>
-              </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay proyectos." action_url=create_url action_label="Crear Proyecto" action_icon="plus" icon="folder" %}</td></tr>
-          {% endfor %}
+          {% include "projects/partials/project_table_rows.html" %}
         </tbody>
       </table>
     </div>

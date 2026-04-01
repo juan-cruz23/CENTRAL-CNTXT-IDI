@@ -1,0 +1,35 @@
+{% load common_tags %}
+{% for project in object_list %}
+<tr class="hover cursor-pointer" onclick="window.location='{% url 'projects:detail' project.pk %}'">
+  <td class="font-mono font-bold">{{ project.code }}</td>
+  <td>{{ project.name }}</td>
+  <td>{{ project.client.name }}</td>
+  <td>
+    <span class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% elif project.status == 'COMPLETED' %}badge-info{% else %}badge-ghost{% endif %} badge-sm">
+      {{ project.get_status_display }}
+    </span>
+  </td>
+  <td>
+    <div class="flex items-center gap-2">
+      <progress class="progress progress-primary w-16" value="{{ project.current_progress_pct }}" max="100"></progress>
+      <span class="text-sm">{{ project.current_progress_pct }}%</span>
+    </div>
+  </td>
+  <td class="text-sm">{{ project.total_value|cop_format }}</td>
+  <td>{{ project.leader.get_full_name|default:"-" }}</td>
+  <td onclick="event.stopPropagation()">
+    <div class="dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg>
+      </div>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-40 border border-base-300">
+        <li><a href="{% url 'dashboards:project' project.pk %}">Dashboard</a></li>
+        <li><a href="{% url 'projects:detail' project.pk %}">Detalle</a></li>
+        <li><a href="{% url 'projects:update' project.pk %}">Editar</a></li>
+      </ul>
+    </div>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="8">{% include "components/empty_state.html" with message="No hay proyectos." action_url=create_url action_label="Crear Proyecto" action_icon="plus" icon="folder" %}</td></tr>
+{% endfor %}

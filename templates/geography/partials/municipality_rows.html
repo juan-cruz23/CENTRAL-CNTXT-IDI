@@ -1,0 +1,13 @@
+{% for m in municipalities %}
+<tr>
+  <td>{{ m.name }}</td>
+  <td>{{ m.department }}</td>
+  <td>{{ m.country.name }}</td>
+  <td class="text-right">
+    <a href="{% url 'geography:municipality_update' m.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+    <a href="{% url 'geography:municipality_delete' m.pk %}" class="btn btn-ghost btn-xs text-error">Eliminar</a>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="4">{% include "components/empty_state.html" with message="No hay municipios." icon="map" %}</td></tr>
+{% endfor %}

@@ -1,0 +1,38 @@
+<tr id="scope-{{ scope.pk }}">
+  <td colspan="5">
+    <form hx-post="{% url 'projects:scope_edit' project.pk scope.pk %}"
+          hx-target="#scope-{{ scope.pk }}"
+          hx-swap="outerHTML"
+          class="flex flex-wrap items-end gap-2 py-2">
+      {% csrf_token %}
+      <div class="form-control flex-1 min-w-48">
+        <label class="label py-0"><span class="label-text text-xs">Nombre *</span></label>
+        <input type="text" name="name" value="{{ scope.name }}" class="input input-bordered input-sm w-full" required />
+      </div>
+      <div class="form-control w-36">
+        <label class="label py-0"><span class="label-text text-xs">Valor</span></label>
+        <input type="number" name="value" value="{{ scope.value|default:'' }}" step="0.01" min="0" class="input input-bordered input-sm w-full" />
+      </div>
+      <div class="form-control w-40">
+        <label class="label py-0"><span class="label-text text-xs">Estado</span></label>
+        <select name="status" class="select select-bordered select-sm w-full">
+          <option value="PENDING" {% if scope.status == 'PENDING' %}selected{% endif %}>Pendiente</option>
+          <option value="IN_PROGRESS" {% if scope.status == 'IN_PROGRESS' %}selected{% endif %}>En ejecución</option>
+          <option value="DELIVERED" {% if scope.status == 'DELIVERED' %}selected{% endif %}>Entregado</option>
+        </select>
+      </div>
+      <div class="flex gap-1 self-end">
+        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+        <button type="button" class="btn btn-ghost btn-sm"
+                hx-get="{% url 'projects:scope_cancel_edit' project.pk scope.pk %}"
+                hx-target="#scope-{{ scope.pk }}"
+                hx-swap="outerHTML">Cancelar</button>
+      </div>
+      {% if form.errors %}
+      <div class="text-error text-xs w-full">
+        {% for field, errors in form.errors.items %}{{ errors.0 }}{% endfor %}
+      </div>
+      {% endif %}
+    </form>
+  </td>
+</tr>

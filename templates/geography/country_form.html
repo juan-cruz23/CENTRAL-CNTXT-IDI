@@ -1,0 +1,31 @@
+{% extends "base/base.html" %}
+{% block title %}{% if form.instance.pk %}Editar País{% else %}Nuevo País{% endif %}{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/herramientas/maestros/paises/" parent_label="Países" current=form.instance.pk|yesno:"Editar,Nuevo" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-lg">
+  {% include "components/page_header.html" with title=form.instance.pk|yesno:"Editar País,Nuevo País" %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="space-y-4">
+          {% for field in form %}
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span></label>
+            {{ field }}
+            {% if field.errors %}<span class="label-text-alt text-error">{{ field.errors.0 }}</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="divider"></div>
+        <div class="flex justify-end gap-3">
+          <a href="{% url 'geography:country_list' %}" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
