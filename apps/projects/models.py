@@ -345,6 +345,14 @@ class ProjectPrerequisite(TimeStampedModel):
         default=False,
         verbose_name="completado",
     )
+    document = models.ForeignKey(
+        "documents.ProjectDocument",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="prerequisites",
+        verbose_name="documento adjunto",
+    )
     weight_pct = models.DecimalField(
         max_digits=5,
         decimal_places=2,

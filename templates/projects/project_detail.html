@@ -302,6 +302,7 @@
                 <th class="text-xs uppercase tracking-wider">Tipo</th>
                 <th class="text-xs uppercase tracking-wider">Estado</th>
                 <th class="text-xs uppercase tracking-wider">Peso</th>
+                <th class="text-xs uppercase tracking-wider">Documento</th>
                 <th class="text-xs uppercase tracking-wider w-10"></th>
               </tr>
             </thead>
@@ -309,7 +310,7 @@
               {% for prereq in project.prerequisites.all %}
               {% include "projects/partials/prerequisite_row.html" with prereq=prereq project=project %}
               {% empty %}
-              <tr id="prereqs-empty-state"><td colspan="5">{% include "components/empty_state.html" with message="No hay pre-requisitos definidos" icon="document" %}</td></tr>
+              <tr id="prereqs-empty-state"><td colspan="6">{% include "components/empty_state.html" with message="No hay pre-requisitos definidos" icon="document" %}</td></tr>
               {% endfor %}
             </tbody>
           </table>

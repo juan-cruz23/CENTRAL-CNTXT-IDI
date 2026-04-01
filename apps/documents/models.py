@@ -58,6 +58,15 @@ class ProjectDocument(TimeStampedModel):
         blank=True,
         verbose_name="fecha de aprobacion",
     )
+    uploaded_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="uploaded_documents",
+        editable=False,
+        verbose_name="subido por",
+    )
     notes = models.TextField(
         blank=True,
         verbose_name="notas",

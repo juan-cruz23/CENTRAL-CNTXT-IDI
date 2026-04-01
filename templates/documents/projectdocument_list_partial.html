@@ -19,6 +19,7 @@
             <th class="text-xs uppercase tracking-wider">Servicio</th>
             <th class="text-xs uppercase tracking-wider">Entrega</th>
             <th class="text-xs uppercase tracking-wider">Aprobación</th>
+            <th class="text-xs uppercase tracking-wider">Subido por</th>
             <th class="text-xs uppercase tracking-wider">Enlace</th>
             <th></th>
           </tr>
@@ -42,6 +43,7 @@
             <td>{{ doc.service_instance.name|default:"-" }}</td>
             <td>{{ doc.delivery_date|date:"d/m/Y"|default:"-" }}</td>
             <td>{{ doc.approval_date|date:"d/m/Y"|default:"-" }}</td>
+            <td class="text-sm text-base-content/70">{{ doc.uploaded_by.get_full_name|default:"-" }}</td>
             <td>
               {% if doc.access_link %}
               <a href="{{ doc.access_link }}" class="btn btn-ghost btn-xs" target="_blank">
@@ -69,7 +71,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay documentos registrados." icon="document" %}</td></tr>
+          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay documentos registrados." icon="document" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

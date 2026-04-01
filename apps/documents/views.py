@@ -48,11 +48,26 @@ class ProjectDocumentCreateView(LoginRequiredMixin, CreateView):
         return initial
 
     def form_valid(self, form):
-        form.instance.project = get_object_or_404(Project, pk=self.kwargs["project_pk"])
-        return super().form_valid(form)
+        project = get_object_or_404(Project, pk=self.kwargs["project_pk"])
+        form.instance.project = project
+        form.instance.uploaded_by = self.request.user
+        response = super().form_valid(form)
+        # Si viene de un prerrequisito, asociarlo al documento recién creado
+        prereq_pk = self.request.GET.get("prereq")
+        if prereq_pk:
+            from apps.projects.models import ProjectPrerequisite
+            prereq = ProjectPrerequisite.objects.filter(pk=prereq_pk, project=project).first()
+            if prereq:
+                prereq.document = self.object
+                prereq.save(update_fields=["document"])
+        return response
 
     def get_success_url(self):
-        return reverse("projects:detail", kwargs={"pk": self.kwargs["project_pk"]})
+        prereq_pk = self.request.GET.get("prereq")
+        base = reverse("projects:detail", kwargs={"pk": self.kwargs["project_pk"]})
+        if prereq_pk:
+            return base + "#prereqs"
+        return base
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
