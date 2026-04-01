@@ -4,6 +4,7 @@
   <td class="font-mono font-bold">{{ project.code }}</td>
   <td>{{ project.name }}</td>
   <td>{{ project.client.name }}</td>
+  <td class="text-sm text-base-content/70">{{ project.category|default:"-" }}</td>
   <td>
     <span class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% elif project.status == 'COMPLETED' %}badge-info{% else %}badge-ghost{% endif %} badge-sm">
       {{ project.get_status_display }}
@@ -31,5 +32,5 @@
   </td>
 </tr>
 {% empty %}
-<tr><td colspan="8">{% include "components/empty_state.html" with message="No hay proyectos." action_url=create_url action_label="Crear Proyecto" action_icon="plus" icon="folder" %}</td></tr>
+<tr><td colspan="9">{% include "components/empty_state.html" with message="No hay proyectos." action_url=create_url action_label="Crear Proyecto" action_icon="plus" icon="folder" %}</td></tr>
 {% endfor %}
