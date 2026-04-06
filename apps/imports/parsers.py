@@ -758,15 +758,25 @@ class HolidaysCSVParser:
         holidays = []
         errors = []
 
-        with open(self.file_path, newline="", encoding="utf-8-sig") as fh:
-            sample = fh.read(1024)
-            fh.seek(0)
+        rows = None
+        for encoding in ("utf-8-sig", "latin-1", "cp1252", "utf-8"):
             try:
-                dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
-            except csv.Error:
-                dialect = csv.excel
-            reader = csv.reader(fh, dialect)
-            rows = list(reader)
+                with open(self.file_path, newline="", encoding=encoding) as fh:
+                    sample = fh.read(1024)
+                    fh.seek(0)
+                    try:
+                        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
+                    except csv.Error:
+                        dialect = csv.excel
+                    reader = csv.reader(fh, dialect)
+                    rows = list(reader)
+                break
+            except UnicodeDecodeError:
+                continue
+
+        if rows is None:
+            errors.append("No se pudo leer el archivo: encoding desconocido.")
+            return {"holidays": holidays, "errors": errors}
 
         if not rows:
             errors.append("El archivo está vacío.")
