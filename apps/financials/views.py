@@ -318,15 +318,6 @@ class ExpenseTypeListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
     template_name = "financials/expense_type_list.html"
     context_object_name = "expense_types"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        qs = self.get_queryset()
-        agg = qs.aggregate(
-            monthly=Coalesce(Sum("monthly_value"), Value(Decimal("0")), output_field=DecimalField()),
-            hourly=Coalesce(Sum("hourly_value"), Value(Decimal("0")), output_field=DecimalField()),
-        )
-        context["totals"] = agg
-        return context
 
 
 class ExpenseTypeCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):

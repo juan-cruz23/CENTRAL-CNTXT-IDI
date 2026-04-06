@@ -126,7 +126,7 @@ class ProfitabilitySummaryForm(DaisyUIFormMixin, forms.ModelForm):
 class OperationalExpenseTypeForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = OperationalExpenseType
-        fields = ["name", "monthly_value", "hourly_value", "is_active"]
+        fields = ["name", "is_active"]
 
 
 class ColombianHolidayForm(DaisyUIFormMixin, forms.ModelForm):

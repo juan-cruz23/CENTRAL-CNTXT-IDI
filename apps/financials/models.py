@@ -487,17 +487,9 @@ class CostAllocation(TimeStampedModel):
 
 
 class OperationalExpenseType(TimeStampedModel):
-    """Tipos de gasto operacional para prorrateo en cálculo de precios de servicios."""
+    """Tipos de gasto operacional. Los valores se registran por período, no aquí."""
 
     name = models.CharField(max_length=200, verbose_name="nombre")
-    monthly_value = models.DecimalField(
-        max_digits=14, decimal_places=2, default=0,
-        verbose_name="valor mensual ($COP)",
-    )
-    hourly_value = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0,
-        verbose_name="valor por hora ($COP)",
-    )
     is_active = models.BooleanField(default=True, verbose_name="activo")
 
     class Meta:

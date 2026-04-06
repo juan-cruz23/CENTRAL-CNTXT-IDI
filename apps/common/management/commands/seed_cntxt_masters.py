@@ -216,16 +216,16 @@ class Command(BaseCommand):
         from apps.financials.models import OperationalExpenseType
 
         expenses = [
-            {"name": "Gastos Administrativos", "monthly_value": 15_187_526, "hourly_value": 13_393},
-            {"name": "Gastos Financieros",      "monthly_value": 12_995_741, "hourly_value": 11_460},
-            {"name": "Gastos de Ventas",         "monthly_value": 3_330_000,  "hourly_value":  2_937},
+            "Gastos Administrativos",
+            "Gastos Financieros",
+            "Gastos de Ventas",
         ]
-        for e in expenses:
+        for name in expenses:
             obj, created = OperationalExpenseType.objects.update_or_create(
-                name=e["name"],
-                defaults={"monthly_value": e["monthly_value"], "hourly_value": e["hourly_value"], "is_active": True},
+                name=name,
+                defaults={"is_active": True},
             )
-            self.stdout.write(f"  {'+ ' if created else '~ '}ExpenseType: {obj.name} — ${obj.monthly_value:,.0f}/mes")
+            self.stdout.write(f"  {'+ ' if created else '~ '}ExpenseType: {obj.name}")
 
     # ------------------------------------------------------------------
     def _seed_hardware(self):
