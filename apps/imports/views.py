@@ -6,7 +6,7 @@ from django.views.generic import DetailView, FormView, TemplateView
 
 from apps.imports.forms import ImportUploadForm
 from apps.imports.models import ImportJob
-from apps.imports.parsers import CORSheetParser
+from apps.imports.parsers import CORSheetParser, HolidaysCSVParser
 from apps.imports.parsers_loggro import LoggroAccountingParser
 
 
@@ -99,6 +99,8 @@ class PreviewImportView(LoginRequiredMixin, DetailView):
     def get_template_names(self):
         if self.object.source_type == ImportJob.SourceType.LOGGRO_ACCOUNTING:
             return ["imports/preview_loggro.html"]
+        if self.object.source_type == ImportJob.SourceType.HOLIDAYS:
+            return ["imports/preview_holidays.html"]
         return [self.template_name]
 
     def get_context_data(self, **kwargs):
@@ -130,7 +132,13 @@ class PreviewImportView(LoginRequiredMixin, DetailView):
         elif job.source_type == ImportJob.SourceType.FINANCIAL:
             parsed_data = {"info": "Vista previa de Control Financiero pendiente."}
         elif job.source_type == ImportJob.SourceType.HOLIDAYS:
-            parsed_data = {"info": "Vista previa de Festivos pendiente."}
+            try:
+                parser = HolidaysCSVParser(job.file.path)
+                parsed_data = parser.parse()
+                if parsed_data.get("errors"):
+                    parse_errors.extend(parsed_data["errors"])
+            except Exception as exc:
+                parse_errors.append(str(exc))
 
         context["parsed_data"] = parsed_data
         context["parse_errors"] = parse_errors
@@ -196,7 +204,11 @@ class ConfirmImportView(LoginRequiredMixin, DetailView):
             elif job.source_type == ImportJob.SourceType.FINANCIAL:
                 pass  # Placeholder for financial import
             elif job.source_type == ImportJob.SourceType.HOLIDAYS:
-                pass  # Placeholder for holidays import
+                parser = HolidaysCSVParser(job.file.path)
+                parsed_data = parser.parse()
+                records_total, records_imported, errors = self._import_holidays_data(
+                    parsed_data
+                )
 
             job.records_total = records_total
             job.records_imported = records_imported
@@ -218,6 +230,35 @@ class ConfirmImportView(LoginRequiredMixin, DetailView):
             messages.error(request, f"Error durante la importación: {exc}")
 
         return redirect("imports:wizard")
+
+    @staticmethod
+    def _import_holidays_data(parsed_data):
+        """
+        Upsert ColombianHoliday records from parsed CSV data.
+        Returns (records_total, records_imported, errors).
+        """
+        from apps.financials.models import ColombianHoliday
+
+        holidays = parsed_data.get("holidays", [])
+        parse_errors = parsed_data.get("errors", [])
+        records_total = len(holidays)
+        records_imported = 0
+        errors = list(parse_errors)
+
+        for h in holidays:
+            try:
+                ColombianHoliday.objects.update_or_create(
+                    date=h["date"],
+                    defaults={
+                        "name": h["name"],
+                        "holiday_type": h["holiday_type"],
+                    },
+                )
+                records_imported += 1
+            except Exception as exc:
+                errors.append(f"Festivo {h.get('date', '?')}: {exc}")
+
+        return records_total, records_imported, errors
 
     @staticmethod
     def _import_cor_data(parsed_data, job):

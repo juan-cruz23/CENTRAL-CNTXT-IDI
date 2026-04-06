@@ -715,3 +715,100 @@ class CORSheetParser:
                         return i
 
         return None
+
+
+# ---------------------------------------------------------------------------
+# Holidays CSV Parser (standalone import)
+# ---------------------------------------------------------------------------
+class HolidaysCSVParser:
+    """
+    Parses a simple CSV file for bulk holiday import.
+
+    Expected columns (with or without header row):
+        fecha     — date in YYYY-MM-DD or DD/MM/YYYY format
+        nombre    — holiday name
+        tipo      — optional: NATIONAL (default) or COMPANY
+
+    The parser auto-detects if the first row is a header.
+    """
+
+    _TYPE_MAP = {
+        "national": "NATIONAL",
+        "nacional": "NATIONAL",
+        "n": "NATIONAL",
+        "company": "COMPANY",
+        "cntxt": "COMPANY",
+        "c": "COMPANY",
+    }
+
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def parse(self):
+        """
+        Returns a dict:
+            {
+                "holidays": [{"date": "YYYY-MM-DD", "name": "...", "holiday_type": "NATIONAL"|"COMPANY"}, ...],
+                "errors":   ["row N: ..."],
+            }
+        """
+        import csv
+        from datetime import datetime
+
+        holidays = []
+        errors = []
+
+        with open(self.file_path, newline="", encoding="utf-8-sig") as fh:
+            sample = fh.read(1024)
+            fh.seek(0)
+            try:
+                dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
+            except csv.Error:
+                dialect = csv.excel
+            reader = csv.reader(fh, dialect)
+            rows = list(reader)
+
+        if not rows:
+            errors.append("El archivo está vacío.")
+            return {"holidays": holidays, "errors": errors}
+
+        # Auto-detect header
+        start = 0
+        first = [c.strip().lower() for c in rows[0]]
+        if any(k in first for k in ("fecha", "date", "nombre", "name")):
+            start = 1  # skip header
+
+        for idx, row in enumerate(rows[start:], start=start + 1):
+            # Skip blank rows
+            if not any(c.strip() for c in row):
+                continue
+
+            raw_date = row[0].strip() if len(row) > 0 else ""
+            name = row[1].strip() if len(row) > 1 else ""
+            raw_type = row[2].strip() if len(row) > 2 else ""
+
+            # Parse date
+            parsed_date = None
+            for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+                try:
+                    parsed_date = datetime.strptime(raw_date, fmt).date()
+                    break
+                except ValueError:
+                    continue
+
+            if not parsed_date:
+                errors.append(f"Fila {idx}: fecha inválida '{raw_date}'.")
+                continue
+            if not name:
+                errors.append(f"Fila {idx}: nombre vacío.")
+                continue
+
+            holiday_type = self._TYPE_MAP.get(raw_type.lower(), "NATIONAL")
+
+            holidays.append({
+                "date": str(parsed_date),
+                "name": name,
+                "holiday_type": holiday_type,
+            })
+
+        return {"holidays": holidays, "errors": errors}
