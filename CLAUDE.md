@@ -120,7 +120,7 @@ Checklist previo:
 
 | # | Título | Tipo | Modelo | Estado |
 |---|--------|------|--------|--------|
-| #1 | Módulo Proyectos — UI, filtros y campos | Mejora + Bug | [-S] | 🟡 Bug botón Agregar resuelto (e936c29). Resto pendiente. |
+| #1 | Módulo Proyectos — UI, filtros y campos | Mejora + Bug | [-S] | 🟡 Bugs resueltos: botón Agregar (e936c29), botón Atrás y filtro código (922c39b). Fase actual ya estaba. Resto pendiente. |
 | #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] | 🔴 Pendiente |
 | #3 | Módulo Usuarios / Accesos — roles y permisos | Mejora | [-S] | 🔴 Pendiente |
 | #4 | Módulo Servicios / Pricing — sincronización | Mejora + Bug | [-S] | 🔴 Pendiente |
@@ -133,7 +133,7 @@ Checklist previo:
 ### Últimos commits
 | Commit | Descripción |
 |--------|-------------|
+| 922c39b | fix: botón Atrás en edición y filtro por código en lista de proyectos |
 | e936c29 | feat: audiencia docs, DocumentTemplate, fix botón Agregar HTMX 2.0 |
 | 464c980 | feat: maestro de categorías de proyecto con CRUD completo |
 | c36466b | feat: filtros de usuarios por rol en formularios y visibilidad de proyectos |
-| bd13d70 | feat: módulo usuarios, roles, paquetes de acceso y maestros |
