@@ -789,9 +789,11 @@ class HolidaysCSVParser:
             name = str(row[1]).strip() if len(row) > 1 else ""
             raw_type = str(row[2]).strip() if len(row) > 2 else ""
 
-            # Parse date — accept date objects (from Excel) or strings
+            # Parse date — accept date/datetime objects (from Excel) or strings
             parsed_date = None
-            if isinstance(cell0, date_type):
+            if isinstance(cell0, datetime):
+                parsed_date = cell0.date()
+            elif isinstance(cell0, date_type):
                 parsed_date = cell0
             else:
                 raw_date = str(cell0).strip()
