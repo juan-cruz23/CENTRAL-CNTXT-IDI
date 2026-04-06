@@ -1,7 +1,12 @@
 {% extends "base/base.html" %}
 {% block title %}{% if form.instance.pk %}Editar{% else %}Nuevo{% endif %} Proyecto{% endblock %}
 {% block breadcrumb %}
-{% include "components/breadcrumb.html" with parent_url="/proyectos/" parent_label="Proyectos" current=form.instance.pk|yesno:"Editar,Nuevo Proyecto" %}
+{% if form.instance.pk %}
+{% url 'projects:detail' form.instance.pk as project_detail_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/proyectos/" grandparent_label="Proyectos" parent_url=project_detail_url parent_label=form.instance.code current="Editar" %}
+{% else %}
+{% include "components/breadcrumb.html" with parent_url="/proyectos/" parent_label="Proyectos" current="Nuevo Proyecto" %}
+{% endif %}
 {% endblock %}
 
 {% block content %}

@@ -71,11 +71,12 @@ class ProjectListView(LoginRequiredMixin, ListView):
         client_id = self.request.GET.get("client")
         if client_id:
             qs = qs.filter(client_id=client_id)
+        code = self.request.GET.get("code")
+        if code:
+            qs = qs.filter(code__icontains=code)
         search = self.request.GET.get("q")
         if search:
-            qs = qs.filter(
-                Q(name__icontains=search) | Q(code__icontains=search)
-            )
+            qs = qs.filter(name__icontains=search)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -86,6 +87,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         context["current_leader"] = self.request.GET.get("leader", "")
         context["current_client"] = self.request.GET.get("client", "")
         context["search_query"] = self.request.GET.get("q", "")
+        context["search_code"] = self.request.GET.get("code", "")
         context["create_url"] = reverse_lazy("projects:create")
         context["leaders"] = User.objects.filter(
             led_projects__isnull=False
@@ -98,6 +100,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
             bool(self.request.GET.get("leader")),
             bool(self.request.GET.get("client")),
             bool(self.request.GET.get("q")),
+            bool(self.request.GET.get("code")),
         ])
         return context
 
