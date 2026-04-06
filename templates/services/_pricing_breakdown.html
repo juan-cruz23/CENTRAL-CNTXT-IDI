@@ -1,0 +1,94 @@
+{% load common_tags %}
+{# Desglose de costos calculado — renderizado por CalcPricingView (HTMX) o incluido en detail #}
+<div class="overflow-x-auto">
+  <table class="table table-sm text-sm">
+    <thead>
+      <tr class="bg-base-200/60">
+        <th colspan="2" class="text-xs uppercase tracking-wider text-base-content/60">Costos Directos</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-base-content/70">Subtotal Honorarios</td>
+        <td class="text-right font-mono">{{ st.subtotal_honorarios|cop_format }}</td>
+      </tr>
+      <tr>
+        <td class="text-base-content/70">Hardware (depreciación)</td>
+        <td class="text-right font-mono">{{ st.hardware_total|cop_format }}</td>
+      </tr>
+      <tr>
+        <td class="text-base-content/70">Software (licencias)</td>
+        <td class="text-right font-mono">{{ st.software_total|cop_format }}</td>
+      </tr>
+      <tr>
+        <td class="text-base-content/70">Consumibles (insumos)</td>
+        <td class="text-right font-mono">{{ st.consumables_total|cop_format }}</td>
+      </tr>
+      <tr>
+        <td class="text-base-content/70">Subcontratos</td>
+        <td class="text-right font-mono">{{ st.subcontracts|cop_format }}</td>
+      </tr>
+      <tr class="font-semibold border-t border-base-300">
+        <td>Costo Directo</td>
+        <td class="text-right font-mono">{{ st.costo_directo|cop_format }}</td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr class="bg-base-200/60">
+        <th colspan="2" class="text-xs uppercase tracking-wider text-base-content/60 pt-3">Costos Operacionales</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-base-content/70">Prorrateo Gastos</td>
+        <td class="text-right font-mono">{{ st.prorrateo_gastos|cop_format }}</td>
+      </tr>
+      <tr class="font-semibold border-t border-base-300">
+        <td>Costos Operacionales</td>
+        <td class="text-right font-mono">{{ st.costos_operacionales|cop_format }}</td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr class="bg-base-200/60">
+        <th colspan="2" class="text-xs uppercase tracking-wider text-base-content/60 pt-3">Márgenes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-base-content/70">Desfase ({{ st.contingency_pct }}%)</td>
+        <td class="text-right font-mono">{{ st.desfase_value|cop_format }}</td>
+      </tr>
+      <tr>
+        <td class="text-base-content/70">Utilidad ({{ st.utility_pct }}%)</td>
+        <td class="text-right font-mono">{{ st.utility_value|cop_format }}</td>
+      </tr>
+      <tr class="font-semibold border-t border-base-300">
+        <td>Valor Neto</td>
+        <td class="text-right font-mono">{{ st.valor_neto|cop_format }}</td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr class="bg-base-200/60">
+        <th colspan="2" class="text-xs uppercase tracking-wider text-base-content/60 pt-3">Impuestos y Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-base-content/70">Negociación ({{ st.negotiation_pct }}%)</td>
+        <td class="text-right font-mono">{{ st.negotiation_value|cop_format }}</td>
+      </tr>
+      <tr>
+        <td class="text-base-content/70">ICA (0.414%)</td>
+        <td class="text-right font-mono">{{ st.ica|cop_format }}</td>
+      </tr>
+      <tr>
+        <td class="text-base-content/70">4×1000 (0.4%)</td>
+        <td class="text-right font-mono">{{ st.gmf_4x1000|cop_format }}</td>
+      </tr>
+      <tr class="font-bold text-base border-t-2 border-primary/30 bg-primary/5">
+        <td>Valor Total Servicio</td>
+        <td class="text-right font-mono text-primary">{{ st.valor_total_servicio|cop_format }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

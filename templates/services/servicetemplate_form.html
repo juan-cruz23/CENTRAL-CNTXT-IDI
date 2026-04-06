@@ -1,44 +1,243 @@
 {% extends "base/base.html" %}
 {% block title %}{% if form.instance.pk %}Editar{% else %}Nueva{% endif %} Plantilla de Servicio{% endblock %}
 {% block breadcrumb %}
-{% include "components/breadcrumb.html" with parent_url="/services/templates/" parent_label="Plantillas" current=form.instance.pk|yesno:"Editar,Nueva Plantilla" %}
+{% include "components/breadcrumb.html" with parent_url="/servicios/templates/" parent_label="Plantillas" current=form.instance.pk|yesno:"Editar,Nueva Plantilla" %}
 {% endblock %}
 {% block content %}
 <div class="max-w-4xl">
   {% include "components/page_header.html" with title=form.instance.pk|yesno:"Editar Plantilla,Nueva Plantilla de Servicio" %}
 
-  <div class="card bg-base-100 shadow-sm border border-base-300/30">
-    <div class="card-body">
-      <form method="post">
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-        <div class="alert alert-error mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
-          {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
-        </div>
-        {% endif %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          {% for field in form %}
-          <div class="form-control {% if field.name == 'description' %}md:col-span-2{% endif %}">
-            <label class="label" for="{{ field.id_for_label }}">
-              <span class="label-text font-medium">{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
-            </label>
-            {{ field }}
-            {% if field.help_text %}<span class="label-text-alt text-base-content/60 mt-1">{{ field.help_text }}</span>{% endif %}
-            {% if field.errors %}<span class="label-text-alt text-error mt-1">{{ field.errors.0 }}</span>{% endif %}
-          </div>
-          {% endfor %}
-        </div>
-        <div class="divider"></div>
-        <div class="flex justify-end gap-3">
-          <a href="{% url 'services:servicetemplate_list' %}" class="btn btn-ghost">Cancelar</a>
-          <button type="submit" class="btn btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-            Guardar
-          </button>
-        </div>
-      </form>
+  <form method="post">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alert alert-error mb-4">
+      {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
     </div>
-  </div>
+    {% endif %}
+
+    <div class="flex flex-col gap-6">
+
+      <!-- ── Identificación ─────────────────────────────────────── -->
+      <div class="card bg-base-100 shadow-sm border border-base-300/30">
+        <div class="card-body">
+          <h3 class="font-bold text-base flex items-center gap-2 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+            Identificación
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="form-control">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.code.label }} <span class="text-error">*</span></span></label>
+              {{ form.code }}
+              {% if form.code.errors %}<span class="text-error text-xs mt-1">{{ form.code.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control md:col-span-3">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.name.label }} <span class="text-error">*</span></span></label>
+              {{ form.name }}
+              {% if form.name.errors %}<span class="text-error text-xs mt-1">{{ form.name.errors.0 }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Clasificación ──────────────────────────────────────── -->
+      <div class="card bg-base-100 shadow-sm border border-base-300/30">
+        <div class="card-body">
+          <h3 class="font-bold text-base flex items-center gap-2 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
+            Clasificación
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="form-control">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.category.label }} <span class="text-error">*</span></span></label>
+              {{ form.category }}
+              {% if form.category.errors %}<span class="text-error text-xs mt-1">{{ form.category.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.phase.label }}</span></label>
+              {{ form.phase }}
+              {% if form.phase.errors %}<span class="text-error text-xs mt-1">{{ form.phase.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.subcategory.label }}</span></label>
+              {{ form.subcategory }}
+              {% if form.subcategory.errors %}<span class="text-error text-xs mt-1">{{ form.subcategory.errors.0 }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Asignación ─────────────────────────────────────────── -->
+      <div class="card bg-base-100 shadow-sm border border-base-300/30">
+        <div class="card-body">
+          <h3 class="font-bold text-base flex items-center gap-2 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+            Asignación
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.operative_line.label }}</span></label>
+              {{ form.operative_line }}
+              {% if form.operative_line.errors %}<span class="text-error text-xs mt-1">{{ form.operative_line.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.responsible_role.label }}</span></label>
+              {{ form.responsible_role }}
+              {% if form.responsible_role.errors %}<span class="text-error text-xs mt-1">{{ form.responsible_role.errors.0 }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Estimados y Pricing ─────────────────────────────────── -->
+      <div class="card bg-base-100 shadow-sm border border-base-300/30">
+        <div class="card-body">
+          <h3 class="font-bold text-base flex items-center gap-2 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+            Estimados y Pricing
+          </h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="form-control">
+              <label class="label pb-1">
+                <span class="label-text font-medium">{{ form.estimated_hours.label }}</span>
+                <span class="label-text-alt text-base-content/50">h</span>
+              </label>
+              {{ form.estimated_hours }}
+              {% if form.estimated_hours.errors %}<span class="text-error text-xs mt-1">{{ form.estimated_hours.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label pb-1">
+                <span class="label-text font-medium">{{ form.estimated_days.label }}</span>
+                <span class="label-text-alt text-base-content/50">días hábiles</span>
+              </label>
+              {{ form.estimated_days }}
+              {% if form.estimated_days.errors %}<span class="text-error text-xs mt-1">{{ form.estimated_days.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label pb-1">
+                <span class="label-text font-medium">{{ form.base_unit_price.label }}</span>
+                <span class="label-text-alt text-base-content/50">COP</span>
+              </label>
+              {{ form.base_unit_price }}
+              {% if form.base_unit_price.errors %}<span class="text-error text-xs mt-1">{{ form.base_unit_price.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label pb-1">
+                <span class="label-text font-medium">{{ form.target_margin_pct.label }}</span>
+                <span class="label-text-alt text-base-content/50">%</span>
+              </label>
+              {{ form.target_margin_pct }}
+              {% if form.target_margin_pct.errors %}<span class="text-error text-xs mt-1">{{ form.target_margin_pct.errors.0 }}</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Desglose de Costos ────────────────────────────────────── -->
+      <div class="card bg-base-100 shadow-sm border border-base-300/30">
+        <div class="card-body">
+          <h3 class="font-bold text-base flex items-center gap-2 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd"/></svg>
+            Desglose de Costos
+          </h3>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Inputs -->
+            <div class="flex flex-col gap-3">
+              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Entradas (por hora)</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.hourly_rate.label }}</span></label>
+                  {{ form.hourly_rate }}
+                  {% if form.hourly_rate.errors %}<span class="text-error text-xs mt-1">{{ form.hourly_rate.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.hardware_cost_per_hour.label }}</span></label>
+                  {{ form.hardware_cost_per_hour }}
+                  {% if form.hardware_cost_per_hour.errors %}<span class="text-error text-xs mt-1">{{ form.hardware_cost_per_hour.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.software_cost_per_hour.label }}</span></label>
+                  {{ form.software_cost_per_hour }}
+                  {% if form.software_cost_per_hour.errors %}<span class="text-error text-xs mt-1">{{ form.software_cost_per_hour.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.consumables_per_hour.label }}</span></label>
+                  {{ form.consumables_per_hour }}
+                  {% if form.consumables_per_hour.errors %}<span class="text-error text-xs mt-1">{{ form.consumables_per_hour.errors.0 }}</span>{% endif %}
+                </div>
+              </div>
+              <div class="form-control">
+                <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.subcontracts.label }}</span></label>
+                {{ form.subcontracts }}
+                {% if form.subcontracts.errors %}<span class="text-error text-xs mt-1">{{ form.subcontracts.errors.0 }}</span>{% endif %}
+              </div>
+              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold mt-2">Márgenes (%)</p>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.contingency_pct.label }}</span></label>
+                  {{ form.contingency_pct }}
+                </div>
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.utility_pct.label }}</span></label>
+                  {{ form.utility_pct }}
+                </div>
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.negotiation_pct.label }}</span></label>
+                  {{ form.negotiation_pct }}
+                </div>
+              </div>
+            </div>
+            <!-- Live breakdown -->
+            <div id="pricing-breakdown" class="bg-base-200/30 rounded-lg p-2">
+              {% include "services/_pricing_breakdown.html" with st=form.instance %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Descripción y Estado ────────────────────────────────── -->
+      <div class="card bg-base-100 shadow-sm border border-base-300/30">
+        <div class="card-body">
+          <h3 class="font-bold text-base flex items-center gap-2 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+            Descripción y Estado
+          </h3>
+          <div class="form-control mb-4">
+            <label class="label pb-1"><span class="label-text font-medium">{{ form.description.label }}</span></label>
+            {{ form.description }}
+          </div>
+          <label class="flex items-center gap-3 cursor-pointer w-fit p-3 rounded-lg border border-base-300/50 hover:bg-base-200/50">
+            {{ form.is_active }}
+            <span class="font-medium text-sm">{{ form.is_active.label }}</span>
+          </label>
+        </div>
+      </div>
+
+    </div><!-- /flex col -->
+
+    <div class="flex justify-end gap-3 mt-6">
+      <a href="{% url 'services:servicetemplate_list' %}" class="btn btn-ghost">Cancelar</a>
+      <button type="submit" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Guardar
+      </button>
+    </div>
+  </form>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  const rates = {{ role_rates_json|safe }};
+  const roleSelect = document.getElementById('id_responsible_role');
+  const hourlyInput = document.getElementById('id_hourly_rate');
+  if (!roleSelect || !hourlyInput) return;
+  roleSelect.addEventListener('change', function () {
+    const rate = rates[this.value];
+    if (rate !== undefined) {
+      hourlyInput.value = rate;
+      hourlyInput.dispatchEvent(new Event('change'));
+    }
+  });
+})();
+</script>
 {% endblock %}

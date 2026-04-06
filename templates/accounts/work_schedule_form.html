@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+{% block title %}{% if form.instance.pk %}Editar Jornada{% else %}Nueva Jornada Laboral{% endif %}{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/cuentas/jornadas/" parent_label="Jornadas Laborales" current=form.instance.pk|yesno:"Editar,Nueva" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-md">
+  {% include "components/page_header.html" with title=form.instance.pk|yesno:"Editar Jornada,Nueva Jornada Laboral" %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="space-y-4">
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.name.label }} <span class="text-error">*</span></span></label>
+            {{ form.name }}
+            {% if form.name.errors %}<span class="text-error text-xs">{{ form.name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">{{ form.weekly_hours.label }} <span class="text-error">*</span></span>
+              <span class="label-text-alt text-base-content/50">horas</span>
+            </label>
+            {{ form.weekly_hours }}
+            {% if form.weekly_hours.errors %}<span class="text-error text-xs">{{ form.weekly_hours.errors.0 }}</span>{% endif %}
+          </div>
+          <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg border border-base-300/50 hover:bg-base-200/50">
+            {{ form.is_active }}
+            <span class="font-medium text-sm">{{ form.is_active.label }}</span>
+          </label>
+        </div>
+        <div class="divider"></div>
+        <div class="flex justify-end gap-3">
+          <a href="{% url 'accounts:work_schedule_list' %}" class="btn btn-ghost">Cancelar</a>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

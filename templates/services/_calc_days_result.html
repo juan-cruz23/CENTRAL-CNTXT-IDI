@@ -1,0 +1,32 @@
+<div id="calc-days-panel" class="space-y-4">
+  <form hx-post="{% url 'services:servicetemplate_calc_days' service_template.pk %}"
+        hx-target="#calc-days-panel"
+        hx-swap="outerHTML"
+        class="flex items-end gap-3 flex-wrap">
+    {% csrf_token %}
+    <div class="form-control flex-1 min-w-40">
+      <label class="label pb-1"><span class="label-text text-xs font-medium">Jornada laboral</span></label>
+      <select name="work_schedule" class="select select-bordered select-sm w-full">
+        {% for s in schedules %}
+        <option value="{{ s.pk }}" {% if s.pk == selected_schedule.pk %}selected{% endif %}>{{ s.name }} ({{ s.weekly_hours }}h/sem)</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm">Recalcular</button>
+  </form>
+
+  {% if calc_days %}
+  <div class="alert alert-success py-3">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+    <div>
+      <div class="font-bold text-lg">{{ calc_days }} días hábiles</div>
+      <div class="text-sm opacity-80">
+        Con jornada <strong>{{ selected_schedule.name }}</strong> ({{ selected_schedule.weekly_hours }}h/sem · {{ selected_schedule.weekly_hours|floatformat:0 }}÷5 = {{ selected_schedule.weekly_hours|add:"0"|floatformat:1 }}h/día) ·
+        {{ service_template.estimated_hours }}h estimadas ·
+        Excluye sábados, domingos y festivos colombianos
+      </div>
+      <div class="text-xs opacity-60 mt-1">Guardado en plantilla ✓</div>
+    </div>
+  </div>
+  {% endif %}
+</div>

@@ -45,4 +45,9 @@ urlpatterns = [
     path("paquetes-acceso/crear/", views.AccessPackageCreateView.as_view(), name="access_package_create"),
     path("paquetes-acceso/<int:pk>/editar/", views.AccessPackageUpdateView.as_view(), name="access_package_update"),
     path("paquetes-acceso/<int:pk>/eliminar/", views.AccessPackageDeleteView.as_view(), name="access_package_delete"),
+    # WorkSchedule CRUD
+    path("jornadas/", views.WorkScheduleListView.as_view(), name="work_schedule_list"),
+    path("jornadas/crear/", views.WorkScheduleCreateView.as_view(), name="work_schedule_create"),
+    path("jornadas/<int:pk>/editar/", views.WorkScheduleUpdateView.as_view(), name="work_schedule_update"),
+    path("jornadas/<int:pk>/eliminar/", views.WorkScheduleDeleteView.as_view(), name="work_schedule_delete"),
 ]

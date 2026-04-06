@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
 
-from apps.accounts.models import AccessPackage, Role, User, UserRole
+from apps.accounts.models import AccessPackage, Role, User, UserRole, WorkSchedule
 
 
 class ProfileForm(django_forms.ModelForm):
@@ -313,3 +313,44 @@ class AccessPackageDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
             )
         pkg.delete()
         return HttpResponse(status=204, headers={"HX-Redirect": str(reverse_lazy("accounts:access_package_list"))})
+
+
+# ---------------------------------------------------------------------------
+# WorkSchedule CRUD (Maestros)
+# ---------------------------------------------------------------------------
+class WorkScheduleForm(django_forms.ModelForm):
+    class Meta:
+        model = WorkSchedule
+        fields = ["name", "weekly_hours", "is_active"]
+        widgets = {
+            "name": django_forms.TextInput(attrs={"class": "input input-bordered w-full"}),
+            "weekly_hours": django_forms.NumberInput(attrs={"class": "input input-bordered w-full", "step": "0.5", "min": "1"}),
+        }
+
+
+class WorkScheduleListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = WorkSchedule
+    template_name = "accounts/work_schedule_list.html"
+    context_object_name = "schedules"
+    ordering = ["-weekly_hours"]
+
+
+class WorkScheduleCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = WorkSchedule
+    form_class = WorkScheduleForm
+    template_name = "accounts/work_schedule_form.html"
+    success_url = reverse_lazy("accounts:work_schedule_list")
+
+
+class WorkScheduleUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = WorkSchedule
+    form_class = WorkScheduleForm
+    template_name = "accounts/work_schedule_form.html"
+    success_url = reverse_lazy("accounts:work_schedule_list")
+
+
+class WorkScheduleDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
+    def post(self, request, pk):
+        schedule = get_object_or_404(WorkSchedule, pk=pk)
+        schedule.delete()
+        return HttpResponse(status=204, headers={"HX-Redirect": str(reverse_lazy("accounts:work_schedule_list"))})

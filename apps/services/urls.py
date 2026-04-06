@@ -100,6 +100,21 @@ urlpatterns = [
         views.ServiceTemplateDeleteView.as_view(),
         name="servicetemplate_delete",
     ),
+    path(
+        "templates/<int:pk>/calcular-dias/",
+        views.CalcEstimatedDaysView.as_view(),
+        name="servicetemplate_calc_days",
+    ),
+    path(
+        "calcular-horas-dias/",
+        views.CalcHoursDaysView.as_view(),
+        name="calc_hours_days",
+    ),
+    path(
+        "calcular-pricing/",
+        views.CalcPricingView.as_view(),
+        name="calc_pricing",
+    ),
     # Pricing dashboard
     path(
         "pricing/",

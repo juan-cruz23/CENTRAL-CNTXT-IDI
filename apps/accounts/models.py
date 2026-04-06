@@ -117,6 +117,26 @@ class Role(models.Model):
         return f"{self.code} - {self.name}"
 
 
+class WorkSchedule(models.Model):
+    """Jornadas laborales estándar (horas por semana)."""
+
+    name = models.CharField(max_length=100, verbose_name="nombre", help_text='Ej. "Tiempo completo", "Medio tiempo".')
+    weekly_hours = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        verbose_name="horas por semana",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="activa")
+
+    class Meta:
+        ordering = ["-weekly_hours"]
+        verbose_name = "jornada laboral"
+        verbose_name_plural = "jornadas laborales"
+
+    def __str__(self):
+        return f"{self.name} ({self.weekly_hours}h/sem)"
+
+
 class UserRole(models.Model):
     """Association between users and roles."""
 

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 
 from apps.common.models import TimeStampedModel
@@ -184,7 +186,9 @@ class ServiceTemplate(TimeStampedModel):
     )
     phase = models.ForeignKey(
         ProjectPhase,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="service_templates",
         verbose_name="fase",
     )
@@ -212,6 +216,58 @@ class ServiceTemplate(TimeStampedModel):
         default=20,
         verbose_name="margen objetivo (%)",
     )
+    # ── Pricing cascade inputs ───────────────────────────────────────────
+    PRORRATEO_GASTOS_RATE = Decimal("27789")
+
+    hourly_rate = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        verbose_name="honorarios/hora ($COP)",
+    )
+    hardware_cost_per_hour = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        verbose_name="hardware depreciación/hora ($COP)",
+    )
+    software_cost_per_hour = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        verbose_name="software licencias/hora ($COP)",
+    )
+    consumables_per_hour = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        verbose_name="consumibles/hora ($COP)",
+    )
+    subcontracts = models.DecimalField(
+        max_digits=14, decimal_places=2, default=0,
+        verbose_name="subcontratos ($COP)",
+    )
+    contingency_pct = models.DecimalField(
+        max_digits=5, decimal_places=2, default=15,
+        verbose_name="desfase (%)",
+    )
+    utility_pct = models.DecimalField(
+        max_digits=5, decimal_places=2, default=20,
+        verbose_name="utilidad (%)",
+    )
+    negotiation_pct = models.DecimalField(
+        max_digits=5, decimal_places=2, default=5,
+        verbose_name="margen negociación (%)",
+    )
+
+    subcategory = models.ForeignKey(
+        ServiceSubCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="service_templates",
+        verbose_name="sub categor\u00eda",
+    )
+    responsible_role = models.ForeignKey(
+        "accounts.Role",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="service_templates",
+        verbose_name="rol responsable",
+    )
     operative_line = models.ForeignKey(
         "organizations.OperativeLine",
         on_delete=models.SET_NULL,
@@ -236,6 +292,65 @@ class ServiceTemplate(TimeStampedModel):
 
     def __str__(self):
         return f"{self.code} - {self.name}"
+
+    # ── Pricing cascade (calculated, not stored) ─────────────────────────
+    _Q = Decimal("0.01")
+
+    @property
+    def subtotal_honorarios(self) -> Decimal:
+        return (self.hourly_rate * self.estimated_hours).quantize(self._Q)
+
+    @property
+    def hardware_total(self) -> Decimal:
+        return (self.hardware_cost_per_hour * self.estimated_hours).quantize(self._Q)
+
+    @property
+    def software_total(self) -> Decimal:
+        return (self.software_cost_per_hour * self.estimated_hours).quantize(self._Q)
+
+    @property
+    def consumables_total(self) -> Decimal:
+        return (self.consumables_per_hour * self.estimated_hours).quantize(self._Q)
+
+    @property
+    def costo_directo(self) -> Decimal:
+        return (self.subtotal_honorarios + self.hardware_total + self.software_total + self.consumables_total + self.subcontracts).quantize(self._Q)
+
+    @property
+    def prorrateo_gastos(self) -> Decimal:
+        return (self.PRORRATEO_GASTOS_RATE * self.estimated_hours).quantize(self._Q)
+
+    @property
+    def costos_operacionales(self) -> Decimal:
+        return (self.costo_directo + self.prorrateo_gastos).quantize(self._Q)
+
+    @property
+    def desfase_value(self) -> Decimal:
+        return (self.costos_operacionales * self.contingency_pct / Decimal("100")).quantize(self._Q)
+
+    @property
+    def utility_value(self) -> Decimal:
+        return ((self.costos_operacionales + self.desfase_value) * self.utility_pct / Decimal("100")).quantize(self._Q)
+
+    @property
+    def valor_neto(self) -> Decimal:
+        return (self.costos_operacionales + self.desfase_value + self.utility_value).quantize(self._Q)
+
+    @property
+    def negotiation_value(self) -> Decimal:
+        return (self.valor_neto * self.negotiation_pct / Decimal("100")).quantize(self._Q)
+
+    @property
+    def ica(self) -> Decimal:
+        return (self.valor_neto * Decimal("0.00414")).quantize(self._Q)
+
+    @property
+    def gmf_4x1000(self) -> Decimal:
+        return (self.valor_neto * Decimal("0.004")).quantize(self._Q)
+
+    @property
+    def valor_total_servicio(self) -> Decimal:
+        return (self.valor_neto + self.negotiation_value + self.ica + self.gmf_4x1000).quantize(self._Q)
 
 
 class PricingChangeRequest(TimeStampedModel):

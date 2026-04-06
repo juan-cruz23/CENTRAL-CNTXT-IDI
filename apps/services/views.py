@@ -1,5 +1,7 @@
 from collections import OrderedDict
+from datetime import date, timedelta
 from decimal import Decimal
+from math import ceil
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Sum
@@ -191,6 +193,27 @@ class ServiceTemplateDetailView(LoginRequiredMixin, DetailView):
     template_name = "services/servicetemplate_detail.html"
     context_object_name = "service_template"
 
+    def get_context_data(self, **kwargs):
+        from apps.accounts.models import WorkSchedule
+        context = super().get_context_data(**kwargs)
+        st = self.object
+        schedule = WorkSchedule.objects.filter(is_active=True).order_by("-weekly_hours").first()
+        if schedule and st.estimated_hours:
+            days = _working_days_needed(st.estimated_hours, schedule.weekly_hours)
+            if Decimal(days) != st.estimated_days:
+                st.estimated_days = Decimal(days)
+                st.save(update_fields=["estimated_days"])
+        context["default_schedule"] = schedule
+        return context
+
+
+def _role_rates_json():
+    """Returns a JSON-serializable dict {role_pk: default_hourly_rate} for all active roles."""
+    import json
+    from apps.accounts.models import Role
+    rates = {str(r.pk): str(r.default_hourly_rate) for r in Role.objects.filter(is_active=True)}
+    return json.dumps(rates)
+
 
 class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
     model = ServiceTemplate
@@ -198,12 +221,22 @@ class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
     template_name = "services/servicetemplate_form.html"
     success_url = reverse_lazy("services:servicetemplate_list")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["role_rates_json"] = _role_rates_json()
+        return context
+
 
 class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
     model = ServiceTemplate
     form_class = ServiceTemplateForm
     template_name = "services/servicetemplate_form.html"
     success_url = reverse_lazy("services:servicetemplate_list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["role_rates_json"] = _role_rates_json()
+        return context
 
 
 class ServiceTemplateDeleteView(LoginRequiredMixin, DeleteView):
@@ -310,3 +343,136 @@ class ServiceTemplateInlineCancelView(LoginRequiredMixin, View):
         return TemplateResponse(
             request, "services/_pricing_row_display.html", {"st": st},
         )
+
+
+def _working_days_needed(estimated_hours, weekly_hours):
+    """
+    Calcula cuántos días hábiles (lun-vie, sin festivos colombianos) se
+    necesitan para cubrir `estimated_hours` con una jornada de `weekly_hours`
+    horas semanales.
+
+    Pasos:
+      1. Días hábiles puros = ceil(horas / (jornada_semanal / 5))
+      2. Festivos que caen en día hábil en los próximos 12 meses → tasa mensual
+      3. Se añaden los festivos proporcionales al período estimado
+    """
+    from apps.financials.models import ColombianHoliday
+
+    if not weekly_hours or not estimated_hours or weekly_hours <= 0:
+        return 0
+
+    hours_per_day = float(weekly_hours) / 5
+    raw_days = ceil(float(estimated_hours) / hours_per_day)
+
+    # Festivos en ventana de 12 meses que caigan en día hábil (lun-vie)
+    today = date.today()
+    window_end = today + timedelta(days=365)
+    weekday_holidays = ColombianHoliday.objects.filter(
+        date__gte=today,
+        date__lte=window_end,
+        date__week_day__in=[2, 3, 4, 5, 6],  # Django: 1=dom … 2=lun … 6=vie … 7=sáb
+    ).count()
+
+    # Proporción de festivos en el período estimado
+    # 260 ≈ días hábiles por año (52 semanas × 5)
+    holidays_in_period = round(weekday_holidays * raw_days / 260)
+    return raw_days + holidays_in_period
+
+
+class CalcHoursDaysView(LoginRequiredMixin, View):
+    """
+    HTMX: convierte horas ↔ días en el form de ServiceTemplate.
+    Si recibe estimated_hours → devuelve input de estimated_days calculado.
+    Si recibe estimated_days → devuelve input de estimated_hours calculado.
+    Usa el primer WorkSchedule activo (mayor jornada).
+    """
+
+    def post(self, request):
+        from apps.accounts.models import WorkSchedule
+        schedule = WorkSchedule.objects.filter(is_active=True).order_by("-weekly_hours").first()
+        if not schedule:
+            return HttpResponse("")
+
+        hours_per_day = float(schedule.weekly_hours) / 5
+
+        raw_hours = request.POST.get("estimated_hours")
+        raw_days = request.POST.get("estimated_days")
+
+        if raw_hours not in (None, ""):
+            try:
+                hours = float(raw_hours)
+                days = _working_days_needed(hours, schedule.weekly_hours)
+            except (ValueError, TypeError):
+                days = 0
+            return HttpResponse(
+                f'<input type="number" name="estimated_days" id="id_estimated_days" '
+                f'value="{days}" step="0.5" class="form-control" '
+                f'hx-post="/servicios/calcular-horas-dias/" hx-trigger="change" '
+                f'hx-include="[name=\'estimated_days\']" hx-target="#id_estimated_hours" hx-swap="outerHTML">'
+            )
+        elif raw_days not in (None, ""):
+            try:
+                days = float(raw_days)
+                hours = round(days * hours_per_day, 2)
+            except (ValueError, TypeError):
+                hours = 0
+            return HttpResponse(
+                f'<input type="number" name="estimated_hours" id="id_estimated_hours" '
+                f'value="{hours}" step="0.1" class="form-control" '
+                f'hx-post="/servicios/calcular-horas-dias/" hx-trigger="change" '
+                f'hx-include="[name=\'estimated_hours\']" hx-target="#id_estimated_days" hx-swap="outerHTML">'
+            )
+        return HttpResponse("")
+
+
+class CalcPricingView(LoginRequiredMixin, View):
+    """
+    HTMX: recibe los campos de pricing del form, devuelve el desglose calculado.
+    No requiere pk — funciona en create y update.
+    """
+
+    def post(self, request):
+        def dec(key, default="0"):
+            try:
+                return Decimal(request.POST.get(key, default) or default)
+            except Exception:
+                return Decimal("0")
+
+        from apps.services.models import ServiceTemplate as ST
+        st = ST()
+        st.estimated_hours = dec("estimated_hours")
+        st.hourly_rate = dec("hourly_rate")
+        st.hardware_cost_per_hour = dec("hardware_cost_per_hour")
+        st.software_cost_per_hour = dec("software_cost_per_hour")
+        st.consumables_per_hour = dec("consumables_per_hour")
+        st.subcontracts = dec("subcontracts")
+        st.contingency_pct = dec("contingency_pct", "15")
+        st.utility_pct = dec("utility_pct", "20")
+        st.negotiation_pct = dec("negotiation_pct", "5")
+        return TemplateResponse(request, "services/_pricing_breakdown.html", {"st": st})
+
+
+class CalcEstimatedDaysView(LoginRequiredMixin, View):
+    """
+    HTMX: recibe work_schedule_id, calcula días estimados, guarda y devuelve
+    el bloque de días actualizado dentro del detalle del ServiceTemplate.
+    """
+
+    def post(self, request, pk):
+        from apps.accounts.models import WorkSchedule
+
+        st = get_object_or_404(ServiceTemplate, pk=pk)
+        schedule_id = request.POST.get("work_schedule")
+        schedule = get_object_or_404(WorkSchedule, pk=schedule_id)
+
+        days = _working_days_needed(st.estimated_hours, schedule.weekly_hours)
+        st.estimated_days = Decimal(days)
+        st.save(update_fields=["estimated_days"])
+
+        context = {
+            "service_template": st,
+            "schedules": WorkSchedule.objects.filter(is_active=True).order_by("-weekly_hours"),
+            "selected_schedule": schedule,
+            "calc_days": days,
+        }
+        return TemplateResponse(request, "services/_calc_days_result.html", context)
