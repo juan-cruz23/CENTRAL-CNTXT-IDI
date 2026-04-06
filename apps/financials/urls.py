@@ -78,4 +78,25 @@ urlpatterns = [
         views_allocation.CostAllocationDetailView.as_view(),
         name="cost_allocation_detail",
     ),
+    # Maestros — Festivos colombianos
+    path(
+        "maestros/festivos/",
+        views.HolidayListView.as_view(),
+        name="holiday_list",
+    ),
+    path(
+        "maestros/festivos/crear/",
+        views.HolidayCreateView.as_view(),
+        name="holiday_create",
+    ),
+    path(
+        "maestros/festivos/<int:pk>/editar/",
+        views.HolidayUpdateView.as_view(),
+        name="holiday_update",
+    ),
+    path(
+        "maestros/festivos/<int:pk>/eliminar/",
+        views.HolidayDeleteView.as_view(),
+        name="holiday_delete",
+    ),
 ]

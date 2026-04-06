@@ -1,0 +1,56 @@
+{% extends "base/base.html" %}
+{% block title %}Festivos Colombianos{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/maestros/" parent_label="Maestros" current="Festivos" %}
+{% endblock %}
+
+{% block content %}
+{% include "components/page_header.html" with title="Festivos Colombianos" %}
+
+<div class="flex justify-end mb-4">
+  <a href="{% url 'financials:holiday_create' %}" class="btn btn-primary btn-sm gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+    Agregar Festivo
+  </a>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="overflow-x-auto">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for holiday in holidays %}
+        <tr>
+          <td class="font-mono">{{ holiday.date }}</td>
+          <td>{{ holiday.name }}</td>
+          <td>
+            {% if holiday.holiday_type == "NATIONAL" %}
+            <span class="badge badge-ghost badge-sm">Nacional</span>
+            {% else %}
+            <span class="badge badge-primary badge-sm">CNTXT</span>
+            {% endif %}
+          </td>
+          <td class="text-right">
+            <div class="flex justify-end gap-2">
+              <a href="{% url 'financials:holiday_update' holiday.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+              <a href="{% url 'financials:holiday_delete' holiday.pk %}" class="btn btn-ghost btn-xs text-error">Eliminar</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-base-content/50 py-8">No hay festivos registrados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

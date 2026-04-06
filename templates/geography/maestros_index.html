@@ -74,5 +74,24 @@
     </div>
   </div>
 
+  <!-- Financiero -->
+  <div class="card bg-base-100 shadow-sm border border-base-300/30 hover:shadow-md transition-shadow">
+    <div class="card-body">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="p-2 bg-warning/10 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+        </div>
+        <h3 class="font-bold text-lg">Financiero</h3>
+      </div>
+      <p class="text-sm text-base-content/60 mb-4">Festivos para cálculo de días hábiles.</p>
+      <div class="flex flex-col gap-2">
+        <a href="{% url 'financials:holiday_list' %}" class="btn btn-outline btn-sm justify-start gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+          Festivos Colombianos
+        </a>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}

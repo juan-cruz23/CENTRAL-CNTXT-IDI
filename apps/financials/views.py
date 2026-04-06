@@ -7,20 +7,29 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import CreateView, ListView, TemplateView, UpdateView
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, ListView, TemplateView, UpdateView
 
 from apps.common.mixins import FinancialAccessMixin
 from apps.financials.forms import (
     AccountingTransactionFilterForm,
+    ColombianHolidayForm,
     CostCenterMappingForm,
     PaymentMilestoneForm,
 )
 from apps.financials.models import (
     AccountingTransaction,
+    ColombianHoliday,
     CostCenterMapping,
     PaymentMilestone,
     ProfitabilitySummary,
 )
+
+
+class StaffRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class ProjectFinancialView(FinancialAccessMixin, TemplateView):
@@ -297,3 +306,33 @@ class RecalculateCostsView(FinancialAccessMixin, View):
             messages.warning(request, result.get("message", "Sin datos."))
 
         return redirect("financials:real_profitability")
+
+
+# ---------------------------------------------------------------------------
+# ColombianHoliday CRUD (Maestros)
+# ---------------------------------------------------------------------------
+class HolidayListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = ColombianHoliday
+    template_name = "financials/holiday_list.html"
+    context_object_name = "holidays"
+    ordering = ["date"]
+
+
+class HolidayCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = ColombianHoliday
+    form_class = ColombianHolidayForm
+    template_name = "financials/holiday_form.html"
+    success_url = reverse_lazy("financials:holiday_list")
+
+
+class HolidayUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = ColombianHoliday
+    form_class = ColombianHolidayForm
+    template_name = "financials/holiday_form.html"
+    success_url = reverse_lazy("financials:holiday_list")
+
+
+class HolidayDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = ColombianHoliday
+    template_name = "financials/holiday_confirm_delete.html"
+    success_url = reverse_lazy("financials:holiday_list")

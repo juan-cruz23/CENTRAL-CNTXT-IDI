@@ -489,6 +489,10 @@ class CostAllocation(TimeStampedModel):
 class ColombianHoliday(TimeStampedModel):
     """Festivos colombianos para calculos de dias habiles."""
 
+    class HolidayType(models.TextChoices):
+        NATIONAL = "NATIONAL", "Nacional"
+        COMPANY = "COMPANY", "CNTXT"
+
     date = models.DateField(
         unique=True,
         verbose_name="fecha",
@@ -496,6 +500,12 @@ class ColombianHoliday(TimeStampedModel):
     name = models.CharField(
         max_length=200,
         verbose_name="nombre",
+    )
+    holiday_type = models.CharField(
+        max_length=10,
+        choices=HolidayType.choices,
+        default=HolidayType.NATIONAL,
+        verbose_name="tipo",
     )
 
     class Meta:
