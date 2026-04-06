@@ -9,7 +9,7 @@ Both use weighted-average formulas based on total_value.
 
 from decimal import ROUND_HALF_UP, Decimal
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 ZERO = Decimal("0")
@@ -23,6 +23,8 @@ def rollup_phase_progress(sender, instance, **kwargs):
         return
 
     phase_instance = instance.phase_instance
+    if phase_instance is None:
+        return
     siblings = phase_instance.service_instances.all()
 
     total_weighted = ZERO
@@ -44,6 +46,56 @@ def rollup_phase_progress(sender, instance, **kwargs):
     if phase_instance.progress_pct != new_progress:
         phase_instance.progress_pct = new_progress
         phase_instance.save(update_fields=["progress_pct", "updated_at"])
+
+
+def _update_project_schedule_dates(project):
+    """
+    Recalculate planned/actual dates and total_value on the Project
+    from its schedule ServiceInstances (phase_instance=None).
+    """
+    from django.db.models import Max, Min, Sum
+
+    qs = project.service_instances.filter(phase_instance__isnull=True)
+    agg = qs.aggregate(
+        min_planned=Min("projected_start_date"),
+        max_planned=Max("projected_end_date"),
+        min_actual=Min("actual_start_date"),
+        max_actual=Max("actual_end_date"),
+        total=Sum("total_value"),
+    )
+    update_fields = []
+    for model_field, agg_key in (
+        ("planned_start_date", "min_planned"),
+        ("planned_end_date", "max_planned"),
+        ("actual_start_date", "min_actual"),
+        ("actual_end_date", "max_actual"),
+    ):
+        new_val = agg[agg_key]
+        if getattr(project, model_field) != new_val:
+            setattr(project, model_field, new_val)
+            update_fields.append(model_field)
+
+    new_total = agg["total"] or ZERO
+    if project.total_value != new_total:
+        project.total_value = new_total
+        update_fields.append("total_value")
+
+    if update_fields:
+        project.save(update_fields=update_fields)
+
+
+@receiver(post_save, sender="projects.ServiceInstance")
+def sync_schedule_dates_on_save(sender, instance, **kwargs):
+    """Update project schedule dates when a cronograma service is saved."""
+    if instance.phase_instance is None:
+        _update_project_schedule_dates(instance.project)
+
+
+@receiver(post_delete, sender="projects.ServiceInstance")
+def sync_schedule_dates_on_delete(sender, instance, **kwargs):
+    """Update project schedule dates when a cronograma service is deleted."""
+    if instance.phase_instance is None:
+        _update_project_schedule_dates(instance.project)
 
 
 @receiver(post_save, sender="projects.ProjectPhaseInstance")

@@ -8,7 +8,7 @@ from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
 from apps.geography.models import Country, Municipality
 from apps.projects.models import Client, Milestone, PrerequisiteTemplate, Project, ProjectPrerequisite, ProjectScope, ServiceInstance
-from apps.services.models import ProjectCategory
+from apps.services.models import ProjectCategory, ServiceTemplate
 
 
 # ---------------------------------------------------------------------------
@@ -120,20 +120,27 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
         if "category" in self.fields:
             self.fields["category"].queryset = ProjectCategory.objects.filter(is_active=True).order_by("code")
 
-        # Filtrar líderes: solo usuarios con al menos un rol is_leader=True
+        # Filtrar líderes: usuarios con rol is_leader=True o superusuarios
+        from django.db.models import Q
         leader_qs = User.objects.filter(
-            user_roles__role__is_leader=True, is_active=True
+            Q(user_roles__role__is_leader=True) | Q(is_superuser=True),
+            is_active=True,
         ).distinct().order_by("first_name", "last_name")
         if leader_qs.exists():
             self.fields["leader"].queryset = leader_qs
 
-        if not self.instance.pk:
+        # En ambos casos (crear y editar) el código no lo llena el usuario:
+        # en creación se genera automáticamente; en edición se preserva en el view.
+        if "code" in self.fields:
             self.fields.pop("code")
-        else:
-            self.fields["code"].widget.attrs["readonly"] = True
-            self.fields["code"].widget.attrs["class"] = (
-                self.fields["code"].widget.attrs.get("class", "") + " opacity-60 cursor-not-allowed"
-            )
+
+    def clean_total_value(self):
+        value = self.cleaned_data.get("total_value")
+        return value if value is not None else Decimal("0")
+
+    def clean_iva_rate(self):
+        value = self.cleaned_data.get("iva_rate")
+        return value if value is not None else Decimal("19")
 
 
 # ---------------------------------------------------------------------------
@@ -381,3 +388,22 @@ class ServiceInstanceCreateForm(DaisyUIFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field_name in ("projected_start_date", "projected_end_date"):
             self.fields[field_name].input_formats = ["%Y-%m-%d"]
+
+
+# ---------------------------------------------------------------------------
+# Schedule service form (Cronograma — agregar servicio con fecha planeada)
+# ---------------------------------------------------------------------------
+class ScheduleServiceForm(DaisyUIFormMixin, forms.Form):
+    """Lightweight form: select a ServiceTemplate + start date; end date is calculated."""
+
+    service_template = forms.ModelChoiceField(
+        queryset=ServiceTemplate.objects.filter(is_active=True).order_by("code"),
+        label="Servicio",
+        empty_label="— Selecciona un servicio —",
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
+    projected_start_date = forms.DateField(
+        label="Fecha Planeada de Inicio",
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+        input_formats=["%Y-%m-%d"],
+    )

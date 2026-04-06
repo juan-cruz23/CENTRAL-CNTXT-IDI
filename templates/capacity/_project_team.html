@@ -103,12 +103,50 @@
   </a>
 </div>
 {% else %}
+{% if required_roles %}
+<div class="p-4 border-b border-base-300/30">
+  <p class="text-sm text-base-content/60 mb-3">No hay equipo asignado. Roles requeridos según el cronograma:</p>
+  <div class="overflow-x-auto">
+    <table class="table table-sm">
+      <thead class="bg-base-200/50">
+        <tr>
+          <th class="text-xs uppercase tracking-wider">Rol</th>
+          <th class="text-xs uppercase tracking-wider">Persona asignada</th>
+          <th class="text-xs uppercase tracking-wider text-center">Servicios</th>
+          <th class="text-xs uppercase tracking-wider text-center">Horas estimadas</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in required_roles %}
+        <tr>
+          <td><span class="badge badge-ghost">{{ r.role.name }}</span></td>
+          <td class="text-sm">
+            {% if r.professionals %}
+              {% for u in r.professionals %}
+                <span class="font-medium">{{ u.get_full_name }}</span>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              <span class="text-base-content/40 text-xs">Sin asignar</span>
+            {% endif %}
+          </td>
+          <td class="text-center font-mono text-sm">{{ r.services }}</td>
+          <td class="text-center font-mono font-bold">{{ r.hours|floatformat:1 }}h</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
 <div class="p-8 text-center">
   <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-base-content/20 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
   <p class="text-base-content/50 mb-4">No hay equipo asignado a este proyecto</p>
+</div>
+{% endif %}
+<div class="p-4 flex justify-end">
   <a href="{% url 'capacity:allocate' %}?project={{ project_pk }}" class="btn btn-accent btn-sm">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-    Asignar Primer Recurso
+    Asignar Recurso
   </a>
 </div>
 {% endif %}

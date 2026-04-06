@@ -93,7 +93,6 @@
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'prereqs' }" @click="tab = 'prereqs'">Pre-requisitos</a>
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'scopes' }" @click="tab = 'scopes'">Alcances</a>
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'milestones' }" @click="tab = 'milestones'">Cronograma</a>
-    <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'services' }" @click="tab = 'services'">Servicios</a>
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'financial' }" @click="tab = 'financial'">Financiero</a>
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'docs' }" @click="tab = 'docs'">Documentos</a>
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'rfis' }" @click="tab = 'rfis'">RFIs</a>
@@ -122,7 +121,15 @@
               {% endif %}
             </dd>
             <dt class="font-medium text-base-content/70">Línea Operativa</dt><dd>{{ project.operative_line|default:"-" }}</dd>
-            <dt class="font-medium text-base-content/70">Líder</dt><dd>{{ project.leader.get_full_name|default:"-" }}</dd>
+            <dt class="font-medium text-base-content/70">Líder</dt>
+            <dd class="flex items-center gap-1 flex-wrap">
+              {{ project.leader.get_full_name|default:"-" }}
+              {% if project.leader %}
+                {% for ur in project.leader.user_roles.all %}
+                  {% if ur.is_primary %}<span class="badge badge-sm badge-ghost">{{ ur.role.name }}</span>{% endif %}
+                {% endfor %}
+              {% endif %}
+            </dd>
             <dt class="font-medium text-base-content/70">Estado</dt><dd><span class="badge badge-sm badge-outline">{{ project.get_status_display }}</span></dd>
             <dt class="font-medium text-base-content/70">Fase actual</dt>
             <dd>
@@ -383,78 +390,53 @@
 
   <!-- Milestones Tab (Bloque 1) -->
   <div x-show="tab === 'milestones'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+
+    <!-- ── Servicios del Cronograma ─────────────────────────── -->
+    <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
       <div class="card-body p-0">
         <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
           <h3 class="font-bold flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
-            Cronograma del Proyecto
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd"/></svg>
+            Servicios
           </h3>
           <button class="btn btn-primary btn-sm"
-                  hx-get="{% url 'projects:milestone_create' project.pk %}"
-                  hx-target="#milestones-tbody"
-                  hx-swap="beforeend">
+                  hx-get="{% url 'projects:schedule_service_create' project.pk %}"
+                  hx-target="#schedule-services-tbody"
+                  hx-swap="afterbegin">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-            Agregar
+            Agregar Servicio
           </button>
         </div>
         <div class="overflow-x-auto">
-          <table class="table table-zebra">
+          <table class="table table-zebra table-sm">
             <thead class="bg-base-200/50">
               <tr>
-                <th class="text-xs uppercase tracking-wider">Tipo</th>
                 <th class="text-xs uppercase tracking-wider">Código</th>
-                <th class="text-xs uppercase tracking-wider">Nombre</th>
-                <th class="text-xs uppercase tracking-wider">Fecha Planeada</th>
-                <th class="text-xs uppercase tracking-wider">Fecha Real</th>
-                <th class="text-xs uppercase tracking-wider w-10"></th>
+                <th class="text-xs uppercase tracking-wider">Servicio</th>
+                <th class="text-xs uppercase tracking-wider text-center">Horas</th>
+                <th class="text-xs uppercase tracking-wider text-center">Días Háb.</th>
+                <th class="text-xs uppercase tracking-wider">Fecha Inicio</th>
+                <th class="text-xs uppercase tracking-wider">Fecha Entrega</th>
+                <th class="text-xs uppercase tracking-wider">Responsable</th>
+                <th class="w-10"></th>
               </tr>
             </thead>
-            <tbody id="milestones-tbody">
-              {% for milestone in project.milestones.all %}
-              {% include "projects/partials/milestone_row.html" with milestone=milestone project=project %}
+            <tbody id="schedule-services-tbody">
+              {% for si in project.service_instances.all %}
+              {% if si.phase_instance is None %}
+              {% include "projects/partials/schedule_service_row.html" with si=si project=project %}
+              {% endif %}
               {% empty %}
-              <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay actividades en el cronograma" icon="flag" %}</td></tr>
+              <tr id="schedule-empty"><td colspan="7">{% include "components/empty_state.html" with message="Sin servicios en el cronograma" icon="document" %}</td></tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- Services Tab (Bloque 2: add create/delete buttons) -->
-  <div x-show="tab === 'services'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-    {% for phase in project.phase_instances.all %}
-    <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
-      <div class="card-body">
-        <div class="flex items-center justify-between">
-          <h3 class="font-bold flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
-            {{ phase.phase.name }}
-            <span class="badge badge-ghost badge-sm ml-auto">{{ phase.total_value|cop_format }}</span>
-          </h3>
-          <button class="btn btn-primary btn-xs"
-                  hx-get="{% url 'projects:service_create' project.pk phase.pk %}"
-                  hx-target="#services-phase-{{ phase.pk }}"
-                  hx-swap="beforeend">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-            Agregar
-          </button>
-        </div>
-        <div id="services-phase-{{ phase.pk }}" hx-get="{% url 'projects:phase_services' project.pk phase.pk %}" hx-trigger="revealed" hx-swap="innerHTML">
-          <span class="loading loading-spinner loading-sm"></span> Cargando servicios...
-        </div>
-      </div>
-    </div>
-    {% empty %}
-    <div class="card bg-base-100 shadow-sm border border-base-300/30">
-      <div class="card-body">
-        {% include "components/empty_state.html" with message="No hay fases ni servicios configurados" icon="cog" %}
-      </div>
-    </div>
-    {% endfor %}
-  </div>
 
   <!-- Financial Tab -->
   <div x-show="tab === 'financial'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
@@ -487,7 +469,7 @@
   <div x-show="tab === 'team'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
     <div class="card bg-base-100 shadow-sm border border-base-300/30">
       <div class="card-body p-0">
-        <div hx-get="{% url 'capacity:project_team' project.pk %}" hx-trigger="revealed" hx-swap="innerHTML">
+        <div hx-get="{% url 'capacity:project_team' project.pk %}" hx-trigger="revealed, scheduleChanged from:body" hx-swap="innerHTML">
           <div class="flex justify-center py-12">
             <span class="loading loading-spinner loading-lg"></span>
           </div>

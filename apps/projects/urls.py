@@ -75,6 +75,27 @@ urlpatterns = [
         views.MilestoneDeleteView.as_view(),
         name="milestone_delete",
     ),
+    # Schedule services (HTMX)
+    path(
+        "<int:pk>/cronograma/servicios/agregar/",
+        views.ScheduleServiceCreateView.as_view(),
+        name="schedule_service_create",
+    ),
+    path(
+        "<int:pk>/cronograma/servicios/<int:si_pk>/eliminar/",
+        views.ScheduleServiceDeleteView.as_view(),
+        name="schedule_service_delete",
+    ),
+    path(
+        "<int:pk>/cronograma/calcular-fecha-fin/",
+        views.CalcServiceEndDateView.as_view(),
+        name="schedule_calc_end_date",
+    ),
+    path(
+        "<int:pk>/cronograma/responsables/",
+        views.ScheduleServiceResponsiblesView.as_view(),
+        name="schedule_service_responsibles",
+    ),
     # Validation (HTMX)
     path(
         "<int:pk>/validar-asignacion/",

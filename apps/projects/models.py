@@ -529,6 +529,8 @@ class ServiceInstance(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="service_instances",
         verbose_name="instancia de fase",
+        null=True,
+        blank=True,
     )
     service_template = models.ForeignKey(
         "services.ServiceTemplate",

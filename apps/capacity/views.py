@@ -416,6 +416,29 @@ class ProjectTeamView(LoginRequiredMixin, TemplateView):
 
         context["team"] = team
         context["project_pk"] = project_pk
+
+        # Roles requeridos según servicios del cronograma (para mostrar cuando no hay equipo)
+        from collections import defaultdict as _dd
+        role_data = _dd(lambda: {"role": None, "hours": 0, "services": 0, "professionals": set()})
+        schedule_sis = ServiceInstance.objects.filter(
+            project_id=project_pk,
+            phase_instance__isnull=True,
+            responsible_role__isnull=False,
+        ).select_related("responsible_role", "assigned_professional")
+        for si in schedule_sis:
+            r = si.responsible_role
+            role_data[r.pk]["role"] = r
+            role_data[r.pk]["hours"] += float(si.projected_hours or 0)
+            role_data[r.pk]["services"] += 1
+            if si.assigned_professional:
+                role_data[r.pk]["professionals"].add(si.assigned_professional)
+        # Convert sets to sorted lists for template
+        required_roles = []
+        for entry in sorted(role_data.values(), key=lambda x: -x["hours"]):
+            entry["professionals"] = sorted(entry["professionals"], key=lambda u: u.get_full_name())
+            required_roles.append(entry)
+        context["required_roles"] = required_roles
+
         return context
 
 

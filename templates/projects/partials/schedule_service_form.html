@@ -1,0 +1,153 @@
+{% load common_tags %}
+<tr id="schedule-service-form-row">
+  <td colspan="7" class="p-0">
+    <div class="bg-base-200/40 p-4 flex flex-col gap-3">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+
+        <!-- Servicio -->
+        <div class="form-control md:col-span-1">
+          <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.service_template.label }}</span></label>
+          {{ form.service_template }}
+          {% if form.service_template.errors %}<span class="text-error text-xs">{{ form.service_template.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Responsable (carga dinámica según servicio) -->
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium text-sm">Responsable</span></label>
+          <div id="schedule-responsibles-container">
+            <select name="assigned_professional" id="id_assigned_professional" class="select select-bordered select-sm w-full">
+              <option value="">— Selecciona un servicio —</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fecha Planeada de Inicio -->
+        <div class="form-control">
+          <label class="label pb-1">
+            <span class="label-text font-medium text-sm">{{ form.projected_start_date.label }}</span>
+            {% if suggested_start %}
+            <span class="label-text-alt text-primary text-xs cursor-pointer"
+                  id="use-suggested-date"
+                  title="Usar fecha sugerida: {{ suggested_start|date:'d/m/Y' }}">
+              Sugerida: {{ suggested_start|date:"d/m/Y" }}
+            </span>
+            {% endif %}
+          </label>
+          {{ form.projected_start_date }}
+          {% if form.projected_start_date.errors %}<span class="text-error text-xs">{{ form.projected_start_date.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Fecha fin calculada -->
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium text-sm">Fecha de Entrega</span></label>
+          <div id="schedule-end-date-preview" class="input input-bordered flex items-center min-h-[2.5rem] bg-base-200 text-sm px-3">
+            <span class="text-base-content/40 text-sm">— selecciona servicio y fecha —</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex gap-2 justify-end">
+        <button type="button"
+                class="btn btn-ghost btn-sm"
+                onclick="document.getElementById('schedule-service-form-row').remove()">
+          Cancelar
+        </button>
+        <button type="button"
+                class="btn btn-primary btn-sm"
+                hx-post="{% url 'projects:schedule_service_create' project.pk %}"
+                hx-include="#schedule-service-form-row"
+                hx-target="#schedule-services-tbody"
+                hx-swap="beforeend"
+                hx-on::after-request="document.getElementById('schedule-service-form-row').remove(); htmx.trigger(document.body, 'scheduleChanged')">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Agregar
+        </button>
+      </div>
+    </div>
+  </td>
+</tr>
+
+<script>
+(function () {
+  const calcUrl         = "{% url 'projects:schedule_calc_end_date' project.pk %}";
+  const responsiblesUrl = "{% url 'projects:schedule_service_responsibles' project.pk %}";
+  const row      = document.getElementById('schedule-service-form-row');
+  const preview  = document.getElementById('schedule-end-date-preview');
+  const dateInput = row.querySelector('[name="projected_start_date"]');
+  const csrfToken = row.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+  {% if suggested_start %}
+  // Pre-rellenar con fecha sugerida
+  dateInput.value = "{{ suggested_start|date:'Y-m-d' }}";
+
+  // Clic en etiqueta "Sugerida"
+  const sugBtn = document.getElementById('use-suggested-date');
+  if (sugBtn) {
+    sugBtn.addEventListener('click', function () {
+      dateInput.value = "{{ suggested_start|date:'Y-m-d' }}";
+      dateInput.dispatchEvent(new Event('change'));
+    });
+  }
+  {% endif %}
+
+  function loadResponsibles(serviceId) {
+    const container = document.getElementById('schedule-responsibles-container');
+    if (!serviceId) {
+      container.innerHTML = '<select name="assigned_professional" id="id_assigned_professional" class="select select-bordered select-sm w-full"><option value="">— Selecciona un servicio —</option></select>';
+      return;
+    }
+    container.innerHTML = '<span class="loading loading-spinner loading-xs"></span>';
+    fetch(responsiblesUrl + '?service_template=' + serviceId)
+      .then(r => r.text())
+      .then(html => { container.innerHTML = html; });
+  }
+
+  function calcEndDate() {
+    const serviceId = row.querySelector('[name="service_template"]').value;
+    const startDate = dateInput.value;
+    if (!serviceId || !startDate) return;
+
+    preview.innerHTML = '<span class="loading loading-spinner loading-xs"></span>';
+
+    const fd = new FormData();
+    fd.append('service_template', serviceId);
+    fd.append('projected_start_date', startDate);
+
+    fetch(calcUrl, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrfToken },
+      body: fd,
+    })
+    .then(r => r.text())
+    .then(html => { preview.innerHTML = html; });
+  }
+
+  // Hook Tom Select (se inicializa via htmx:afterSettle)
+  const selectEl = row.querySelector('[name="service_template"]');
+
+  function onServiceChange(value) {
+    calcEndDate();
+    loadResponsibles(value);
+  }
+
+  function hookTomSelect() {
+    if (selectEl.tomselect) {
+      selectEl.tomselect.on('change', onServiceChange);
+      return true;
+    }
+    return false;
+  }
+
+  if (!hookTomSelect()) {
+    const t = setInterval(function () {
+      if (hookTomSelect()) clearInterval(t);
+    }, 50);
+    setTimeout(function () { clearInterval(t); }, 3000);
+  }
+
+  // Fecha de inicio
+  dateInput.addEventListener('change', calcEndDate);
+})();
+</script>

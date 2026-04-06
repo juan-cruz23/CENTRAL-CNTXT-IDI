@@ -17,6 +17,7 @@ from apps.projects.forms import (
     PrerequisiteForm,
     PrerequisiteTemplateForm,
     ProjectForm,
+    ScheduleServiceForm,
     ScopeForm,
     ServiceInstanceCreateForm,
     ServiceInstanceForm,
@@ -127,6 +128,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
                 "phase_instances__phase",
                 "phase_instances__service_instances__assigned_professional",
                 "phase_instances__service_instances__responsible_role",
+                "service_instances__service_template",
                 "milestones",
                 "prerequisites",
             )
@@ -303,6 +305,19 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         return {**super().get_context_data(**kwargs), **_geo_context()}
+
+    def form_valid(self, form):
+        # El campo code fue excluido del form; preservar el valor existente.
+        form.instance.code = self.object.code
+        old_category_id = self.get_object().category_id
+        response = super().form_valid(form)
+        # Si la categoría cambió o el proyecto no tenía prerrequisitos, cargar plantillas
+        if self.object.category_id and (
+            self.object.category_id != old_category_id
+            or not self.object.prerequisites.exists()
+        ):
+            _load_prerequisite_templates(self.object)
+        return response
 
     def get_success_url(self):
         return reverse_lazy("projects:detail", kwargs={"pk": self.object.pk})
@@ -595,6 +610,200 @@ class MilestoneDeleteView(LoginRequiredMixin, View):
         milestone = get_object_or_404(Milestone, pk=milestone_pk, project_id=pk)
         milestone.delete()
         return HttpResponse("")
+
+
+# ---------------------------------------------------------------------------
+# Schedule service views (Cronograma — servicios con fecha planeada y fin calculado)
+# ---------------------------------------------------------------------------
+
+def _add_working_days(start_date, days):
+    """
+    Avanza `days` días hábiles desde `start_date`, excluyendo sábados,
+    domingos y festivos colombianos de los próximos 12 meses.
+    """
+    from datetime import timedelta
+    from apps.financials.models import ColombianHoliday
+
+    days = int(days)
+    if days <= 0:
+        return start_date
+
+    window_end = start_date + timedelta(days=max(days * 3, 365))
+    holidays = set(
+        ColombianHoliday.objects.filter(
+            date__gte=start_date, date__lte=window_end,
+        ).values_list("date", flat=True)
+    )
+
+    current = start_date
+    remaining = days
+    while remaining > 0:
+        current += timedelta(days=1)
+        if current.weekday() < 5 and current not in holidays:
+            remaining -= 1
+    return current
+
+
+class CalcServiceEndDateView(LoginRequiredMixin, View):
+    """
+    HTMX: recibe service_template + projected_start_date,
+    devuelve HTML con la fecha fin calculada.
+    """
+
+    def post(self, request, pk):
+        from datetime import date as date_type
+        from apps.services.models import ServiceTemplate
+        from apps.accounts.models import WorkSchedule
+
+        try:
+            template_id = int(request.POST.get("service_template") or 0)
+            start_str = request.POST.get("projected_start_date", "")
+            start_date = date_type.fromisoformat(start_str)
+        except (ValueError, TypeError):
+            return HttpResponse('<span class="text-base-content/40 text-sm">— ingresa fecha de inicio —</span>')
+
+        try:
+            st = ServiceTemplate.objects.get(pk=template_id, is_active=True)
+        except ServiceTemplate.DoesNotExist:
+            return HttpResponse('<span class="text-base-content/40 text-sm">— selecciona un servicio —</span>')
+
+        schedule = WorkSchedule.objects.filter(is_active=True).order_by("-weekly_hours").first()
+        if not schedule:
+            return HttpResponse('<span class="text-warning text-sm">Sin jornada laboral activa</span>')
+
+        from apps.services.views import _working_days_needed
+        days = _working_days_needed(st.estimated_hours, schedule.weekly_hours)
+        end_date = _add_working_days(start_date, days)
+
+        return HttpResponse(
+            f'<span class="font-semibold">{end_date.strftime("%d/%m/%Y")}</span>'
+            f'<span class="text-xs text-base-content/50 ml-2">({days} días hábiles · {st.estimated_hours}h)</span>'
+        )
+
+
+class ScheduleServiceCreateView(LoginRequiredMixin, View):
+    """HTMX: muestra formulario / crea ServiceInstance en el cronograma."""
+
+    def get(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+        form = ScheduleServiceForm()
+
+        # Sugerir como fecha de inicio el día hábil siguiente a la última fecha de entrega
+        last = (
+            ServiceInstance.objects
+            .filter(project=project, phase_instance=None, projected_end_date__isnull=False)
+            .order_by("-projected_end_date")
+            .values_list("projected_end_date", flat=True)
+            .first()
+        )
+        suggested_start = _add_working_days(last, 1) if last else None
+
+        return TemplateResponse(
+            request,
+            "projects/partials/schedule_service_form.html",
+            {"form": form, "project": project, "suggested_start": suggested_start},
+        )
+
+    def post(self, request, pk):
+        from datetime import date as date_type
+        from apps.services.models import ServiceTemplate
+        from apps.accounts.models import WorkSchedule
+
+        project = get_object_or_404(Project, pk=pk)
+        form = ScheduleServiceForm(request.POST)
+
+        if not form.is_valid():
+            return TemplateResponse(
+                request,
+                "projects/partials/schedule_service_form.html",
+                {"form": form, "project": project},
+            )
+
+        st = form.cleaned_data["service_template"]
+        start_date = form.cleaned_data["projected_start_date"]
+
+        schedule = WorkSchedule.objects.filter(is_active=True).order_by("-weekly_hours").first()
+        from apps.services.views import _working_days_needed
+        days = _working_days_needed(st.estimated_hours, schedule.weekly_hours) if schedule else 0
+        end_date = _add_working_days(start_date, days) if days else start_date
+
+        from apps.accounts.models import User as _User
+        professional = None
+        prof_id = request.POST.get("assigned_professional")
+        if prof_id:
+            try:
+                professional = _User.objects.get(pk=int(prof_id), is_active=True)
+            except (_User.DoesNotExist, ValueError):
+                pass
+
+        si = ServiceInstance.objects.create(
+            project=project,
+            phase_instance=None,
+            service_template=st,
+            code=st.code,
+            name=st.name,
+            unit_price=st.base_unit_price,
+            projected_hours=st.estimated_hours,
+            projected_days=days,
+            projected_start_date=start_date,
+            projected_end_date=end_date,
+            responsible_role=st.responsible_role,
+            assigned_professional=professional,
+        )
+        return TemplateResponse(
+            request,
+            "projects/partials/schedule_service_row.html",
+            {"si": si, "project": project},
+        )
+
+
+class ScheduleServiceDeleteView(LoginRequiredMixin, View):
+    """HTMX: elimina un ServiceInstance del cronograma."""
+
+    def delete(self, request, pk, si_pk):
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project_id=pk, phase_instance=None)
+        si.delete()
+        return HttpResponse("")
+
+
+class ScheduleServiceResponsiblesView(LoginRequiredMixin, View):
+    """
+    HTMX: dado un service_template, devuelve un <select> con los usuarios
+    que tienen el rol responsable asignado. Si solo hay uno, lo preselecciona.
+    """
+
+    def get(self, request, pk):
+        from apps.accounts.models import User, UserRole
+        from apps.services.models import ServiceTemplate
+
+        template_id = request.GET.get("service_template")
+        users = []
+        auto_select = None
+
+        if template_id:
+            try:
+                st = ServiceTemplate.objects.select_related("responsible_role").get(
+                    pk=template_id, is_active=True
+                )
+                if st.responsible_role:
+                    users = list(
+                        User.objects.filter(
+                            user_roles__role=st.responsible_role,
+                            is_active=True,
+                        ).distinct().order_by("first_name", "last_name")
+                    )
+                    if len(users) == 1:
+                        auto_select = users[0].pk
+            except ServiceTemplate.DoesNotExist:
+                pass
+
+        options_html = '<option value="">— Sin asignar —</option>'
+        for u in users:
+            selected = 'selected' if u.pk == auto_select else ''
+            options_html += f'<option value="{u.pk}" {selected}>{u.get_full_name()}</option>'
+
+        html = f'<select name="assigned_professional" id="id_assigned_professional" class="select select-bordered select-sm w-full">{options_html}</select>'
+        return HttpResponse(html)
 
 
 # ---------------------------------------------------------------------------
