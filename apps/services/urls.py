@@ -51,6 +51,21 @@ urlpatterns = [
         name="phase_list",
     ),
     path(
+        "phases/crear/",
+        views.ProjectPhaseCreateView.as_view(),
+        name="phase_create",
+    ),
+    path(
+        "phases/<int:pk>/editar/",
+        views.ProjectPhaseUpdateView.as_view(),
+        name="phase_update",
+    ),
+    path(
+        "phases/<int:pk>/eliminar/",
+        views.ProjectPhaseDeleteView.as_view(),
+        name="phase_delete",
+    ),
+    path(
         "templates/",
         views.ServiceTemplateListView.as_view(),
         name="servicetemplate_list",

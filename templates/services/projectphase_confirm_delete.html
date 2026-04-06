@@ -1,0 +1,26 @@
+{% extends "base/base.html" %}
+{% block title %}Eliminar Fase{% endblock %}
+{% block breadcrumb %}
+{% url 'services:phase_list' as list_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/maestros/" grandparent_label="Maestros" parent_url=list_url parent_label="Fases" current="Eliminar" %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-md">
+  {% include "components/page_header.html" with title="Eliminar Fase" %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <p class="text-base-content/80">
+        ¿Confirmas que deseas eliminar la fase <strong>{{ object }}</strong>?
+      </p>
+      <div class="flex justify-end gap-3 mt-4">
+        <a href="{% url 'services:phase_list' %}" class="btn btn-ghost">Cancelar</a>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-error">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

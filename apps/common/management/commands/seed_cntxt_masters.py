@@ -22,6 +22,7 @@ class Command(BaseCommand):
         self._seed_roles()
         self._seed_project_categories()
         self._seed_service_subcategories()
+        self._seed_project_phases()
         self.stdout.write(self.style.SUCCESS("✓ Maestros CNTXT cargados correctamente."))
 
     # ------------------------------------------------------------------
@@ -206,6 +207,22 @@ class Command(BaseCommand):
                 defaults={"name": s["name"], "description": s["description"], "is_active": True},
             )
             self.stdout.write(f"  {'+ ' if created else '~ '}ServiceSubCategory: {obj.code} — {obj.name}")
+
+    # ------------------------------------------------------------------
+    def _seed_project_phases(self):
+        from apps.services.models import ProjectPhase
+
+        phases = [
+            {"number": 1, "name": "Fase 1", "description": "Conceptual / Preliminar. Diagnóstico, conceptualización y propuesta inicial."},
+            {"number": 2, "name": "Fase 2", "description": "Desarrollo / Técnico. Planimetría técnica, especificaciones y coordinación."},
+            {"number": 3, "name": "Fase 3", "description": "Detalle Constructivo / Ejecución. Detalles constructivos y seguimiento en obra."},
+        ]
+        for p in phases:
+            obj, created = ProjectPhase.objects.update_or_create(
+                number=p["number"],
+                defaults={"name": p["name"], "description": p["description"]},
+            )
+            self.stdout.write(f"  {'+ ' if created else '~ '}ProjectPhase: {obj.number} — {obj.name}")
 
     # ------------------------------------------------------------------
     def _seed_project_categories(self):
