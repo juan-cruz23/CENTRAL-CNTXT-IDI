@@ -118,14 +118,22 @@ Checklist previo:
 
 ## ISSUES ACTIVOS (resumen rápido)
 
-| # | Título | Tipo | Modelo |
-|---|--------|------|--------|
-| #1 | Módulo Proyectos — UI, filtros y campos | Mejora + Bug | [-S] |
-| #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] |
-| #3 | Módulo Usuarios / Accesos — roles y permisos | Mejora | [-S] |
-| #4 | Módulo Servicios / Pricing — sincronización | Mejora + Bug | [-S] |
-| #5 | Módulo Configuración / Maestros — nuevas tablas | Mejora | [-O] |
-| #6 | Módulo Clientes / Terceros — CRM y carga masiva | Mejora | [-O] |
-| #7 | Módulo Documentos / Prerrequisitos — checklist | Mejora + Bug | [-S] |
-| #8 | Módulo Dashboard / Reportes — seguimiento | Mejora | [-S] |
-| #9 | Piloto — primer proyecto real en el sistema | Hito | [-S] |
+| # | Título | Tipo | Modelo | Estado |
+|---|--------|------|--------|--------|
+| #1 | Módulo Proyectos — UI, filtros y campos | Mejora + Bug | [-S] | 🟡 Bug botón Agregar resuelto (e936c29). Resto pendiente. |
+| #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] | 🔴 Pendiente |
+| #3 | Módulo Usuarios / Accesos — roles y permisos | Mejora | [-S] | 🔴 Pendiente |
+| #4 | Módulo Servicios / Pricing — sincronización | Mejora + Bug | [-S] | 🔴 Pendiente |
+| #5 | Módulo Configuración / Maestros — nuevas tablas | Mejora | [-O] | 🟡 Categorías de proyecto ya implementadas. Resto pendiente. |
+| #6 | Módulo Clientes / Terceros — CRM y carga masiva | Mejora | [-O] | 🔴 Pendiente |
+| #7 | Módulo Documentos / Prerrequisitos — checklist | Mejora + Bug | [-S] | 🟡 Bloque 2 y 3 resueltos (e936c29). Pendiente: bloquear avance por requisitos. |
+| #8 | Módulo Dashboard / Reportes — seguimiento | Mejora | [-S] | 🔴 Pendiente |
+| #9 | Piloto — primer proyecto real en el sistema | Hito | [-S] | 📅 2026-04-08 |
+
+### Últimos commits
+| Commit | Descripción |
+|--------|-------------|
+| e936c29 | feat: audiencia docs, DocumentTemplate, fix botón Agregar HTMX 2.0 |
+| 464c980 | feat: maestro de categorías de proyecto con CRUD completo |
+| c36466b | feat: filtros de usuarios por rol en formularios y visibilidad de proyectos |
+| bd13d70 | feat: módulo usuarios, roles, paquetes de acceso y maestros |
