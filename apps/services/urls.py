@@ -26,6 +26,26 @@ urlpatterns = [
         name="category_delete",
     ),
     path(
+        "subcategories/",
+        views.ServiceSubCategoryListView.as_view(),
+        name="subcategory_list",
+    ),
+    path(
+        "subcategories/crear/",
+        views.ServiceSubCategoryCreateView.as_view(),
+        name="subcategory_create",
+    ),
+    path(
+        "subcategories/<int:pk>/editar/",
+        views.ServiceSubCategoryUpdateView.as_view(),
+        name="subcategory_update",
+    ),
+    path(
+        "subcategories/<int:pk>/eliminar/",
+        views.ServiceSubCategoryDeleteView.as_view(),
+        name="subcategory_delete",
+    ),
+    path(
         "phases/",
         views.ProjectPhaseListView.as_view(),
         name="phase_list",

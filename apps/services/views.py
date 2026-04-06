@@ -17,11 +17,12 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import ProjectCategoryForm, ServiceTemplateForm
+from apps.services.forms import ProjectCategoryForm, ServiceSubCategoryForm, ServiceTemplateForm
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
     ProjectCategory,
     ProjectPhase,
+    ServiceSubCategory,
     ServiceTemplate,
 )
 
@@ -63,6 +64,35 @@ class ProjectCategoryDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteVi
     model = ProjectCategory
     template_name = "services/projectcategory_confirm_delete.html"
     success_url = reverse_lazy("services:category_list")
+
+
+class ServiceSubCategoryListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = ServiceSubCategory
+    template_name = "services/servicesubcategory_list.html"
+    context_object_name = "subcategories"
+
+    def get_queryset(self):
+        return ServiceSubCategory.objects.order_by("code")
+
+
+class ServiceSubCategoryCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = ServiceSubCategory
+    form_class = ServiceSubCategoryForm
+    template_name = "services/servicesubcategory_form.html"
+    success_url = reverse_lazy("services:subcategory_list")
+
+
+class ServiceSubCategoryUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = ServiceSubCategory
+    form_class = ServiceSubCategoryForm
+    template_name = "services/servicesubcategory_form.html"
+    success_url = reverse_lazy("services:subcategory_list")
+
+
+class ServiceSubCategoryDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = ServiceSubCategory
+    template_name = "services/servicesubcategory_confirm_delete.html"
+    success_url = reverse_lazy("services:subcategory_list")
 
 
 class ProjectPhaseListView(LoginRequiredMixin, ListView):

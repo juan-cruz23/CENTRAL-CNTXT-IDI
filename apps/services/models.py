@@ -37,6 +37,41 @@ class ProjectCategory(TimeStampedModel):
         return f"{self.code} - {self.name}"
 
 
+class ServiceSubCategory(TimeStampedModel):
+    """
+    Sub categoría de servicio según estructura D.sign / V.sual.
+    Ejemplos: 01 Urbanismo, 02 Edificación, 03 Complementario.
+    """
+
+    code = models.CharField(
+        max_length=5,
+        unique=True,
+        verbose_name="código",
+        help_text="Ej. '01', '02', '03'.",
+    )
+    name = models.CharField(
+        max_length=100,
+        verbose_name="nombre",
+        help_text="Ej. 'Urbanismo', 'Edificación', 'Complementario'.",
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name="descripción",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="activo",
+    )
+
+    class Meta:
+        ordering = ["code"]
+        verbose_name = "sub categoría de servicio"
+        verbose_name_plural = "sub categorías de servicio"
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+
 class ProjectPhase(TimeStampedModel):
     """
     Represents a phase within a project lifecycle.

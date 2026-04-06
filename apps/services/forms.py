@@ -1,12 +1,19 @@
 from django import forms
 
 from apps.common.forms import DaisyUIFormMixin
-from apps.services.models import ProjectCategory, ServiceActivity, ServiceTemplate
+from apps.services.models import ProjectCategory, ServiceActivity, ServiceSubCategory, ServiceTemplate
 
 
 class ProjectCategoryForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ProjectCategory
+        fields = ["code", "name", "description", "is_active"]
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+
+
+class ServiceSubCategoryForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = ServiceSubCategory
         fields = ["code", "name", "description", "is_active"]
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
 
