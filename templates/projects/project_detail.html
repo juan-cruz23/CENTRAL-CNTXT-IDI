@@ -414,7 +414,7 @@
               {% for milestone in project.milestones.all %}
               {% include "projects/partials/milestone_row.html" with milestone=milestone project=project %}
               {% empty %}
-              <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay hitos definidos" icon="flag" %}</td></tr>
+              <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay actividades en el cronograma" icon="flag" %}</td></tr>
               {% endfor %}
             </tbody>
           </table>

@@ -8,7 +8,7 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
   {% include "components/stat_card.html" with title="Proyectos Activos" value=my_projects|length color_class="text-primary" icon="briefcase" %}
   {% include "components/stat_card.html" with title="Equipo Asignado" value=team_allocations|length color_class="text-secondary" icon="users" %}
-  {% include "components/stat_card.html" with title="Hitos Próximos" value=upcoming_milestones|length color_class="text-accent" icon="flag" %}
+  {% include "components/stat_card.html" with title="Próximas Actividades" value=upcoming_milestones|length color_class="text-accent" icon="flag" %}
 </div>
 
 <!-- My Projects -->
@@ -96,12 +96,12 @@
       <div class="p-4 border-b border-base-300/30">
         <h2 class="font-bold flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-          Próximos Hitos
+          Próximas Actividades del Cronograma
         </h2>
       </div>
       <div class="overflow-x-auto">
         <table class="table table-sm">
-          <thead class="bg-base-200/50"><tr><th class="text-xs uppercase tracking-wider">Fecha</th><th class="text-xs uppercase tracking-wider">Proyecto</th><th class="text-xs uppercase tracking-wider">Hito</th></tr></thead>
+          <thead class="bg-base-200/50"><tr><th class="text-xs uppercase tracking-wider">Fecha</th><th class="text-xs uppercase tracking-wider">Proyecto</th><th class="text-xs uppercase tracking-wider">Actividad</th></tr></thead>
           <tbody>
             {% for ms in upcoming_milestones %}
             <tr>
@@ -110,7 +110,7 @@
               <td>{{ ms.name }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="3">{% include "components/empty_state.html" with message="Sin hitos próximos." icon="flag" %}</td></tr>
+            <tr><td colspan="3">{% include "components/empty_state.html" with message="Sin actividades próximas en el cronograma." icon="flag" %}</td></tr>
             {% endfor %}
           </tbody>
         </table>
