@@ -129,12 +129,13 @@ Checklist previo:
 | #7 | Módulo Documentos / Prerrequisitos — checklist | Mejora + Bug | [-S] | 🟡 Bloque 2 y 3 resueltos (e936c29). Pendiente: bloquear avance por requisitos. |
 | #8 | Módulo Dashboard / Reportes — seguimiento | Mejora | [-S] | 🔴 Pendiente |
 | #9 | Piloto — primer proyecto real en el sistema | Hito | [-S] | 📅 2026-04-08 |
+| #10 | feat(servicios): desglose de pricing en ServiceTemplate | Mejora | [-S] | 🟡 Implementado (f478bff): WorkSchedule, subcategoría, rol responsable, 8 campos de costo, 12 propiedades calculadas, HTMX en tiempo real, auto-relleno honorarios por rol, 62 servicios en seed. Pendiente: validar en producción. |
 
 ### Últimos commits
 | Commit | Descripción |
 |--------|-------------|
+| f478bff | feat(servicios): desglose de pricing, jornadas laborales y días estimados en ServiceTemplate |
+| ccdf476 | docs: cerrar issue #5 maestros y actualizar CLAUDE.md |
 | e677fb8 | fix(proyectos): renombrar Ubicación → Municipio en detalle y formulario |
 | 47fb5c4 | fix(maestros): simplificar OperationalExpenseType sin valores fijos |
 | a53148a | feat(maestros): tipos de gasto operacional en sección Financiero |
-| aae4043 | feat(maestros): Hardware y Software en DESIGN CNTXT con datos iniciales |
-| 798b7ed | feat(maestros): CRUD de fases de servicio (Fase 1, 2, 3) en DESIGN CNTXT |
