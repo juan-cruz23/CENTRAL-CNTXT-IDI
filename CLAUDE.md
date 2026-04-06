@@ -124,7 +124,7 @@ Checklist previo:
 | #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] | 🟡 Rename completado (5d61c6a). Pendiente: integración Pricing, fechas automáticas, festivos, asignación, revisiones. |
 | #3 | Módulo Usuarios / Accesos — roles y permisos | Mejora | [-S] | 🔴 Pendiente |
 | #4 | Módulo Servicios / Pricing — sincronización | Mejora + Bug | [-S] | 🔴 Pendiente |
-| #5 | Módulo Configuración / Maestros — nuevas tablas | Mejora | [-O] | 🟡 Categorías de proyecto ya implementadas. Resto pendiente. |
+| #5 | Módulo Configuración / Maestros — nuevas tablas | Mejora | [-O] | ✅ CERRADO. Todos los maestros implementados: categorías, sub categorías, fases, hardware, software, tipos de gasto, festivos + import CSV/Excel. Seed: `seed_cntxt_masters`. |
 | #6 | Módulo Clientes / Terceros — CRM y carga masiva | Mejora | [-O] | 🔴 Pendiente |
 | #7 | Módulo Documentos / Prerrequisitos — checklist | Mejora + Bug | [-S] | 🟡 Bloque 2 y 3 resueltos (e936c29). Pendiente: bloquear avance por requisitos. |
 | #8 | Módulo Dashboard / Reportes — seguimiento | Mejora | [-S] | 🔴 Pendiente |
@@ -133,8 +133,8 @@ Checklist previo:
 ### Últimos commits
 | Commit | Descripción |
 |--------|-------------|
-| 5d61c6a | fix: rename Hitos → Cronograma/Actividades en UI restante |
-| 922c39b | fix: botón Atrás en edición y filtro por código en lista de proyectos |
-| e936c29 | feat: audiencia docs, DocumentTemplate, fix botón Agregar HTMX 2.0 |
-| 464c980 | feat: maestro de categorías de proyecto con CRUD completo |
-| c36466b | feat: filtros de usuarios por rol en formularios y visibilidad de proyectos |
+| e677fb8 | fix(proyectos): renombrar Ubicación → Municipio en detalle y formulario |
+| 47fb5c4 | fix(maestros): simplificar OperationalExpenseType sin valores fijos |
+| a53148a | feat(maestros): tipos de gasto operacional en sección Financiero |
+| aae4043 | feat(maestros): Hardware y Software en DESIGN CNTXT con datos iniciales |
+| 798b7ed | feat(maestros): CRUD de fases de servicio (Fase 1, 2, 3) en DESIGN CNTXT |
