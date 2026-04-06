@@ -7,7 +7,7 @@ from apps.documents.models import ProjectDocument
 class ProjectDocumentForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ProjectDocument
-        fields = ["document_type", "name", "access_link", "file", "delivery_date", "approval_date", "notes"]
+        fields = ["document_type", "audience", "name", "access_link", "file", "delivery_date", "approval_date", "notes"]
         widgets = {
             "delivery_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
             "approval_date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),

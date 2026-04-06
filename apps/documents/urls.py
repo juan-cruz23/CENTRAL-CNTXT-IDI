@@ -16,6 +16,11 @@ urlpatterns = [
         name="document_create",
     ),
     path(
+        "proyecto/<int:project_pk>/cargar-plantilla/",
+        views.DocumentLoadTemplateView.as_view(),
+        name="document_load_template",
+    ),
+    path(
         "proyecto/<int:project_pk>/<int:pk>/editar/",
         views.ProjectDocumentUpdateView.as_view(),
         name="document_update",

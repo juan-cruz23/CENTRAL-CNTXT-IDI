@@ -1,12 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, ListView, UpdateView
 
 from apps.documents.forms import ProjectDocumentForm
-from apps.documents.models import ProjectDocument
+from apps.documents.models import DocumentTemplate, ProjectDocument
 from apps.projects.models import Project
 
 
@@ -28,6 +29,7 @@ class ProjectDocumentListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["project_pk"] = self.kwargs["project_pk"]
+        context["project"] = get_object_or_404(Project, pk=self.kwargs["project_pk"])
         context["create_url"] = reverse(
             "documents:document_create",
             kwargs={"project_pk": self.kwargs["project_pk"]},
@@ -96,3 +98,41 @@ class ProjectDocumentDeleteView(LoginRequiredMixin, View):
         doc = get_object_or_404(ProjectDocument, pk=pk, project_id=project_pk)
         doc.delete()
         return HttpResponse("")
+
+
+class DocumentLoadTemplateView(LoginRequiredMixin, View):
+    """HTMX endpoint: crea documentos placeholder desde la plantilla de la categoría del proyecto."""
+
+    def post(self, request, project_pk):
+        project = get_object_or_404(Project, pk=project_pk)
+        if not project.category_id:
+            return HttpResponse(
+                '<div class="alert alert-warning text-sm">El proyecto no tiene categoría asignada.</div>'
+            )
+        templates = DocumentTemplate.objects.filter(project_category=project.category)
+        if not templates.exists():
+            return HttpResponse(
+                '<div class="alert alert-info text-sm">No hay plantillas de documentos configuradas para esta categoría.</div>'
+            )
+        created_count = 0
+        for tpl in templates:
+            _, created = ProjectDocument.objects.get_or_create(
+                project=project,
+                document_type=tpl.document_type,
+                name=tpl.name,
+                defaults={"audience": tpl.audience, "notes": tpl.notes},
+            )
+            if created:
+                created_count += 1
+        documents = project.documents.all()
+        return TemplateResponse(
+            request,
+            "documents/projectdocument_list_partial.html",
+            {
+                "documents": documents,
+                "project": project,
+                "project_pk": project_pk,
+                "create_url": reverse("documents:document_create", kwargs={"project_pk": project_pk}),
+                "loaded_count": created_count,
+            },
+        )

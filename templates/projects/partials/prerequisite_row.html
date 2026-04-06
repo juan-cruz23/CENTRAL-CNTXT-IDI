@@ -1,4 +1,4 @@
-<tr id="prereqs-empty-state" hx-swap-oob="outerHTML"></tr>
+{% if request.htmx %}<tr id="prereqs-empty-state" hx-swap-oob="outerHTML"></tr>{% endif %}
 <tr id="prereq-{{ prereq.pk }}">
   <td>{{ prereq.get_category_display }}</td>
   <td>{{ prereq.prerequisite_type }}</td>

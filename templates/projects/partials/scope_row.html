@@ -1,5 +1,5 @@
 {% load common_tags %}
-<tr id="scopes-empty-state" hx-swap-oob="outerHTML"></tr>
+{% if request.htmx %}<tr id="scopes-empty-state" hx-swap-oob="outerHTML"></tr>{% endif %}
 <tr id="scope-{{ scope.pk }}">
   <td class="font-medium">{{ scope.name }}</td>
   <td class="text-base-content/70 text-sm">{{ scope.description|truncatewords:10|default:"-" }}</td>

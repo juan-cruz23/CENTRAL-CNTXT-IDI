@@ -1,21 +1,40 @@
-<div class="card bg-base-100 shadow-sm border border-base-300/30">
+<div id="docs-panel" class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
       <h3 class="font-bold flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
         Documentos
       </h3>
-      <a href="{{ create_url }}" class="btn btn-primary btn-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-        Agregar
-      </a>
+      <div class="flex gap-2">
+        {% if project.category_id %}
+        <button class="btn btn-outline btn-sm"
+                hx-post="{% url 'documents:document_load_template' project.pk %}"
+                hx-target="#docs-panel"
+                hx-swap="outerHTML"
+                hx-confirm="¿Cargar documentos estándar para la categoría '{{ project.category }}'? Los existentes no serán duplicados."
+                title="Cargar plantilla de categoría">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Cargar plantilla
+        </button>
+        {% endif %}
+        <a href="{{ create_url }}" class="btn btn-primary btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Agregar
+        </a>
+      </div>
     </div>
+    {% if loaded_count %}
+    <div class="px-4 pt-3">
+      <div class="alert alert-success text-sm py-2">{{ loaded_count }} documento{{ loaded_count|pluralize }} cargado{{ loaded_count|pluralize }} desde la plantilla.</div>
+    </div>
+    {% endif %}
     <div class="overflow-x-auto">
       <table class="table table-zebra">
         <thead class="bg-base-200/50">
           <tr>
             <th class="text-xs uppercase tracking-wider">Nombre</th>
             <th class="text-xs uppercase tracking-wider">Tipo</th>
+            <th class="text-xs uppercase tracking-wider">Audiencia</th>
             <th class="text-xs uppercase tracking-wider">Servicio</th>
             <th class="text-xs uppercase tracking-wider">Entrega</th>
             <th class="text-xs uppercase tracking-wider">Aprobación</th>
@@ -40,6 +59,13 @@
               </div>
             </td>
             <td><span class="badge badge-outline badge-sm">{{ doc.get_document_type_display }}</span></td>
+            <td>
+              {% if doc.audience == 'CLIENT' %}
+              <span class="badge badge-info badge-sm">Cliente</span>
+              {% else %}
+              <span class="badge badge-ghost badge-sm">Interno</span>
+              {% endif %}
+            </td>
             <td>{{ doc.service_instance.name|default:"-" }}</td>
             <td>{{ doc.delivery_date|date:"d/m/Y"|default:"-" }}</td>
             <td>{{ doc.approval_date|date:"d/m/Y"|default:"-" }}</td>
@@ -71,7 +97,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay documentos registrados." icon="document" %}</td></tr>
+          <tr><td colspan="9">{% include "components/empty_state.html" with message="No hay documentos registrados." icon="document" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

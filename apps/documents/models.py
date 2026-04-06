@@ -14,6 +14,10 @@ class ProjectDocument(TimeStampedModel):
         INVOICE = "INVOICE", "Factura"
         OTHER = "OTHER", "Otro"
 
+    class Audience(models.TextChoices):
+        INTERNAL = "INTERNAL", "Interno"
+        CLIENT = "CLIENT", "Cliente"
+
     project = models.ForeignKey(
         "projects.Project",
         on_delete=models.CASCADE,
@@ -58,6 +62,12 @@ class ProjectDocument(TimeStampedModel):
         blank=True,
         verbose_name="fecha de aprobacion",
     )
+    audience = models.CharField(
+        max_length=10,
+        choices=Audience.choices,
+        default=Audience.INTERNAL,
+        verbose_name="audiencia",
+    )
     uploaded_by = models.ForeignKey(
         "accounts.User",
         on_delete=models.SET_NULL,
@@ -79,3 +89,48 @@ class ProjectDocument(TimeStampedModel):
 
     def __str__(self):
         return f"{self.project} - {self.name}"
+
+
+class DocumentTemplate(TimeStampedModel):
+    """
+    Define qué documentos se esperan para cada categoría de proyecto.
+    El administrador los configura; el usuario carga la plantilla con un click.
+    """
+
+    project_category = models.ForeignKey(
+        "services.ProjectCategory",
+        on_delete=models.CASCADE,
+        related_name="document_templates",
+        verbose_name="categoría de proyecto",
+    )
+    document_type = models.CharField(
+        max_length=50,
+        choices=ProjectDocument.DocumentType.choices,
+        verbose_name="tipo de documento",
+    )
+    name = models.CharField(
+        max_length=300,
+        verbose_name="nombre / descripción",
+    )
+    audience = models.CharField(
+        max_length=10,
+        choices=ProjectDocument.Audience.choices,
+        default=ProjectDocument.Audience.INTERNAL,
+        verbose_name="audiencia",
+    )
+    is_required = models.BooleanField(
+        default=True,
+        verbose_name="requerido",
+    )
+    notes = models.TextField(
+        blank=True,
+        verbose_name="notas",
+    )
+
+    class Meta:
+        verbose_name = "plantilla de documento"
+        verbose_name_plural = "plantillas de documentos"
+        ordering = ["project_category", "document_type", "name"]
+
+    def __str__(self):
+        return f"[{self.project_category}] {self.name}"
