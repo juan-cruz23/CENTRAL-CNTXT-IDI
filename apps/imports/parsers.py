@@ -751,31 +751,22 @@ class HolidaysCSVParser:
                 "holidays": [{"date": "YYYY-MM-DD", "name": "...", "holiday_type": "NATIONAL"|"COMPANY"}, ...],
                 "errors":   ["row N: ..."],
             }
+        Accepts both .xlsx (Excel) and .csv files.
         """
         import csv
-        from datetime import datetime
+        from datetime import datetime, date as date_type
 
         holidays = []
         errors = []
 
-        rows = None
-        for encoding in ("utf-8-sig", "latin-1", "cp1252", "utf-8"):
-            try:
-                with open(self.file_path, newline="", encoding=encoding) as fh:
-                    sample = fh.read(1024)
-                    fh.seek(0)
-                    try:
-                        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
-                    except csv.Error:
-                        dialect = csv.excel
-                    reader = csv.reader(fh, dialect)
-                    rows = list(reader)
-                break
-            except UnicodeDecodeError:
-                continue
+        # --- Load rows ---
+        ext = str(self.file_path).lower()
+        if ext.endswith(".xlsx") or ext.endswith(".xls"):
+            rows = self._read_excel(errors)
+        else:
+            rows = self._read_csv(errors)
 
         if rows is None:
-            errors.append("No se pudo leer el archivo: encoding desconocido.")
             return {"holidays": holidays, "errors": errors}
 
         if not rows:
@@ -784,31 +775,36 @@ class HolidaysCSVParser:
 
         # Auto-detect header
         start = 0
-        first = [c.strip().lower() for c in rows[0]]
+        first = [str(c).strip().lower() for c in rows[0]]
         if any(k in first for k in ("fecha", "date", "nombre", "name")):
-            start = 1  # skip header
+            start = 1
 
+        # Auto-detect header
         for idx, row in enumerate(rows[start:], start=start + 1):
             # Skip blank rows
-            if not any(c.strip() for c in row):
+            if not any(str(c).strip() for c in row):
                 continue
 
-            raw_date = row[0].strip() if len(row) > 0 else ""
-            name = row[1].strip() if len(row) > 1 else ""
-            raw_type = row[2].strip() if len(row) > 2 else ""
+            cell0 = row[0] if len(row) > 0 else ""
+            name = str(row[1]).strip() if len(row) > 1 else ""
+            raw_type = str(row[2]).strip() if len(row) > 2 else ""
 
-            # Parse date
+            # Parse date — accept date objects (from Excel) or strings
             parsed_date = None
-            for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
-                try:
-                    parsed_date = datetime.strptime(raw_date, fmt).date()
-                    break
-                except ValueError:
+            if isinstance(cell0, date_type):
+                parsed_date = cell0
+            else:
+                raw_date = str(cell0).strip()
+                for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+                    try:
+                        parsed_date = datetime.strptime(raw_date, fmt).date()
+                        break
+                    except ValueError:
+                        continue
+                if not parsed_date:
+                    errors.append(f"Fila {idx}: fecha inválida '{raw_date}'.")
                     continue
 
-            if not parsed_date:
-                errors.append(f"Fila {idx}: fecha inválida '{raw_date}'.")
-                continue
             if not name:
                 errors.append(f"Fila {idx}: nombre vacío.")
                 continue
@@ -822,3 +818,32 @@ class HolidaysCSVParser:
             })
 
         return {"holidays": holidays, "errors": errors}
+
+    def _read_excel(self, errors):
+        """Read rows from an .xlsx file using openpyxl."""
+        try:
+            import openpyxl
+            wb = openpyxl.load_workbook(self.file_path, data_only=True)
+            ws = wb.active
+            return [list(row) for row in ws.iter_rows(values_only=True)]
+        except Exception as exc:
+            errors.append(f"No se pudo leer el archivo Excel: {exc}")
+            return None
+
+    def _read_csv(self, errors):
+        """Read rows from a CSV file, auto-detecting encoding and dialect."""
+        import csv
+        for encoding in ("utf-8-sig", "latin-1", "cp1252", "utf-8"):
+            try:
+                with open(self.file_path, newline="", encoding=encoding) as fh:
+                    sample = fh.read(1024)
+                    fh.seek(0)
+                    try:
+                        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
+                    except csv.Error:
+                        dialect = csv.excel
+                    return list(csv.reader(fh, dialect))
+            except UnicodeDecodeError:
+                continue
+        errors.append("No se pudo leer el archivo CSV: encoding desconocido.")
+        return None
