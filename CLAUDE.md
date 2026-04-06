@@ -121,7 +121,7 @@ Checklist previo:
 | # | Título | Tipo | Modelo | Estado |
 |---|--------|------|--------|--------|
 | #1 | Módulo Proyectos — UI, filtros y campos | Mejora + Bug | [-S] | 🟡 Bugs resueltos: botón Agregar (e936c29), botón Atrás y filtro código (922c39b). Fase actual ya estaba. Resto pendiente. |
-| #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] | 🟡 Rename completado (5d61c6a). Pendiente: integración Pricing, fechas automáticas, festivos, asignación, revisiones. |
+| #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] | 🟡 Servicios desde pricing implementados (c826829): agregar servicios, fecha fin automática, selector responsable por rol, auto-actualización fechas y valor total del proyecto, pestaña Equipo con roles. Pendiente: integración hitos, fechas por fases, revisiones. |
 | #3 | Módulo Usuarios / Accesos — roles y permisos | Mejora | [-S] | 🔴 Pendiente |
 | #4 | Módulo Servicios / Pricing — sincronización | Mejora + Bug | [-S] | 🔴 Pendiente |
 | #5 | Módulo Configuración / Maestros — nuevas tablas | Mejora | [-O] | ✅ CERRADO. Todos los maestros implementados: categorías, sub categorías, fases, hardware, software, tipos de gasto, festivos + import CSV/Excel. Seed: `seed_cntxt_masters`. |
@@ -130,10 +130,12 @@ Checklist previo:
 | #8 | Módulo Dashboard / Reportes — seguimiento | Mejora | [-S] | 🔴 Pendiente |
 | #9 | Piloto — primer proyecto real en el sistema | Hito | [-S] | 📅 2026-04-08 |
 | #10 | feat(servicios): desglose de pricing en ServiceTemplate | Mejora | [-S] | 🟡 Implementado (f478bff): WorkSchedule, subcategoría, rol responsable, 8 campos de costo, 12 propiedades calculadas, HTMX en tiempo real, auto-relleno honorarios por rol, 62 servicios en seed. Pendiente: validar en producción. |
+| #11 | feat(cronograma): agregar servicios con fecha planeada y cálculo automático | Mejora | [-S] | ✅ Implementado (c826829): agregar servicios desde pricing, fecha entrega automática (horas+jornada+festivos), selector responsable por rol con preselección, auto-sync fechas y valor total del proyecto vía señal, equipo con roles requeridos, prerrequisitos automáticos por categoría, fix form proyecto. |
 
 ### Últimos commits
 | Commit | Descripción |
 |--------|-------------|
+| c826829 | feat(cronograma): agregar servicios desde pricing con fechas, responsable y auto-actualización |
 | f478bff | feat(servicios): desglose de pricing, jornadas laborales y días estimados en ServiceTemplate |
 | ccdf476 | docs: cerrar issue #5 maestros y actualizar CLAUDE.md |
 | e677fb8 | fix(proyectos): renombrar Ubicación → Municipio en detalle y formulario |
