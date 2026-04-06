@@ -25,6 +25,16 @@ urlpatterns = [
         views.ProjectCategoryDeleteView.as_view(),
         name="category_delete",
     ),
+    # Hardware
+    path("hardware/", views.HardwareListView.as_view(), name="hardware_list"),
+    path("hardware/crear/", views.HardwareCreateView.as_view(), name="hardware_create"),
+    path("hardware/<int:pk>/editar/", views.HardwareUpdateView.as_view(), name="hardware_update"),
+    path("hardware/<int:pk>/eliminar/", views.HardwareDeleteView.as_view(), name="hardware_delete"),
+    # Software
+    path("software/", views.SoftwareListView.as_view(), name="software_list"),
+    path("software/crear/", views.SoftwareCreateView.as_view(), name="software_create"),
+    path("software/<int:pk>/editar/", views.SoftwareUpdateView.as_view(), name="software_update"),
+    path("software/<int:pk>/eliminar/", views.SoftwareDeleteView.as_view(), name="software_delete"),
     path(
         "subcategories/",
         views.ServiceSubCategoryListView.as_view(),

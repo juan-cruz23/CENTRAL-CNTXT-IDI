@@ -17,13 +17,15 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import ProjectCategoryForm, ProjectPhaseForm, ServiceSubCategoryForm, ServiceTemplateForm
+from apps.services.forms import HardwareForm, ProjectCategoryForm, ProjectPhaseForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
+    Hardware,
     ProjectCategory,
     ProjectPhase,
     ServiceSubCategory,
     ServiceTemplate,
+    Software,
 )
 
 
@@ -64,6 +66,58 @@ class ProjectCategoryDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteVi
     model = ProjectCategory
     template_name = "services/projectcategory_confirm_delete.html"
     success_url = reverse_lazy("services:category_list")
+
+
+class HardwareListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = Hardware
+    template_name = "services/hardware_list.html"
+    context_object_name = "hardware_list"
+
+
+class HardwareCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = Hardware
+    form_class = HardwareForm
+    template_name = "services/hardware_form.html"
+    success_url = reverse_lazy("services:hardware_list")
+
+
+class HardwareUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = Hardware
+    form_class = HardwareForm
+    template_name = "services/hardware_form.html"
+    success_url = reverse_lazy("services:hardware_list")
+
+
+class HardwareDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = Hardware
+    template_name = "services/hardware_confirm_delete.html"
+    success_url = reverse_lazy("services:hardware_list")
+
+
+class SoftwareListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = Software
+    template_name = "services/software_list.html"
+    context_object_name = "software_list"
+
+
+class SoftwareCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = Software
+    form_class = SoftwareForm
+    template_name = "services/software_form.html"
+    success_url = reverse_lazy("services:software_list")
+
+
+class SoftwareUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = Software
+    form_class = SoftwareForm
+    template_name = "services/software_form.html"
+    success_url = reverse_lazy("services:software_list")
+
+
+class SoftwareDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = Software
+    template_name = "services/software_confirm_delete.html"
+    success_url = reverse_lazy("services:software_list")
 
 
 class ServiceSubCategoryListView(LoginRequiredMixin, StaffRequiredMixin, ListView):

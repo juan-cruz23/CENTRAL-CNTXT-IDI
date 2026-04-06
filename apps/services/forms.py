@@ -1,7 +1,7 @@
 from django import forms
 
 from apps.common.forms import DaisyUIFormMixin
-from apps.services.models import ProjectCategory, ProjectPhase, ServiceActivity, ServiceSubCategory, ServiceTemplate
+from apps.services.models import Hardware, ProjectCategory, ProjectPhase, ServiceActivity, ServiceSubCategory, ServiceTemplate, Software
 
 
 class ProjectCategoryForm(DaisyUIFormMixin, forms.ModelForm):
@@ -9,6 +9,19 @@ class ProjectCategoryForm(DaisyUIFormMixin, forms.ModelForm):
         model = ProjectCategory
         fields = ["code", "name", "description", "is_active"]
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+
+
+class HardwareForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = Hardware
+        fields = ["name", "value", "depreciation_per_hour", "is_active"]
+        widgets = {"name": forms.TextInput(attrs={"placeholder": "Ej. Workstation Alta Gama (opcional)"})}
+
+
+class SoftwareForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = Software
+        fields = ["name", "annual_value", "hourly_value", "is_active"]
 
 
 class ProjectPhaseForm(DaisyUIFormMixin, forms.ModelForm):

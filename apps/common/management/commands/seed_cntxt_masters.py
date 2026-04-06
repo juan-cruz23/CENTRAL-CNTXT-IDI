@@ -23,6 +23,8 @@ class Command(BaseCommand):
         self._seed_project_categories()
         self._seed_service_subcategories()
         self._seed_project_phases()
+        self._seed_hardware()
+        self._seed_software()
         self.stdout.write(self.style.SUCCESS("✓ Maestros CNTXT cargados correctamente."))
 
     # ------------------------------------------------------------------
@@ -207,6 +209,42 @@ class Command(BaseCommand):
                 defaults={"name": s["name"], "description": s["description"], "is_active": True},
             )
             self.stdout.write(f"  {'+ ' if created else '~ '}ServiceSubCategory: {obj.code} — {obj.name}")
+
+    # ------------------------------------------------------------------
+    def _seed_hardware(self):
+        from apps.services.models import Hardware
+
+        # Valores de la hoja Listas — nombre en blanco para completar después
+        hardware = [
+            {"name": "", "value": 10_000_000, "depreciation_per_hour": 4222},
+            {"name": "", "value": 8_500_000,  "depreciation_per_hour": 3588},
+            {"name": "", "value": 8_000_000,  "depreciation_per_hour": 3377},
+        ]
+        for h in hardware:
+            obj, created = Hardware.objects.get_or_create(
+                value=h["value"],
+                defaults={"name": h["name"], "depreciation_per_hour": h["depreciation_per_hour"], "is_active": True},
+            )
+            label = obj.name or f"(sin nombre) ${obj.value:,.0f}"
+            self.stdout.write(f"  {'+ ' if created else '~ '}Hardware: {label} — ${obj.depreciation_per_hour:,.0f}/h")
+
+    # ------------------------------------------------------------------
+    def _seed_software(self):
+        from apps.services.models import Software
+
+        software = [
+            {"name": "SketchUp (SKP)",    "annual_value": 1_400_000,  "hourly_value": 3411},
+            {"name": "Lumion",             "annual_value": 6_600_000,  "hourly_value": 3411},
+            {"name": "V-Ray",              "annual_value": 3_300_000,  "hourly_value": 3411},
+            {"name": "Revit",              "annual_value": 12_400_000, "hourly_value": 3411},
+            {"name": "Adobe Photoshop",    "annual_value": 451_000,    "hourly_value": 3411},
+        ]
+        for s in software:
+            obj, created = Software.objects.update_or_create(
+                name=s["name"],
+                defaults={"annual_value": s["annual_value"], "hourly_value": s["hourly_value"], "is_active": True},
+            )
+            self.stdout.write(f"  {'+ ' if created else '~ '}Software: {obj.name} — ${obj.annual_value:,.0f}/año")
 
     # ------------------------------------------------------------------
     def _seed_project_phases(self):

@@ -37,6 +37,65 @@ class ProjectCategory(TimeStampedModel):
         return f"{self.code} - {self.name}"
 
 
+class Hardware(TimeStampedModel):
+    """Equipo de cómputo/estación de trabajo. Fuente de costo de depreciación por hora."""
+
+    name = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name="nombre",
+        help_text="Ej. 'Workstation Alta Gama'. Puede dejarse en blanco.",
+    )
+    value = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        verbose_name="valor del equipo ($COP)",
+    )
+    depreciation_per_hour = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="depreciación por hora ($COP)",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="activo")
+
+    class Meta:
+        ordering = ["-value"]
+        verbose_name = "hardware"
+        verbose_name_plural = "hardware"
+
+    def __str__(self):
+        return self.name or f"Hardware ${self.value:,.0f}"
+
+
+class Software(TimeStampedModel):
+    """Licencia de software. Fuente de costo de licencias por hora."""
+
+    name = models.CharField(max_length=200, verbose_name="nombre")
+    annual_value = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        verbose_name="valor anual ($COP)",
+    )
+    hourly_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="valor por hora ($COP)",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="activo")
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "software"
+        verbose_name_plural = "software"
+
+    def __str__(self):
+        return self.name
+
+
 class ServiceSubCategory(TimeStampedModel):
     """
     Sub categoría de servicio según estructura D.sign / V.sual.

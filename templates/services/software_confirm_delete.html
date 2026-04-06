@@ -1,0 +1,20 @@
+{% extends "base/base.html" %}
+{% block title %}Eliminar Software{% endblock %}
+{% block breadcrumb %}
+{% url 'services:software_list' as list_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/maestros/" grandparent_label="Maestros" parent_url=list_url parent_label="Software" current="Eliminar" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-md">
+  {% include "components/page_header.html" with title="Eliminar Software" %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <p>¿Confirmas que deseas eliminar <strong>{{ object }}</strong>?</p>
+      <div class="flex justify-end gap-3 mt-4">
+        <a href="{% url 'services:software_list' %}" class="btn btn-ghost">Cancelar</a>
+        <form method="post">{% csrf_token %}<button type="submit" class="btn btn-error">Eliminar</button></form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
