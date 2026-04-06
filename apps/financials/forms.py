@@ -1,7 +1,7 @@
 from django import forms
 
 from apps.common.forms import DaisyUIFormMixin
-from apps.financials.models import ColombianHoliday, CostCenterMapping, PaymentMilestone, ProfitabilitySummary
+from apps.financials.models import ColombianHoliday, CostCenterMapping, OperationalExpenseType, PaymentMilestone, ProfitabilitySummary
 
 
 class PaymentMilestoneForm(DaisyUIFormMixin, forms.ModelForm):
@@ -121,6 +121,12 @@ class ProfitabilitySummaryForm(DaisyUIFormMixin, forms.ModelForm):
             "margin_monthly_pct": forms.NumberInput(attrs={"class": "form-control"}),
             "is_verified": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
+
+
+class OperationalExpenseTypeForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = OperationalExpenseType
+        fields = ["name", "monthly_value", "hourly_value", "is_active"]
 
 
 class ColombianHolidayForm(DaisyUIFormMixin, forms.ModelForm):

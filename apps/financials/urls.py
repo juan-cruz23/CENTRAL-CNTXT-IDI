@@ -78,6 +78,11 @@ urlpatterns = [
         views_allocation.CostAllocationDetailView.as_view(),
         name="cost_allocation_detail",
     ),
+    # Maestros — Tipos de gasto operacional
+    path("maestros/tipos-gasto/", views.ExpenseTypeListView.as_view(), name="expense_type_list"),
+    path("maestros/tipos-gasto/crear/", views.ExpenseTypeCreateView.as_view(), name="expense_type_create"),
+    path("maestros/tipos-gasto/<int:pk>/editar/", views.ExpenseTypeUpdateView.as_view(), name="expense_type_update"),
+    path("maestros/tipos-gasto/<int:pk>/eliminar/", views.ExpenseTypeDeleteView.as_view(), name="expense_type_delete"),
     # Maestros — Festivos colombianos
     path(
         "maestros/festivos/",

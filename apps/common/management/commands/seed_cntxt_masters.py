@@ -25,6 +25,7 @@ class Command(BaseCommand):
         self._seed_project_phases()
         self._seed_hardware()
         self._seed_software()
+        self._seed_operational_expense_types()
         self.stdout.write(self.style.SUCCESS("✓ Maestros CNTXT cargados correctamente."))
 
     # ------------------------------------------------------------------
@@ -209,6 +210,22 @@ class Command(BaseCommand):
                 defaults={"name": s["name"], "description": s["description"], "is_active": True},
             )
             self.stdout.write(f"  {'+ ' if created else '~ '}ServiceSubCategory: {obj.code} — {obj.name}")
+
+    # ------------------------------------------------------------------
+    def _seed_operational_expense_types(self):
+        from apps.financials.models import OperationalExpenseType
+
+        expenses = [
+            {"name": "Gastos Administrativos", "monthly_value": 15_187_526, "hourly_value": 13_393},
+            {"name": "Gastos Financieros",      "monthly_value": 12_995_741, "hourly_value": 11_460},
+            {"name": "Gastos de Ventas",         "monthly_value": 3_330_000,  "hourly_value":  2_937},
+        ]
+        for e in expenses:
+            obj, created = OperationalExpenseType.objects.update_or_create(
+                name=e["name"],
+                defaults={"monthly_value": e["monthly_value"], "hourly_value": e["hourly_value"], "is_active": True},
+            )
+            self.stdout.write(f"  {'+ ' if created else '~ '}ExpenseType: {obj.name} — ${obj.monthly_value:,.0f}/mes")
 
     # ------------------------------------------------------------------
     def _seed_hardware(self):

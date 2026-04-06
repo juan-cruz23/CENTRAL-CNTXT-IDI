@@ -16,12 +16,14 @@ from apps.financials.forms import (
     AccountingTransactionFilterForm,
     ColombianHolidayForm,
     CostCenterMappingForm,
+    OperationalExpenseTypeForm,
     PaymentMilestoneForm,
 )
 from apps.financials.models import (
     AccountingTransaction,
     ColombianHoliday,
     CostCenterMapping,
+    OperationalExpenseType,
     PaymentMilestone,
     ProfitabilitySummary,
 )
@@ -306,6 +308,45 @@ class RecalculateCostsView(FinancialAccessMixin, View):
             messages.warning(request, result.get("message", "Sin datos."))
 
         return redirect("financials:real_profitability")
+
+
+# ---------------------------------------------------------------------------
+# OperationalExpenseType CRUD (Maestros)
+# ---------------------------------------------------------------------------
+class ExpenseTypeListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = OperationalExpenseType
+    template_name = "financials/expense_type_list.html"
+    context_object_name = "expense_types"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        qs = self.get_queryset()
+        agg = qs.aggregate(
+            monthly=Coalesce(Sum("monthly_value"), Value(Decimal("0")), output_field=DecimalField()),
+            hourly=Coalesce(Sum("hourly_value"), Value(Decimal("0")), output_field=DecimalField()),
+        )
+        context["totals"] = agg
+        return context
+
+
+class ExpenseTypeCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = OperationalExpenseType
+    form_class = OperationalExpenseTypeForm
+    template_name = "financials/expense_type_form.html"
+    success_url = reverse_lazy("financials:expense_type_list")
+
+
+class ExpenseTypeUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = OperationalExpenseType
+    form_class = OperationalExpenseTypeForm
+    template_name = "financials/expense_type_form.html"
+    success_url = reverse_lazy("financials:expense_type_list")
+
+
+class ExpenseTypeDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = OperationalExpenseType
+    template_name = "financials/expense_type_confirm_delete.html"
+    success_url = reverse_lazy("financials:expense_type_list")
 
 
 # ---------------------------------------------------------------------------

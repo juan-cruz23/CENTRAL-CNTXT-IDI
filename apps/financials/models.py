@@ -486,6 +486,29 @@ class CostAllocation(TimeStampedModel):
         return f"{self.period} - {self.project} - {self.get_cost_type_display()}"
 
 
+class OperationalExpenseType(TimeStampedModel):
+    """Tipos de gasto operacional para prorrateo en cálculo de precios de servicios."""
+
+    name = models.CharField(max_length=200, verbose_name="nombre")
+    monthly_value = models.DecimalField(
+        max_digits=14, decimal_places=2, default=0,
+        verbose_name="valor mensual ($COP)",
+    )
+    hourly_value = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0,
+        verbose_name="valor por hora ($COP)",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="activo")
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "tipo de gasto operacional"
+        verbose_name_plural = "tipos de gasto operacional"
+
+    def __str__(self):
+        return self.name
+
+
 class ColombianHoliday(TimeStampedModel):
     """Festivos colombianos para calculos de dias habiles."""
 
