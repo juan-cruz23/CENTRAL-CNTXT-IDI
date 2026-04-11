@@ -101,6 +101,21 @@ urlpatterns = [
         views.ScheduleServiceTreeView.as_view(),
         name="schedule_service_tree",
     ),
+    path(
+        "<int:pk>/cronograma/servicios/<int:si_pk>/acciones/",
+        views.ScheduleServiceActionsView.as_view(),
+        name="schedule_service_actions",
+    ),
+    path(
+        "<int:pk>/cronograma/tabla/",
+        views.ScheduleTableView.as_view(),
+        name="schedule_table",
+    ),
+    path(
+        "<int:pk>/cronograma/servicios/<int:si_pk>/editar/",
+        views.ScheduleServiceEditView.as_view(),
+        name="schedule_service_edit",
+    ),
     # Validation (HTMX)
     path(
         "<int:pk>/validar-asignacion/",

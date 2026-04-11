@@ -1,0 +1,22 @@
+{% load common_tags %}
+{# Contenido del tbody del cronograma — servicios agrupados por fase #}
+
+{% if phase_groups %}
+  {% for group in phase_groups %}
+  <tr class="bg-primary/10 border-b border-primary/20">
+    <td colspan="9" class="py-1.5 px-3">
+      <span class="font-semibold text-xs text-primary uppercase tracking-wider">
+        {% if group.phase %}{{ group.phase.name }}{% else %}Sin Fase{% endif %}
+      </span>
+      <span class="text-xs text-base-content/40 ml-2">{{ group.services|length }} servicio{{ group.services|length|pluralize:"s" }}</span>
+    </td>
+  </tr>
+  {% for si in group.services %}
+  {% include "projects/partials/schedule_service_row.html" with si=si project=project %}
+  {% endfor %}
+  {% endfor %}
+{% else %}
+<tr id="schedule-empty">
+  <td colspan="9">{% include "components/empty_state.html" with message="Sin servicios en el cronograma" icon="document" %}</td>
+</tr>
+{% endif %}

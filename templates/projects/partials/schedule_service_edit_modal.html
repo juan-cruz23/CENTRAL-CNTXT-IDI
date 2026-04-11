@@ -1,0 +1,261 @@
+{% load common_tags %}
+{# Modal de edición de un servicio del cronograma #}
+
+<dialog id="edit-service-modal" class="modal">
+  <div class="modal-box w-11/12 max-w-4xl flex flex-col" style="max-height: 90vh;">
+
+    {# ── Header ── #}
+    <div class="flex items-center justify-between mb-4 shrink-0">
+      <div>
+        <h3 class="font-bold text-lg">Editar Servicio</h3>
+        <p class="text-sm text-base-content/60 font-mono">{{ si.code }} — {{ si.name }}</p>
+      </div>
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+    </div>
+
+    {# ── Formulario ── #}
+    <div class="overflow-y-auto flex-1 pr-1">
+
+      {# ── Fila: Fechas ── #}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="form-control">
+          <label class="label pb-1">
+            <span class="label-text font-medium">Fecha Planeada de Inicio <span class="text-error">*</span></span>
+          </label>
+          <input type="date" name="projected_start_date" id="edit-start-date"
+                 value="{{ si.projected_start_date|date:'Y-m-d'|default:'' }}"
+                 class="input input-bordered input-sm w-full">
+        </div>
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">Fecha de Entrega</span></label>
+          <div id="edit-end-date"
+               class="input input-bordered input-sm flex items-center bg-base-200/60 text-sm px-3 min-h-[2rem]">
+            {% if si.projected_end_date %}
+            <span class="font-semibold">{{ si.projected_end_date|date:"d/m/Y" }}</span>
+            <span class="text-xs text-base-content/50 ml-2">({{ si.projected_days }} días háb. · {{ si.projected_hours }}h)</span>
+            {% else %}
+            <span class="text-base-content/40 text-xs">— sin calcular —</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Campo oculto con total de acciones #}
+      <input type="hidden" id="edit-act-total" value="{{ act_total }}">
+
+      {# ── Árbol editable ── #}
+      {% if tree %}
+      <div class="flex flex-col gap-4">
+
+        {# ── Responsable del servicio ── #}
+        <div class="bg-base-200/40 rounded-lg p-3">
+          <div class="form-control">
+            <label class="label pb-1">
+              <span class="label-text font-medium text-sm">Responsable del servicio</span>
+              {% if si.responsible_role %}
+              <span class="label-text-alt text-xs text-base-content/50">Rol: {{ si.responsible_role.code }}</span>
+              {% endif %}
+            </label>
+            <select id="edit-service-professional" name="assigned_professional" class="select select-bordered select-sm w-full">
+              <option value="">— Sin asignar —</option>
+              {% for user in service_users %}
+              <option value="{{ user.pk }}" {% if si.assigned_professional_id == user.pk %}selected{% endif %}>
+                {{ user.get_full_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        {# ── Árbol Entregable → Actividad → Acciones ── #}
+        <div class="flex flex-col divide-y divide-base-300/30 border border-base-300/30 rounded-lg overflow-hidden">
+          {% for deliv in tree %}
+          <details open class="group">
+            <summary class="flex items-center gap-2 px-3 py-2 cursor-pointer list-none bg-base-200/30 hover:bg-base-200/60 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-base-content/40 group-open:rotate-90 transition-transform shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+              <span class="badge badge-primary badge-xs shrink-0">Entregable</span>
+              <span class="font-medium text-sm">{{ deliv.name }}</span>
+              {% if deliv.unit %}<span class="text-xs text-base-content/40">{{ deliv.unit }}</span>{% endif %}
+            </summary>
+
+            <div class="px-3 pb-2 pt-1">
+              {% for kact in deliv.kacts %}
+              <div class="mb-3">
+                <div class="flex items-center gap-2 py-1">
+                  <span class="badge badge-secondary badge-xs shrink-0">Actividad</span>
+                  <span class="text-sm font-medium text-base-content/80">{{ kact.name }}</span>
+                </div>
+                {% if kact.actions %}
+                <div class="ml-4 overflow-x-auto">
+                  <table class="table table-xs w-full">
+                    <thead>
+                      <tr class="text-base-content/50">
+                        <th class="text-xs">#</th>
+                        <th class="text-xs">Acción</th>
+                        <th class="text-xs w-36">Responsable</th>
+                        <th class="text-xs w-20 text-right">Horas</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for item in kact.actions %}
+                      {% with act=item.obj idx=item.idx %}
+                      <tr class="hover:bg-base-200/20">
+                        <td class="text-base-content/40 text-xs">{{ forloop.counter }}</td>
+                        <td class="text-xs">
+                          {{ act.name }}
+                          <input type="hidden" id="edit-act-{{ idx }}-id" value="{{ act.pk }}">
+                        </td>
+                        <td>
+                          <select id="edit-act-{{ idx }}-professional"
+                                  class="select select-bordered select-xs w-full">
+                            <option value="">— Sin asignar —</option>
+                            {% for user in item.users %}
+                            <option value="{{ user.pk }}"
+                              {% if act.assigned_professional_id == user.pk %}selected{% endif %}>
+                              {{ user.get_full_name }}
+                            </option>
+                            {% endfor %}
+                            {% if not item.users %}
+                            <option value="" disabled class="text-base-content/30">
+                              {% if act.responsible_role %}Sin usuarios ({{ act.responsible_role.code }}){% else %}Sin rol asignado{% endif %}
+                            </option>
+                            {% endif %}
+                          </select>
+                        </td>
+                        <td class="text-right">
+                          <input type="number"
+                                 id="edit-act-{{ idx }}-hours"
+                                 value="{{ act.estimated_hours }}"
+                                 step="0.5" min="0"
+                                 class="input input-bordered input-xs w-16 text-right">
+                        </td>
+                      </tr>
+                      {% endwith %}
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </details>
+          {% endfor %}
+        </div>
+
+      </div>
+      {% else %}
+      <p class="text-sm text-base-content/40 italic py-2">Este servicio no tiene acciones registradas.</p>
+      {% endif %}
+
+    </div>
+
+    {# ── Footer ── #}
+    <div class="modal-action mt-4 pt-3 border-t border-base-300/30 shrink-0">
+      <form method="dialog">
+        <button class="btn btn-ghost btn-sm">Cancelar</button>
+      </form>
+      <button type="button" id="edit-submit-btn" class="btn btn-primary btn-sm gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Guardar Cambios
+      </button>
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>cerrar</button></form>
+</dialog>
+
+<script>
+(function () {
+  const modal     = document.getElementById('edit-service-modal');
+  const startEl   = document.getElementById('edit-start-date');
+  const endEl     = document.getElementById('edit-end-date');
+  const submitBtn = document.getElementById('edit-submit-btn');
+  const calcUrl   = "{% url 'projects:schedule_calc_end_date' project.pk %}";
+  const postUrl   = "{% url 'projects:schedule_service_edit' project.pk si.pk %}";
+
+  function getCsrf() {
+    const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  }
+
+  modal.showModal();
+
+  function sumActionHours() {
+    let total = 0;
+    modal.querySelectorAll('input[id^="edit-act-"][id$="-hours"]').forEach(el => {
+      total += parseFloat(el.value) || 0;
+    });
+    return total;
+  }
+
+  function calcEndDate() {
+    const startDate = startEl.value;
+    if (!startDate) return;
+    endEl.innerHTML = '<span class="loading loading-spinner loading-xs"></span>';
+    const fd = new FormData();
+    fd.append('service_template', '{{ si.service_template_id|default:"" }}');
+    fd.append('projected_start_date', startDate);
+    const totalHours = sumActionHours();
+    if (totalHours > 0) fd.append('total_hours', totalHours);
+    fetch(calcUrl, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': getCsrf() },
+    }).then(r => r.text()).then(html => { endEl.innerHTML = html; });
+  }
+
+  startEl.addEventListener('change', calcEndDate);
+
+  // Recalcular al editar horas
+  modal.addEventListener('change', function(e) {
+    if (e.target.matches('input[id^="edit-act-"][id$="-hours"]')) {
+      calcEndDate();
+    }
+  });
+
+  // Submit
+  submitBtn.addEventListener('click', () => {
+    const startDate = startEl.value;
+    if (!startDate) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> Guardando…';
+
+    const fd = new FormData();
+    fd.append('projected_start_date', startDate);
+
+    const profEl = document.getElementById('edit-service-professional');
+    if (profEl) fd.append('assigned_professional', profEl.value);
+
+    const actTotal = parseInt(document.getElementById('edit-act-total').value) || 0;
+    fd.append('act-TOTAL', actTotal);
+    for (let i = 0; i < actTotal; i++) {
+      const hoursEl = document.getElementById(`edit-act-${i}-hours`);
+      const proEl   = document.getElementById(`edit-act-${i}-professional`);
+      if (hoursEl) fd.append(`act-${i}-hours`, hoursEl.value);
+      if (proEl)   fd.append(`act-${i}-professional`, proEl.value);
+    }
+
+    fetch(postUrl, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': getCsrf() },
+    })
+    .then(r => {
+      if (!r.ok) { r.text().then(t => alert('Error: ' + t)); return null; }
+      modal.close();
+      htmx.trigger(document.body, 'scheduleChanged');
+    })
+    .catch(err => {
+      alert('Error al guardar: ' + err);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '✓ Guardar Cambios';
+    });
+  });
+})();
+</script>

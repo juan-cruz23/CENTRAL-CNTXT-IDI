@@ -1,0 +1,76 @@
+{% load common_tags %}
+{# Árbol de acciones asignadas a una ServiceInstance — cargado on-demand #}
+
+{% if not tree %}
+<p class="text-xs text-base-content/40 italic py-2 px-1">
+  Este servicio no tiene acciones registradas.
+</p>
+{% else %}
+<div class="flex flex-col gap-2 py-2">
+  {% for deliv in tree %}
+  <div>
+    {# ── Entregable ── #}
+    <div class="flex items-center gap-2 mb-1">
+      <span class="badge badge-primary badge-xs shrink-0">Entregable</span>
+      <span class="font-medium text-xs">{{ deliv.name }}</span>
+      {% if deliv.unit %}
+      <span class="text-xs text-base-content/40">{{ deliv.unit }}</span>
+      {% endif %}
+    </div>
+
+    {% for kact in deliv.kacts %}
+    <div class="ml-3 mb-2">
+      {# ── Actividad Clave ── #}
+      <div class="flex items-center gap-2 mb-1">
+        <span class="badge badge-secondary badge-xs shrink-0">Actividad</span>
+        <span class="text-xs text-base-content/70">{{ kact.name }}</span>
+      </div>
+
+      {# ── Acciones ── #}
+      {% if kact.actions %}
+      <div class="ml-3 overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr class="text-base-content/40">
+              <th class="text-xs">#</th>
+              <th class="text-xs">Acción</th>
+              <th class="text-xs">Rol</th>
+              <th class="text-xs">Responsable</th>
+              <th class="text-xs text-right w-16">Horas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for act in kact.actions %}
+            <tr class="hover:bg-base-200/20">
+              <td class="text-base-content/40 text-xs">{{ act.order }}</td>
+              <td class="text-xs">{{ act.name }}</td>
+              <td class="text-xs">
+                {% if act.responsible_role %}
+                <span class="badge badge-ghost badge-xs font-mono">{{ act.responsible_role.code }}</span>
+                {% else %}
+                <span class="text-base-content/30">—</span>
+                {% endif %}
+              </td>
+              <td class="text-xs">
+                {% if act.assigned_professional %}
+                {{ act.assigned_professional.get_full_name }}
+                {% else %}
+                <span class="text-base-content/30 italic">Sin asignar</span>
+                {% endif %}
+              </td>
+              <td class="text-xs text-right font-mono">{{ act.estimated_hours }}h</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% if not forloop.last %}
+  <div class="divider my-0"></div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}

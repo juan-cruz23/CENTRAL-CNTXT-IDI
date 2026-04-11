@@ -8,6 +8,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 
 from apps.geography.models import Country, Municipality
@@ -107,6 +109,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return context
 
 
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class ProjectDetailView(LoginRequiredMixin, DetailView):
     """Detail view for a project with all related data prefetched."""
 
@@ -129,7 +132,9 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
                 "phase_instances__phase",
                 "phase_instances__service_instances__assigned_professional",
                 "phase_instances__service_instances__responsible_role",
-                "service_instances__service_template",
+                "service_instances__service_template__phase",
+                "service_instances__assigned_professional",
+                "service_instances__responsible_role",
                 "milestones",
                 "prerequisites",
             )
@@ -138,6 +143,23 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.object
+
+        # --- Cronograma: servicios agrupados por fase ---
+        schedule_services = [
+            si for si in project.service_instances.all()
+            if si.phase_instance is None
+        ]
+        phase_groups_dict = {}
+        for si in schedule_services:
+            phase = si.service_template.phase if si.service_template else None
+            sort_key = (phase.number if phase and hasattr(phase, 'number') else 999,
+                        phase.pk if phase else 0)
+            if sort_key not in phase_groups_dict:
+                phase_groups_dict[sort_key] = {"phase": phase, "services": []}
+            phase_groups_dict[sort_key]["services"].append(si)
+        context["schedule_phase_groups"] = [
+            v for _, v in sorted(phase_groups_dict.items())
+        ]
 
         # --- Bloque 8: Financial summary for Info tab ---
         try:
@@ -672,13 +694,21 @@ class CalcServiceEndDateView(LoginRequiredMixin, View):
         if not schedule:
             return HttpResponse('<span class="text-warning text-sm">Sin jornada laboral activa</span>')
 
+        # Permite sobreescribir las horas (cuando el usuario edita acciones en el modal)
+        from decimal import Decimal, InvalidOperation
+        try:
+            hours_override = Decimal(request.POST.get("total_hours") or "0")
+        except InvalidOperation:
+            hours_override = Decimal("0")
+        hours = hours_override if hours_override > 0 else st.estimated_hours
+
         from apps.services.views import _working_days_needed
-        days = _working_days_needed(st.estimated_hours, schedule.weekly_hours)
+        days = _working_days_needed(hours, schedule.weekly_hours)
         end_date = _add_working_days(start_date, days)
 
         return HttpResponse(
             f'<span class="font-semibold">{end_date.strftime("%d/%m/%Y")}</span>'
-            f'<span class="text-xs text-base-content/50 ml-2">({days} días hábiles · {st.estimated_hours}h)</span>'
+            f'<span class="text-xs text-base-content/50 ml-2">({days} días hábiles · {hours}h)</span>'
         )
 
 
@@ -909,6 +939,239 @@ class ScheduleServiceDeleteView(LoginRequiredMixin, View):
         si = get_object_or_404(ServiceInstance, pk=si_pk, project_id=pk, phase_instance=None)
         si.delete()
         return HttpResponse("")
+
+
+class ScheduleServiceActionsView(LoginRequiredMixin, View):
+    """HTMX: retorna el árbol de acciones asignadas a una ServiceInstance."""
+
+    def get(self, request, pk, si_pk):
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+
+        actions = list(
+            si.action_assignments.select_related(
+                "service_activity__key_activity__deliverable",
+                "assigned_professional",
+                "responsible_role",
+            ).order_by("order")
+        )
+
+        # Agrupar: deliverable → key_activity → [acciones]
+        tree = []
+        seen_delivs = {}
+        seen_kacts = {}
+        for act in actions:
+            sa = act.service_activity
+            if sa and sa.key_activity and sa.key_activity.deliverable:
+                d_name = sa.key_activity.deliverable.name
+                d_unit = sa.key_activity.deliverable.unit
+                ka_name = sa.key_activity.name
+            else:
+                d_name = "Sin entregable"
+                d_unit = ""
+                ka_name = "Sin actividad clave"
+
+            if d_name not in seen_delivs:
+                seen_delivs[d_name] = {"name": d_name, "unit": d_unit, "kacts": []}
+                seen_kacts[d_name] = {}
+                tree.append(seen_delivs[d_name])
+
+            if ka_name not in seen_kacts[d_name]:
+                kact_entry = {"name": ka_name, "actions": []}
+                seen_kacts[d_name][ka_name] = kact_entry
+                seen_delivs[d_name]["kacts"].append(kact_entry)
+
+            seen_kacts[d_name][ka_name]["actions"].append(act)
+
+        return TemplateResponse(
+            request,
+            "projects/partials/schedule_service_actions.html",
+            {"si": si, "project": project, "tree": tree},
+        )
+
+
+class ScheduleServiceEditView(LoginRequiredMixin, View):
+    """HTMX: carga el modal de edición de un servicio del cronograma (GET) / guarda cambios (POST)."""
+
+    def _build_edit_tree(self, si):
+        """Construye el árbol de acciones editable para una ServiceInstance."""
+        from apps.accounts.models import User
+
+        actions = list(
+            si.action_assignments.select_related(
+                "service_activity__key_activity__deliverable",
+                "assigned_professional",
+                "responsible_role",
+            ).order_by("order")
+        )
+
+        # Recoger role_ids para filtrar usuarios
+        role_ids = set()
+        if si.responsible_role_id:
+            role_ids.add(si.responsible_role_id)
+        for act in actions:
+            if act.responsible_role_id:
+                role_ids.add(act.responsible_role_id)
+
+        role_users = {}
+        for role_id in role_ids:
+            role_users[role_id] = list(
+                User.objects.filter(
+                    user_roles__role_id=role_id, is_active=True
+                ).distinct().order_by("first_name", "last_name")
+            )
+
+        # Agrupar por entregable → actividad clave
+        tree = []
+        seen_delivs = {}
+        seen_kacts = {}
+        for idx, act in enumerate(actions):
+            sa = act.service_activity
+            if sa and sa.key_activity and sa.key_activity.deliverable:
+                d_name = sa.key_activity.deliverable.name
+                d_unit = sa.key_activity.deliverable.unit
+                ka_name = sa.key_activity.name
+            else:
+                d_name = "Sin entregable"
+                d_unit = ""
+                ka_name = "Sin actividad clave"
+
+            if d_name not in seen_delivs:
+                seen_delivs[d_name] = {"name": d_name, "unit": d_unit, "kacts": []}
+                seen_kacts[d_name] = {}
+                tree.append(seen_delivs[d_name])
+
+            if ka_name not in seen_kacts[d_name]:
+                kact_entry = {"name": ka_name, "actions": []}
+                seen_kacts[d_name][ka_name] = kact_entry
+                seen_delivs[d_name]["kacts"].append(kact_entry)
+
+            seen_kacts[d_name][ka_name]["actions"].append({
+                "idx": idx,
+                "obj": act,
+                "users": role_users.get(act.responsible_role_id, []),
+            })
+
+        service_users = role_users.get(si.responsible_role_id, []) if si.responsible_role_id else []
+        return tree, service_users, len(actions)
+
+    def get(self, request, pk, si_pk):
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+        tree, service_users, act_total = self._build_edit_tree(si)
+        return TemplateResponse(
+            request,
+            "projects/partials/schedule_service_edit_modal.html",
+            {
+                "project": project,
+                "si": si,
+                "tree": tree,
+                "service_users": service_users,
+                "act_total": act_total,
+            },
+        )
+
+    def post(self, request, pk, si_pk):
+        from apps.accounts.models import WorkSchedule, User as _User
+
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+
+        start_raw = request.POST.get("projected_start_date")
+        prof_id   = request.POST.get("assigned_professional")
+        act_total = int(request.POST.get("act-TOTAL") or 0)
+
+        # Actualizar fecha inicio
+        from datetime import date as _date
+        if start_raw:
+            try:
+                start_date = _date.fromisoformat(start_raw)
+                si.projected_start_date = start_date
+            except ValueError:
+                pass
+
+        # Actualizar profesional responsable del servicio
+        if prof_id:
+            try:
+                si.assigned_professional = _User.objects.get(pk=int(prof_id), is_active=True)
+            except (_User.DoesNotExist, ValueError):
+                si.assigned_professional = None
+        else:
+            si.assigned_professional = None
+
+        # Recalcular horas totales y fecha fin a partir de las acciones editadas
+        if act_total:
+            total_hours = sum(
+                Decimal(request.POST.get(f"act-{i}-hours") or "0")
+                for i in range(act_total)
+            )
+        else:
+            total_hours = si.projected_hours
+
+        schedule = WorkSchedule.objects.filter(is_active=True).order_by("-weekly_hours").first()
+        from apps.services.views import _working_days_needed
+        days = _working_days_needed(total_hours, schedule.weekly_hours) if schedule else 0
+        end_date = _add_working_days(si.projected_start_date, int(days)) if days and si.projected_start_date else si.projected_start_date
+
+        si.projected_hours = total_hours
+        si.projected_days  = days
+        si.projected_end_date = end_date
+        si.save(update_fields=[
+            "projected_start_date", "projected_end_date",
+            "projected_hours", "projected_days", "assigned_professional",
+        ])
+
+        # Actualizar ServiceInstanceAction (horas + profesional)
+        actions = list(si.action_assignments.order_by("order"))
+        for i, act in enumerate(actions):
+            new_hours = Decimal(request.POST.get(f"act-{i}-hours") or "0")
+            pro_id    = request.POST.get(f"act-{i}-professional")
+            act.estimated_hours = new_hours
+            if pro_id:
+                try:
+                    act.assigned_professional = _User.objects.get(pk=int(pro_id), is_active=True)
+                except (_User.DoesNotExist, ValueError):
+                    act.assigned_professional = None
+            else:
+                act.assigned_professional = None
+            act.save(update_fields=["estimated_hours", "assigned_professional"])
+
+        response = HttpResponse("")
+        response["HX-Trigger"] = "scheduleChanged"
+        return response
+
+
+class ScheduleTableView(LoginRequiredMixin, View):
+    """HTMX: retorna el contenido del tbody del cronograma (servicios agrupados por fase)."""
+
+    def get(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+        schedule_services = list(
+            ServiceInstance.objects.filter(project=project, phase_instance=None)
+            .select_related(
+                "service_template__phase",
+                "assigned_professional",
+                "responsible_role",
+            )
+            .order_by("service_template__phase__number", "projected_start_date")
+        )
+        phase_groups_dict = {}
+        for si in schedule_services:
+            phase = si.service_template.phase if si.service_template else None
+            sort_key = (
+                phase.number if phase and hasattr(phase, "number") else 999,
+                phase.pk if phase else 0,
+            )
+            if sort_key not in phase_groups_dict:
+                phase_groups_dict[sort_key] = {"phase": phase, "services": []}
+            phase_groups_dict[sort_key]["services"].append(si)
+        phase_groups = [v for _, v in sorted(phase_groups_dict.items())]
+
+        return TemplateResponse(
+            request,
+            "projects/partials/schedule_table_body.html",
+            {"phase_groups": phase_groups, "project": project},
+        )
 
 
 class ScheduleServiceResponsiblesView(LoginRequiredMixin, View):

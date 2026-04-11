@@ -123,6 +123,15 @@
   // Bloquear scroll del body cuando el modal está abierto
   modal.addEventListener('close', () => { submitBtn.disabled = true; });
 
+  // ── Sumar horas de todas las acciones del árbol ──────
+  function sumActionHours() {
+    let total = 0;
+    document.querySelectorAll('#service-tree-container input[id^="act-"][id$="-hours"]').forEach(el => {
+      total += parseFloat(el.value) || 0;
+    });
+    return total;
+  }
+
   // ── Calcular fecha de entrega ──────────────────────────
   function calcEndDate() {
     const serviceId = serviceEl.value;
@@ -136,6 +145,8 @@
     const fd = new FormData();
     fd.append('service_template', serviceId);
     fd.append('projected_start_date', startDate);
+    const totalHours = sumActionHours();
+    if (totalHours > 0) fd.append('total_hours', totalHours);
 
     fetch(calcUrl, {
       method: 'POST',
@@ -166,6 +177,13 @@
 
   serviceEl.addEventListener('change', () => { calcEndDate(); checkReady(); });
   startEl.addEventListener('change', () => { calcEndDate(); checkReady(); });
+
+  // Recalcular fecha cuando se editan horas en el árbol (delegación en contenedor)
+  document.getElementById('service-tree-container').addEventListener('change', function(e) {
+    if (e.target.matches('input[id$="-hours"]')) {
+      calcEndDate();
+    }
+  });
 
   {% if suggested_start %}
   const sugBtn = document.getElementById('use-suggested');
@@ -223,16 +241,8 @@
     })
     .then(html => {
       if (!html) return;
-      // Insertar fila en la tabla del cronograma
-      const tbody = document.getElementById('schedule-services-tbody');
-      if (tbody) {
-        const emptyRow = document.getElementById('schedule-empty');
-        if (emptyRow) emptyRow.remove();
-        tbody.insertAdjacentHTML('beforeend', html);
-      }
-      // Cerrar modal
+      // Cerrar modal y disparar evento — el tbody se actualiza automáticamente via HTMX
       modal.close();
-      // Disparar evento para actualizar equipo
       htmx.trigger(document.body, 'scheduleChanged');
     })
     .catch(err => {

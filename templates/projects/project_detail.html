@@ -415,6 +415,7 @@
           <table class="table table-zebra table-sm">
             <thead class="bg-base-200/50">
               <tr>
+                <th class="w-8"></th>
                 <th class="text-xs uppercase tracking-wider">Código</th>
                 <th class="text-xs uppercase tracking-wider">Servicio</th>
                 <th class="text-xs uppercase tracking-wider text-center">Horas</th>
@@ -425,14 +426,11 @@
                 <th class="w-10"></th>
               </tr>
             </thead>
-            <tbody id="schedule-services-tbody">
-              {% for si in project.service_instances.all %}
-              {% if si.phase_instance is None %}
-              {% include "projects/partials/schedule_service_row.html" with si=si project=project %}
-              {% endif %}
-              {% empty %}
-              <tr id="schedule-empty"><td colspan="7">{% include "components/empty_state.html" with message="Sin servicios en el cronograma" icon="document" %}</td></tr>
-              {% endfor %}
+            <tbody id="schedule-services-tbody"
+                   hx-get="{% url 'projects:schedule_table' project.pk %}"
+                   hx-trigger="scheduleChanged from:body"
+                   hx-swap="innerHTML">
+              {% include "projects/partials/schedule_table_body.html" with phase_groups=schedule_phase_groups project=project %}
             </tbody>
           </table>
         </div>
