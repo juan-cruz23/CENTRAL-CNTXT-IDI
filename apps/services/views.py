@@ -19,11 +19,12 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import DeliverableForm, HardwareForm, ProjectCategoryForm, ProjectPhaseForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
+from apps.services.forms import DeliverableForm, HardwareForm, KeyActivityForm, ProjectCategoryForm, ProjectPhaseForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
     Deliverable,
     Hardware,
+    KeyActivity,
     ProjectCategory,
     ProjectPhase,
     ServiceSubCategory,
@@ -207,6 +208,37 @@ class DeliverableDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     model = Deliverable
     template_name = "services/deliverable_confirm_delete.html"
     success_url = reverse_lazy("services:deliverable_list")
+
+
+class KeyActivityListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = KeyActivity
+    template_name = "services/keyactivity_list.html"
+    context_object_name = "activities"
+
+    def get_queryset(self):
+        return KeyActivity.objects.select_related(
+            "deliverable__service_template"
+        ).order_by("deliverable__service_template__code", "deliverable__name", "order", "name")
+
+
+class KeyActivityCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = KeyActivity
+    form_class = KeyActivityForm
+    template_name = "services/keyactivity_form.html"
+    success_url = reverse_lazy("services:keyactivity_list")
+
+
+class KeyActivityUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = KeyActivity
+    form_class = KeyActivityForm
+    template_name = "services/keyactivity_form.html"
+    success_url = reverse_lazy("services:keyactivity_list")
+
+
+class KeyActivityDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = KeyActivity
+    template_name = "services/keyactivity_confirm_delete.html"
+    success_url = reverse_lazy("services:keyactivity_list")
 
 
 class ServiceTemplateListView(LoginRequiredMixin, ListView):

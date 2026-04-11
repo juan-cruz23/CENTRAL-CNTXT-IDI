@@ -509,8 +509,33 @@ class Deliverable(TimeStampedModel):
 
     def __str__(self):
         return f"{self.service_template.code} — {self.name}"
-        verbose_name = "actividad de servicio"
-        verbose_name_plural = "actividades de servicio"
+
+
+class KeyActivity(TimeStampedModel):
+    """
+    Actividad clave agrupadora dentro de un entregable.
+    Ejemplo: 'Creación de topografía', 'Planteamiento Vial'.
+    """
+
+    deliverable = models.ForeignKey(
+        Deliverable,
+        on_delete=models.CASCADE,
+        related_name="key_activities",
+        verbose_name="entregable",
+    )
+    name = models.CharField(
+        max_length=300,
+        verbose_name="nombre",
+    )
+    order = models.PositiveIntegerField(
+        default=1,
+        verbose_name="orden",
+    )
+
+    class Meta:
+        ordering = ["deliverable", "order", "name"]
+        verbose_name = "actividad clave"
+        verbose_name_plural = "actividades clave"
 
     def __str__(self):
-        return f"{self.service_template.code} - {self.order}. {self.name}"
+        return f"{self.deliverable.service_template.code} / {self.deliverable.name[:40]} — {self.name}"

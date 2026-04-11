@@ -60,6 +60,11 @@ urlpatterns = [
     path("entregables/crear/", views.DeliverableCreateView.as_view(), name="deliverable_create"),
     path("entregables/<int:pk>/editar/", views.DeliverableUpdateView.as_view(), name="deliverable_update"),
     path("entregables/<int:pk>/eliminar/", views.DeliverableDeleteView.as_view(), name="deliverable_delete"),
+    # Actividades Clave
+    path("actividades/", views.KeyActivityListView.as_view(), name="keyactivity_list"),
+    path("actividades/crear/", views.KeyActivityCreateView.as_view(), name="keyactivity_create"),
+    path("actividades/<int:pk>/editar/", views.KeyActivityUpdateView.as_view(), name="keyactivity_update"),
+    path("actividades/<int:pk>/eliminar/", views.KeyActivityDeleteView.as_view(), name="keyactivity_delete"),
     path(
         "phases/",
         views.ProjectPhaseListView.as_view(),

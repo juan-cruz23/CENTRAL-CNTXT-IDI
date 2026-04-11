@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from apps.services.models import (
     Deliverable,
+    KeyActivity,
     ProjectCategory,
     ProjectPhase,
     ServiceActivity,
@@ -19,6 +20,12 @@ class DeliverableInline(admin.TabularInline):
     model = Deliverable
     extra = 1
     fields = ("order", "name", "unit")
+
+
+class KeyActivityInline(admin.TabularInline):
+    model = KeyActivity
+    extra = 1
+    fields = ("order", "name")
 
 
 @admin.register(ProjectCategory)
@@ -49,6 +56,20 @@ class ServiceTemplateAdmin(admin.ModelAdmin):
     list_filter = ("is_active", "category", "phase")
     search_fields = ("code", "name", "description")
     inlines = [ServiceActivityInline, DeliverableInline]
+
+
+@admin.register(Deliverable)
+class DeliverableAdmin(admin.ModelAdmin):
+    list_display = ("service_template", "name", "unit", "order")
+    list_filter = ("service_template__category",)
+    search_fields = ("name", "service_template__code")
+    inlines = [KeyActivityInline]
+
+
+@admin.register(KeyActivity)
+class KeyActivityAdmin(admin.ModelAdmin):
+    list_display = ("deliverable", "name", "order")
+    search_fields = ("name", "deliverable__name", "deliverable__service_template__code")
 
 
 @admin.register(ServiceActivity)

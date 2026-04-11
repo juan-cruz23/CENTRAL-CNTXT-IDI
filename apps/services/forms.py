@@ -1,7 +1,7 @@
 from django import forms
 
 from apps.common.forms import DaisyUIFormMixin
-from apps.services.models import Deliverable, Hardware, ProjectCategory, ProjectPhase, ServiceActivity, ServiceSubCategory, ServiceTemplate, Software
+from apps.services.models import Deliverable, Hardware, KeyActivity, ProjectCategory, ProjectPhase, ServiceActivity, ServiceSubCategory, ServiceTemplate, Software
 
 
 class ProjectCategoryForm(DaisyUIFormMixin, forms.ModelForm):
@@ -133,3 +133,9 @@ class DeliverableForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = Deliverable
         fields = ["service_template", "name", "unit", "order"]
+
+
+class KeyActivityForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = KeyActivity
+        fields = ["deliverable", "name", "order"]
