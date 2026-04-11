@@ -1,0 +1,154 @@
+{% extends "base/base.html" %}
+{% block title %}Actividades — {{ deliverable.name }}{% endblock %}
+{% block breadcrumb %}
+{% url 'services:servicetemplate_update' deliverable.service_template.pk as st_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/servicios/templates/" grandparent_label="Plantillas" parent_url=st_url parent_label=deliverable.service_template.code current="Actividades" %}
+{% endblock %}
+
+{% block content %}
+{% include "components/page_header.html" with title="Actividades del Entregable" %}
+
+<!-- Info del entregable -->
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body py-3">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span class="badge badge-primary badge-lg font-mono">{{ deliverable.service_template.code }}</span>
+      <span class="font-bold text-lg">{{ deliverable.name }}</span>
+      {% if deliverable.unit %}<span class="badge badge-outline">{{ deliverable.unit }}</span>{% endif %}
+      {% if deliverable.quantity != 1 %}<span class="text-sm text-base-content/60">Cantidad: {{ deliverable.quantity }}</span>{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="flex flex-col lg:flex-row gap-6">
+
+  <!-- ── Columna izquierda: Actividades Clave ── -->
+  <div class="lg:w-1/3">
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body">
+        <h3 class="font-bold text-base mb-4">Actividades Clave</h3>
+
+        <form method="post">
+          {% csrf_token %}
+          {{ formset.management_form }}
+          <div class="flex flex-col gap-2" id="kact-formset-body">
+            {% for f in formset %}
+            <div class="kact-row flex items-center gap-2">
+              <div class="flex-1 flex gap-2">
+                <input type="number" name="{{ f.order.html_name }}" value="{{ f.order.value|default:forloop.counter }}"
+                       class="input input-bordered input-sm w-14" min="1">
+                <input type="text" name="{{ f.name.html_name }}" value="{{ f.name.value|default:'' }}"
+                       class="input input-bordered input-sm flex-1" placeholder="Nombre actividad">
+              </div>
+              {{ f.id }}
+              {% if f.instance.pk %}
+              <button type="button" class="btn btn-ghost btn-xs text-error remove-kact" title="Eliminar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              </button>
+              <div class="hidden">{{ f.DELETE }}</div>
+              {% else %}
+              <button type="button" class="btn btn-ghost btn-xs text-error remove-kact-new" title="Eliminar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              </button>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <button type="button" id="add-kact" class="btn btn-outline btn-xs mt-3 gap-1 w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Agregar Actividad Clave
+          </button>
+
+          <div class="flex justify-end mt-4">
+            <button type="submit" class="btn btn-primary btn-sm gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              Guardar Actividades
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Columna derecha: Acciones por Actividad ── -->
+  <div class="lg:flex-1">
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body">
+        <h3 class="font-bold text-base mb-4">Acciones por Actividad</h3>
+
+        {% if kactivities %}
+        <div class="flex flex-col gap-3">
+          {% for kact in kactivities %}
+          <div class="border border-base-300/40 rounded-lg overflow-hidden">
+            <!-- Header de la actividad -->
+            <div class="flex items-center justify-between px-4 py-2 bg-base-200/50 cursor-pointer"
+                 hx-get="{% url 'services:keyactivity_actions' kact.pk %}"
+                 hx-target="#actions-{{ kact.pk }}"
+                 hx-swap="innerHTML"
+                 hx-trigger="click once">
+              <div class="flex items-center gap-2">
+                <span class="badge badge-sm badge-outline">{{ kact.order }}</span>
+                <span class="font-medium text-sm">{{ kact.name }}</span>
+              </div>
+              <span class="badge badge-ghost badge-sm">{{ kact.actions.count }} acciones</span>
+            </div>
+            <!-- Contenedor de acciones (HTMX lo llena al hacer clic) -->
+            <div id="actions-{{ kact.pk }}" class="p-3">
+              <p class="text-xs text-base-content/40 text-center py-2">Haz clic en la actividad para ver sus acciones</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-base-content/40">Primero guarda las actividades clave para poder agregar acciones.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const body       = document.getElementById('kact-formset-body');
+  const totalForms = document.getElementById('id_keyactivity_set-TOTAL_FORMS');
+  const addBtn     = document.getElementById('add-kact');
+  if (!body || !totalForms || !addBtn) return;
+
+  addBtn.addEventListener('click', function() {
+    const idx = parseInt(totalForms.value);
+    const row = document.createElement('div');
+    row.className = 'kact-row flex items-center gap-2';
+    row.innerHTML = `
+      <div class="flex-1 flex gap-2">
+        <input type="number" name="keyactivity_set-${idx}-order" value="${idx + 1}"
+               class="input input-bordered input-sm w-14" min="1">
+        <input type="text" name="keyactivity_set-${idx}-name"
+               class="input input-bordered input-sm flex-1" placeholder="Nombre actividad">
+      </div>
+      <button type="button" class="btn btn-ghost btn-xs text-error remove-kact-new" title="Eliminar">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>`;
+    body.appendChild(row);
+    totalForms.value = idx + 1;
+  });
+
+  body.addEventListener('click', function(e) {
+    // Eliminar fila nueva
+    if (e.target.closest('.remove-kact-new')) {
+      e.target.closest('.kact-row').remove();
+      totalForms.value = parseInt(totalForms.value) - 1;
+    }
+    // Marcar existente para eliminar
+    if (e.target.closest('.remove-kact')) {
+      const row = e.target.closest('.kact-row');
+      const cb  = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+      if (cb) { cb.checked = true; row.style.opacity = '0.3'; }
+    }
+  });
+})();
+</script>
+{% endblock %}

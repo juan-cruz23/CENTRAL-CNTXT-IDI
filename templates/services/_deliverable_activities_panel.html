@@ -1,0 +1,143 @@
+<div class="bg-base-200/40 border-t border-base-300/40 p-3" id="deliv-act-panel-{{ deliverable.pk }}">
+
+  {% if saved %}
+  <div class="alert alert-success py-1 px-3 mb-2 text-xs">Actividades guardadas.</div>
+  {% endif %}
+
+  <form hx-post="{% url 'services:deliverable_activities' deliverable.pk %}"
+        hx-target="#deliv-act-panel-{{ deliverable.pk }}"
+        hx-swap="outerHTML">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div class="flex flex-col gap-1" id="kact-body-{{ deliverable.pk }}" data-prefix="{{ prefix }}" data-deliv="{{ deliverable.pk }}">
+
+      {% for f in formset %}
+      <div class="kact-item-{{ deliverable.pk }}">
+        {# ── Fila de actividad clave ── #}
+        <div class="flex items-center gap-2 py-1">
+          <input type="number" name="{{ f.order.html_name }}"
+                 value="{{ f.order.value|default:forloop.counter }}"
+                 class="input input-bordered input-xs w-12" min="1">
+          <input type="text" name="{{ f.name.html_name }}"
+                 value="{{ f.name.value|default:'' }}"
+                 class="input input-bordered input-xs flex-1" placeholder="Nombre actividad">
+          {{ f.id }}
+
+          {% if f.instance.pk %}
+          {# Botón para expandir acciones #}
+          <button type="button"
+                  class="btn btn-ghost btn-xs gap-1 text-secondary toggle-actions-btn"
+                  data-pk="{{ f.instance.pk }}"
+                  hx-get="{% url 'services:keyactivity_actions' f.instance.pk %}"
+                  hx-target="#act-actions-{{ f.instance.pk }}"
+                  hx-swap="innerHTML"
+                  hx-trigger="click once"
+                  onclick="toggleActPanel(this, {{ f.instance.pk }})">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            Acciones <span class="badge badge-xs badge-ghost">{{ f.instance.actions.count }}</span>
+          </button>
+
+          {# Marcar para eliminar existente #}
+          <button type="button" class="btn btn-ghost btn-xs text-error remove-kact-{{ deliverable.pk }}" title="Eliminar">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <div class="hidden">{{ f.DELETE }}</div>
+
+          {% else %}
+          {# Botón eliminar para fila nueva #}
+          <button type="button" class="btn btn-ghost btn-xs text-error remove-kact-new-{{ deliverable.pk }}" title="Eliminar">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          {% endif %}
+        </div>
+
+        {# ── Panel de acciones (se carga vía HTMX) ── #}
+        {% if f.instance.pk %}
+        <div id="act-actions-{{ f.instance.pk }}" class="hidden pl-8 pb-1">
+          <p class="text-xs text-base-content/40 py-1">Clic en "Acciones" para ver</p>
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+
+    </div>
+
+    <div class="flex items-center justify-between mt-3">
+      <button type="button"
+              class="btn btn-ghost btn-xs gap-1 add-kact-{{ deliverable.pk }}"
+              data-deliv="{{ deliverable.pk }}">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Agregar actividad
+      </button>
+      <button type="submit" class="btn btn-primary btn-xs gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Guardar actividades
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+(function() {
+  const delivPk = "{{ deliverable.pk }}";
+  const prefix  = "{{ prefix }}";
+
+  function totalForms() {
+    return document.getElementById("id_" + prefix + "-TOTAL_FORMS");
+  }
+
+  // ── Agregar actividad clave ──
+  const addBtn = document.querySelector(".add-kact-" + delivPk);
+  const body   = document.getElementById("kact-body-" + delivPk);
+  if (addBtn && body) {
+    addBtn.addEventListener("click", function() {
+      const tf  = totalForms();
+      const idx = parseInt(tf.value);
+      const div = document.createElement("div");
+      div.className = "kact-item-" + delivPk;
+      div.innerHTML = `
+        <div class="flex items-center gap-2 py-1">
+          <input type="number" name="${prefix}-${idx}-order" value="${idx + 1}"
+                 class="input input-bordered input-xs w-12" min="1">
+          <input type="text" name="${prefix}-${idx}-name"
+                 class="input input-bordered input-xs flex-1" placeholder="Nombre actividad">
+          <button type="button" class="btn btn-ghost btn-xs text-error remove-kact-new-${delivPk}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>`;
+      body.appendChild(div);
+      tf.value = idx + 1;
+    });
+
+    body.addEventListener("click", function(e) {
+      if (e.target.closest(".remove-kact-new-" + delivPk)) {
+        const item = e.target.closest(".kact-item-" + delivPk);
+        item.remove();
+        totalForms().value = parseInt(totalForms().value) - 1;
+      }
+      if (e.target.closest(".remove-kact-" + delivPk)) {
+        const item = e.target.closest(".kact-item-" + delivPk);
+        const cb   = item.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (cb) { cb.checked = true; item.style.opacity = "0.3"; }
+      }
+    });
+  }
+})();
+
+// Toggle del panel de acciones (global para poder llamarse desde botones HTMX)
+function toggleActPanel(btn, pk) {
+  const panel = document.getElementById("act-actions-" + pk);
+  if (!panel) return;
+  panel.classList.toggle("hidden");
+  const arrow = btn.querySelector("svg");
+  if (arrow) {
+    if (panel.classList.contains("hidden")) {
+      arrow.style.transform = "";
+    } else {
+      arrow.style.transform = "rotate(180deg)";
+    }
+  }
+}
+</script>

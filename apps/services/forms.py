@@ -34,7 +34,7 @@ class ProjectPhaseForm(DaisyUIFormMixin, forms.ModelForm):
 class ServiceSubCategoryForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ServiceSubCategory
-        fields = ["code", "name", "description", "is_active"]
+        fields = ["code", "name", "operative_line", "description", "is_active"]
         widgets = {"description": forms.Textarea(attrs={"rows": 3})}
 
 
@@ -135,10 +135,76 @@ class DeliverableForm(DaisyUIFormMixin, forms.ModelForm):
         fields = ["service_template", "name", "unit", "order"]
 
 
+class DeliverableInlineForm(forms.ModelForm):
+    class Meta:
+        model = Deliverable
+        fields = ["name", "unit", "quantity"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "input input-bordered input-sm w-full", "placeholder": "Nombre del entregable"}),
+            "unit": forms.TextInput(attrs={"class": "input input-bordered input-sm w-full", "placeholder": "Ej. Proyecto, Und, m2"}),
+            "quantity": forms.NumberInput(attrs={"class": "input input-bordered input-sm w-full", "placeholder": "1", "step": "0.01", "min": "0"}),
+        }
+
+
+def deliverable_inline_formset(instance=None, data=None):
+    from django.forms import inlineformset_factory
+    DeliverableFormSet = inlineformset_factory(
+        ServiceTemplate,
+        Deliverable,
+        form=DeliverableInlineForm,
+        extra=1,
+        can_delete=True,
+    )
+    if data:
+        return DeliverableFormSet(data, instance=instance)
+    return DeliverableFormSet(instance=instance)
+
+
 class KeyActivityForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = KeyActivity
         fields = ["deliverable", "name", "order"]
+
+
+class KeyActivityInlineForm(forms.ModelForm):
+    class Meta:
+        model = KeyActivity
+        fields = ["name", "order"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "input input-bordered input-sm w-full", "placeholder": "Nombre de la actividad clave"}),
+            "order": forms.NumberInput(attrs={"class": "input input-bordered input-sm w-20", "min": "1"}),
+        }
+
+
+class ServiceActionInlineForm(forms.ModelForm):
+    class Meta:
+        model = ServiceActivity
+        fields = ["name", "order", "responsible_role", "estimated_hours"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "input input-bordered input-sm w-full", "placeholder": "Descripción de la acción"}),
+            "order": forms.NumberInput(attrs={"class": "input input-bordered input-sm w-16", "min": "1"}),
+            "responsible_role": forms.Select(attrs={"class": "select select-bordered select-sm w-full"}),
+            "estimated_hours": forms.NumberInput(attrs={"class": "input input-bordered input-sm w-20", "step": "0.5", "min": "0"}),
+        }
+
+
+def keyactivity_inline_formset(instance=None, data=None, extra=1, prefix=None):
+    from django.forms import inlineformset_factory
+    FS = inlineformset_factory(Deliverable, KeyActivity, form=KeyActivityInlineForm, extra=extra, can_delete=True)
+    kwargs = {"instance": instance}
+    if prefix:
+        kwargs["prefix"] = prefix
+    return FS(data, **kwargs) if data else FS(**kwargs)
+
+
+def action_inline_formset(instance=None, data=None, prefix=None, extra=1):
+    from django.forms import inlineformset_factory
+    FS = inlineformset_factory(KeyActivity, ServiceActivity, form=ServiceActionInlineForm, extra=extra, can_delete=True,
+                               fk_name="key_activity")
+    kwargs = {"instance": instance}
+    if prefix:
+        kwargs["prefix"] = prefix
+    return FS(data, **kwargs) if data else FS(**kwargs)
 
 
 class ServiceActivityForm(DaisyUIFormMixin, forms.ModelForm):

@@ -26,6 +26,14 @@ class ProjectCategory(TimeStampedModel):
         blank=True,
         verbose_name="descripci\u00f3n",
     )
+    operative_line = models.ForeignKey(
+        "organizations.OperativeLine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="project_categories",
+        verbose_name="l\u00ednea operativa",
+    )
     is_active = models.BooleanField(
         default=True,
         verbose_name="activo",
@@ -118,6 +126,14 @@ class ServiceSubCategory(TimeStampedModel):
     description = models.TextField(
         blank=True,
         verbose_name="descripción",
+    )
+    operative_line = models.ForeignKey(
+        "organizations.OperativeLine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="subcategories",
+        verbose_name="línea operativa",
     )
     is_active = models.BooleanField(
         default=True,
@@ -505,6 +521,12 @@ class Deliverable(TimeStampedModel):
         blank=True,
         verbose_name="unidad",
         help_text="Ej. Proyecto, 100m2, Und, 15 ha.",
+    )
+    quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=1,
+        verbose_name="cantidad",
     )
     order = models.PositiveIntegerField(
         default=1,

@@ -4,6 +4,25 @@
 {% block content %}
 {% include "components/page_header.html" with title="Plantillas de Servicio" action_url=create_url action_label="Nueva Plantilla" icon="plus" %}
 
+<div class="flex items-center gap-3 mb-4 flex-wrap">
+  <form method="get" class="flex items-center gap-2 flex-wrap">
+    <select name="line" class="select select-bordered select-sm w-44"
+            onchange="this.form.submit()">
+      <option value="">Todas las líneas</option>
+      {% for ol in operative_lines %}
+      <option value="{{ ol.pk }}" {% if current_line == ol.pk|stringformat:"s" %}selected{% endif %}>{{ ol.name }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar código o nombre…"
+           class="input input-bordered input-sm w-56">
+    <button type="submit" class="btn btn-sm">Filtrar</button>
+    {% if current_line or q %}
+    <a href="?" class="btn btn-ghost btn-sm">Limpiar</a>
+    {% endif %}
+  </form>
+  <span class="text-sm text-base-content/50 ml-auto">{{ service_templates|length }} plantilla{{ service_templates|length|pluralize:"s" }}</span>
+</div>
+
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
@@ -12,8 +31,8 @@
           <tr>
             <th class="text-xs uppercase tracking-wider">Código</th>
             <th class="text-xs uppercase tracking-wider">Nombre</th>
+            <th class="text-xs uppercase tracking-wider">Línea</th>
             <th class="text-xs uppercase tracking-wider">Categoría</th>
-            <th class="text-xs uppercase tracking-wider">Fase</th>
             <th class="text-xs uppercase tracking-wider">Precio Base</th>
             <th class="text-xs uppercase tracking-wider">Horas Est.</th>
             <th class="text-xs uppercase tracking-wider">Estado</th>
@@ -25,8 +44,8 @@
           <tr class="hover">
             <td class="font-mono font-bold">{{ st.code }}</td>
             <td><a href="{% url 'services:servicetemplate_detail' st.pk %}" class="link link-primary">{{ st.name }}</a></td>
+            <td>{% if st.operative_line %}<span class="badge badge-outline badge-sm font-mono">{{ st.operative_line.code }}</span>{% else %}<span class="text-base-content/30">—</span>{% endif %}</td>
             <td><span class="badge badge-outline badge-sm">{{ st.category.name }}</span></td>
-            <td>{{ st.phase.name }}</td>
             <td class="text-right">{{ st.base_unit_price|cop_format }}</td>
             <td>{{ st.estimated_hours }}</td>
             <td>
@@ -38,7 +57,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay plantillas de servicio." action_url=create_url action_label="Nueva Plantilla" action_icon="plus" icon="cog" %}</td></tr>
+          <tr><td colspan="9">{% include "components/empty_state.html" with message="No hay plantillas de servicio." action_url=create_url action_label="Nueva Plantilla" action_icon="plus" icon="cog" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

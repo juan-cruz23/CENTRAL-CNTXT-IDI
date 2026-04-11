@@ -30,10 +30,15 @@
               {{ form.code }}
               {% if form.code.errors %}<span class="text-error text-xs mt-1">{{ form.code.errors.0 }}</span>{% endif %}
             </div>
-            <div class="form-control md:col-span-3">
+            <div class="form-control md:col-span-2">
               <label class="label pb-1"><span class="label-text font-medium">{{ form.name.label }} <span class="text-error">*</span></span></label>
               {{ form.name }}
               {% if form.name.errors %}<span class="text-error text-xs mt-1">{{ form.name.errors.0 }}</span>{% endif %}
+            </div>
+            <div class="form-control">
+              <label class="label pb-1"><span class="label-text font-medium">{{ form.responsible_role.label }}</span></label>
+              {{ form.responsible_role }}
+              {% if form.responsible_role.errors %}<span class="text-error text-xs mt-1">{{ form.responsible_role.errors.0 }}</span>{% endif %}
             </div>
           </div>
         </div>
@@ -46,131 +51,302 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
             Clasificación
           </h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- 1. Línea Operativa -->
             <div class="form-control">
-              <label class="label pb-1"><span class="label-text font-medium">{{ form.category.label }} <span class="text-error">*</span></span></label>
-              {{ form.category }}
-              {% if form.category.errors %}<span class="text-error text-xs mt-1">{{ form.category.errors.0 }}</span>{% endif %}
+              <label class="label pb-1"><span class="label-text font-medium">Línea Operativa</span></label>
+              <select name="operative_line" id="id_operative_line"
+                      class="select select-bordered w-full"
+                      hx-get="{% url 'services:filtrar_clasificacion' %}"
+                      hx-trigger="change"
+                      hx-target="#categoria-wrapper"
+                      hx-swap="innerHTML"
+                      hx-include="#id_operative_line">
+                <option value="">---------</option>
+                {% for ol in form.operative_line.field.queryset %}
+                <option value="{{ ol.pk }}"
+                  {% if form.operative_line.value|stringformat:"s" == ol.pk|stringformat:"s" %}selected{% endif %}>
+                  {{ ol }}
+                </option>
+                {% endfor %}
+              </select>
+              {% if form.operative_line.errors %}<span class="text-error text-xs mt-1">{{ form.operative_line.errors.0 }}</span>{% endif %}
             </div>
+
+            <!-- 2. Categoría — se llena al elegir línea -->
+            <div class="form-control" id="categoria-wrapper">
+              {% if form.instance.pk and form.instance.operative_line_id %}
+                {% include "services/_categoria_options.html" with categories=form_categories selected_cat=form.instance.category_id|stringformat:"s" %}
+              {% else %}
+                <label class="label pb-1"><span class="label-text font-medium">Categoría <span class="text-error">*</span></span></label>
+                <select name="category" id="id_category" class="select select-bordered w-full" disabled>
+                  <option value="">— Selecciona primero la Línea —</option>
+                </select>
+              {% endif %}
+            </div>
+
+            <!-- 3. Fase -->
             <div class="form-control">
               <label class="label pb-1"><span class="label-text font-medium">{{ form.phase.label }}</span></label>
               {{ form.phase }}
               {% if form.phase.errors %}<span class="text-error text-xs mt-1">{{ form.phase.errors.0 }}</span>{% endif %}
             </div>
+
+            <!-- 4. Sub Categoría — placeholder por ahora -->
             <div class="form-control">
               <label class="label pb-1"><span class="label-text font-medium">{{ form.subcategory.label }}</span></label>
               {{ form.subcategory }}
               {% if form.subcategory.errors %}<span class="text-error text-xs mt-1">{{ form.subcategory.errors.0 }}</span>{% endif %}
             </div>
+
           </div>
         </div>
       </div>
 
-      <!-- ── Asignación ─────────────────────────────────────────── -->
+      <!-- ── Entregables ───────────────────────────────────────────── -->
       <div class="card bg-base-100 shadow-sm border border-base-300/30">
         <div class="card-body">
           <h3 class="font-bold text-base flex items-center gap-2 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-            Asignación
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+            Entregables
           </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control">
-              <label class="label pb-1"><span class="label-text font-medium">{{ form.operative_line.label }}</span></label>
-              {{ form.operative_line }}
-              {% if form.operative_line.errors %}<span class="text-error text-xs mt-1">{{ form.operative_line.errors.0 }}</span>{% endif %}
+
+          {{ deliverable_formset.management_form }}
+          {{ deliverable_names|json_script:"deliverable-options-data" }}
+          {{ deliverable_defaults|json_script:"deliverable-defaults-data" }}
+          {{ roles|json_script:"roles-data" }}
+          {{ deliv_kact_map|json_script:"deliv-kact-map-data" }}
+          {{ kact_act_map|json_script:"kact-act-map-data" }}
+          {{ hw_items|json_script:"hw-items-data" }}
+          {{ sw_items|json_script:"sw-items-data" }}
+
+          <div class="flex flex-col gap-2" id="deliverables-body">
+
+            {% for deliv_form in deliverable_formset %}
+            {% with di=forloop.counter0 %}
+            <div class="deliverable-item border border-base-300/40 rounded-lg overflow-hidden"
+                 id="deliv-item-{{ di }}">
+
+              {# ── Cabecera del entregable ── #}
+              <div class="flex items-center gap-2 p-2 bg-base-100">
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-5 gap-2">
+                  <div class="md:col-span-3">
+                    <select name="{{ deliv_form.name.html_name }}"
+                            class="select select-bordered select-sm w-full js-deliverable-name"
+                            data-ts-create="true">
+                      <option value="">— Entregable —</option>
+                      {% for dname in deliverable_names %}
+                      <option value="{{ dname }}" {% if deliv_form.instance.name == dname %}selected{% endif %}>{{ dname }}</option>
+                      {% endfor %}
+                      {% if deliv_form.instance.pk and deliv_form.instance.name and deliv_form.instance.name not in deliverable_names %}
+                      <option value="{{ deliv_form.instance.name }}" selected>{{ deliv_form.instance.name }}</option>
+                      {% endif %}
+                    </select>
+                  </div>
+                  <div>{{ deliv_form.unit }}</div>
+                  <div>{{ deliv_form.quantity }}</div>
+                </div>
+
+                {{ deliv_form.id }}
+                {% if deliv_form.instance.pk %}<div class="hidden">{{ deliv_form.DELETE }}</div>{% endif %}
+
+                {# Toggle actividades #}
+                <button type="button"
+                        class="btn btn-ghost btn-xs gap-1 text-secondary whitespace-nowrap toggle-deliv-btn"
+                        data-di="{{ di }}"
+                        onclick="toggleDelivPanel({{ di }})">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" id="deliv-arrow-{{ di }}" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                  Actividades
+                </button>
+
+                <button type="button" class="btn btn-ghost btn-xs text-error remove-deliv-btn" data-di="{{ di }}" title="Eliminar">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+
+              {# ── Panel de actividades clave ── #}
+              <div class="deliv-panel hidden bg-base-200/30 border-t border-base-300/30 p-3"
+                   id="deliv-panel-{{ di }}">
+
+                <input type="hidden" name="kact-{{ di }}-TOTAL" id="kact-{{ di }}-TOTAL"
+                       value="{% if deliv_form.instance.pk %}{{ deliv_form.instance.key_activities.count }}{% else %}0{% endif %}">
+
+                <div class="flex flex-col gap-1" id="kact-body-{{ di }}">
+
+                  {% if deliv_form.instance.pk %}
+                  {% for kact in deliv_form.instance.key_activities.all %}
+                  {% with ji=forloop.counter0 %}
+                  <div class="kact-item" id="kact-item-{{ di }}-{{ ji }}">
+
+                    {# Fila actividad clave #}
+                    <div class="flex items-center gap-2 py-1 pl-2">
+                      <input type="number" name="kact-{{ di }}-{{ ji }}-order" value="{{ kact.order }}"
+                             class="input input-bordered input-xs w-12" min="1">
+                      <select name="kact-{{ di }}-{{ ji }}-name"
+                              id="kact-name-{{ di }}-{{ ji }}"
+                              class="select select-bordered select-xs flex-1 js-kact-name"
+                              data-di="{{ di }}" data-ji="{{ ji }}" data-current="{{ kact.name }}">
+                        <option value="{{ kact.name }}" selected>{{ kact.name }}</option>
+                      </select>
+                      <input type="hidden" name="kact-{{ di }}-{{ ji }}-id" value="{{ kact.pk }}">
+
+                      <button type="button"
+                              class="btn btn-ghost btn-xs text-secondary gap-1 whitespace-nowrap"
+                              onclick="toggleActPanel({{ di }}, {{ ji }})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" id="act-arrow-{{ di }}-{{ ji }}" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        Acciones <span class="badge badge-xs badge-ghost">{{ kact.actions.count }}</span>
+                      </button>
+
+                      <button type="button" class="btn btn-ghost btn-xs text-error"
+                              onclick="removeKact(this, {{ di }}, {{ ji }})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                      </button>
+                      <input type="hidden" name="kact-{{ di }}-{{ ji }}-DELETE" id="kact-del-{{ di }}-{{ ji }}" value="">
+                    </div>
+
+                    {# Panel de acciones #}
+                    <div class="act-panel hidden pl-8 pb-2" id="act-panel-{{ di }}-{{ ji }}">
+                      <input type="hidden" name="act-{{ di }}-{{ ji }}-TOTAL" id="act-{{ di }}-{{ ji }}-TOTAL"
+                             value="{{ kact.actions.count }}">
+                      <div class="flex flex-col gap-1" id="act-body-{{ di }}-{{ ji }}">
+                        {% for act in kact.actions.all %}
+                        {% with ki=forloop.counter0 %}
+                        <div class="act-item flex items-center gap-2 py-1">
+                          <input type="number" name="act-{{ di }}-{{ ji }}-{{ ki }}-order" value="{{ act.order }}"
+                                 class="input input-bordered input-xs w-12" min="1">
+                          <select name="act-{{ di }}-{{ ji }}-{{ ki }}-name"
+                                  id="act-name-{{ di }}-{{ ji }}-{{ ki }}"
+                                  class="select select-bordered select-xs flex-1 js-act-name"
+                                  data-di="{{ di }}" data-ji="{{ ji }}" data-ki="{{ ki }}" data-current="{{ act.name }}">
+                            <option value="{{ act.name }}" selected>{{ act.name }}</option>
+                          </select>
+                          <select name="act-{{ di }}-{{ ji }}-{{ ki }}-responsible_role"
+                                  class="select select-bordered select-xs w-28">
+                            <option value="">—</option>
+                            {% for role in roles %}
+                            <option value="{{ role.pk }}" {% if act.responsible_role_id == role.pk %}selected{% endif %}>{{ role.code }}</option>
+                            {% endfor %}
+                          </select>
+                          <input type="number" name="act-{{ di }}-{{ ji }}-{{ ki }}-estimated_hours"
+                                 value="{{ act.estimated_hours|default:'' }}"
+                                 class="input input-bordered input-xs w-16" step="0.5" min="0" placeholder="h">
+                          <input type="hidden" name="act-{{ di }}-{{ ji }}-{{ ki }}-id" value="{{ act.pk }}">
+                          <button type="button" class="btn btn-ghost btn-xs text-error"
+                                  onclick="removeAct(this, {{ di }}, {{ ji }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                          </button>
+                          <input type="hidden" name="act-{{ di }}-{{ ji }}-{{ ki }}-DELETE" id="act-del-{{ di }}-{{ ji }}-{{ ki }}" value="">
+                        </div>
+                        {% endwith %}
+                        {% endfor %}
+                      </div>
+                      <button type="button" class="btn btn-ghost btn-xs gap-1 mt-1"
+                              onclick="addAction({{ di }}, {{ ji }})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                        Agregar acción
+                      </button>
+                    </div>
+
+                  </div>
+                  {% endwith %}
+                  {% endfor %}
+                  {% endif %}
+
+                </div>
+
+                <button type="button" class="btn btn-ghost btn-xs gap-1 mt-2"
+                        onclick="addKact({{ di }})">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                  Agregar actividad
+                </button>
+
+              </div>
             </div>
-            <div class="form-control">
-              <label class="label pb-1"><span class="label-text font-medium">{{ form.responsible_role.label }}</span></label>
-              {{ form.responsible_role }}
-              {% if form.responsible_role.errors %}<span class="text-error text-xs mt-1">{{ form.responsible_role.errors.0 }}</span>{% endif %}
-            </div>
+            {% endwith %}
+            {% endfor %}
+
           </div>
+
+          <button type="button" id="add-deliverable" class="btn btn-outline btn-sm mt-3 gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Agregar Entregable
+          </button>
         </div>
       </div>
 
-      <!-- ── Estimados y Pricing ─────────────────────────────────── -->
+      <!-- ── Estimados y Costos (unificado) ──────────────────────────── -->
       <div class="card bg-base-100 shadow-sm border border-base-300/30">
         <div class="card-body">
           <h3 class="font-bold text-base flex items-center gap-2 mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
-            Estimados y Pricing
+            Estimados y Costos
           </h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="form-control">
-              <label class="label pb-1">
-                <span class="label-text font-medium">{{ form.estimated_hours.label }}</span>
-                <span class="label-text-alt text-base-content/50">h</span>
-              </label>
-              {{ form.estimated_hours }}
-              {% if form.estimated_hours.errors %}<span class="text-error text-xs mt-1">{{ form.estimated_hours.errors.0 }}</span>{% endif %}
-            </div>
-            <div class="form-control">
-              <label class="label pb-1">
-                <span class="label-text font-medium">{{ form.estimated_days.label }}</span>
-                <span class="label-text-alt text-base-content/50">días hábiles</span>
-              </label>
-              {{ form.estimated_days }}
-              {% if form.estimated_days.errors %}<span class="text-error text-xs mt-1">{{ form.estimated_days.errors.0 }}</span>{% endif %}
-            </div>
-            <div class="form-control">
-              <label class="label pb-1">
-                <span class="label-text font-medium">{{ form.base_unit_price.label }}</span>
-                <span class="label-text-alt text-base-content/50">COP</span>
-              </label>
-              {{ form.base_unit_price }}
-              {% if form.base_unit_price.errors %}<span class="text-error text-xs mt-1">{{ form.base_unit_price.errors.0 }}</span>{% endif %}
-            </div>
-            <div class="form-control">
-              <label class="label pb-1">
-                <span class="label-text font-medium">{{ form.target_margin_pct.label }}</span>
-                <span class="label-text-alt text-base-content/50">%</span>
-              </label>
-              {{ form.target_margin_pct }}
-              {% if form.target_margin_pct.errors %}<span class="text-error text-xs mt-1">{{ form.target_margin_pct.errors.0 }}</span>{% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- ── Desglose de Costos ────────────────────────────────────── -->
-      <div class="card bg-base-100 shadow-sm border border-base-300/30">
-        <div class="card-body">
-          <h3 class="font-bold text-base flex items-center gap-2 mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd"/></svg>
-            Desglose de Costos
-          </h3>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Inputs -->
-            <div class="flex flex-col gap-3">
-              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Entradas (por hora)</p>
+
+            {# ── Columna 1: roles + inputs editables ── #}
+            <div class="flex flex-col gap-4">
+
+              {# Tabla de roles (auto) #}
+              <div>
+                <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold mb-2">Por Rol</p>
+                <div id="roles-summary-body">
+                  <p class="text-xs text-base-content/40 italic">Agrega acciones con rol y horas para ver el resumen.</p>
+                </div>
+              </div>
+
+              {# Horas y días readonly #}
               <div class="grid grid-cols-2 gap-3">
                 <div class="form-control">
-                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.hourly_rate.label }}</span></label>
-                  {{ form.hourly_rate }}
-                  {% if form.hourly_rate.errors %}<span class="text-error text-xs mt-1">{{ form.hourly_rate.errors.0 }}</span>{% endif %}
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">Horas estimadas</span><span class="label-text-alt text-base-content/50">h</span></label>
+                  <input type="number" id="id_estimated_hours" name="estimated_hours"
+                         value="{{ form.estimated_hours.value|default:0 }}"
+                         class="input input-bordered input-sm bg-base-200/60" readonly>
                 </div>
                 <div class="form-control">
-                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.hardware_cost_per_hour.label }}</span></label>
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">Días estimados</span><span class="label-text-alt text-base-content/50">días hábiles</span></label>
+                  <input type="number" id="id_estimated_days" name="estimated_days"
+                         value="{{ form.estimated_days.value|default:0 }}"
+                         class="input input-bordered input-sm bg-base-200/60" readonly>
+                </div>
+              </div>
+
+              {# Ajustes por hora #}
+              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Ajustes por hora ($COP)</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="form-control">
+                  <label class="label pb-1 flex justify-between">
+                    <span class="label-text font-medium text-sm">Hardware depreciación</span>
+                    <button type="button" class="text-primary text-xs underline" onclick="applyHwRate()">Prorrateo ({{ hw_rate_total|floatformat:2 }})</button>
+                  </label>
                   {{ form.hardware_cost_per_hour }}
-                  {% if form.hardware_cost_per_hour.errors %}<span class="text-error text-xs mt-1">{{ form.hardware_cost_per_hour.errors.0 }}</span>{% endif %}
+                  <div class="mt-1 text-xs text-base-content/40 space-y-0.5">
+                    {% for h in hw_items %}<div class="flex justify-between"><span>{{ h.name }}</span><span>{{ h.depreciation_per_hour|floatformat:2 }}/h</span></div>{% empty %}<span class="italic">Sin hardware activo</span>{% endfor %}
+                  </div>
                 </div>
                 <div class="form-control">
-                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.software_cost_per_hour.label }}</span></label>
+                  <label class="label pb-1 flex justify-between">
+                    <span class="label-text font-medium text-sm">Software licencias</span>
+                    <button type="button" class="text-primary text-xs underline" onclick="applySwRate()">Prorrateo ({{ sw_rate_total|floatformat:2 }})</button>
+                  </label>
                   {{ form.software_cost_per_hour }}
-                  {% if form.software_cost_per_hour.errors %}<span class="text-error text-xs mt-1">{{ form.software_cost_per_hour.errors.0 }}</span>{% endif %}
+                  <div class="mt-1 text-xs text-base-content/40 space-y-0.5">
+                    {% for s in sw_items %}<div class="flex justify-between"><span>{{ s.name }}</span><span>{{ s.hourly_value|floatformat:2 }}/h</span></div>{% empty %}<span class="italic">Sin software activo</span>{% endfor %}
+                  </div>
                 </div>
                 <div class="form-control">
-                  <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.consumables_per_hour.label }}</span></label>
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">Consumibles</span></label>
                   {{ form.consumables_per_hour }}
-                  {% if form.consumables_per_hour.errors %}<span class="text-error text-xs mt-1">{{ form.consumables_per_hour.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="form-control">
+                  <label class="label pb-1"><span class="label-text font-medium text-sm">Subcontratos ($COP fijo)</span></label>
+                  {{ form.subcontracts }}
                 </div>
               </div>
-              <div class="form-control">
-                <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.subcontracts.label }}</span></label>
-                {{ form.subcontracts }}
-                {% if form.subcontracts.errors %}<span class="text-error text-xs mt-1">{{ form.subcontracts.errors.0 }}</span>{% endif %}
-              </div>
-              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold mt-2">Márgenes (%)</p>
+
+              {# Márgenes #}
+              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Márgenes (%)</p>
               <div class="grid grid-cols-3 gap-3">
                 <div class="form-control">
                   <label class="label pb-1"><span class="label-text font-medium text-sm">{{ form.contingency_pct.label }}</span></label>
@@ -185,14 +361,95 @@
                   {{ form.negotiation_pct }}
                 </div>
               </div>
+
+              {# Campos ocultos servidor #}
+              <input type="hidden" name="base_unit_price" id="id_base_unit_price" value="{{ form.base_unit_price.value|default:0 }}">
+              <input type="hidden" name="target_margin_pct" id="id_target_margin_pct" value="{{ form.target_margin_pct.value|default:0 }}">
+              <input type="hidden" name="hourly_rate" id="id_hourly_rate" value="{{ form.hourly_rate.value|default:0 }}">
             </div>
-            <!-- Live breakdown -->
-            <div id="pricing-breakdown" class="bg-base-200/30 rounded-lg p-2">
-              {% include "services/_pricing_breakdown.html" with st=form.instance %}
+
+            {# ── Columna 2: breakdown de costos (calculado) ── #}
+            <div class="flex flex-col gap-3">
+              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Resumen de Costos</p>
+              <div id="pricing-breakdown" class="bg-base-200/30 rounded-lg p-3">
+                {% if form.instance.pk %}{% include "services/_pricing_breakdown.html" with st=form.instance %}{% endif %}
+              </div>
+              <div class="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center justify-between mt-auto">
+                <span class="text-sm font-medium">Precio unitario calculado</span>
+                <span class="text-lg font-bold text-primary" id="calculated-price">—</span>
+              </div>
             </div>
+
           </div>
         </div>
       </div>
+
+      <!-- ── Estructura del Servicio (solo edición) ───────────────── -->
+      {% if form.instance.pk %}
+      <div class="card bg-base-100 shadow-sm border border-base-300/30">
+        <div class="card-body">
+          <details>
+            <summary class="font-bold text-base flex items-center gap-2 cursor-pointer list-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+              Estructura del Servicio
+              <span class="text-xs text-base-content/40 font-normal ml-1">(solo lectura)</span>
+            </summary>
+            <div class="mt-4">
+              {% with deliverables=form.instance.deliverables.prefetch_related %}
+              {% if form.instance.deliverables.exists %}
+                {% for deliv in form.instance.deliverables.all %}
+                <div class="mb-4">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="badge badge-primary badge-sm">Entregable</span>
+                    <span class="font-medium text-sm">{{ deliv.name }}</span>
+                    {% if deliv.unit %}<span class="text-xs text-base-content/50">— {{ deliv.unit }}</span>{% endif %}
+                  </div>
+                  {% for kact in deliv.key_activities.all %}
+                  <details class="ml-4 mb-2">
+                    <summary class="cursor-pointer text-sm flex items-center gap-2 py-1">
+                      <span class="badge badge-outline badge-xs">Actividad</span>
+                      {{ kact.name }}
+                      <span class="text-xs text-base-content/40">({{ kact.actions.count }} acciones)</span>
+                    </summary>
+                    <div class="ml-6 mt-1">
+                      <table class="table table-xs">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Acción</th>
+                            <th>Responsable</th>
+                            <th class="text-right">Horas</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for action in kact.actions.all %}
+                          <tr>
+                            <td class="text-base-content/40">{{ action.order }}</td>
+                            <td>{{ action.name }}</td>
+                            <td class="text-xs">{{ action.responsible_role.code|default:"—" }}</td>
+                            <td class="text-right text-sm">{{ action.estimated_hours }}</td>
+                          </tr>
+                          {% empty %}
+                          <tr><td colspan="4" class="text-base-content/40 text-xs">Sin acciones</td></tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                  {% empty %}
+                  <p class="ml-4 text-sm text-base-content/40">Sin actividades clave.</p>
+                  {% endfor %}
+                </div>
+                {% endfor %}
+              {% else %}
+                <p class="text-sm text-base-content/40">Sin estructura cargada. Usa el maestro de Entregables para agregar.</p>
+              {% endif %}
+              {% endwith %}
+            </div>
+          </details>
+        </div>
+      </div>
+      {% endif %}
 
       <!-- ── Descripción y Estado ────────────────────────────────── -->
       <div class="card bg-base-100 shadow-sm border border-base-300/30">
@@ -226,18 +483,451 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-(function () {
-  const rates = {{ role_rates_json|safe }};
-  const roleSelect = document.getElementById('id_responsible_role');
-  const hourlyInput = document.getElementById('id_hourly_rate');
-  if (!roleSelect || !hourlyInput) return;
-  roleSelect.addEventListener('change', function () {
-    const rate = rates[this.value];
-    if (rate !== undefined) {
-      hourlyInput.value = rate;
-      hourlyInput.dispatchEvent(new Event('change'));
-    }
+// ── Datos del maestro ──────────────────────────────────────────────────
+const deliverableNames    = JSON.parse(document.getElementById('deliverable-options-data').textContent);
+const deliverableDefaults = JSON.parse(document.getElementById('deliverable-defaults-data').textContent);
+const rolesData           = JSON.parse(document.getElementById('roles-data').textContent);
+const delivKactMap        = JSON.parse(document.getElementById('deliv-kact-map-data').textContent);
+const kactActMap          = JSON.parse(document.getElementById('kact-act-map-data').textContent);
+
+// ── SVG helpers ───────────────────────────────────────────────────────
+const SVG_ARROW = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>`;
+const SVG_X     = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>`;
+const SVG_PLUS  = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>`;
+
+function roleOptions(selectedPk) {
+  let html = '<option value="">—</option>';
+  rolesData.forEach(r => {
+    html += `<option value="${r.pk}" ${String(r.pk) === String(selectedPk) ? 'selected' : ''}>${r.code || r.name}</option>`;
   });
+  return html;
+}
+
+// ── TomSelect helpers ─────────────────────────────────────────────────
+function buildNameOptions(selected) {
+  let html = '<option value="">— Entregable —</option>';
+  deliverableNames.forEach(n => {
+    html += `<option value="${n}" ${n === selected ? 'selected' : ''}>${n}</option>`;
+  });
+  return html;
+}
+
+function getDelivName(di) {
+  const sel = document.querySelector(`#deliv-item-${di} .js-deliverable-name`);
+  return sel ? (sel.tomselect ? sel.tomselect.getValue() : sel.value) : '';
+}
+
+function getKactName(di, ji) {
+  const sel = document.getElementById(`kact-name-${di}-${ji}`);
+  return sel ? (sel.tomselect ? sel.tomselect.getValue() : sel.value) : '';
+}
+
+function autoFillDeliv(selectEl, name) {
+  const item = selectEl.closest('.deliverable-item');
+  if (!item) return;
+  const def = deliverableDefaults[name];
+  if (!def) return;
+  const unitInput = item.querySelector('input[name$="-unit"]');
+  const qtyInput  = item.querySelector('input[name$="-quantity"]');
+  if (unitInput && !unitInput.value) unitInput.value = def.unit;
+  if (qtyInput  && (qtyInput.value === '1' || !qtyInput.value)) qtyInput.value = def.quantity;
+}
+
+// Inicializa TomSelect en un select de nombre de entregable
+function initTomSelect(selectEl) {
+  if (selectEl.tomselect) return;
+  new TomSelect(selectEl, {
+    create: true, allowEmptyOption: true, maxOptions: null, dropdownParent: 'body',
+    onChange(value) { autoFillDeliv(selectEl, value); },
+  });
+}
+
+// Inicializa TomSelect en un select de nombre de actividad clave, filtrado por entregable
+function initKactSelect(selectEl) {
+  if (!selectEl) return;
+  const di      = selectEl.dataset.di;
+  const current = selectEl.dataset.current || selectEl.value || '';
+  const names   = delivKactMap[getDelivName(di)] || [];
+  const opts    = [...new Set([...names, current].filter(Boolean))].sort();
+  if (selectEl.tomselect) selectEl.tomselect.destroy();
+  const ts = new TomSelect(selectEl, {
+    create: true, allowEmptyOption: true, maxOptions: null, dropdownParent: 'body',
+    options: opts.map(n => ({ value: n, text: n })),
+    items: current ? [current] : [],
+    onChange(value) {
+      // al cambiar actividad, refrescar los selects de acciones de esa fila
+      const ji = selectEl.dataset.ji;
+      document.querySelectorAll(`#act-body-${di}-${ji} .js-act-name`).forEach(initActSelect);
+    },
+  });
+}
+
+// Inicializa TomSelect en un select de nombre de acción, filtrado por actividad clave
+function initActSelect(selectEl) {
+  if (!selectEl) return;
+  const di      = selectEl.dataset.di;
+  const ji      = selectEl.dataset.ji;
+  const current = selectEl.dataset.current || selectEl.value || '';
+  const kname   = getKactName(di, ji);
+  const names   = kactActMap[kname] || [];
+  const opts    = [...new Set([...names, current].filter(Boolean))].sort();
+  if (selectEl.tomselect) selectEl.tomselect.destroy();
+  new TomSelect(selectEl, {
+    create: true, allowEmptyOption: true, maxOptions: null, dropdownParent: 'body',
+    options: opts.map(n => ({ value: n, text: n })),
+    items: current ? [current] : [],
+  });
+}
+
+document.querySelectorAll('.js-deliverable-name').forEach(initTomSelect);
+
+// ── Toggle entregable / actividades / acciones ────────────────────────
+function toggleDelivPanel(di) {
+  const panel = document.getElementById('deliv-panel-' + di);
+  const arrow = document.getElementById('deliv-arrow-' + di);
+  if (!panel) return;
+  const open = panel.classList.toggle('hidden') === false;
+  if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) {
+    // Inicializar selects de actividades al abrir
+    panel.querySelectorAll('.js-kact-name').forEach(initKactSelect);
+  }
+}
+
+function toggleActPanel(di, ji) {
+  const panel = document.getElementById('act-panel-' + di + '-' + ji);
+  const arrow = document.getElementById('act-arrow-' + di + '-' + ji);
+  if (!panel) return;
+  const open = panel.classList.toggle('hidden') === false;
+  if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) {
+    // Inicializar selects de acciones al abrir
+    panel.querySelectorAll('.js-act-name').forEach(initActSelect);
+  }
+}
+
+// ── Agregar entregable ────────────────────────────────────────────────
+const delivBody   = document.getElementById('deliverables-body');
+const totalForms  = document.getElementById('id_deliverables-TOTAL_FORMS');
+
+document.getElementById('add-deliverable').addEventListener('click', function() {
+  const di  = parseInt(totalForms.value);
+  const div = document.createElement('div');
+  div.className = 'deliverable-item border border-base-300/40 rounded-lg overflow-hidden';
+  div.id = 'deliv-item-' + di;
+  div.innerHTML = `
+    <div class="flex items-center gap-2 p-2 bg-base-100">
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-5 gap-2">
+        <div class="md:col-span-3">
+          <select name="deliverables-${di}-name"
+                  class="select select-bordered select-sm w-full js-deliverable-name"
+                  data-ts-create="true">
+            ${buildNameOptions('')}
+          </select>
+        </div>
+        <div><input type="text" name="deliverables-${di}-unit" class="input input-bordered input-sm w-full" placeholder="Und."></div>
+        <div><input type="number" name="deliverables-${di}-quantity" class="input input-bordered input-sm w-full" value="1" step="0.01" min="0"></div>
+      </div>
+      <button type="button" class="btn btn-ghost btn-xs gap-1 text-secondary whitespace-nowrap"
+              onclick="toggleDelivPanel(${di})">
+        ${SVG_ARROW} Actividades
+      </button>
+      <button type="button" class="btn btn-ghost btn-xs text-error" onclick="removeDelivNew(${di})">
+        ${SVG_X}
+      </button>
+    </div>
+    <div class="deliv-panel hidden bg-base-200/30 border-t border-base-300/30 p-3" id="deliv-panel-${di}">
+      <input type="hidden" name="kact-${di}-TOTAL" id="kact-${di}-TOTAL" value="0">
+      <div class="flex flex-col gap-1" id="kact-body-${di}"></div>
+      <button type="button" class="btn btn-ghost btn-xs gap-1 mt-2" onclick="addKact(${di})">
+        ${SVG_PLUS} Agregar actividad
+      </button>
+    </div>`;
+  delivBody.appendChild(div);
+  totalForms.value = di + 1;
+  initTomSelect(div.querySelector('.js-deliverable-name'));
+});
+
+function removeDelivNew(di) {
+  const item = document.getElementById('deliv-item-' + di);
+  if (item) { item.remove(); totalForms.value = parseInt(totalForms.value) - 1; }
+}
+
+// Eliminar entregable existente (checkbox DELETE del formset de Django)
+document.querySelectorAll('.remove-deliv-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const di   = this.dataset.di;
+    const item = document.getElementById('deliv-item-' + di);
+    const cb   = item ? item.querySelector('input[type="checkbox"][name$="-DELETE"]') : null;
+    if (cb) { cb.checked = true; item.style.opacity = '0.3'; this.disabled = true; }
+    else if (item) { item.remove(); totalForms.value = parseInt(totalForms.value) - 1; }
+  });
+});
+
+// ── Agregar actividad clave ───────────────────────────────────────────
+function addKact(di) {
+  const totalEl = document.getElementById('kact-' + di + '-TOTAL');
+  const body    = document.getElementById('kact-body-' + di);
+  if (!totalEl || !body) return;
+  const ji  = parseInt(totalEl.value);
+  const div = document.createElement('div');
+  div.className = 'kact-item';
+  div.id = 'kact-item-' + di + '-' + ji;
+  div.innerHTML = `
+    <div class="flex items-center gap-2 py-1 pl-2">
+      <input type="number" name="kact-${di}-${ji}-order" value="${ji + 1}"
+             class="input input-bordered input-xs w-12" min="1">
+      <select name="kact-${di}-${ji}-name"
+              id="kact-name-${di}-${ji}"
+              class="select select-bordered select-xs flex-1 js-kact-name"
+              data-di="${di}" data-ji="${ji}" data-current="">
+        <option value="">— Actividad —</option>
+      </select>
+      <button type="button" class="btn btn-ghost btn-xs text-secondary gap-1 whitespace-nowrap"
+              onclick="toggleActPanel(${di}, ${ji})">
+        ${SVG_ARROW} Acciones <span class="badge badge-xs badge-ghost">0</span>
+      </button>
+      <button type="button" class="btn btn-ghost btn-xs text-error"
+              onclick="removeKactNew(${di}, ${ji})">
+        ${SVG_X}
+      </button>
+    </div>
+    <div class="act-panel hidden pl-8 pb-2" id="act-panel-${di}-${ji}">
+      <input type="hidden" name="act-${di}-${ji}-TOTAL" id="act-${di}-${ji}-TOTAL" value="0">
+      <div class="flex flex-col gap-1" id="act-body-${di}-${ji}"></div>
+      <button type="button" class="btn btn-ghost btn-xs gap-1 mt-1" onclick="addAction(${di}, ${ji})">
+        ${SVG_PLUS} Agregar acción
+      </button>
+    </div>`;
+  body.appendChild(div);
+  totalEl.value = ji + 1;
+  // Inicializar TomSelect en el nuevo select de actividad
+  initKactSelect(document.getElementById(`kact-name-${di}-${ji}`));
+}
+
+function removeKact(btn, di, ji) {
+  const item = document.getElementById('kact-item-' + di + '-' + ji);
+  const delEl = document.getElementById('kact-del-' + di + '-' + ji);
+  if (delEl) { delEl.value = 'on'; if (item) item.style.opacity = '0.3'; btn.disabled = true; }
+}
+
+function removeKactNew(di, ji) {
+  const item    = document.getElementById('kact-item-' + di + '-' + ji);
+  const totalEl = document.getElementById('kact-' + di + '-TOTAL');
+  if (item) { item.remove(); if (totalEl) totalEl.value = parseInt(totalEl.value) - 1; }
+}
+
+// ── Agregar acción ────────────────────────────────────────────────────
+function addAction(di, ji) {
+  const totalEl = document.getElementById('act-' + di + '-' + ji + '-TOTAL');
+  const body    = document.getElementById('act-body-' + di + '-' + ji);
+  if (!totalEl || !body) return;
+  const ki  = parseInt(totalEl.value);
+  const div = document.createElement('div');
+  div.className = 'act-item flex items-center gap-2 py-1';
+  div.id = 'act-item-' + di + '-' + ji + '-' + ki;
+  div.innerHTML = `
+    <input type="number" name="act-${di}-${ji}-${ki}-order" value="${ki + 1}"
+           class="input input-bordered input-xs w-12" min="1">
+    <select name="act-${di}-${ji}-${ki}-name"
+            id="act-name-${di}-${ji}-${ki}"
+            class="select select-bordered select-xs flex-1 js-act-name"
+            data-di="${di}" data-ji="${ji}" data-ki="${ki}" data-current="">
+      <option value="">— Acción —</option>
+    </select>
+    <select name="act-${di}-${ji}-${ki}-responsible_role" class="select select-bordered select-xs w-28">
+      ${roleOptions('')}
+    </select>
+    <input type="number" name="act-${di}-${ji}-${ki}-estimated_hours"
+           class="input input-bordered input-xs w-16" step="0.5" min="0" placeholder="h">
+    <button type="button" class="btn btn-ghost btn-xs text-error"
+            onclick="removeActNew(${di}, ${ji}, ${ki})">
+      ${SVG_X}
+    </button>`;
+  body.appendChild(div);
+  totalEl.value = ki + 1;
+  // Inicializar TomSelect en el nuevo select de acción
+  initActSelect(document.getElementById(`act-name-${di}-${ji}-${ki}`));
+  // Actualizar contador del badge
+  const badge = document.querySelector(`#kact-item-${di}-${ji} .badge-ghost`);
+  if (badge) badge.textContent = parseInt(totalEl.value);
+}
+
+function removeAct(btn, di, ji) {
+  const item  = btn.closest('.act-item');
+  const ki    = [...item.parentElement.children].indexOf(item);
+  const delEl = document.getElementById('act-del-' + di + '-' + ji + '-' + ki);
+  if (delEl) { delEl.value = 'on'; item.style.opacity = '0.3'; btn.disabled = true; }
+}
+
+function removeActNew(di, ji, ki) {
+  const item    = document.getElementById('act-item-' + di + '-' + ji + '-' + ki);
+  const totalEl = document.getElementById('act-' + di + '-' + ji + '-TOTAL');
+  if (item) { item.remove(); if (totalEl) totalEl.value = parseInt(totalEl.value) - 1; }
+}
+
+// ── Resumen de roles ──────────────────────────────────────────────────
+const roleRateMap = {};
+rolesData.forEach(r => {
+  roleRateMap[String(r.pk)] = { name: r.name, code: r.code || r.name, rate: parseFloat(r.default_hourly_rate) || 0 };
+});
+
+const WORK_HOURS_PER_DAY = 8; // fallback; idealmente viene del WorkSchedule
+
+function buildRoleSummary() {
+  const summary = {}; // { rolePk: { code, name, rate, hours } }
+  let totalHours     = 0;
+  let totalHonorary  = 0;
+
+  document.querySelectorAll('.act-item').forEach(item => {
+    const roleEl  = item.querySelector('select[name$="-responsible_role"]');
+    const hoursEl = item.querySelector('input[name$="-estimated_hours"]');
+    if (!roleEl || !hoursEl) return;
+    const delEl = item.querySelector('input[name$="-DELETE"]');
+    if (delEl && delEl.value) return;
+
+    const rolePk = roleEl.value;
+    const hours  = parseFloat(hoursEl.value) || 0;
+    if (!rolePk || hours === 0) return;
+
+    const roleInfo = roleRateMap[rolePk] || { code: rolePk, name: rolePk, rate: 0 };
+    if (!summary[rolePk]) {
+      summary[rolePk] = { code: roleInfo.code, name: roleInfo.name, rate: roleInfo.rate, hours: 0 };
+    }
+    summary[rolePk].hours += hours;
+    totalHours    += hours;
+    totalHonorary += hours * roleInfo.rate;
+  });
+
+  // ── Actualizar campos de horas y días ──
+  const hoursInput = document.getElementById('id_estimated_hours');
+  const daysInput  = document.getElementById('id_estimated_days');
+  if (hoursInput) hoursInput.value = totalHours.toFixed(2);
+  if (daysInput)  daysInput.value  = totalHours > 0 ? (totalHours / WORK_HOURS_PER_DAY).toFixed(2) : 0;
+
+  // ── Actualizar honorarios/hora (promedio ponderado) ──
+  const avgRate = totalHours > 0 ? totalHonorary / totalHours : 0;
+  const hrInput = document.getElementById('id_hourly_rate');
+  if (hrInput) hrInput.value = avgRate.toFixed(2);
+
+  // ── Calcular precio con ajustes manuales ──
+  function fieldVal(id) { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; }
+  const hwCost     = fieldVal('id_hardware_cost_per_hour');
+  const swCost     = fieldVal('id_software_cost_per_hour');
+  const consCost   = fieldVal('id_consumables_per_hour');
+  const subcontr   = fieldVal('id_subcontracts');
+  const contingPct = fieldVal('id_contingency_pct') / 100;
+  const utilPct    = fieldVal('id_utility_pct') / 100;
+  const negPct     = fieldVal('id_negotiation_pct') / 100;
+
+  const adjustedRate    = avgRate + hwCost + swCost + consCost;
+  const directCost      = adjustedRate * totalHours + subcontr;
+  const withContingency = directCost * (1 + contingPct);
+  const denominator     = 1 - utilPct - negPct;
+  const withUtility     = denominator > 0 ? withContingency / denominator : withContingency;
+
+  const fmt = n => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+  const priceEl    = document.getElementById('calculated-price');
+  const priceInput = document.getElementById('id_base_unit_price');
+  if (priceEl)    priceEl.textContent = directCost > 0 ? fmt(withUtility) : '—';
+  if (priceInput) priceInput.value    = directCost > 0 ? withUtility.toFixed(2) : (priceInput.value || 0);
+
+  // ── Tabla de roles ──
+  const container = document.getElementById('roles-summary-body');
+  if (!container) return;
+
+  const entries = Object.values(summary).sort((a, b) => b.hours - a.hours);
+  if (entries.length === 0) {
+    container.innerHTML = '<p class="text-xs text-base-content/40 italic">Agrega acciones con rol y horas para ver el resumen.</p>';
+    return;
+  }
+
+  const rows = entries.map(e => `
+    <tr>
+      <td class="font-mono text-xs font-medium">${e.code}</td>
+      <td class="text-xs text-base-content/70">${e.name}</td>
+      <td class="text-right text-xs">${e.hours.toFixed(1)} h</td>
+      <td class="text-right text-xs text-base-content/60">${fmt(e.rate)}/h</td>
+      <td class="text-right text-sm font-semibold">${fmt(e.hours * e.rate)}</td>
+    </tr>`).join('');
+
+  container.innerHTML = `
+    <div class="overflow-x-auto">
+      <table class="table table-xs">
+        <thead>
+          <tr>
+            <th class="text-xs">Rol</th><th></th>
+            <th class="text-right text-xs">Horas</th>
+            <th class="text-right text-xs">Tarifa</th>
+            <th class="text-right text-xs">Total honorarios</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr class="border-t border-base-300">
+            <td colspan="2" class="text-xs font-medium">Total</td>
+            <td class="text-right text-xs font-medium">${totalHours.toFixed(1)} h</td>
+            <td></td>
+            <td class="text-right text-sm font-bold">${fmt(totalHonorary)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+// Recalcular al cambiar roles u horas en acciones
+document.getElementById('deliverables-body').addEventListener('change', function(e) {
+  if (e.target.matches('select[name$="-responsible_role"]') ||
+      e.target.matches('input[name$="-estimated_hours"]')) {
+    buildRoleSummary();
+  }
+});
+
+// Recalcular al cambiar cualquier campo de ajuste manual
+['id_hardware_cost_per_hour','id_software_cost_per_hour','id_consumables_per_hour',
+ 'id_subcontracts','id_contingency_pct','id_utility_pct','id_negotiation_pct'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', buildRoleSummary);
+});
+
+// Recalcular al abrir un panel (por si ya hay datos)
+const _origToggleAct = toggleActPanel;
+window.toggleActPanel = function(di, ji) {
+  _origToggleAct(di, ji);
+  buildRoleSummary();
+};
+
+buildRoleSummary();
+
+// ── Prorrateo hardware / software ────────────────────────────────────
+const hwItems = JSON.parse(document.getElementById('hw-items-data').textContent);
+const swItems = JSON.parse(document.getElementById('sw-items-data').textContent);
+const hwTotal = hwItems.reduce((s, h) => s + parseFloat(h.depreciation_per_hour || 0), 0);
+const swTotal = swItems.reduce((s, s2) => s + parseFloat(s2.hourly_value || 0), 0);
+
+function applyHwRate() {
+  const el = document.getElementById('id_hardware_cost_per_hour');
+  if (el) { el.value = hwTotal.toFixed(2); buildRoleSummary(); }
+}
+function applySwRate() {
+  const el = document.getElementById('id_software_cost_per_hour');
+  if (el) { el.value = swTotal.toFixed(2); buildRoleSummary(); }
+}
+
+// ── Auto-fill tarifa por rol (campo principal del formulario) ─────────
+(function() {
+  const rates = {{ role_rates_json|safe }};
+  const roleSelect  = document.getElementById('id_responsible_role');
+  const hourlyInput = document.getElementById('id_hourly_rate');
+  if (roleSelect && hourlyInput) {
+    roleSelect.addEventListener('change', function() {
+      const rate = rates[this.value];
+      if (rate !== undefined) {
+        hourlyInput.value = rate;
+        hourlyInput.dispatchEvent(new Event('change'));
+      }
+    });
+  }
 })();
 </script>
 {% endblock %}

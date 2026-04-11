@@ -1,0 +1,128 @@
+{% load i18n %}
+<div class="actions-panel" id="actions-panel-{{ kact.pk }}">
+
+  {% if saved %}
+  <div class="alert alert-success alert-sm py-1 px-3 mb-2 text-xs">Acciones guardadas.</div>
+  {% endif %}
+
+  <form hx-post="{% url 'services:keyactivity_actions' kact.pk %}"
+        hx-target="#actions-{{ kact.pk }}"
+        hx-swap="innerHTML">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div class="overflow-x-auto">
+      <table class="table table-xs" id="actions-table-{{ kact.pk }}">
+        <thead>
+          <tr>
+            <th class="w-10 text-xs">#</th>
+            <th class="text-xs">Acción</th>
+            <th class="text-xs w-36">Rol</th>
+            <th class="text-xs w-20">Horas</th>
+            <th class="w-8"></th>
+          </tr>
+        </thead>
+        <tbody id="actions-body-{{ kact.pk }}">
+          {% for f in formset %}
+          <tr class="action-row-{{ kact.pk }}">
+            <td><input type="number" name="{{ f.order.html_name }}" value="{{ f.order.value|default:forloop.counter }}"
+                       class="input input-bordered input-xs w-12" min="1"></td>
+            <td><input type="text" name="{{ f.name.html_name }}" value="{{ f.name.value|default:'' }}"
+                       class="input input-bordered input-xs w-full" placeholder="Descripción"></td>
+            <td>
+              <select name="{{ f.responsible_role.html_name }}" class="select select-bordered select-xs w-full">
+                <option value="">---</option>
+                {% for val, label in f.responsible_role.field.choices %}{% if val %}<option value="{{ val }}"{% if f.responsible_role.value|stringformat:"s" == val|stringformat:"s" %} selected{% endif %}>{{ label }}</option>{% endif %}{% endfor %}
+              </select>
+            </td>
+            <td><input type="number" name="{{ f.estimated_hours.html_name }}" value="{{ f.estimated_hours.value|default:'' }}"
+                       class="input input-bordered input-xs w-full" step="0.5" min="0" placeholder="0"></td>
+            <td>
+              {{ f.id }}
+              {% if f.instance.pk %}
+              <button type="button" class="btn btn-ghost btn-xs text-error remove-action-{{ kact.pk }}" title="Eliminar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              </button>
+              <div class="hidden">{{ f.DELETE }}</div>
+              {% else %}
+              <button type="button" class="btn btn-ghost btn-xs text-error remove-action-new-{{ kact.pk }}" title="Eliminar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+              </button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex items-center justify-between mt-2">
+      <button type="button" class="btn btn-ghost btn-xs gap-1 add-action-{{ kact.pk }}"
+              data-pk="{{ kact.pk }}" data-prefix="actions-{{ kact.pk }}">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Agregar acción
+      </button>
+      <button type="submit" class="btn btn-primary btn-xs gap-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Guardar
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+(function() {
+  const pk     = "{{ kact.pk }}";
+  const prefix = "actions-" + pk;
+  const body   = document.getElementById("actions-body-" + pk);
+  const panel  = document.getElementById("actions-panel-" + pk);
+  if (!body || !panel) return;
+
+  function totalFormsInput() {
+    return document.getElementById("id_" + prefix + "-TOTAL_FORMS");
+  }
+
+  // Add new row
+  panel.querySelector(".add-action-" + pk).addEventListener("click", function() {
+    const tf  = totalFormsInput();
+    const idx = parseInt(tf.value);
+    const tr  = document.createElement("tr");
+    tr.className = "action-row-" + pk;
+    tr.innerHTML = `
+      <td><input type="number" name="${prefix}-${idx}-order" value="${idx + 1}"
+                 class="input input-bordered input-xs w-12" min="1"></td>
+      <td><input type="text" name="${prefix}-${idx}-name"
+                 class="input input-bordered input-xs w-full" placeholder="Descripción"></td>
+      <td>
+        <select name="${prefix}-${idx}-responsible_role" class="select select-bordered select-xs w-full">
+          <option value="">---</option>
+          {% for val, label in role_choices %}{% if val %}<option value="{{ val }}">{{ label }}</option>{% endif %}{% endfor %}
+        </select>
+      </td>
+      <td><input type="number" name="${prefix}-${idx}-estimated_hours"
+                 class="input input-bordered input-xs w-full" step="0.5" min="0" placeholder="0"></td>
+      <td>
+        <button type="button" class="btn btn-ghost btn-xs text-error remove-action-new-${pk}" title="Eliminar">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </td>`;
+    body.appendChild(tr);
+    tf.value = idx + 1;
+  });
+
+  // Remove rows
+  body.addEventListener("click", function(e) {
+    if (e.target.closest(".remove-action-new-" + pk)) {
+      const row = e.target.closest("tr");
+      row.remove();
+      const tf = totalFormsInput();
+      tf.value = parseInt(tf.value) - 1;
+    }
+    if (e.target.closest(".remove-action-" + pk)) {
+      const row = e.target.closest("tr");
+      const cb  = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+      if (cb) { cb.checked = true; row.style.opacity = "0.3"; }
+    }
+  });
+})();
+</script>

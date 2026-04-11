@@ -19,7 +19,7 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import DeliverableForm, HardwareForm, KeyActivityForm, ProjectCategoryForm, ProjectPhaseForm, ServiceActivityForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
+from apps.services.forms import DeliverableForm, HardwareForm, KeyActivityForm, KeyActivityInlineForm, ProjectCategoryForm, ProjectPhaseForm, ServiceActivityForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm, action_inline_formset, deliverable_inline_formset, keyactivity_inline_formset
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
     Deliverable,
@@ -288,9 +288,25 @@ class ServiceTemplateListView(LoginRequiredMixin, ListView):
     template_name = "services/servicetemplate_list.html"
     context_object_name = "service_templates"
 
+    def get_queryset(self):
+        qs = ServiceTemplate.objects.select_related(
+            "category", "phase", "operative_line", "subcategory"
+        ).order_by("operative_line__code", "category__code", "code")
+        line = self.request.GET.get("line", "")
+        q = self.request.GET.get("q", "")
+        if line:
+            qs = qs.filter(operative_line__pk=line)
+        if q:
+            qs = qs.filter(code__icontains=q) | qs.filter(name__icontains=q)
+        return qs
+
     def get_context_data(self, **kwargs):
+        from apps.organizations.models import OperativeLine
         context = super().get_context_data(**kwargs)
         context["create_url"] = reverse_lazy("services:servicetemplate_create")
+        context["operative_lines"] = OperativeLine.objects.filter(is_active=True).order_by("code")
+        context["current_line"] = self.request.GET.get("line", "")
+        context["q"] = self.request.GET.get("q", "")
         return context
 
 
@@ -313,12 +329,116 @@ class ServiceTemplateDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+def _deliverable_defaults():
+    """Returns {name: {unit, quantity}} using the most frequent unit per name."""
+    from collections import Counter
+    rows = Deliverable.objects.values("name", "unit", "quantity")
+    counts = {}
+    for r in rows:
+        key = r["name"]
+        pair = (r["unit"], str(r["quantity"]))
+        counts.setdefault(key, Counter())[pair] += 1
+    result = {}
+    for name, counter in counts.items():
+        unit, quantity = counter.most_common(1)[0][0]
+        result[name] = {"unit": unit, "quantity": quantity}
+    return result
+
+
 def _role_rates_json():
     """Returns a JSON-serializable dict {role_pk: default_hourly_rate} for all active roles."""
     import json
     from apps.accounts.models import Role
     rates = {str(r.pk): str(r.default_hourly_rate) for r in Role.objects.filter(is_active=True)}
     return json.dumps(rates)
+
+
+def _deliverable_kact_map():
+    """Returns {deliverable_name: [sorted unique key activity names]}."""
+    from collections import defaultdict
+    result = defaultdict(set)
+    for row in KeyActivity.objects.select_related("deliverable").values("deliverable__name", "name"):
+        result[row["deliverable__name"]].add(row["name"])
+    return {k: sorted(v) for k, v in result.items()}
+
+
+def _kact_act_map():
+    """Returns {key_activity_name: [sorted unique action names]}."""
+    from collections import defaultdict
+    result = defaultdict(set)
+    for row in ServiceActivity.objects.filter(key_activity__isnull=False).values("key_activity__name", "name"):
+        result[row["key_activity__name"]].add(row["name"])
+    return {k: sorted(v) for k, v in result.items()}
+
+
+def _save_nested_activities(request, deliverable_formset):
+    """Parse and save key activities + actions nested inside the deliverable formset POST data."""
+    from apps.services.models import KeyActivity, ServiceActivity
+
+    for i, deliv_form in enumerate(deliverable_formset.forms):
+        if not deliv_form.instance.pk:
+            continue
+        deliv = deliv_form.instance
+
+        kact_total = int(request.POST.get(f"kact-{i}-TOTAL") or 0)
+        for j in range(kact_total):
+            kp = f"kact-{i}-{j}"
+            if request.POST.get(f"{kp}-DELETE"):
+                if pk := request.POST.get(f"{kp}-id"):
+                    KeyActivity.objects.filter(pk=pk, deliverable=deliv).delete()
+                continue
+
+            name = (request.POST.get(f"{kp}-name") or "").strip()
+            if not name:
+                continue
+
+            order = request.POST.get(f"{kp}-order") or (j + 1)
+            pk = request.POST.get(f"{kp}-id")
+
+            if pk:
+                try:
+                    kact = KeyActivity.objects.get(pk=pk, deliverable=deliv)
+                    kact.name = name
+                    kact.order = order
+                    kact.save()
+                except KeyActivity.DoesNotExist:
+                    kact = KeyActivity.objects.create(deliverable=deliv, name=name, order=order)
+            else:
+                kact = KeyActivity.objects.create(deliverable=deliv, name=name, order=order)
+
+            act_total = int(request.POST.get(f"act-{i}-{j}-TOTAL") or 0)
+            for k in range(act_total):
+                ap = f"act-{i}-{j}-{k}"
+                if request.POST.get(f"{ap}-DELETE"):
+                    if apk := request.POST.get(f"{ap}-id"):
+                        ServiceActivity.objects.filter(pk=apk, key_activity=kact).delete()
+                    continue
+
+                aname = (request.POST.get(f"{ap}-name") or "").strip()
+                if not aname:
+                    continue
+
+                aorder = request.POST.get(f"{ap}-order") or (k + 1)
+                arole = request.POST.get(f"{ap}-responsible_role") or None
+                ahours = request.POST.get(f"{ap}-estimated_hours") or None
+                apk = request.POST.get(f"{ap}-id")
+
+                if apk:
+                    try:
+                        act = ServiceActivity.objects.get(pk=apk, key_activity=kact)
+                        act.name = aname
+                        act.order = aorder
+                        act.responsible_role_id = arole
+                        act.estimated_hours = ahours
+                        act.save()
+                    except ServiceActivity.DoesNotExist:
+                        ServiceActivity.objects.create(
+                            service_template=deliv.service_template, key_activity=kact,
+                            name=aname, order=aorder, responsible_role_id=arole, estimated_hours=ahours)
+                else:
+                    ServiceActivity.objects.create(
+                        service_template=deliv.service_template, key_activity=kact,
+                        name=aname, order=aorder, responsible_role_id=arole, estimated_hours=ahours)
 
 
 class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
@@ -330,7 +450,36 @@ class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["role_rates_json"] = _role_rates_json()
+        context["form_categories"] = ProjectCategory.objects.none()
+        if "deliverable_formset" not in context:
+            context["deliverable_formset"] = deliverable_inline_formset()
+        context["deliverable_names"] = list(
+            Deliverable.objects.values_list("name", flat=True).distinct().order_by("name")
+        )
+        context["deliverable_defaults"] = _deliverable_defaults()
+        context["deliv_kact_map"] = _deliverable_kact_map()
+        context["kact_act_map"] = _kact_act_map()
+        from apps.accounts.models import Role
+        context["roles"] = list(Role.objects.filter(is_active=True).order_by("name").values("pk", "name", "code", "default_hourly_rate"))
+        hw_items = list(Hardware.objects.filter(is_active=True).values("name", "depreciation_per_hour"))
+        sw_items = list(Software.objects.filter(is_active=True).values("name", "hourly_value"))
+        context["hw_items"] = hw_items
+        context["sw_items"] = sw_items
+        context["hw_rate_total"] = sum(float(h["depreciation_per_hour"]) for h in hw_items)
+        context["sw_rate_total"] = sum(float(s["hourly_value"]) for s in sw_items)
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form = self.get_form()
+        formset = deliverable_inline_formset(data=request.POST)
+        if form.is_valid() and formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            _save_nested_activities(request, formset)
+            return self.form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form, deliverable_formset=formset))
 
 
 class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
@@ -342,13 +491,158 @@ class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["role_rates_json"] = _role_rates_json()
+        st = self.object
+        if st.operative_line_id:
+            context["form_categories"] = ProjectCategory.objects.filter(
+                operative_line_id=st.operative_line_id
+            ).order_by("code")
+        else:
+            context["form_categories"] = ProjectCategory.objects.none()
+        if "deliverable_formset" not in context:
+            context["deliverable_formset"] = deliverable_inline_formset(instance=st)
+        context["deliverable_names"] = list(
+            Deliverable.objects.values_list("name", flat=True).distinct().order_by("name")
+        )
+        context["deliverable_defaults"] = _deliverable_defaults()
+        context["deliv_kact_map"] = _deliverable_kact_map()
+        context["kact_act_map"] = _kact_act_map()
+        from apps.accounts.models import Role
+        context["roles"] = list(Role.objects.filter(is_active=True).order_by("name").values("pk", "name", "code", "default_hourly_rate"))
+        hw_items = list(Hardware.objects.filter(is_active=True).values("name", "depreciation_per_hour"))
+        sw_items = list(Software.objects.filter(is_active=True).values("name", "hourly_value"))
+        context["hw_items"] = hw_items
+        context["sw_items"] = sw_items
+        context["hw_rate_total"] = sum(float(h["depreciation_per_hour"]) for h in hw_items)
+        context["sw_rate_total"] = sum(float(s["hourly_value"]) for s in sw_items)
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        formset = deliverable_inline_formset(instance=self.object, data=request.POST)
+        if form.is_valid() and formset.is_valid():
+            self.object = form.save()
+            formset.save()
+            _save_nested_activities(request, formset)
+            return self.form_valid(form)
+        return self.render_to_response(self.get_context_data(form=form, deliverable_formset=formset))
 
 
 class ServiceTemplateDeleteView(LoginRequiredMixin, DeleteView):
     model = ServiceTemplate
     template_name = "services/servicetemplate_confirm_delete.html"
     success_url = reverse_lazy("services:servicetemplate_list")
+
+
+class DeliverableActivitiesView(LoginRequiredMixin, View):
+    """Manages key activities for a deliverable.
+
+    - Regular GET/POST: full page (deliverable_activities.html)
+    - HTMX GET/POST: inline panel partial (_deliverable_activities_panel.html)
+    """
+
+    full_template   = "services/deliverable_activities.html"
+    panel_template  = "services/_deliverable_activities_panel.html"
+
+    def _is_htmx(self, request):
+        return request.headers.get("HX-Request") == "true"
+
+    def _prefix(self, pk):
+        return f"kact-{pk}"
+
+    def _context(self, deliverable, formset=None, saved=False):
+        pk = deliverable.pk
+        prefix = self._prefix(pk)
+        kactivities = deliverable.key_activities.prefetch_related("actions").order_by("order", "name")
+        from apps.accounts.models import Role
+        role_choices = [(r.pk, str(r)) for r in Role.objects.filter(is_active=True).order_by("name")]
+        return {
+            "deliverable": deliverable,
+            "kactivities": kactivities,
+            "formset": formset or keyactivity_inline_formset(instance=deliverable, prefix=prefix),
+            "prefix": prefix,
+            "saved": saved,
+            "role_choices": role_choices,
+        }
+
+    def get(self, request, pk):
+        deliverable = get_object_or_404(Deliverable.objects.select_related("service_template"), pk=pk)
+        tmpl = self.panel_template if self._is_htmx(request) else self.full_template
+        return TemplateResponse(request, tmpl, self._context(deliverable))
+
+    def post(self, request, pk):
+        deliverable = get_object_or_404(Deliverable.objects.select_related("service_template"), pk=pk)
+        prefix = self._prefix(pk)
+        formset = keyactivity_inline_formset(instance=deliverable, data=request.POST, prefix=prefix)
+        if formset.is_valid():
+            formset.save()
+            if self._is_htmx(request):
+                return TemplateResponse(request, self.panel_template, self._context(deliverable, saved=True))
+            from django.http import HttpResponseRedirect
+            from django.urls import reverse
+            return HttpResponseRedirect(reverse("services:deliverable_activities", args=[pk]))
+        tmpl = self.panel_template if self._is_htmx(request) else self.full_template
+        return TemplateResponse(request, tmpl, self._context(deliverable, formset))
+
+
+class KeyActivityActionsView(LoginRequiredMixin, View):
+    """HTMX partial + POST to manage actions for a key activity."""
+
+    def _role_choices(self):
+        from apps.accounts.models import Role
+        return [(r.pk, str(r)) for r in Role.objects.filter(is_active=True).order_by("name")]
+
+    def get(self, request, pk):
+        kact = get_object_or_404(KeyActivity.objects.select_related("deliverable__service_template"), pk=pk)
+        formset = action_inline_formset(instance=kact, prefix=f"actions-{pk}")
+        return TemplateResponse(request, "services/_keyactivity_actions.html", {
+            "kact": kact,
+            "formset": formset,
+            "role_choices": self._role_choices(),
+        })
+
+    def post(self, request, pk):
+        kact = get_object_or_404(KeyActivity.objects.select_related("deliverable__service_template"), pk=pk)
+        formset = action_inline_formset(instance=kact, data=request.POST, prefix=f"actions-{pk}")
+
+        # Also set service_template on new actions
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for obj in instances:
+                obj.service_template = kact.deliverable.service_template
+                obj.key_activity = kact
+                obj.save()
+            for obj in formset.deleted_objects:
+                obj.delete()
+            return TemplateResponse(request, "services/_keyactivity_actions.html", {
+                "kact": kact,
+                "formset": action_inline_formset(instance=kact, prefix=f"actions-{pk}"),
+                "saved": True,
+                "role_choices": self._role_choices(),
+            })
+        return TemplateResponse(request, "services/_keyactivity_actions.html", {
+            "kact": kact,
+            "formset": formset,
+            "role_choices": self._role_choices(),
+        })
+
+
+class FiltrarClasificacionView(LoginRequiredMixin, View):
+    """HTMX partial: returns filtered category select for a given operative_line."""
+
+    def get(self, request):
+        line_id = request.GET.get("operative_line", "")
+        selected_cat = request.GET.get("selected_cat", "")
+
+        if line_id:
+            categories = ProjectCategory.objects.filter(operative_line_id=line_id).order_by("code")
+        else:
+            categories = ProjectCategory.objects.none()
+
+        return TemplateResponse(request, "services/_categoria_options.html", {
+            "categories": categories,
+            "selected_cat": selected_cat,
+        })
 
 
 # ---------------------------------------------------------------------------

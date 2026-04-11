@@ -20,4 +20,19 @@ urlpatterns = [
         views.OperativeLineListView.as_view(),
         name="operativeline_list",
     ),
+    path(
+        "operative-lines/nueva/",
+        views.OperativeLineCreateView.as_view(),
+        name="operativeline_create",
+    ),
+    path(
+        "operative-lines/<int:pk>/editar/",
+        views.OperativeLineUpdateView.as_view(),
+        name="operativeline_update",
+    ),
+    path(
+        "operative-lines/<int:pk>/eliminar/",
+        views.OperativeLineDeleteView.as_view(),
+        name="operativeline_delete",
+    ),
 ]

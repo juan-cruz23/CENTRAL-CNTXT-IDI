@@ -21,6 +21,7 @@
         <tr>
           <th>Código</th>
           <th>Nombre</th>
+          <th>Línea Operativa</th>
           <th>Estado</th>
           <th class="text-right">Acciones</th>
         </tr>
@@ -30,6 +31,13 @@
         <tr>
           <td class="font-mono font-bold">{{ sc.code }}</td>
           <td>{{ sc.name }}</td>
+          <td class="text-sm">
+            {% if sc.operative_line %}
+            <span class="badge badge-outline badge-sm font-mono">{{ sc.operative_line.code }}</span>
+            {% else %}
+            <span class="text-base-content/40">—</span>
+            {% endif %}
+          </td>
           <td>
             {% if sc.is_active %}
             <span class="badge badge-success badge-sm">Activo</span>
@@ -46,7 +54,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="4" class="text-center text-base-content/50 py-8">No hay sub categorías registradas.</td>
+          <td colspan="5" class="text-center text-base-content/50 py-8">No hay sub categorías registradas.</td>
         </tr>
         {% endfor %}
       </tbody>

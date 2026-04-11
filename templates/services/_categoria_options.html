@@ -1,0 +1,7 @@
+<label class="label pb-1"><span class="label-text font-medium">Categoría <span class="text-error">*</span></span></label>
+<select name="category" id="id_category" class="select select-bordered w-full">
+  <option value="">---------</option>
+  {% for cat in categories %}
+  <option value="{{ cat.pk }}" {% if selected_cat == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat }}</option>
+  {% endfor %}
+</select>

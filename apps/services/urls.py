@@ -121,6 +121,21 @@ urlpatterns = [
         name="servicetemplate_calc_days",
     ),
     path(
+        "entregables/<int:pk>/actividades/",
+        views.DeliverableActivitiesView.as_view(),
+        name="deliverable_activities",
+    ),
+    path(
+        "actividades/<int:pk>/acciones/",
+        views.KeyActivityActionsView.as_view(),
+        name="keyactivity_actions",
+    ),
+    path(
+        "filtrar-clasificacion/",
+        views.FiltrarClasificacionView.as_view(),
+        name="filtrar_clasificacion",
+    ),
+    path(
         "calcular-horas-dias/",
         views.CalcHoursDaysView.as_view(),
         name="calc_hours_days",
