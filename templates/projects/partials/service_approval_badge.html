@@ -1,0 +1,38 @@
+{% load common_tags %}
+<span id="approval-badge-{{ si.pk }}">
+  {% if si.approval_status == 'APPROVED' %}
+  <button class="btn btn-xs btn-success gap-1"
+          hx-get="{% url 'projects:service_approval' project.pk si.pk %}"
+          hx-target="#schedule-modal-container"
+          hx-swap="innerHTML"
+          title="Aprobado por {{ si.approved_by.get_full_name }} — {{ si.approved_at|date:'d/m/Y' }}">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+    Aprobado
+  </button>
+  {% elif si.approval_status == 'REJECTED' %}
+  <button class="btn btn-xs btn-error gap-1"
+          hx-get="{% url 'projects:service_approval' project.pk si.pk %}"
+          hx-target="#schedule-modal-container"
+          hx-swap="innerHTML"
+          title="Rechazado — {{ si.approval_notes|truncatechars:60 }}">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-5a1 1 0 102 0V9a1 1 0 10-2 0v4zm1-7a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg>
+    Rechazado
+  </button>
+  {% else %}
+  {% if si.can_approve %}
+  <button class="btn btn-xs btn-outline btn-warning gap-1"
+          hx-get="{% url 'projects:service_approval' project.pk si.pk %}"
+          hx-target="#schedule-modal-container"
+          hx-swap="innerHTML">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+    Aprobar
+  </button>
+  {% else %}
+  <button class="btn btn-xs btn-ghost text-base-content/30 gap-1" disabled
+          title="Completa todas las acciones antes de aprobar ({{ si.progress_pct|floatformat:0 }}%)">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+    {{ si.progress_pct|floatformat:0 }}%
+  </button>
+  {% endif %}
+  {% endif %}
+</span>

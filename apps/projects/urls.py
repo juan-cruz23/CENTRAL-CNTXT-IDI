@@ -107,6 +107,26 @@ urlpatterns = [
         name="schedule_service_actions",
     ),
     path(
+        "<int:pk>/cronograma/servicios/<int:si_pk>/acciones/<int:action_pk>/toggle/",
+        views.ActionToggleView.as_view(),
+        name="action_toggle",
+    ),
+    path(
+        "<int:pk>/cronograma/servicios/<int:si_pk>/acciones/<int:action_pk>/avance/",
+        views.ActionProgressLogView.as_view(),
+        name="action_progress_log",
+    ),
+    path(
+        "<int:pk>/cronograma/servicios/<int:si_pk>/acciones/<int:action_pk>/historial/",
+        views.ActionProgressHistoryView.as_view(),
+        name="action_progress_history",
+    ),
+    path(
+        "<int:pk>/cronograma/servicios/<int:si_pk>/aprobar/",
+        views.ServiceApprovalView.as_view(),
+        name="service_approval",
+    ),
+    path(
         "<int:pk>/cronograma/tabla/",
         views.ScheduleTableView.as_view(),
         name="schedule_table",

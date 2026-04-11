@@ -1,0 +1,183 @@
+{% load common_tags %}
+<dialog id="action-progress-modal" class="modal">
+  <div class="modal-box w-11/12 max-w-2xl">
+
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <h3 class="font-bold text-lg">Registrar Avance</h3>
+        <p class="text-sm text-base-content/60 mt-0.5">{{ action.name }}</p>
+        <p class="text-xs text-base-content/40 font-mono">{{ si.code }} — {{ si.name }}</p>
+      </div>
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <form id="progress-form" enctype="multipart/form-data">
+
+      {# ── Qué se hizo ── #}
+      <div class="form-control mb-4">
+        <label class="label pb-1">
+          <span class="label-text font-medium">Qué se hizo <span class="text-error">*</span></span>
+        </label>
+        <textarea name="description" rows="3"
+                  class="textarea textarea-bordered w-full text-sm"
+                  placeholder="Describe brevemente el trabajo realizado…"
+                  required></textarea>
+      </div>
+
+      {# ── Fechas / horas ── #}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="form-control">
+          <label class="label pb-1">
+            <span class="label-text font-medium">Hora inicio real <span class="text-error">*</span></span>
+          </label>
+          <input type="datetime-local" name="start_datetime" id="prog-start"
+                 class="input input-bordered input-sm w-full" required>
+        </div>
+        <div class="form-control">
+          <label class="label pb-1">
+            <span class="label-text font-medium">Hora fin real <span class="text-error">*</span></span>
+          </label>
+          <input type="datetime-local" name="end_datetime" id="prog-end"
+                 class="input input-bordered input-sm w-full" required>
+        </div>
+      </div>
+
+      {# ── Duración calculada ── #}
+      <div id="prog-duration" class="text-xs text-base-content/50 -mt-2 mb-4 pl-1 hidden">
+        Duración: <span id="prog-duration-val" class="font-semibold text-primary"></span>
+      </div>
+
+      {# ── Ejecutado por ── #}
+      <div class="form-control mb-4">
+        <label class="label pb-1">
+          <span class="label-text font-medium">Ejecutado por <span class="text-error">*</span></span>
+        </label>
+        <select name="executed_by" class="select select-bordered select-sm w-full" required>
+          <option value="">— Seleccionar profesional —</option>
+          {% for user in users %}
+          <option value="{{ user.pk }}"
+            {% if action.assigned_professional_id == user.pk %}selected{% endif %}>
+            {{ user.get_full_name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {# ── Adjunto ── #}
+      <div class="form-control mb-4">
+        <label class="label pb-1">
+          <span class="label-text font-medium">Adjunto</span>
+          <span class="label-text-alt text-base-content/40">Opcional</span>
+        </label>
+        <input type="file" name="attachment"
+               class="file-input file-input-bordered file-input-sm w-full">
+      </div>
+
+      {# ── Link de carpeta ── #}
+      <div class="form-control mb-2">
+        <label class="label pb-1">
+          <span class="label-text font-medium">Link de carpeta</span>
+          <span class="label-text-alt text-base-content/40">Opcional (Drive, Dropbox, etc.)</span>
+        </label>
+        <input type="url" name="folder_link"
+               class="input input-bordered input-sm w-full"
+               placeholder="https://drive.google.com/…">
+      </div>
+
+    </form>
+
+    <div class="modal-action mt-5 pt-3 border-t border-base-300/30">
+      <form method="dialog">
+        <button class="btn btn-ghost btn-sm">Cancelar</button>
+      </form>
+      <button type="button" id="prog-submit-btn" class="btn btn-success btn-sm gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Guardar y completar acción
+      </button>
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>cerrar</button></form>
+</dialog>
+
+<script>
+(function () {
+  const modal     = document.getElementById('action-progress-modal');
+  const startEl   = document.getElementById('prog-start');
+  const endEl     = document.getElementById('prog-end');
+  const durEl     = document.getElementById('prog-duration');
+  const durValEl  = document.getElementById('prog-duration-val');
+  const submitBtn = document.getElementById('prog-submit-btn');
+  const postUrl   = "{% url 'projects:action_progress_log' project.pk si.pk action.pk %}";
+
+  function getCsrf() {
+    const m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+  }
+
+  // Pre-rellenar con fecha/hora actual
+  const now = new Date();
+  const toLocal = d => new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  startEl.value = toLocal(now);
+  endEl.value   = toLocal(now);
+
+  function updateDuration() {
+    const s = new Date(startEl.value);
+    const e = new Date(endEl.value);
+    if (!isNaN(s) && !isNaN(e) && e > s) {
+      const diff = (e - s) / 3600000;
+      durValEl.textContent = diff.toFixed(2) + 'h';
+      durEl.classList.remove('hidden');
+    } else {
+      durEl.classList.add('hidden');
+    }
+  }
+
+  startEl.addEventListener('change', updateDuration);
+  endEl.addEventListener('change', updateDuration);
+  updateDuration();
+
+  modal.showModal();
+
+  submitBtn.addEventListener('click', () => {
+    const form = document.getElementById('progress-form');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> Guardando…';
+
+    const fd = new FormData(form);
+    fetch(postUrl, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': getCsrf() },
+    })
+    .then(r => {
+      if (!r.ok) { return r.text().then(t => { throw new Error(t); }); }
+      return r.text();
+    })
+    .then(html => {
+      modal.close();
+      // Reemplazar la fila de la acción con la versión actualizada
+      const container = document.getElementById('action-progress-modal').closest('[id^="schedule-modal-container"], body');
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      const newRow = tmp.querySelector('tr');
+      if (newRow) {
+        const oldRow = document.getElementById('action-row-{{ action.pk }}');
+        if (oldRow) oldRow.replaceWith(newRow);
+      }
+      htmx.trigger(document.body, 'actionToggled');
+    })
+    .catch(err => {
+      alert('Error: ' + err.message);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '✓ Guardar y completar acción';
+    });
+  });
+})();
+</script>

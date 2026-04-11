@@ -4,7 +4,7 @@
 {% if phase_groups %}
   {% for group in phase_groups %}
   <tr class="bg-primary/10 border-b border-primary/20">
-    <td colspan="9" class="py-1.5 px-3">
+    <td colspan="10" class="py-1.5 px-3">
       <span class="font-semibold text-xs text-primary uppercase tracking-wider">
         {% if group.phase %}{{ group.phase.name }}{% else %}Sin Fase{% endif %}
       </span>
@@ -17,6 +17,6 @@
   {% endfor %}
 {% else %}
 <tr id="schedule-empty">
-  <td colspan="9">{% include "components/empty_state.html" with message="Sin servicios en el cronograma" icon="document" %}</td>
+  <td colspan="10">{% include "components/empty_state.html" with message="Sin servicios en el cronograma" icon="document" %}</td>
 </tr>
 {% endif %}

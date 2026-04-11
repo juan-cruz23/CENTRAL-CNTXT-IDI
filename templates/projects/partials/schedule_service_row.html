@@ -43,8 +43,23 @@
       <span class="text-base-content/40 text-xs">{{ si.responsible_role.name }}</span>
     {% else %}—{% endif %}
   </td>
+  <td class="text-center">
+    <div class="flex items-center justify-center gap-1">
+      {% if si.is_fully_complete %}
+        <span class="badge badge-success badge-sm">100%</span>
+      {% elif si.progress_pct > 0 %}
+        <div class="flex items-center gap-1">
+          <progress class="progress progress-primary w-12 h-1.5" value="{{ si.progress_pct }}" max="100"></progress>
+          <span class="text-xs font-medium text-primary">{{ si.progress_pct|floatformat:0 }}%</span>
+        </div>
+      {% else %}
+        <span class="text-xs text-base-content/30">Sin avance</span>
+      {% endif %}
+    </div>
+  </td>
   <td class="text-right">
     <div class="flex items-center justify-end gap-1">
+      {% include "projects/partials/service_approval_badge.html" %}
       <button class="btn btn-ghost btn-xs text-base-content/50 hover:text-primary"
               hx-get="{% url 'projects:schedule_service_edit' project.pk si.pk %}"
               hx-target="#schedule-modal-container"
@@ -67,7 +82,7 @@
   </td>
 </tr>
 <tr id="detail-row-{{ si.pk }}" class="hidden bg-base-200/20">
-  <td colspan="9" class="pt-0 pb-3 pl-10 pr-4">
+  <td colspan="10" class="pt-0 pb-3 pl-10 pr-4">
     <div id="detail-cell-{{ si.pk }}" class="border-l-2 border-primary/20 pl-3">
     </div>
   </td>

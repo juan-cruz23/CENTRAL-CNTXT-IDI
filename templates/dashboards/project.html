@@ -148,39 +148,90 @@
           <table class="table table-sm">
             <thead class="bg-base-200/40">
               <tr>
+                <th class="w-6"></th>
                 <th class="text-xs">Código</th>
                 <th class="text-xs">Servicio</th>
-                <th class="text-xs text-center">Horas</th>
-                <th class="text-xs text-center">Días</th>
-                <th class="text-xs">Inicio</th>
-                <th class="text-xs">Entrega</th>
-                <th class="text-xs">Responsable</th>
-                <th class="text-xs text-center">Avance</th>
+                <th class="text-xs text-right">Cant.</th>
+                <th class="text-xs text-right">Valor UND</th>
+                <th class="text-xs text-right">Total</th>
+                <th class="text-xs text-right">Inc.%</th>
+                <th class="text-xs text-center">Check</th>
+                <th class="text-xs text-right">Avance%</th>
+                <th class="text-xs text-right">Esp.%</th>
+                <th class="text-xs">Profesional</th>
+                <th class="text-xs text-right">H.Proy</th>
+                <th class="text-xs text-right">H.Real</th>
+                <th class="text-xs text-right">Desv.</th>
+                <th class="text-xs text-center">Aprobación</th>
               </tr>
             </thead>
             <tbody>
               {% for si in group.services %}
               <tr class="hover:bg-base-200/20">
+                <td class="w-6 pr-0">
+                  <button
+                    id="db-expand-si-{{ si.pk }}"
+                    class="btn btn-ghost btn-xs p-0 w-6 h-6 text-base-content/40 hover:text-primary"
+                    hx-get="{% url 'projects:schedule_service_actions' project.pk si.pk %}"
+                    hx-target="#db-detail-cell-{{ si.pk }}"
+                    hx-swap="innerHTML"
+                    hx-trigger="click[!this.dataset.loaded]"
+                    hx-on::after-request="
+                      this.dataset.loaded='1';
+                      document.getElementById('db-detail-row-{{ si.pk }}').classList.remove('hidden');
+                      this.querySelector('svg').classList.add('rotate-90');
+                    "
+                    onclick="if(this.dataset.loaded){
+                      document.getElementById('db-detail-row-{{ si.pk }}').classList.toggle('hidden');
+                      this.querySelector('svg').classList.toggle('rotate-90');
+                    }"
+                    title="Ver entregables y acciones"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform duration-150" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </td>
                 <td class="font-mono text-xs">{{ si.code }}</td>
                 <td class="text-xs">{{ si.name }}</td>
-                <td class="text-xs text-center">{{ si.projected_hours }}</td>
-                <td class="text-xs text-center">{{ si.projected_days }}</td>
-                <td class="text-xs">{% if si.projected_start_date %}{{ si.projected_start_date|date:"d/m/Y" }}{% else %}—{% endif %}</td>
-                <td class="text-xs">
-                  {% if si.projected_end_date %}
-                  <span class="badge badge-outline badge-xs">{{ si.projected_end_date|date:"d/m/Y" }}</span>
-                  {% else %}—{% endif %}
+                <td class="text-xs text-right">{{ si.quantity|floatformat:2 }}</td>
+                <td class="text-xs text-right">{{ si.unit_price|cop_format }}</td>
+                <td class="text-xs text-right font-medium">{{ si.total_value|cop_format }}</td>
+                <td class="text-xs text-right">{{ si.incidence_pct|floatformat:2 }}%</td>
+                <td class="text-center">
+                  {% if si.is_checked %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success mx-auto" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/20 mx-auto" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd"/></svg>
+                  {% endif %}
                 </td>
+                <td class="text-xs text-right">
+                  <span class="{% if si.is_fully_complete %}text-success{% elif si.progress_pct > 0 %}text-primary{% else %}text-base-content/40{% endif %}">
+                    {{ si.progress_pct|floatformat:2 }}%
+                  </span>
+                </td>
+                <td class="text-xs text-right text-base-content/60">{{ si.expected_progress_pct|floatformat:2 }}%</td>
                 <td class="text-xs">
                   {% if si.assigned_professional %}{{ si.assigned_professional.get_full_name }}
                   {% elif si.responsible_role %}<span class="text-base-content/40">{{ si.responsible_role.name }}</span>
                   {% else %}—{% endif %}
                 </td>
+                <td class="text-xs text-right">{{ si.projected_hours|floatformat:2 }}</td>
+                <td class="text-xs text-right">{{ si.actual_hours|floatformat:2 }}</td>
+                <td class="text-xs text-right">
+                  {% if si.actual_hours and si.projected_hours %}
+                  <span class="{% if si.operative_deviation_pct > 0 %}text-error{% elif si.operative_deviation_pct < 0 %}text-success{% else %}text-base-content/40{% endif %}">
+                    {% if si.operative_deviation_pct > 0 %}+{% endif %}{{ si.operative_deviation_pct|floatformat:2 }}%
+                  </span>
+                  {% else %}—{% endif %}
+                </td>
                 <td class="text-center">
-                  <div class="flex items-center justify-center gap-1">
-                    <progress class="progress progress-primary w-12 h-1.5" value="{{ si.progress_pct|default:0 }}" max="100"></progress>
-                    <span class="text-xs text-base-content/50">{{ si.progress_pct|default:0 }}%</span>
-                  </div>
+                  {% include "projects/partials/service_approval_badge.html" %}
+                </td>
+              </tr>
+              <tr id="db-detail-row-{{ si.pk }}" class="hidden bg-base-200/20">
+                <td colspan="15" class="pt-0 pb-3 pl-10 pr-4">
+                  <div id="db-detail-cell-{{ si.pk }}" class="border-l-2 border-primary/20 pl-3"></div>
                 </td>
               </tr>
               {% endfor %}

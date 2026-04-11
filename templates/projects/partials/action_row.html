@@ -1,0 +1,78 @@
+{% load common_tags %}
+<tr id="action-row-{{ action.pk }}"
+    class="hover:bg-base-200/20 {% if action.is_completed %}opacity-60{% endif %}">
+
+  {# ── Check visual (solo lectura) ── #}
+  <td class="w-6">
+    {% if action.is_completed %}
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-success mx-auto" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>
+    {% else %}
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/20 mx-auto" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd"/>
+    </svg>
+    {% endif %}
+  </td>
+
+  {# ── Orden ── #}
+  <td class="text-base-content/40 text-xs">{{ action.order }}</td>
+
+  {# ── Nombre ── #}
+  <td class="text-xs {% if action.is_completed %}line-through text-base-content/40{% endif %}">
+    {{ action.name }}
+  </td>
+
+  {# ── Rol ── #}
+  <td class="text-xs">
+    {% if action.responsible_role %}
+    <span class="badge badge-ghost badge-xs font-mono">{{ action.responsible_role.code }}</span>
+    {% else %}
+    <span class="text-base-content/30">—</span>
+    {% endif %}
+  </td>
+
+  {# ── Responsable ── #}
+  <td class="text-xs">
+    {% if action.assigned_professional %}
+    {{ action.assigned_professional.get_full_name }}
+    {% else %}
+    <span class="text-base-content/30 italic">Sin asignar</span>
+    {% endif %}
+  </td>
+
+  {# ── Horas proyectadas ── #}
+  <td class="text-xs text-right font-mono">{{ action.estimated_hours }}h</td>
+
+  {# ── Horas reales (calculadas de registros) ── #}
+  <td class="text-xs text-right font-mono {% if action.actual_hours > 0 %}text-primary{% else %}text-base-content/30{% endif %}">
+    {{ action.actual_hours }}h
+  </td>
+
+  {# ── Botón registrar avance ── #}
+  <td class="text-right">
+    {% if not action.is_completed %}
+    <button
+      class="btn btn-xs btn-success gap-1"
+      hx-get="{% url 'projects:action_progress_log' project.pk si.pk action.pk %}"
+      hx-target="#schedule-modal-container"
+      hx-swap="innerHTML"
+      title="Registrar avance">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+      Avance
+    </button>
+    {% else %}
+    {% with log_count=action.progress_logs.count %}
+    <button
+      class="btn btn-xs btn-ghost gap-1 text-base-content/50 hover:text-primary"
+      hx-get="{% url 'projects:action_progress_history' project.pk si.pk action.pk %}"
+      hx-target="#schedule-modal-container"
+      hx-swap="innerHTML"
+      title="Ver registros de avance">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+      {{ log_count }} registro{{ log_count|pluralize:"s" }}
+    </button>
+    {% endwith %}
+    {% endif %}
+  </td>
+</tr>

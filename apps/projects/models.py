@@ -704,6 +704,36 @@ class ServiceInstance(TimeStampedModel):
         verbose_name="es período de revisión",
     )
 
+    # Approval
+    class ApprovalStatus(models.TextChoices):
+        PENDING   = "PENDING",   "Pendiente"
+        APPROVED  = "APPROVED",  "Aprobado"
+        REJECTED  = "REJECTED",  "Rechazado"
+
+    approval_status = models.CharField(
+        max_length=10,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING,
+        verbose_name="estado de aprobación",
+    )
+    approval_notes = models.TextField(
+        blank=True,
+        verbose_name="observaciones de aprobación",
+    )
+    approved_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_services",
+        verbose_name="aprobado por",
+    )
+    approved_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="fecha de aprobación",
+    )
+
     class Meta:
         ordering = ["phase_instance", "code"]
         verbose_name = "instancia de servicio"
@@ -720,9 +750,28 @@ class ServiceInstance(TimeStampedModel):
         """
         return self.is_checked and self.progress_pct >= self.incidence_pct
 
+    @property
+    def is_fully_complete(self):
+        """True cuando progress_pct llega a 100."""
+        return self.progress_pct >= 100
+
+    @property
+    def can_approve(self):
+        """Puede aprobarse si no tiene acciones o si todas están completadas."""
+        total = self.action_assignments.count()
+        if total == 0:
+            return True
+        return self.is_fully_complete
+
     def save(self, *args, **kwargs):
-        """Compute total_value as quantity * unit_price before saving."""
+        """Compute total_value and operative_deviation_pct before saving."""
         self.total_value = self.quantity * self.unit_price
+        if self.projected_hours and self.actual_hours:
+            self.operative_deviation_pct = round(
+                (self.actual_hours - self.projected_hours) / self.projected_hours * 100, 2
+            )
+        else:
+            self.operative_deviation_pct = Decimal(0)
         super().save(*args, **kwargs)
 
 
@@ -779,6 +828,21 @@ class ServiceInstanceAction(TimeStampedModel):
         default=0,
         verbose_name="horas estimadas",
     )
+    actual_hours = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=0,
+        verbose_name="horas reales",
+    )
+    is_completed = models.BooleanField(
+        default=False,
+        verbose_name="completada",
+    )
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="fecha de completado",
+    )
 
     class Meta:
         ordering = ["service_instance", "order"]
@@ -787,6 +851,67 @@ class ServiceInstanceAction(TimeStampedModel):
 
     def __str__(self):
         return f"{self.service_instance.code} › {self.name}"
+
+
+# ---------------------------------------------------------------------------
+# Action Progress Log
+# ---------------------------------------------------------------------------
+class ActionProgressLog(TimeStampedModel):
+    """
+    Registro de avance de una acción del cronograma.
+    Al crearse, marca la acción como completada.
+    """
+
+    action = models.ForeignKey(
+        ServiceInstanceAction,
+        on_delete=models.CASCADE,
+        related_name="progress_logs",
+        verbose_name="acción",
+    )
+    description = models.TextField(
+        verbose_name="qué se hizo",
+    )
+    attachment = models.FileField(
+        upload_to="progress_logs/attachments/",
+        null=True,
+        blank=True,
+        verbose_name="adjunto",
+    )
+    folder_link = models.URLField(
+        max_length=500,
+        null=True,
+        blank=True,
+        verbose_name="link de carpeta",
+    )
+    start_datetime = models.DateTimeField(
+        verbose_name="hora inicio real",
+    )
+    end_datetime = models.DateTimeField(
+        verbose_name="hora fin real",
+    )
+    executed_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="progress_logs",
+        verbose_name="ejecutado por",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "registro de avance"
+        verbose_name_plural = "registros de avance"
+
+    def __str__(self):
+        return f"{self.action} — {self.created_at:%Y-%m-%d}"
+
+    @property
+    def hours(self):
+        """Horas reales calculadas desde inicio hasta fin."""
+        if self.start_datetime and self.end_datetime:
+            delta = self.end_datetime - self.start_datetime
+            return round(delta.total_seconds() / 3600, 2)
+        return 0
 
 
 # ---------------------------------------------------------------------------

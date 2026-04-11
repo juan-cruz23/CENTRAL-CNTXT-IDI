@@ -25,6 +25,7 @@ from apps.projects.forms import (
     ServiceInstanceForm,
 )
 from apps.projects.models import (
+    ActionProgressLog,
     Client,
     Milestone,
     PrerequisiteTemplate,
@@ -160,6 +161,22 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         context["schedule_phase_groups"] = [
             v for _, v in sorted(phase_groups_dict.items())
         ]
+
+        # Estadísticas de avance del cronograma
+        total_ss = len(schedule_services)
+        completed_ss  = sum(1 for s in schedule_services if s.progress_pct >= 100)
+        in_progress_ss = sum(1 for s in schedule_services if 0 < s.progress_pct < 100)
+        no_progress_ss = sum(1 for s in schedule_services if s.progress_pct == 0)
+        overall_pct = round(
+            sum(s.progress_pct for s in schedule_services) / total_ss, 1
+        ) if total_ss else 0
+        context["schedule_stats"] = {
+            "total": total_ss,
+            "completed": completed_ss,
+            "in_progress": in_progress_ss,
+            "no_progress": no_progress_ss,
+            "overall_pct": overall_pct,
+        }
 
         # --- Bloque 8: Financial summary for Info tab ---
         try:
@@ -983,6 +1000,21 @@ class ScheduleServiceActionsView(LoginRequiredMixin, View):
 
             seen_kacts[d_name][ka_name]["actions"].append(act)
 
+        # Calcular progreso por actividad y por entregable
+        for deliv in tree:
+            for kact in deliv["kacts"]:
+                acts = kact["actions"]
+                total = len(acts)
+                completed = sum(1 for a in acts if a.is_completed)
+                kact["progress_pct"] = round(completed * 100 / total) if total else 0
+                kact["completed"] = completed
+                kact["total"] = total
+            # Progreso del entregable = promedio de sus actividades
+            kacts = deliv["kacts"]
+            deliv["progress_pct"] = (
+                round(sum(k["progress_pct"] for k in kacts) / len(kacts)) if kacts else 0
+            )
+
         return TemplateResponse(
             request,
             "projects/partials/schedule_service_actions.html",
@@ -1137,6 +1169,273 @@ class ScheduleServiceEditView(LoginRequiredMixin, View):
             act.save(update_fields=["estimated_hours", "assigned_professional"])
 
         response = HttpResponse("")
+        response["HX-Trigger"] = "scheduleChanged"
+        return response
+
+
+class ActionToggleView(LoginRequiredMixin, View):
+    """HTMX: marca/desmarca una acción como completada y guarda horas reales.
+    Retorna la fila de la acción actualizada y un evento actionToggled para
+    que el servicio recalcule su progreso.
+    """
+
+    def post(self, request, pk, si_pk, action_pk):
+        from django.utils import timezone
+
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+        action = get_object_or_404(ServiceInstanceAction, pk=action_pk, service_instance=si)
+
+        is_completed = request.POST.get("is_completed") == "1"
+        actual_hours_raw = request.POST.get("actual_hours", "").strip()
+        try:
+            actual_hours = Decimal(actual_hours_raw) if actual_hours_raw else action.actual_hours
+        except Exception:
+            actual_hours = action.actual_hours
+
+        action.is_completed = is_completed
+        action.actual_hours = actual_hours
+        action.completed_at = timezone.now() if is_completed else None
+        action.save(update_fields=["is_completed", "actual_hours", "completed_at"])
+
+        # Recalcular progress_pct y actual_hours del servicio basado en acciones
+        all_actions = list(si.action_assignments.all())
+        total = len(all_actions)
+        completed = sum(1 for a in all_actions if a.is_completed)
+        total_actual = sum(a.actual_hours for a in all_actions)
+        si.progress_pct = Decimal(completed * 100 / total) if total else Decimal(0)
+        si.actual_hours = total_actual
+        si.save(update_fields=["progress_pct", "actual_hours", "operative_deviation_pct"])
+
+        response = TemplateResponse(
+            request,
+            "projects/partials/action_row.html",
+            {"action": action, "project": project, "si": si},
+        )
+        response["HX-Trigger"] = "actionToggled"
+        return response
+
+
+class ActionProgressLogView(LoginRequiredMixin, View):
+    """HTMX: GET → modal para registrar avance; POST → guarda y marca acción completada."""
+
+    def get(self, request, pk, si_pk, action_pk):
+        from apps.accounts.models import User
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+        action = get_object_or_404(ServiceInstanceAction, pk=action_pk, service_instance=si)
+        users = User.objects.filter(is_active=True).order_by("first_name", "last_name")
+        return TemplateResponse(
+            request,
+            "projects/partials/action_progress_modal.html",
+            {"action": action, "si": si, "project": project, "users": users},
+        )
+
+    def post(self, request, pk, si_pk, action_pk):
+        from django.utils import timezone
+        from apps.accounts.models import User
+
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+        action = get_object_or_404(ServiceInstanceAction, pk=action_pk, service_instance=si)
+
+        description = request.POST.get("description", "").strip()
+        folder_link = request.POST.get("folder_link", "").strip() or None
+        start_dt_raw = request.POST.get("start_datetime", "").strip()
+        end_dt_raw = request.POST.get("end_datetime", "").strip()
+        executed_by_id = request.POST.get("executed_by", "").strip()
+        attachment = request.FILES.get("attachment")
+
+        if not description or not start_dt_raw or not end_dt_raw or not executed_by_id:
+            return HttpResponse("Faltan campos requeridos.", status=400)
+
+        from datetime import datetime
+        try:
+            start_dt = datetime.fromisoformat(start_dt_raw)
+            end_dt = datetime.fromisoformat(end_dt_raw)
+        except ValueError:
+            return HttpResponse("Formato de fecha/hora inválido.", status=400)
+
+        if end_dt <= start_dt:
+            return HttpResponse("La hora fin debe ser posterior a la hora inicio.", status=400)
+
+        executed_by = get_object_or_404(User, pk=executed_by_id)
+
+        log = ActionProgressLog(
+            action=action,
+            description=description,
+            folder_link=folder_link,
+            start_datetime=start_dt,
+            end_datetime=end_dt,
+            executed_by=executed_by,
+        )
+        if attachment:
+            log.attachment = attachment
+        log.save()
+
+        # Crear ProjectDocument automáticamente si hay adjunto o link
+        from apps.documents.models import ProjectDocument
+        doc_name = f"{action.name} — {si.code}"
+        if attachment:
+            ProjectDocument.objects.create(
+                project=project,
+                service_instance=si,
+                document_type=ProjectDocument.DocumentType.DELIVERABLE,
+                audience=ProjectDocument.Audience.INTERNAL,
+                name=doc_name,
+                file=log.attachment,
+                notes=description,
+            )
+        if folder_link:
+            ProjectDocument.objects.create(
+                project=project,
+                service_instance=si,
+                document_type=ProjectDocument.DocumentType.DELIVERABLE,
+                audience=ProjectDocument.Audience.INTERNAL,
+                name=doc_name,
+                access_link=folder_link,
+                notes=description,
+            )
+
+        # Marcar acción como completada
+        action.is_completed = True
+        action.completed_at = timezone.now()
+
+        # Recalcular horas reales sumando todos los registros
+        total_hours = sum(
+            log_entry.hours for log_entry in action.progress_logs.all()
+        )
+        action.actual_hours = Decimal(str(total_hours))
+        action.save(update_fields=["is_completed", "completed_at", "actual_hours"])
+
+        # Recalcular progreso del servicio
+        all_actions = list(si.action_assignments.all())
+        total = len(all_actions)
+        completed = sum(1 for a in all_actions if a.is_completed)
+        total_actual = sum(a.actual_hours for a in all_actions)
+        si.progress_pct = Decimal(completed * 100 / total) if total else Decimal(0)
+        si.actual_hours = total_actual
+        if si.projected_hours and si.actual_hours:
+            si.operative_deviation_pct = round(
+                (si.actual_hours - si.projected_hours) / si.projected_hours * 100, 2
+            )
+        else:
+            si.operative_deviation_pct = Decimal(0)
+        si.save(update_fields=["progress_pct", "actual_hours", "operative_deviation_pct"])
+
+        response = TemplateResponse(
+            request,
+            "projects/partials/action_row.html",
+            {"action": action, "project": project, "si": si},
+        )
+        response["HX-Trigger"] = "actionToggled"
+        return response
+
+
+class ActionProgressHistoryView(LoginRequiredMixin, View):
+    """HTMX: modal con el historial de registros de avance de una acción."""
+
+    def get(self, request, pk, si_pk, action_pk):
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+        action = get_object_or_404(ServiceInstanceAction, pk=action_pk, service_instance=si)
+        logs = action.progress_logs.select_related("executed_by").order_by("start_datetime")
+        return TemplateResponse(
+            request,
+            "projects/partials/action_progress_history_modal.html",
+            {"action": action, "si": si, "project": project, "logs": logs},
+        )
+
+
+class ServiceApprovalView(LoginRequiredMixin, View):
+    """HTMX: GET → modal de aprobación (solo líder); POST → aprueba o rechaza."""
+
+    def _check_leader(self, request, project):
+        return request.user == project.leader
+
+    def get(self, request, pk, si_pk):
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+
+        # Construir árbol de progreso para revisión
+        actions = list(
+            si.action_assignments.select_related(
+                "service_activity__key_activity__deliverable",
+                "assigned_professional",
+            ).order_by("order")
+        )
+        tree = []
+        seen_delivs = {}
+        seen_kacts = {}
+        for act in actions:
+            sa = act.service_activity
+            if sa and sa.key_activity and sa.key_activity.deliverable:
+                d_name = sa.key_activity.deliverable.name
+                ka_name = sa.key_activity.name
+            else:
+                d_name = "Sin entregable"
+                ka_name = "Sin actividad clave"
+            if d_name not in seen_delivs:
+                seen_delivs[d_name] = {"name": d_name, "kacts": []}
+                seen_kacts[d_name] = {}
+                tree.append(seen_delivs[d_name])
+            if ka_name not in seen_kacts[d_name]:
+                kact_entry = {"name": ka_name, "actions": []}
+                seen_kacts[d_name][ka_name] = kact_entry
+                seen_delivs[d_name]["kacts"].append(kact_entry)
+            seen_kacts[d_name][ka_name]["actions"].append(act)
+
+        for deliv in tree:
+            for kact in deliv["kacts"]:
+                acts = kact["actions"]
+                total = len(acts)
+                completed = sum(1 for a in acts if a.is_completed)
+                kact["progress_pct"] = round(completed * 100 / total) if total else 0
+                kact["completed"] = completed
+                kact["total"] = total
+            kacts = deliv["kacts"]
+            deliv["progress_pct"] = (
+                round(sum(k["progress_pct"] for k in kacts) / len(kacts)) if kacts else 0
+            )
+
+        is_leader = self._check_leader(request, project)
+        return TemplateResponse(
+            request,
+            "projects/partials/service_approval_modal.html",
+            {"si": si, "project": project, "tree": tree, "is_leader": is_leader},
+        )
+
+    def post(self, request, pk, si_pk):
+        from django.utils import timezone
+        project = get_object_or_404(Project, pk=pk)
+        si = get_object_or_404(ServiceInstance, pk=si_pk, project=project)
+
+        if not self._check_leader(request, project):
+            return HttpResponse("Solo el líder del proyecto puede aprobar servicios.", status=403)
+
+        decision = request.POST.get("decision")
+        notes = request.POST.get("approval_notes", "").strip()
+
+        if decision == "approve":
+            si.approval_status = ServiceInstance.ApprovalStatus.APPROVED
+            si.is_checked = True
+            si.progress_pct = Decimal("100.00")
+        elif decision == "reject":
+            si.approval_status = ServiceInstance.ApprovalStatus.REJECTED
+            si.is_checked = False
+        else:
+            return HttpResponse("Decisión inválida.", status=400)
+
+        si.approval_notes = notes
+        si.approved_by = request.user
+        si.approved_at = timezone.now()
+        si.save(update_fields=["approval_status", "approval_notes", "approved_by", "approved_at", "is_checked", "progress_pct"])
+
+        response = TemplateResponse(
+            request,
+            "projects/partials/service_approval_badge.html",
+            {"si": si, "project": project},
+        )
         response["HX-Trigger"] = "scheduleChanged"
         return response
 

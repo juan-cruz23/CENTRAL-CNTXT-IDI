@@ -1,0 +1,192 @@
+{% load common_tags %}
+<dialog id="service-approval-modal" class="modal">
+  <div class="modal-box w-11/12 max-w-3xl flex flex-col" style="max-height:90vh;">
+
+    {# ── Header ── #}
+    <div class="flex items-start justify-between mb-4 shrink-0">
+      <div>
+        <h3 class="font-bold text-lg">Aprobación de Servicio</h3>
+        <p class="text-sm text-base-content/60 font-mono mt-0.5">{{ si.code }} — {{ si.name }}</p>
+      </div>
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="overflow-y-auto flex-1 pr-1">
+
+      {# ── Métricas del servicio ── #}
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div class="stat bg-base-200/50 rounded-lg p-3">
+          <div class="stat-title text-xs">Avance</div>
+          <div class="stat-value text-lg {% if si.progress_pct >= 100 %}text-success{% elif si.progress_pct > 0 %}text-primary{% else %}text-error{% endif %}">
+            {{ si.progress_pct|floatformat:0 }}%
+          </div>
+        </div>
+        <div class="stat bg-base-200/50 rounded-lg p-3">
+          <div class="stat-title text-xs">H. Proyectadas</div>
+          <div class="stat-value text-lg">{{ si.projected_hours }}</div>
+        </div>
+        <div class="stat bg-base-200/50 rounded-lg p-3">
+          <div class="stat-title text-xs">H. Reales</div>
+          <div class="stat-value text-lg {% if si.actual_hours > si.projected_hours %}text-error{% else %}text-success{% endif %}">
+            {{ si.actual_hours }}
+          </div>
+        </div>
+      </div>
+
+      {# ── Árbol de revisión ── #}
+      {% if tree %}
+      <div class="mb-4">
+        <h4 class="text-sm font-semibold mb-2 text-base-content/70">Revisión de entregables</h4>
+        <div class="flex flex-col gap-2">
+          {% for deliv in tree %}
+          <div class="border border-base-300/40 rounded-lg overflow-hidden">
+
+            {# Entregable #}
+            <div class="flex items-center gap-2 px-3 py-2 bg-base-200/40 flex-wrap">
+              <span class="badge badge-primary badge-xs shrink-0">Entregable</span>
+              <span class="text-sm font-medium flex-1">{{ deliv.name }}</span>
+              <div class="flex items-center gap-1">
+                <progress class="progress w-20 h-1.5 {% if deliv.progress_pct >= 100 %}progress-success{% elif deliv.progress_pct > 0 %}progress-primary{% else %}progress-error{% endif %}"
+                  value="{{ deliv.progress_pct }}" max="100"></progress>
+                <span class="text-xs font-bold {% if deliv.progress_pct >= 100 %}text-success{% elif deliv.progress_pct > 0 %}text-primary{% else %}text-error{% endif %}">
+                  {{ deliv.progress_pct }}%
+                </span>
+              </div>
+            </div>
+
+            {# Actividades #}
+            <div class="divide-y divide-base-300/20">
+              {% for kact in deliv.kacts %}
+              <div class="px-4 py-2 flex items-center gap-2 flex-wrap">
+                <span class="badge badge-secondary badge-xs shrink-0">Actividad</span>
+                <span class="text-xs text-base-content/70 flex-1">{{ kact.name }}</span>
+                <div class="flex items-center gap-1">
+                  <span class="text-xs text-base-content/40">{{ kact.completed }}/{{ kact.total }}</span>
+                  <progress class="progress w-16 h-1 {% if kact.progress_pct >= 100 %}progress-success{% elif kact.progress_pct > 0 %}progress-primary{% else %}progress-error{% endif %}"
+                    value="{{ kact.progress_pct }}" max="100"></progress>
+                  <span class="text-xs font-medium {% if kact.progress_pct >= 100 %}text-success{% elif kact.progress_pct > 0 %}text-primary{% else %}text-error{% endif %}">
+                    {{ kact.progress_pct }}%
+                  </span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# ── Aprobación anterior (si existe) ── #}
+      {% if si.approval_status != 'PENDING' %}
+      <div class="alert {% if si.approval_status == 'APPROVED' %}alert-success{% else %}alert-error{% endif %} mb-4 py-2">
+        <span class="text-sm">
+          <strong>{% if si.approval_status == 'APPROVED' %}Aprobado{% else %}Rechazado{% endif %}</strong>
+          por {{ si.approved_by.get_full_name }} el {{ si.approved_at|date:"d/m/Y H:i" }}
+          {% if si.approval_notes %} — "{{ si.approval_notes }}"{% endif %}
+        </span>
+      </div>
+      {% endif %}
+
+      {# ── Observaciones ── #}
+      <div class="form-control mb-2">
+        <label class="label pb-1">
+          <span class="label-text font-medium text-sm">Observaciones</span>
+          <span class="label-text-alt text-base-content/40">Opcional</span>
+        </label>
+        <textarea id="approval-notes" rows="3"
+                  class="textarea textarea-bordered text-sm w-full"
+                  placeholder="Escribe observaciones, correcciones o comentarios para el equipo…">{{ si.approval_notes }}</textarea>
+      </div>
+
+    </div>
+
+    {# ── Footer ── #}
+    <div class="modal-action mt-4 pt-3 border-t border-base-300/30 shrink-0 flex justify-between items-center">
+      <form method="dialog">
+        <button class="btn btn-ghost btn-sm">Cancelar</button>
+      </form>
+
+      {% if is_leader %}
+      <div class="flex gap-2">
+        <button type="button" id="btn-reject"
+                class="btn btn-error btn-sm gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          Rechazar
+        </button>
+        <button type="button" id="btn-approve"
+                class="btn btn-success btn-sm gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Aprobar servicio
+        </button>
+      </div>
+      {% else %}
+      <span class="text-xs text-base-content/40 italic">Solo el líder del proyecto puede aprobar.</span>
+      {% endif %}
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>cerrar</button></form>
+</dialog>
+
+<script>
+(function () {
+  const modal   = document.getElementById('service-approval-modal');
+  const postUrl = "{% url 'projects:service_approval' project.pk si.pk %}";
+
+  function getCsrf() {
+    const m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+  }
+
+  modal.showModal();
+
+  function submit(decision) {
+    const notes = document.getElementById('approval-notes').value;
+    const fd = new FormData();
+    fd.append('decision', decision);
+    fd.append('approval_notes', notes);
+
+    const btn = decision === 'approve'
+      ? document.getElementById('btn-approve')
+      : document.getElementById('btn-reject');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading loading-spinner loading-xs"></span>';
+
+    fetch(postUrl, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': getCsrf() },
+    })
+    .then(r => {
+      if (!r.ok) return r.text().then(t => { throw new Error(t); });
+      return r.text();
+    })
+    .then(html => {
+      modal.close();
+      // Actualizar el badge en la fila del servicio
+      const badge = document.getElementById('approval-badge-{{ si.pk }}');
+      if (badge) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        badge.replaceWith(tmp.firstElementChild);
+      }
+      htmx.trigger(document.body, 'scheduleChanged');
+    })
+    .catch(err => {
+      alert('Error: ' + err.message);
+      btn.disabled = false;
+    });
+  }
+
+  {% if is_leader %}
+  document.getElementById('btn-approve').addEventListener('click', () => submit('approve'));
+  document.getElementById('btn-reject').addEventListener('click',  () => submit('reject'));
+  {% endif %}
+})();
+</script>
