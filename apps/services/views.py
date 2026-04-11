@@ -19,9 +19,10 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import HardwareForm, ProjectCategoryForm, ProjectPhaseForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
+from apps.services.forms import DeliverableForm, HardwareForm, ProjectCategoryForm, ProjectPhaseForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
+    Deliverable,
     Hardware,
     ProjectCategory,
     ProjectPhase,
@@ -175,6 +176,37 @@ class ProjectPhaseDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView)
     model = ProjectPhase
     template_name = "services/projectphase_confirm_delete.html"
     success_url = reverse_lazy("services:phase_list")
+
+
+class DeliverableListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = Deliverable
+    template_name = "services/deliverable_list.html"
+    context_object_name = "deliverables"
+
+    def get_queryset(self):
+        return Deliverable.objects.select_related("service_template", "service_template__category").order_by(
+            "service_template__code", "order", "name"
+        )
+
+
+class DeliverableCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = Deliverable
+    form_class = DeliverableForm
+    template_name = "services/deliverable_form.html"
+    success_url = reverse_lazy("services:deliverable_list")
+
+
+class DeliverableUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = Deliverable
+    form_class = DeliverableForm
+    template_name = "services/deliverable_form.html"
+    success_url = reverse_lazy("services:deliverable_list")
+
+
+class DeliverableDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = Deliverable
+    template_name = "services/deliverable_confirm_delete.html"
+    success_url = reverse_lazy("services:deliverable_list")
 
 
 class ServiceTemplateListView(LoginRequiredMixin, ListView):

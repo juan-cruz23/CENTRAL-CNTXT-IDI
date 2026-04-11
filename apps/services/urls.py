@@ -55,6 +55,11 @@ urlpatterns = [
         views.ServiceSubCategoryDeleteView.as_view(),
         name="subcategory_delete",
     ),
+    # Entregables
+    path("entregables/", views.DeliverableListView.as_view(), name="deliverable_list"),
+    path("entregables/crear/", views.DeliverableCreateView.as_view(), name="deliverable_create"),
+    path("entregables/<int:pk>/editar/", views.DeliverableUpdateView.as_view(), name="deliverable_update"),
+    path("entregables/<int:pk>/eliminar/", views.DeliverableDeleteView.as_view(), name="deliverable_delete"),
     path(
         "phases/",
         views.ProjectPhaseListView.as_view(),

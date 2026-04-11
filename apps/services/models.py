@@ -473,6 +473,42 @@ class ServiceActivity(TimeStampedModel):
 
     class Meta:
         ordering = ["service_template", "order"]
+
+
+class Deliverable(TimeStampedModel):
+    """
+    Entregable asociado a una plantilla de servicio.
+    Ejemplo: 'Modelo Tridimensional, Viewer 360 Escala Urbana' (unidad: Proyecto).
+    """
+
+    service_template = models.ForeignKey(
+        ServiceTemplate,
+        on_delete=models.CASCADE,
+        related_name="deliverables",
+        verbose_name="servicio",
+    )
+    name = models.CharField(
+        max_length=400,
+        verbose_name="nombre del entregable",
+    )
+    unit = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="unidad",
+        help_text="Ej. Proyecto, 100m2, Und, 15 ha.",
+    )
+    order = models.PositiveIntegerField(
+        default=1,
+        verbose_name="orden",
+    )
+
+    class Meta:
+        ordering = ["service_template", "order", "name"]
+        verbose_name = "entregable"
+        verbose_name_plural = "entregables"
+
+    def __str__(self):
+        return f"{self.service_template.code} — {self.name}"
         verbose_name = "actividad de servicio"
         verbose_name_plural = "actividades de servicio"
 
