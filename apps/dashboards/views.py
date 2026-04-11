@@ -234,7 +234,7 @@ class ProjectDashboardView(LoginRequiredMixin, DetailView):
         project = self.object
 
         # ------------------------------------------------------------------
-        # Phases with their service instances
+        # Phases with their service instances (ProjectPhaseInstance)
         # ------------------------------------------------------------------
         context["phases"] = (
             ProjectPhaseInstance.objects.filter(project=project)
@@ -246,6 +246,32 @@ class ProjectDashboardView(LoginRequiredMixin, DetailView):
             )
             .order_by("order")
         )
+
+        # ------------------------------------------------------------------
+        # Cronograma services (phase_instance=None) grouped by template phase
+        # ------------------------------------------------------------------
+        loose = list(
+            ServiceInstance.objects.filter(project=project, phase_instance=None)
+            .select_related(
+                "service_template__phase",
+                "assigned_professional",
+                "responsible_role",
+            )
+            .order_by("service_template__phase__number", "projected_start_date", "code")
+        )
+        phase_groups_dict = {}
+        for si in loose:
+            phase = si.service_template.phase if si.service_template else None
+            sort_key = (
+                phase.number if phase and hasattr(phase, "number") else 999,
+                phase.pk if phase else 0,
+            )
+            if sort_key not in phase_groups_dict:
+                phase_groups_dict[sort_key] = {"phase": phase, "services": []}
+            phase_groups_dict[sort_key]["services"].append(si)
+        context["schedule_phase_groups"] = [
+            v for _, v in sorted(phase_groups_dict.items())
+        ]
 
         # ------------------------------------------------------------------
         # Latest metric snapshot
