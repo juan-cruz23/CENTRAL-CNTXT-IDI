@@ -630,117 +630,158 @@ def gantt_data_api(request):
 @login_required
 def project_gantt_api(request, project_pk):
     """
-    Gantt data for a single project.
-    Includes services from ProjectPhaseInstances AND services added directly
-    to the cronograma (phase_instance=None), grouped by service_template.phase.
+    Gantt data for a single project — collapsible tree.
+    Returns `items` list: level 0=phase, 1=service, 2=action.
+    Service items are expandable; actions have no date bars (text only).
     """
+    from apps.projects.models import ServiceInstanceAction, Milestone as MilestoneModel
+
     project = get_object_or_404(Project, pk=project_pk)
+    items = []
+    uid = 0
 
-    categories = []
-    planned_data = []
-    actual_data = []
-    milestones_data = []
-    idx = 0
+    def new_item(label, level, parent_id, s_start=None, s_end=None,
+                 a_start=None, a_end=None, progress=0,
+                 has_children=False, itype="phase", meta=None):
+        nonlocal uid
+        items.append({
+            "id": uid,
+            "label": label,
+            "level": level,
+            "parent_id": parent_id,
+            "s_start": s_start.isoformat() if s_start else None,
+            "s_end":   s_end.isoformat()   if s_end   else None,
+            "a_start": a_start.isoformat() if a_start else None,
+            "a_end":   a_end.isoformat()   if a_end   else None,
+            "progress": float(progress),
+            "has_children": has_children,
+            "type": itype,
+            **(meta or {}),
+        })
+        current = uid
+        uid += 1
+        return current
 
-    def _add_service_bar(svc):
-        nonlocal idx
-        categories.append(f"  {svc.code} {svc.name[:40]}")
-        s_start = svc.projected_start_date
-        s_end   = svc.projected_end_date
-        sa_start = svc.actual_start_date
-        sa_end   = svc.actual_end_date
-        progress = float(svc.progress_pct or 0)
+    def add_service(svc, phase_item_id):
+        """Add a service item + its action children."""
+        actions = list(
+            ServiceInstanceAction.objects.filter(service_instance=svc)
+            .select_related(
+                "service_activity__key_activity__deliverable",
+                "responsible_role",
+                "assigned_professional",
+            )
+            .order_by("order")
+        )
+        has_actions = bool(actions)
+        svc_id = new_item(
+            label    = f"{svc.code} — {svc.name[:45]}",
+            level    = 1,
+            parent_id= phase_item_id,
+            s_start  = svc.projected_start_date,
+            s_end    = svc.projected_end_date,
+            a_start  = svc.actual_start_date,
+            a_end    = svc.actual_end_date,
+            progress = svc.progress_pct or 0,
+            has_children = has_actions,
+            itype    = "service",
+        )
+        # Group actions by deliverable → key_activity
+        seen_delivs = {}
+        seen_kacts  = {}
+        for act in actions:
+            sa = act.service_activity
+            d_name  = (sa.key_activity.deliverable.name if sa and sa.key_activity and sa.key_activity.deliverable else "Sin entregable")
+            ka_name = (sa.key_activity.name if sa and sa.key_activity else "Sin actividad")
+            role_code = act.responsible_role.code if act.responsible_role else "—"
+            resp_name = act.assigned_professional.get_full_name() if act.assigned_professional else "Sin asignar"
 
-        if s_start and s_end:
-            planned_data.append({
-                "value": [idx, s_start.isoformat(), s_end.isoformat(), progress],
-                "itemStyle": {"color": "rgba(59,130,246,0.4)", "borderRadius": 3},
-            })
-        if sa_start:
-            sa_end_val = sa_end or date.today()
-            if progress >= 100:
-                bar_color = "rgba(34,197,94,0.6)"
-            elif progress > 0:
-                bar_color = "rgba(250,204,21,0.6)"
-            else:
-                bar_color = "rgba(239,68,68,0.4)"
-            actual_data.append({
-                "value": [idx, sa_start.isoformat(), sa_end_val.isoformat(), progress],
-                "itemStyle": {"color": bar_color, "borderRadius": 3},
-            })
-        idx += 1
+            # Deliverable header (level 2)
+            if d_name not in seen_delivs:
+                seen_delivs[d_name] = new_item(
+                    label=f"📦 {d_name}",
+                    level=2, parent_id=svc_id,
+                    has_children=True, itype="deliverable",
+                )
+                seen_kacts[d_name] = {}
 
-    # ── 1. Servicios vinculados a ProjectPhaseInstances ──────────────────
-    phase_instances = ProjectPhaseInstance.objects.filter(
-        project=project,
-    ).select_related("phase").order_by("order")
+            d_id = seen_delivs[d_name]
 
-    for phase in phase_instances:
-        categories.append(f"Fase {phase.order}: {phase.phase.name}")
-        p_start = phase.planned_start_date
-        p_end   = phase.planned_end_date
-        a_start = phase.actual_start_date
-        a_end   = phase.actual_end_date
+            # Key activity sub-header (level 3)
+            kact_key = f"{d_name}||{ka_name}"
+            if kact_key not in seen_kacts[d_name]:
+                seen_kacts[d_name][kact_key] = new_item(
+                    label=f"  ◆ {ka_name}",
+                    level=3, parent_id=d_id,
+                    has_children=True, itype="key_activity",
+                )
 
-        if p_start and p_end:
-            planned_data.append({
-                "value": [idx, p_start.isoformat(), p_end.isoformat(), float(phase.progress_pct)],
-                "itemStyle": {"color": "rgba(59,130,246,0.7)", "borderRadius": 4},
-            })
-        if a_start:
-            actual_data.append({
-                "value": [idx, a_start.isoformat(), (a_end or date.today()).isoformat(), float(phase.progress_pct)],
-                "itemStyle": {"color": "rgba(34,197,94,0.7)", "borderRadius": 4},
-            })
-        idx += 1
+            ka_id = seen_kacts[d_name][kact_key]
 
+            # Action row (level 4)
+            new_item(
+                label=f"    {act.order}. {act.name[:50]}  [{role_code}] {resp_name}  {act.estimated_hours}h",
+                level=4, parent_id=ka_id,
+                has_children=False, itype="action",
+            )
+
+    # ── 1. Phase instances (ProjectPhaseInstance) ────────────────────────
+    for phase in ProjectPhaseInstance.objects.filter(
+        project=project
+    ).select_related("phase").order_by("order"):
+        starts = [s.projected_start_date for s in phase.service_instances.all() if s.projected_start_date]
+        ends   = [s.projected_end_date   for s in phase.service_instances.all() if s.projected_end_date]
+        ph_id  = new_item(
+            label    = phase.phase.name,
+            level    = 0,
+            parent_id= None,
+            s_start  = phase.planned_start_date or (min(starts) if starts else None),
+            s_end    = phase.planned_end_date   or (max(ends)   if ends   else None),
+            a_start  = phase.actual_start_date,
+            a_end    = phase.actual_end_date,
+            progress = phase.progress_pct,
+            has_children = True,
+            itype    = "phase",
+        )
         for svc in ServiceInstance.objects.filter(
             project=project, phase_instance=phase
         ).order_by("code"):
-            _add_service_bar(svc)
+            add_service(svc, ph_id)
 
-    # ── 2. Servicios del cronograma (phase_instance=None), por fase ──────
-    loose_services = list(
+    # ── 2. Loose services (phase_instance=None) grouped by template phase ─
+    loose = list(
         ServiceInstance.objects.filter(project=project, phase_instance=None)
         .select_related("service_template__phase")
         .order_by("service_template__phase__number", "projected_start_date", "code")
     )
-
-    if loose_services:
-        # Agrupar por fase del service template
+    if loose:
         phase_groups: dict = {}
-        for svc in loose_services:
-            phase = svc.service_template.phase if svc.service_template else None
-            key   = (phase.number if phase else 999, phase.pk if phase else 0)
+        for svc in loose:
+            ph    = svc.service_template.phase if svc.service_template else None
+            key   = (ph.number if ph else 999, ph.pk if ph else 0)
             if key not in phase_groups:
-                phase_groups[key] = {"phase": phase, "services": []}
+                phase_groups[key] = {"phase": ph, "services": []}
             phase_groups[key]["services"].append(svc)
 
-        for _, group in sorted(phase_groups.items()):
-            ph    = group["phase"]
-            svcs  = group["services"]
-
-            # Calcular span de fechas de la fase a partir de sus servicios
+        for _, grp in sorted(phase_groups.items()):
+            ph   = grp["phase"]
+            svcs = grp["services"]
             starts = [s.projected_start_date for s in svcs if s.projected_start_date]
             ends   = [s.projected_end_date   for s in svcs if s.projected_end_date]
-            ph_start = min(starts) if starts else None
-            ph_end   = max(ends)   if ends   else None
-
-            label = ph.name if ph else "Sin Fase"
-            categories.append(label)
-
-            if ph_start and ph_end:
-                planned_data.append({
-                    "value": [idx, ph_start.isoformat(), ph_end.isoformat(), 0],
-                    "itemStyle": {"color": "rgba(59,130,246,0.7)", "borderRadius": 4},
-                })
-            idx += 1
-
+            ph_id  = new_item(
+                label    = ph.name if ph else "Sin Fase",
+                level    = 0,
+                parent_id= None,
+                s_start  = min(starts) if starts else None,
+                s_end    = max(ends)   if ends   else None,
+                has_children = True,
+                itype    = "phase",
+            )
             for svc in svcs:
-                _add_service_bar(svc)
+                add_service(svc, ph_id)
 
     # ── 3. Hitos ─────────────────────────────────────────────────────────
-    from apps.projects.models import Milestone as MilestoneModel
+    milestones_data = []
     for m in MilestoneModel.objects.filter(project=project).order_by("planned_date"):
         if m.planned_date:
             milestones_data.append({
@@ -751,12 +792,10 @@ def project_gantt_api(request, project_pk):
             })
 
     return JsonResponse({
-        "categories": categories,
-        "planned": planned_data,
-        "actual": actual_data,
+        "items": items,
         "milestones": milestones_data,
         "project_start": project.planned_start_date.isoformat() if project.planned_start_date else None,
-        "project_end": project.planned_end_date.isoformat() if project.planned_end_date else None,
+        "project_end":   project.planned_end_date.isoformat()   if project.planned_end_date   else None,
     })
 
 
