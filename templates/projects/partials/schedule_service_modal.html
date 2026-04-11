@@ -111,6 +111,12 @@
   const calcUrl    = "{% url 'projects:schedule_calc_end_date' project.pk %}";
   const postUrl    = "{% url 'projects:schedule_service_create' project.pk %}";
 
+  // Leer CSRF token desde la cookie (funciona aunque el modal no tenga {% csrf_token %})
+  function getCsrf() {
+    const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  }
+
   // Abrir modal automáticamente al cargar
   modal.showModal();
 
@@ -130,9 +136,12 @@
     const fd = new FormData();
     fd.append('service_template', serviceId);
     fd.append('projected_start_date', startDate);
-    fd.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]')?.value || '');
 
-    fetch(calcUrl, { method: 'POST', body: fd })
+    fetch(calcUrl, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': getCsrf() },
+    })
       .then(r => r.text())
       .then(html => { endEl.innerHTML = html; });
   }
@@ -201,8 +210,7 @@
       });
     }
 
-    const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-    fd.append('csrfmiddlewaretoken', csrf);
+    const csrf = getCsrf();
 
     fetch(postUrl, {
       method: 'POST',
