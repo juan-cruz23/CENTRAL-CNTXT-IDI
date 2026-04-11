@@ -93,7 +93,7 @@
       <span class="flex items-center gap-1"><span class="w-3 h-2.5 rounded inline-block" style="background:rgba(239,68,68,0.4)"></span> Sin avance</span>
       <span class="ml-auto text-base-content/40 italic">▶ Clic en una barra o nombre para expandir entregables y acciones</span>
     </div>
-    <div id="gantt-chart" style="height:500px;"></div>
+    <div id="gantt-chart" style="height:560px;"></div>
   </div>
 </div>
 
@@ -180,24 +180,29 @@ loadSCurve('cost');
 // ── Project Gantt Chart (collapsible tree) ──────────────────────────────────
 (function () {
   const el = document.getElementById('gantt-chart');
-  let allItems = [];          // full tree from API
-  let itemsById = {};         // id → item
-  const collapsed = new Set();// IDs of collapsed items (services start collapsed)
-  let ganttChart = null;
-  let visibleItems = [];      // current flat filtered list
+  el.style.height = '560px';
 
-  // Levels: 0=phase, 1=service, 2=deliverable, 3=key_activity, 4=action
-  const LABEL_COLORS = {
-    0: { light: '#570df8', dark: '#818cf8', weight: 'bold',   size: 12 },
-    1: { light: '#1d4ed8', dark: '#93c5fd', weight: 'bold',   size: 11 },
-    2: { light: '#374151', dark: '#d1d5db', weight: 'normal', size: 10 },
-    3: { light: '#6b7280', dark: '#9ca3af', weight: 'normal', size: 10 },
-    4: { light: '#9ca3af', dark: '#6b7280', weight: 'normal', size: 10 },
-  };
-  const BAR_COLORS = [
-    'rgba(59,130,246,0.7)',   // phase planned
-    'rgba(59,130,246,0.45)',  // service planned
-  ];
+  let allItems  = [];
+  let itemsById = {};
+  const collapsed = new Set();
+  let chart = null;
+  let visibleItems = [];
+
+  // Encode level in the category string as a hidden prefix so ECharts
+  // doesn't need a callback-with-index for per-row styling.
+  // Format:  "\x00<level>\x00<display text>"
+  function encodeLabel(item) {
+    const toggle = item.has_children ? (collapsed.has(item.id) ? '▶ ' : '▼ ') : '   ';
+    return `\x00${item.level}\x00${toggle}${item.label}`;
+  }
+  function decodeLabel(raw) {
+    if (!raw || raw[0] !== '\x00') return raw;
+    return raw.slice(3); // strip "\x00L\x00"
+  }
+  function levelOf(raw) {
+    if (!raw || raw[0] !== '\x00') return 0;
+    return parseInt(raw[1]);
+  }
 
   function isVisible(item) {
     let pid = item.parent_id;
@@ -210,161 +215,159 @@ loadSCurve('cost');
     return true;
   }
 
-  function getLabel(item, isDark) {
-    const hasKids = item.has_children;
-    const isCollapsible = hasKids && (item.type === 'service' || item.type === 'phase' || item.type === 'deliverable' || item.type === 'key_activity');
-    let prefix = '';
-    if (isCollapsible) prefix = collapsed.has(item.id) ? '▶ ' : '▼ ';
-    return prefix + item.label;
-  }
-
-  function buildChartData(isDark) {
+  function buildData() {
     visibleItems = allItems.filter(isVisible);
-    const categories = visibleItems.map(item => getLabel(item, isDark));
+    const categories = visibleItems.map(encodeLabel);
     const planned = [], actual = [];
 
     visibleItems.forEach((item, idx) => {
       if (item.s_start && item.s_end) {
-        const color = item.level === 0 ? BAR_COLORS[0] : BAR_COLORS[1];
+        const color = item.level === 0 ? 'rgba(59,130,246,0.75)' : 'rgba(59,130,246,0.45)';
         planned.push({
           value: [idx, item.s_start, item.s_end, item.progress],
           itemStyle: { color, borderRadius: item.level === 0 ? 4 : 3 },
         });
       }
       if (item.a_start) {
-        const aEnd = item.a_end || new Date().toISOString().split('T')[0];
-        const p = item.progress;
-        const barColor = p >= 100 ? 'rgba(34,197,94,0.6)'
-                       : p > 0    ? 'rgba(250,204,21,0.6)'
-                                  : 'rgba(239,68,68,0.4)';
+        const p   = item.progress;
+        const end = item.a_end || new Date().toISOString().split('T')[0];
         actual.push({
-          value: [idx, item.a_start, aEnd, p],
-          itemStyle: { color: barColor, borderRadius: 3 },
+          value: [idx, item.a_start, end, p],
+          itemStyle: {
+            color: p >= 100 ? 'rgba(34,197,94,0.65)'
+                 : p >  0   ? 'rgba(250,204,21,0.65)'
+                            : 'rgba(239,68,68,0.45)',
+            borderRadius: 3,
+          },
         });
       }
     });
     return { categories, planned, actual };
   }
 
-  function renderGanttItem(params, api) {
-    const catIdx = api.value(0);
+  function renderBar(params, api) {
+    const catIdx  = api.value(0);
     const startPx = api.coord([api.value(1), catIdx]);
     const endPx   = api.coord([api.value(2), catIdx]);
-    const barH = api.size([0, 1])[1] * 0.35;
-    const rectShape = echarts.graphic.clipRectByRect(
+    const barH    = api.size([0, 1])[1] * 0.38;
+    const rect = echarts.graphic.clipRectByRect(
       { x: startPx[0], y: startPx[1] - barH, width: endPx[0] - startPx[0], height: barH * 2 },
       { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height }
     );
-    return rectShape ? { type: 'rect', transition: ['shape'], shape: rectShape, style: api.style() } : null;
+    return rect ? { type: 'rect', transition: ['shape'], shape: rect, style: api.style() } : null;
   }
 
-  function applyOption(isDark) {
-    const { categories, planned, actual } = buildChartData(isDark);
-    const rowH = 28;
-    const newH = Math.max(300, visibleItems.length * rowH + 80);
-    el.style.height = newH + 'px';
-    ganttChart.resize();
+  const LEVEL_COLORS = ['#570df8','#1d4ed8','#374151','#6b7280','#9ca3af'];
+  const LEVEL_COLORS_DARK = ['#818cf8','#93c5fd','#d1d5db','#9ca3af','#6b7280'];
 
-    ganttChart.setOption({
+  function render(isDark) {
+    const { categories, planned, actual } = buildData();
+    const rowsShown = Math.min(20, visibleItems.length);
+    const endPct    = visibleItems.length > 0
+      ? Math.min(100, Math.round(rowsShown / visibleItems.length * 100))
+      : 100;
+
+    const txtColor  = isDark ? '#9ca3af' : '#6b7280';
+    const lineColor = isDark ? '#374151' : '#e5e7eb';
+
+    chart.setOption({
       animation: false,
       tooltip: {
-        formatter(params) {
-          if (!params.value) return '';
-          const item = visibleItems[params.value[0]];
+        formatter(p) {
+          if (!p.value) return '';
+          const item = visibleItems[p.value[0]];
           if (!item) return '';
-          const start = params.value[1], end = params.value[2], pct = params.value[3];
-          return `<b>${item.label}</b><br>${params.seriesName}<br>${start} → ${end}<br>Avance: ${pct}%`;
+          const fmt = d => typeof d === 'number' ? new Date(d).toISOString().split('T')[0] : (d||'');
+          return `<b>${item.label}</b><br>${p.seriesName}<br>${fmt(p.value[1])} → ${fmt(p.value[2])}<br>Avance: ${p.value[3]}%`;
         }
       },
-      grid: { left: 310, right: 50, top: 30, bottom: 30 },
+      grid: { left: 320, right: 70, top: 35, bottom: 55 },
       xAxis: {
         type: 'time',
-        axisLabel: { color: isDark ? '#9ca3af' : '#6b7280', fontSize: 10 },
-        axisLine: { lineStyle: { color: isDark ? '#374151' : '#e5e7eb' } },
-        splitLine: { show: true, lineStyle: { color: isDark ? '#1f2937' : '#f3f4f6', type: 'dashed' } },
+        axisLabel: { color: txtColor, fontSize: 10 },
+        axisLine: { lineStyle: { color: lineColor } },
+        splitLine: { show: true, lineStyle: { color: lineColor, type: 'dashed', opacity: 0.5 } },
       },
       yAxis: {
         type: 'category',
         data: categories,
         inverse: true,
         axisLabel: {
-          formatter(value, index) { return value; },
-          color(value, index) {
-            const item = visibleItems[index];
-            if (!item) return isDark ? '#9ca3af' : '#374151';
-            const cfg = LABEL_COLORS[item.level] || LABEL_COLORS[4];
-            return isDark ? cfg.dark : cfg.light;
+          formatter: v => decodeLabel(v),
+          color: v => {
+            const lvl = levelOf(v);
+            return isDark ? LEVEL_COLORS_DARK[lvl] : LEVEL_COLORS[lvl];
           },
-          fontWeight(value, index) {
-            const item = visibleItems[index];
-            return (item && (item.level === 0 || item.level === 1)) ? 'bold' : 'normal';
-          },
-          fontSize(value, index) {
-            const item = visibleItems[index];
-            return item ? (LABEL_COLORS[item.level] || LABEL_COLORS[4]).size : 10;
-          },
-          width: 295, overflow: 'truncate',
+          fontWeight: v => levelOf(v) <= 1 ? 'bold' : 'normal',
+          fontSize: v => levelOf(v) <= 1 ? 11 : 10,
+          width: 305, overflow: 'truncate',
         },
         axisLine: { show: false },
         axisTick: { show: false },
       },
       series: [
-        { name: 'Planeado', type: 'custom', renderItem: renderGanttItem, encode: { x: [1,2], y: 0 }, data: planned },
-        { name: 'Real',     type: 'custom', renderItem: renderGanttItem, encode: { x: [1,2], y: 0 }, data: actual  },
+        { name: 'Planeado', type: 'custom', renderItem: renderBar, encode: { x:[1,2], y:0 }, data: planned, z: 2 },
+        { name: 'Real',     type: 'custom', renderItem: renderBar, encode: { x:[1,2], y:0 }, data: actual,  z: 3 },
       ],
-      dataZoom: [{ type: 'inside', xAxisIndex: 0 }],
+      dataZoom: [
+        // X-axis: inside scroll + bottom slider
+        { id: 'xInside', type: 'inside', xAxisIndex: 0 },
+        { id: 'xSlider', type: 'slider',  xAxisIndex: 0, bottom: 8, height: 18, borderColor: 'transparent', fillerColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)' },
+        // Y-axis: inside scroll + right slider (filterMode:none = pan, no data filter)
+        { id: 'yInside', type: 'inside',  yAxisIndex: 0, filterMode: 'none', orient: 'vertical' },
+        { id: 'ySlider', type: 'slider',  yAxisIndex: 0, filterMode: 'none', orient: 'vertical', right: 8, width: 18, start: 0, end: endPct, borderColor: 'transparent', fillerColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)' },
+      ],
     }, true);
   }
 
-  function toggleItem(chartIdx) {
-    const item = visibleItems[chartIdx];
+  function toggle(catIdx) {
+    catIdx = Math.round(catIdx);
+    const item = visibleItems[catIdx];
     if (!item || !item.has_children) return;
     collapsed.has(item.id) ? collapsed.delete(item.id) : collapsed.add(item.id);
-    applyOption(getChartColors().isDark);
+    render(getChartColors().isDark);
   }
 
   fetch("{% url 'dashboards:project_gantt' project.pk %}")
     .then(r => r.json())
     .then(data => {
-      if (!data.items || data.items.length === 0) {
-        el.innerHTML = '<div class="text-center py-16 text-base-content/50">Sin datos de cronograma. Agrega servicios en el tab Cronograma del proyecto.</div>';
+      if (!data.items || !data.items.length) {
+        el.innerHTML = '<div class="flex items-center justify-center h-full text-base-content/40 text-sm">Sin datos. Agrega servicios en la pestaña Cronograma.</div>';
         return;
       }
 
       allItems = data.items;
       allItems.forEach(i => { itemsById[i.id] = i; });
 
-      // Collapse all services and deliverables/kacts by default
+      // Start with services (and deeper) collapsed, phases open
       allItems.forEach(i => {
-        if (i.type === 'service' || i.type === 'deliverable' || i.type === 'key_activity') {
-          collapsed.add(i.id);
-        }
+        if (i.type !== 'phase') collapsed.add(i.id);
       });
 
       const colors = getChartColors();
-      ganttChart = echarts.init(el);
-      applyOption(colors.isDark);
+      chart = echarts.init(el);
+      render(colors.isDark);
 
-      // Click on a bar → toggle children
-      ganttChart.on('click', { componentType: 'series' }, function(params) {
-        toggleItem(params.value[0]);
+      // ── Click on a bar → toggle ──────────────────────────────────────
+      chart.on('click', { componentType: 'series' }, function(p) {
+        toggle(p.value[0]);
       });
 
-      // Click on y-axis label area → toggle children
-      ganttChart.getZr().on('click', function(event) {
-        const gridLeft = parseInt(el.style.height) > 0 ? ganttChart.getOption().grid[0].left : 310;
-        if (event.offsetX < (typeof gridLeft === 'number' ? gridLeft : 310)) {
-          try {
-            const pt = ganttChart.convertFromPixel({ seriesIndex: 0 }, [event.offsetX, event.offsetY]);
-            if (pt && pt[0] !== undefined) toggleItem(Math.round(pt[0]));
-          } catch(e) {}
-        }
+      // ── Click on y-axis label area → toggle ─────────────────────────
+      chart.getZr().on('click', function(e) {
+        // Only handle clicks to the left of the grid (label area)
+        try {
+          const pt = chart.convertFromPixel({ gridIndex: 0 }, [e.offsetX, e.offsetY]);
+          if (!pt) return;
+          // pt[1] is the raw category index; with inverse axis it's inverted
+          toggle(pt[1]);
+        } catch(_) {}
       });
 
-      window.addEventListener('resize', () => ganttChart.resize());
+      window.addEventListener('resize', () => chart.resize());
     })
     .catch(() => {
-      el.innerHTML = '<div class="text-center py-16 text-base-content/50">Error al cargar el cronograma.</div>';
+      el.innerHTML = '<div class="flex items-center justify-center h-full text-base-content/40 text-sm">Error al cargar el cronograma.</div>';
     });
 })();
 
