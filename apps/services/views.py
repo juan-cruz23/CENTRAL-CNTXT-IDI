@@ -19,7 +19,7 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import DeliverableForm, HardwareForm, KeyActivityForm, ProjectCategoryForm, ProjectPhaseForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
+from apps.services.forms import DeliverableForm, HardwareForm, KeyActivityForm, ProjectCategoryForm, ProjectPhaseForm, ServiceActivityForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
     Deliverable,
@@ -27,6 +27,7 @@ from apps.services.models import (
     KeyActivity,
     ProjectCategory,
     ProjectPhase,
+    ServiceActivity,
     ServiceSubCategory,
     ServiceTemplate,
     Software,
@@ -239,6 +240,47 @@ class KeyActivityDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     model = KeyActivity
     template_name = "services/keyactivity_confirm_delete.html"
     success_url = reverse_lazy("services:keyactivity_list")
+
+
+class ServiceActivityListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = ServiceActivity
+    template_name = "services/serviceactivity_list.html"
+    context_object_name = "actions"
+    paginate_by = 50
+
+    def get_queryset(self):
+        qs = ServiceActivity.objects.select_related(
+            "service_template", "key_activity__deliverable", "responsible_role"
+        ).order_by("service_template__code", "key_activity__deliverable__name", "key_activity__name", "order")
+        code = self.request.GET.get("q", "").strip()
+        if code:
+            qs = qs.filter(service_template__code__icontains=code)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["q"] = self.request.GET.get("q", "")
+        return ctx
+
+
+class ServiceActivityCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = ServiceActivity
+    form_class = ServiceActivityForm
+    template_name = "services/serviceactivity_form.html"
+    success_url = reverse_lazy("services:serviceactivity_list")
+
+
+class ServiceActivityUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = ServiceActivity
+    form_class = ServiceActivityForm
+    template_name = "services/serviceactivity_form.html"
+    success_url = reverse_lazy("services:serviceactivity_list")
+
+
+class ServiceActivityDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = ServiceActivity
+    template_name = "services/serviceactivity_confirm_delete.html"
+    success_url = reverse_lazy("services:serviceactivity_list")
 
 
 class ServiceTemplateListView(LoginRequiredMixin, ListView):

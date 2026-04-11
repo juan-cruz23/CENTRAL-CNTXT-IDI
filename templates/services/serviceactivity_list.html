@@ -1,0 +1,71 @@
+{% extends "base/base.html" %}
+{% block title %}Acciones de Servicio{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/maestros/" parent_label="Maestros" current="Acciones" %}
+{% endblock %}
+
+{% block content %}
+{% include "components/page_header.html" with title="Acciones de Servicio" %}
+
+<div class="flex items-center justify-between mb-4 gap-3">
+  <form method="get" class="flex gap-2">
+    <input type="text" name="q" value="{{ q }}" placeholder="Filtrar por código de servicio..." class="input input-bordered input-sm w-64">
+    <button type="submit" class="btn btn-sm">Filtrar</button>
+    {% if q %}<a href="?" class="btn btn-ghost btn-sm">Limpiar</a>{% endif %}
+  </form>
+  <a href="{% url 'services:serviceactivity_create' %}" class="btn btn-primary btn-sm gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+    Nueva Acción
+  </a>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="overflow-x-auto">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Servicio</th>
+          <th>Actividad Clave</th>
+          <th>Acción</th>
+          <th>Responsable</th>
+          <th class="text-right">Horas</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in actions %}
+        <tr>
+          <td><span class="font-mono font-bold text-xs">{{ a.service_template.code }}</span></td>
+          <td class="text-xs text-base-content/60">{{ a.key_activity.name|default:"-"|truncatechars:40 }}</td>
+          <td>{{ a.name }}</td>
+          <td class="text-sm">{{ a.responsible_role.code|default:"-" }}</td>
+          <td class="text-right text-sm">{{ a.estimated_hours }}</td>
+          <td class="text-right">
+            <div class="flex justify-end gap-2">
+              <a href="{% url 'services:serviceactivity_update' a.pk %}" class="btn btn-ghost btn-xs">Editar</a>
+              <a href="{% url 'services:serviceactivity_delete' a.pk %}" class="btn btn-ghost btn-xs text-error">Eliminar</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center text-base-content/50 py-8">No hay acciones registradas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<div class="flex justify-center mt-4 gap-2">
+  {% if page_obj.has_previous %}
+  <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm">«</a>
+  {% endif %}
+  <span class="btn btn-sm btn-disabled">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+  <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}" class="btn btn-sm">»</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -65,6 +65,11 @@ urlpatterns = [
     path("actividades/crear/", views.KeyActivityCreateView.as_view(), name="keyactivity_create"),
     path("actividades/<int:pk>/editar/", views.KeyActivityUpdateView.as_view(), name="keyactivity_update"),
     path("actividades/<int:pk>/eliminar/", views.KeyActivityDeleteView.as_view(), name="keyactivity_delete"),
+    # Acciones (ServiceActivity)
+    path("acciones/", views.ServiceActivityListView.as_view(), name="serviceactivity_list"),
+    path("acciones/crear/", views.ServiceActivityCreateView.as_view(), name="serviceactivity_create"),
+    path("acciones/<int:pk>/editar/", views.ServiceActivityUpdateView.as_view(), name="serviceactivity_update"),
+    path("acciones/<int:pk>/eliminar/", views.ServiceActivityDeleteView.as_view(), name="serviceactivity_delete"),
     path(
         "phases/",
         views.ProjectPhaseListView.as_view(),

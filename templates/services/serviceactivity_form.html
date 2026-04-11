@@ -1,0 +1,37 @@
+{% extends "base/base.html" %}
+{% block title %}{% if form.instance.pk %}Editar{% else %}Nueva{% endif %} Acción{% endblock %}
+{% block breadcrumb %}
+{% url 'services:serviceactivity_list' as list_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/maestros/" grandparent_label="Maestros" parent_url=list_url parent_label="Acciones" current=form.instance.pk|yesno:"Editar,Nueva" %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-lg">
+  {% include "components/page_header.html" with title=form.instance.pk|yesno:"Editar Acción,Nueva Acción" %}
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body space-y-4">
+        {% for field in form %}
+        <div class="form-control">
+          <label class="label" for="{{ field.id_for_label }}">
+            <span class="label-text font-medium">{{ field.label }}</span>
+          </label>
+          {{ field }}
+          {% if field.errors %}
+          <div class="label"><span class="label-text-alt text-error">{{ field.errors|join:", " }}</span></div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="flex justify-end gap-3">
+      <a href="{% url 'services:serviceactivity_list' %}" class="btn btn-ghost">Cancelar</a>
+      <button type="submit" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Guardar
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

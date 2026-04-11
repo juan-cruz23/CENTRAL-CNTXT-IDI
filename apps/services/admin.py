@@ -28,6 +28,13 @@ class KeyActivityInline(admin.TabularInline):
     fields = ("order", "name")
 
 
+class ServiceActionInline(admin.TabularInline):
+    model = ServiceActivity
+    fk_name = "key_activity"
+    extra = 1
+    fields = ("order", "name", "responsible_role", "estimated_hours")
+
+
 @admin.register(ProjectCategory)
 class ProjectCategoryAdmin(admin.ModelAdmin):
     list_display = ("code", "name", "is_active")
@@ -70,6 +77,7 @@ class DeliverableAdmin(admin.ModelAdmin):
 class KeyActivityAdmin(admin.ModelAdmin):
     list_display = ("deliverable", "name", "order")
     search_fields = ("name", "deliverable__name", "deliverable__service_template__code")
+    inlines = [ServiceActionInline]
 
 
 @admin.register(ServiceActivity)

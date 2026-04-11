@@ -139,3 +139,10 @@ class KeyActivityForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = KeyActivity
         fields = ["deliverable", "name", "order"]
+
+
+class ServiceActivityForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = ServiceActivity
+        fields = ["service_template", "key_activity", "name", "responsible_role", "estimated_hours", "order", "description"]
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}

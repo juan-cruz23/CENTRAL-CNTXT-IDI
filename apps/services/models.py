@@ -435,7 +435,8 @@ class PricingChangeRequest(TimeStampedModel):
 
 class ServiceActivity(TimeStampedModel):
     """
-    Represents an individual activity within a service template.
+    Acción individual dentro de una actividad clave de servicio.
+    Corresponde a la columna ACCIONES CLAVES del Excel D.sign DATA.
     """
 
     service_template = models.ForeignKey(
@@ -443,6 +444,14 @@ class ServiceActivity(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name="activities",
         verbose_name="plantilla de servicio",
+    )
+    key_activity = models.ForeignKey(
+        "KeyActivity",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="actions",
+        verbose_name="actividad clave",
     )
     order = models.PositiveIntegerField(
         default=1,
