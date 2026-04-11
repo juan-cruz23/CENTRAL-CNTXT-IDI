@@ -242,12 +242,13 @@
     });
   });
 
-  // Inicializar TomSelect en el selector de servicio
+  // Inicializar TomSelect — dropdownParent apunta al modal-box para
+  // que el dropdown quede dentro del top-layer del <dialog> y no quede detrás.
   if (typeof TomSelect !== 'undefined' && !serviceEl.tomselect) {
     new TomSelect(serviceEl, {
       allowEmptyOption: true,
       maxOptions: null,
-      dropdownParent: 'body',
+      dropdownParent: modal.querySelector('.modal-box'),
       searchField: ['text'],
       onChange(value) { calcEndDate(); checkReady(); },
     });
