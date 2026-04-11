@@ -631,28 +631,56 @@ def gantt_data_api(request):
 def project_gantt_api(request, project_pk):
     """
     Gantt data for a single project.
-    Returns phases and their services with planned/actual dates and progress.
+    Includes services from ProjectPhaseInstances AND services added directly
+    to the cronograma (phase_instance=None), grouped by service_template.phase.
     """
-    from datetime import timedelta
-
     project = get_object_or_404(Project, pk=project_pk)
-    phases = ProjectPhaseInstance.objects.filter(
+
+    categories = []
+    planned_data = []
+    actual_data = []
+    milestones_data = []
+    idx = 0
+
+    def _add_service_bar(svc):
+        nonlocal idx
+        categories.append(f"  {svc.code} {svc.name[:40]}")
+        s_start = svc.projected_start_date
+        s_end   = svc.projected_end_date
+        sa_start = svc.actual_start_date
+        sa_end   = svc.actual_end_date
+        progress = float(svc.progress_pct or 0)
+
+        if s_start and s_end:
+            planned_data.append({
+                "value": [idx, s_start.isoformat(), s_end.isoformat(), progress],
+                "itemStyle": {"color": "rgba(59,130,246,0.4)", "borderRadius": 3},
+            })
+        if sa_start:
+            sa_end_val = sa_end or date.today()
+            if progress >= 100:
+                bar_color = "rgba(34,197,94,0.6)"
+            elif progress > 0:
+                bar_color = "rgba(250,204,21,0.6)"
+            else:
+                bar_color = "rgba(239,68,68,0.4)"
+            actual_data.append({
+                "value": [idx, sa_start.isoformat(), sa_end_val.isoformat(), progress],
+                "itemStyle": {"color": bar_color, "borderRadius": 3},
+            })
+        idx += 1
+
+    # ── 1. Servicios vinculados a ProjectPhaseInstances ──────────────────
+    phase_instances = ProjectPhaseInstance.objects.filter(
         project=project,
     ).select_related("phase").order_by("order")
 
-    categories = []  # y-axis labels
-    planned_data = []  # planned bars
-    actual_data = []   # actual bars
-    milestones_data = []
-
-    idx = 0
-    for phase in phases:
-        # Phase bar
+    for phase in phase_instances:
         categories.append(f"Fase {phase.order}: {phase.phase.name}")
         p_start = phase.planned_start_date
-        p_end = phase.planned_end_date
+        p_end   = phase.planned_end_date
         a_start = phase.actual_start_date
-        a_end = phase.actual_end_date
+        a_end   = phase.actual_end_date
 
         if p_start and p_end:
             planned_data.append({
@@ -660,49 +688,58 @@ def project_gantt_api(request, project_pk):
                 "itemStyle": {"color": "rgba(59,130,246,0.7)", "borderRadius": 4},
             })
         if a_start:
-            a_end_val = a_end or date.today()
             actual_data.append({
-                "value": [idx, a_start.isoformat(), a_end_val.isoformat(), float(phase.progress_pct)],
+                "value": [idx, a_start.isoformat(), (a_end or date.today()).isoformat(), float(phase.progress_pct)],
                 "itemStyle": {"color": "rgba(34,197,94,0.7)", "borderRadius": 4},
             })
         idx += 1
 
-        # Service bars under this phase
-        services = ServiceInstance.objects.filter(
-            project=project,
-            phase_instance=phase,
-        ).order_by("code")
+        for svc in ServiceInstance.objects.filter(
+            project=project, phase_instance=phase
+        ).order_by("code"):
+            _add_service_bar(svc)
 
-        for svc in services:
-            categories.append(f"  {svc.code} {svc.name[:40]}")
-            s_start = svc.projected_start_date
-            s_end = svc.projected_end_date
-            sa_start = svc.actual_start_date
-            sa_end = svc.actual_end_date
-            progress = float(svc.progress_pct or 0)
+    # ── 2. Servicios del cronograma (phase_instance=None), por fase ──────
+    loose_services = list(
+        ServiceInstance.objects.filter(project=project, phase_instance=None)
+        .select_related("service_template__phase")
+        .order_by("service_template__phase__number", "projected_start_date", "code")
+    )
 
-            if s_start and s_end:
-                color = "rgba(59,130,246,0.4)"
+    if loose_services:
+        # Agrupar por fase del service template
+        phase_groups: dict = {}
+        for svc in loose_services:
+            phase = svc.service_template.phase if svc.service_template else None
+            key   = (phase.number if phase else 999, phase.pk if phase else 0)
+            if key not in phase_groups:
+                phase_groups[key] = {"phase": phase, "services": []}
+            phase_groups[key]["services"].append(svc)
+
+        for _, group in sorted(phase_groups.items()):
+            ph    = group["phase"]
+            svcs  = group["services"]
+
+            # Calcular span de fechas de la fase a partir de sus servicios
+            starts = [s.projected_start_date for s in svcs if s.projected_start_date]
+            ends   = [s.projected_end_date   for s in svcs if s.projected_end_date]
+            ph_start = min(starts) if starts else None
+            ph_end   = max(ends)   if ends   else None
+
+            label = ph.name if ph else "Sin Fase"
+            categories.append(label)
+
+            if ph_start and ph_end:
                 planned_data.append({
-                    "value": [idx, s_start.isoformat(), s_end.isoformat(), progress],
-                    "itemStyle": {"color": color, "borderRadius": 3},
-                })
-            if sa_start:
-                sa_end_val = sa_end or date.today()
-                # Color by progress
-                if progress >= 100:
-                    bar_color = "rgba(34,197,94,0.6)"
-                elif progress > 0:
-                    bar_color = "rgba(250,204,21,0.6)"
-                else:
-                    bar_color = "rgba(239,68,68,0.4)"
-                actual_data.append({
-                    "value": [idx, sa_start.isoformat(), sa_end_val.isoformat(), progress],
-                    "itemStyle": {"color": bar_color, "borderRadius": 3},
+                    "value": [idx, ph_start.isoformat(), ph_end.isoformat(), 0],
+                    "itemStyle": {"color": "rgba(59,130,246,0.7)", "borderRadius": 4},
                 })
             idx += 1
 
-    # Milestones
+            for svc in svcs:
+                _add_service_bar(svc)
+
+    # ── 3. Hitos ─────────────────────────────────────────────────────────
     from apps.projects.models import Milestone as MilestoneModel
     for m in MilestoneModel.objects.filter(project=project).order_by("planned_date"):
         if m.planned_date:
