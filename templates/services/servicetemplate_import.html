@@ -1,0 +1,112 @@
+{% extends "base/base.html" %}
+{% block title %}Importar Servicios{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/servicios/templates/" parent_label="Plantillas" current="Importar" %}
+{% endblock %}
+{% block content %}
+<div class="max-w-2xl">
+  {% include "components/page_header.html" with title="Importar Servicios desde Excel" %}
+
+  {% if result %}
+  {# ── Resultado de la importación ── #}
+  <div class="flex flex-col gap-3 mb-6">
+
+    <div class="grid grid-cols-3 gap-3">
+      <div class="stat bg-success/10 border border-success/20 rounded-xl p-4">
+        <div class="stat-title text-xs">Creados</div>
+        <div class="stat-value text-2xl text-success">{{ result.created }}</div>
+      </div>
+      <div class="stat bg-info/10 border border-info/20 rounded-xl p-4">
+        <div class="stat-title text-xs">Actualizados</div>
+        <div class="stat-value text-2xl text-info">{{ result.updated }}</div>
+      </div>
+      <div class="stat bg-warning/10 border border-warning/20 rounded-xl p-4">
+        <div class="stat-title text-xs">Inactivados</div>
+        <div class="stat-value text-2xl text-warning">{{ result.inactivated }}</div>
+      </div>
+    </div>
+
+    {% if result.errors %}
+    <div class="alert alert-warning">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+      <div>
+        <p class="font-semibold mb-1">{{ result.errors|length }} advertencia{{ result.errors|length|pluralize:"s" }}</p>
+        <ul class="list-disc list-inside text-sm space-y-0.5 max-h-40 overflow-y-auto">
+          {% for err in result.errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+      Importación completada sin errores.
+    </div>
+    {% endif %}
+
+    <div class="flex gap-3">
+      <a href="{% url 'services:servicetemplate_list' %}" class="btn btn-primary btn-sm">Ver Plantillas</a>
+      <a href="{% url 'services:servicetemplate_import' %}" class="btn btn-ghost btn-sm">Importar otro archivo</a>
+    </div>
+  </div>
+  {% else %}
+
+  {% if error %}
+  <div class="alert alert-error mb-4">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" class="flex flex-col gap-5">
+        {% csrf_token %}
+
+        <div class="form-control">
+          <label class="label pb-1">
+            <span class="label-text font-medium">Archivo Excel (.xlsx)</span>
+          </label>
+          <input type="file" name="excel_file" accept=".xlsx,.xls"
+                 class="file-input file-input-bordered w-full" required>
+          <label class="label">
+            <span class="label-text-alt text-base-content/50">El archivo debe tener las columnas del formato estándar de exportación.</span>
+          </label>
+        </div>
+
+        <div class="form-control">
+          <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-warning/30 bg-warning/5 hover:bg-warning/10">
+            <input type="checkbox" name="inactivate_missing" class="checkbox checkbox-warning checkbox-sm mt-0.5">
+            <div>
+              <p class="font-medium text-sm">Inactivar servicios no incluidos en el archivo</p>
+              <p class="text-xs text-base-content/50 mt-0.5">Los servicios activos que no aparezcan en el Excel quedarán marcados como inactivos.</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="bg-base-200/50 rounded-lg p-4">
+          <p class="text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-2">Reglas de importación</p>
+          <ul class="text-xs text-base-content/60 space-y-1 list-disc list-inside">
+            <li>Upsert por <strong>CÓDIGO</strong>: si el código existe → actualiza; si no → crea.</li>
+            <li>El árbol de entregables, actividades y acciones se <strong>reemplaza</strong> por el del archivo.</li>
+            <li><strong>CATEGORÍA</strong> debe existir en el sistema (tabla Categorías).</li>
+            <li><strong>RESPONSABLE</strong> se busca por código o nombre de rol activo.</li>
+            <li>Las columnas calculadas (COSTO DIRECTO, VALOR NETO, etc.) son ignoradas al importar.</li>
+          </ul>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <a href="{% url 'services:servicetemplate_export' %}" class="btn btn-outline btn-sm gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            Descargar plantilla actual
+          </a>
+          <button type="submit" class="btn btn-primary gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+            Importar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

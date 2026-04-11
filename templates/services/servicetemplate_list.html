@@ -20,7 +20,18 @@
     <a href="?" class="btn btn-ghost btn-sm">Limpiar</a>
     {% endif %}
   </form>
-  <span class="text-sm text-base-content/50 ml-auto">{{ service_templates|length }} plantilla{{ service_templates|length|pluralize:"s" }}</span>
+  <div class="flex items-center gap-2 ml-auto">
+    <span class="text-sm text-base-content/50">{{ service_templates|length }} plantilla{{ service_templates|length|pluralize:"s" }}</span>
+    <a href="{% url 'services:servicetemplate_export' %}{% if current_line %}?line={{ current_line }}{% endif %}"
+       class="btn btn-outline btn-sm gap-1" title="Exportar a Excel">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      Exportar
+    </a>
+    <a href="{% url 'services:servicetemplate_import' %}" class="btn btn-outline btn-sm gap-1" title="Importar desde Excel">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+      Importar
+    </a>
+  </div>
 </div>
 
 <div class="card bg-base-100 shadow-sm border border-base-300/30">

@@ -316,6 +316,7 @@ class ServiceTemplateDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "service_template"
 
     def get_context_data(self, **kwargs):
+        from collections import defaultdict
         from apps.accounts.models import WorkSchedule
         context = super().get_context_data(**kwargs)
         st = self.object
@@ -326,6 +327,33 @@ class ServiceTemplateDetailView(LoginRequiredMixin, DetailView):
                 st.estimated_days = Decimal(days)
                 st.save(update_fields=["estimated_days"])
         context["default_schedule"] = schedule
+
+        # Full tree: Deliverable → KeyActivity → Actions
+        deliverables = (
+            st.deliverables
+            .prefetch_related("key_activities__actions__responsible_role")
+            .order_by("order", "name")
+        )
+        context["deliverables_tree"] = deliverables
+
+        # Role summary across all actions
+        role_summary = defaultdict(lambda: {"code": "", "name": "", "rate": Decimal(0), "hours": Decimal(0)})
+        for deliv in deliverables:
+            for kact in deliv.key_activities.all():
+                for act in kact.actions.all():
+                    if act.responsible_role_id:
+                        r = act.responsible_role
+                        entry = role_summary[act.responsible_role_id]
+                        entry["code"] = r.code or r.name
+                        entry["name"] = r.name
+                        entry["rate"] = r.default_hourly_rate
+                        entry["hours"] += act.estimated_hours or Decimal(0)
+        for entry in role_summary.values():
+            entry["total"] = entry["hours"] * entry["rate"]
+        context["role_summary"] = sorted(role_summary.values(), key=lambda e: -e["hours"])
+        # Counts for stats badges
+        from apps.services.models import KeyActivity
+        context["kact_count"] = KeyActivity.objects.filter(deliverable__service_template=st).count()
         return context
 
 
@@ -743,6 +771,58 @@ class ServiceTemplateInlineCancelView(LoginRequiredMixin, View):
         return TemplateResponse(
             request, "services/_pricing_row_display.html", {"st": st},
         )
+
+
+# ---------------------------------------------------------------------------
+# Import / Export Excel
+# ---------------------------------------------------------------------------
+
+class ServiceTemplateExportView(LoginRequiredMixin, View):
+    """GET → descarga Excel con todos los servicios."""
+
+    def get(self, request):
+        import io
+        from apps.services.excel_io import export_services
+
+        qs = ServiceTemplate.objects.all()
+        # Filtro opcional por línea operativa
+        line = request.GET.get("line")
+        if line:
+            qs = qs.filter(operative_line__code=line)
+
+        wb = export_services(qs)
+
+        buf = io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+
+        response = HttpResponse(
+            buf.read(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = 'attachment; filename="servicios_export.xlsx"'
+        return response
+
+
+class ServiceTemplateImportView(LoginRequiredMixin, View):
+    """GET → formulario de carga; POST → procesa el Excel."""
+
+    template = "services/servicetemplate_import.html"
+
+    def get(self, request):
+        return TemplateResponse(request, self.template, {})
+
+    def post(self, request):
+        from apps.services.excel_io import import_services
+
+        uploaded = request.FILES.get("excel_file")
+        if not uploaded:
+            return TemplateResponse(request, self.template, {"error": "No se adjuntó ningún archivo."})
+
+        inactivate = request.POST.get("inactivate_missing") == "on"
+        result = import_services(uploaded, inactivate_missing=inactivate)
+
+        return TemplateResponse(request, self.template, {"result": result})
 
 
 def _working_days_needed(estimated_hours, weekly_hours):

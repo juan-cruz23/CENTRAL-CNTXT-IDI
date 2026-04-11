@@ -5,10 +5,25 @@
 {% include "components/breadcrumb.html" with parent_url="/servicios/templates/" parent_label="Plantillas de Servicio" current=service_template.code %}
 {% endblock %}
 {% block content %}
+
+{# ── Header ─────────────────────────────────────────────────────────── #}
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-  <h1 class="text-2xl font-bold">{{ service_template.code }} - {{ service_template.name }}</h1>
-  <div class="flex gap-2">
-    <a href="{% url 'services:servicetemplate_update' service_template.pk %}" class="btn btn-outline btn-sm">
+  <div>
+    <h1 class="text-2xl font-bold">{{ service_template.code }} — {{ service_template.name }}</h1>
+    <div class="flex flex-wrap items-center gap-2 mt-1 text-sm text-base-content/60">
+      {% if service_template.operative_line %}<span class="badge badge-outline badge-sm">{{ service_template.operative_line }}</span>{% endif %}
+      {% if service_template.category %}<span>{{ service_template.category.name }}</span>{% endif %}
+      {% if service_template.phase %}<span class="text-base-content/40">›</span><span>{{ service_template.phase.name }}</span>{% endif %}
+      {% if service_template.subcategory %}<span class="text-base-content/40">›</span><span>{{ service_template.subcategory.name }}</span>{% endif %}
+      {% if service_template.is_active %}
+        <span class="badge badge-success badge-sm">Activa</span>
+      {% else %}
+        <span class="badge badge-ghost badge-sm">Inactiva</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="flex gap-2 shrink-0">
+    <a href="{% url 'services:servicetemplate_update' service_template.pk %}" class="btn btn-outline btn-sm gap-1">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
       Editar
     </a>
@@ -16,106 +31,239 @@
   </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+{# ── Fila 1: Info general + Pricing ────────────────────────────────── #}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+  {# Información general #}
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
       <h3 class="font-bold flex items-center gap-2 mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
         Información General
       </h3>
       <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-        <dt class="font-medium text-base-content/70">Código</dt><dd class="font-mono">{{ service_template.code }}</dd>
-        <dt class="font-medium text-base-content/70">Categoría</dt><dd>{{ service_template.category.name }}</dd>
-        <dt class="font-medium text-base-content/70">Fase</dt><dd>{{ service_template.phase.name|default:"—" }}</dd>
-        <dt class="font-medium text-base-content/70">Sub Categoría</dt><dd>{{ service_template.subcategory.name|default:"—" }}</dd>
-        <dt class="font-medium text-base-content/70">Rol Responsable</dt><dd>{{ service_template.responsible_role|default:"—" }}</dd>
-        <dt class="font-medium text-base-content/70">Precio Base</dt><dd>{{ service_template.base_unit_price|cop_format }}</dd>
-        <dt class="font-medium text-base-content/70">Horas Estimadas</dt><dd>{{ service_template.estimated_hours }}</dd>
-        <dt class="font-medium text-base-content/70">Días Estimados</dt>
+        <dt class="font-medium text-base-content/60">Código</dt>
+        <dd class="font-mono font-semibold">{{ service_template.code }}</dd>
+
+        <dt class="font-medium text-base-content/60">Línea operativa</dt>
+        <dd>{{ service_template.operative_line|default:"—" }}</dd>
+
+        <dt class="font-medium text-base-content/60">Categoría</dt>
+        <dd>{{ service_template.category.name|default:"—" }}</dd>
+
+        <dt class="font-medium text-base-content/60">Fase</dt>
+        <dd>{{ service_template.phase.name|default:"—" }}</dd>
+
+        <dt class="font-medium text-base-content/60">Sub Categoría</dt>
+        <dd>{{ service_template.subcategory.name|default:"—" }}</dd>
+
+        <dt class="font-medium text-base-content/60">Rol Responsable</dt>
+        <dd>{{ service_template.responsible_role|default:"—" }}</dd>
+
+        <dt class="font-medium text-base-content/60">Horas estimadas</dt>
+        <dd>{{ service_template.estimated_hours }} h</dd>
+
+        <dt class="font-medium text-base-content/60">Días estimados</dt>
         <dd>
-          {{ service_template.estimated_days }}
-          {% if default_schedule %}<span class="text-xs text-base-content/40 ml-1">({{ default_schedule.weekly_hours }}h/sem)</span>{% endif %}
+          {{ service_template.estimated_days }} días
+          {% if default_schedule %}<span class="text-xs text-base-content/40">({{ default_schedule.weekly_hours }}h/sem)</span>{% endif %}
         </dd>
-        <dt class="font-medium text-base-content/70">Margen Objetivo</dt><dd>{{ service_template.target_margin_pct }}%</dd>
-        <dt class="font-medium text-base-content/70">Estado</dt>
-        <dd>
-          {% if service_template.is_active %}
-          <span class="badge badge-success badge-sm gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-            Activa
-          </span>
-          {% else %}
-          <span class="badge badge-ghost badge-sm">Inactiva</span>
-          {% endif %}
-        </dd>
+
+        <dt class="font-medium text-base-content/60">Margen objetivo</dt>
+        <dd>{{ service_template.target_margin_pct }}%</dd>
       </dl>
+
       {% if service_template.description %}
       <div class="divider my-2"></div>
-      <div>
-        <span class="font-medium text-sm text-base-content/70">Descripción</span>
-        <p class="mt-1 text-sm">{{ service_template.description }}</p>
-      </div>
+      <p class="text-sm text-base-content/70">{{ service_template.description }}</p>
       {% endif %}
+
+      {# Estadísticas rápidas #}
+      <div class="divider my-2"></div>
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="bg-base-200/50 rounded-lg p-2">
+          <p class="text-xl font-bold text-primary">{{ service_template.deliverables.count }}</p>
+          <p class="text-xs text-base-content/60">Entregables</p>
+        </div>
+        <div class="bg-base-200/50 rounded-lg p-2">
+          <p class="text-xl font-bold text-secondary">{{ kact_count }}</p>
+          <p class="text-xs text-base-content/60">Actividades clave</p>
+        </div>
+        <div class="bg-base-200/50 rounded-lg p-2">
+          <p class="text-xl font-bold text-accent">{{ service_template.activities.count }}</p>
+          <p class="text-xs text-base-content/60">Acciones</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Pricing Cascade -->
+  {# Desglose de costos #}
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body p-0">
-      <div class="p-4 border-b border-base-300/30">
+      <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
         <h3 class="font-bold flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
           Desglose de Costos
         </h3>
+        <span class="font-bold text-primary">{{ service_template.valor_total_servicio|cop_format }}</span>
       </div>
       <div class="p-4">
-        <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm mb-4">
-          <div class="col-span-2 text-xs text-base-content/50 uppercase tracking-wider font-semibold mb-1">Entradas</div>
-          <span class="text-base-content/70">Honorarios/hora</span><span class="text-right font-mono">{{ service_template.hourly_rate|cop_format }}</span>
-          <span class="text-base-content/70">Hardware/hora</span><span class="text-right font-mono">{{ service_template.hardware_cost_per_hour|cop_format }}</span>
-          <span class="text-base-content/70">Software/hora</span><span class="text-right font-mono">{{ service_template.software_cost_per_hour|cop_format }}</span>
-          <span class="text-base-content/70">Consumibles/hora</span><span class="text-right font-mono">{{ service_template.consumables_per_hour|cop_format }}</span>
-          <span class="text-base-content/70">Subcontratos</span><span class="text-right font-mono">{{ service_template.subcontracts|cop_format }}</span>
+        {# Inputs de costo resumidos #}
+        <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm mb-3">
+          <span class="text-base-content/60">Honorarios/hora</span><span class="text-right font-mono text-xs">{{ service_template.hourly_rate|cop_format }}</span>
+          <span class="text-base-content/60">Hardware/hora</span><span class="text-right font-mono text-xs">{{ service_template.hardware_cost_per_hour|cop_format }}</span>
+          <span class="text-base-content/60">Software/hora</span><span class="text-right font-mono text-xs">{{ service_template.software_cost_per_hour|cop_format }}</span>
+          <span class="text-base-content/60">Consumibles/hora</span><span class="text-right font-mono text-xs">{{ service_template.consumables_per_hour|cop_format }}</span>
+          <span class="text-base-content/60">Subcontratos</span><span class="text-right font-mono text-xs">{{ service_template.subcontracts|cop_format }}</span>
         </div>
+        <div class="divider my-2 text-xs text-base-content/40">Cálculo</div>
         {% include "services/_pricing_breakdown.html" with st=service_template %}
       </div>
     </div>
   </div>
-</div><!-- /grid -->
 
-<!-- Actividades -->
-<div class="card bg-base-100 shadow-sm border border-base-300/30 mt-6">
-  <div class="card-body p-0">
-    <div class="p-4 border-b border-base-300/30">
-      <h3 class="font-bold flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
-        Actividades
-      </h3>
-    </div>
+</div>
+
+{# ── Fila 2: Resumen por Rol ─────────────────────────────────────────── #}
+{% if role_summary %}
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+  <div class="card-body">
+    <h3 class="font-bold flex items-center gap-2 mb-3">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+      Resumen por Rol
+    </h3>
     <div class="overflow-x-auto">
-      <table class="table table-zebra">
-        <thead class="bg-base-200/50">
+      <table class="table table-sm text-sm">
+        <thead>
           <tr>
-            <th class="text-xs uppercase tracking-wider w-12">#</th>
-            <th class="text-xs uppercase tracking-wider">Actividad</th>
-            <th class="text-xs uppercase tracking-wider">Rol</th>
-            <th class="text-xs uppercase tracking-wider text-right">Horas</th>
+            <th class="text-xs">Rol</th>
+            <th class="text-xs"></th>
+            <th class="text-right text-xs">Horas</th>
+            <th class="text-right text-xs">Tarifa/h</th>
+            <th class="text-right text-xs">Total Honorarios</th>
           </tr>
         </thead>
         <tbody>
-          {% for act in service_template.activities.all %}
+          {% for entry in role_summary %}
           <tr>
-            <td class="font-mono text-base-content/50">{{ act.order }}</td>
-            <td>{{ act.name }}</td>
-            <td>{{ act.responsible_role.name|default:"-" }}</td>
-            <td class="text-right">{{ act.estimated_hours }}</td>
+            <td class="font-mono font-semibold text-xs">{{ entry.code }}</td>
+            <td class="text-xs text-base-content/60">{{ entry.name }}</td>
+            <td class="text-right text-xs">{{ entry.hours }} h</td>
+            <td class="text-right font-mono text-xs text-base-content/60">{{ entry.rate|cop_format }}</td>
+            <td class="text-right font-mono text-sm font-semibold">{{ entry.total|cop_format }}</td>
           </tr>
-          {% empty %}
-          <tr><td colspan="4">{% include "components/empty_state.html" with message="Sin actividades definidas" icon="document" %}</td></tr>
           {% endfor %}
         </tbody>
+        <tfoot>
+          <tr class="border-t border-base-300 font-bold">
+            <td colspan="2" class="text-xs">Total</td>
+            <td class="text-right text-xs">{{ service_template.estimated_hours }} h</td>
+            <td></td>
+            <td class="text-right font-mono text-sm">{{ service_template.subtotal_honorarios|cop_format }}</td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   </div>
 </div>
+{% endif %}
+
+{# ── Fila 3: Árbol Entregables → Actividades → Acciones ─────────────── #}
+<div class="card bg-base-100 shadow-sm border border-base-300/30">
+  <div class="card-body p-0">
+    <div class="p-4 border-b border-base-300/30 flex items-center justify-between">
+      <h3 class="font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+        Estructura del Servicio
+      </h3>
+      <span class="text-xs text-base-content/40">Entregables → Actividades clave → Acciones</span>
+    </div>
+
+    {% if deliverables_tree %}
+    <div class="divide-y divide-base-300/30">
+
+      {% for deliv in deliverables_tree %}
+      {# ── Entregable ── #}
+      <details class="group" open>
+        <summary class="flex items-center gap-3 p-4 cursor-pointer list-none hover:bg-base-200/40 transition-colors">
+          <span class="text-base-content/40 group-open:rotate-90 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </span>
+          <span class="badge badge-primary badge-sm shrink-0">Entregable</span>
+          <span class="font-semibold text-sm flex-1">{{ deliv.name }}</span>
+          {% if deliv.unit %}<span class="text-xs text-base-content/50 bg-base-200 rounded px-2 py-0.5">{{ deliv.unit }}{% if deliv.quantity != 1 %} × {{ deliv.quantity }}{% endif %}</span>{% endif %}
+          <span class="text-xs text-base-content/40 shrink-0">{{ deliv.key_activities.count }} actividad{{ deliv.key_activities.count|pluralize:"es" }}</span>
+        </summary>
+
+        <div class="pl-8 pb-3">
+          {% for kact in deliv.key_activities.all %}
+          {# ── Actividad Clave ── #}
+          <details class="group/kact mb-1">
+            <summary class="flex items-center gap-3 py-2 px-3 cursor-pointer list-none hover:bg-base-200/30 rounded-lg transition-colors">
+              <span class="text-base-content/40 group-open/kact:rotate-90 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+              </span>
+              <span class="badge badge-secondary badge-xs shrink-0">Actividad</span>
+              <span class="text-sm font-medium flex-1">{{ kact.name }}</span>
+              <span class="text-xs text-base-content/40 shrink-0">{{ kact.actions.count }} acción{{ kact.actions.count|pluralize:"es" }}</span>
+            </summary>
+
+            {# ── Acciones ── #}
+            {% if kact.actions.exists %}
+            <div class="pl-6 pt-1 pb-2">
+              <table class="table table-xs w-full">
+                <thead>
+                  <tr class="text-base-content/50">
+                    <th class="text-xs w-8">#</th>
+                    <th class="text-xs">Acción</th>
+                    <th class="text-xs w-32">Responsable</th>
+                    <th class="text-xs text-right w-20">Horas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for action in kact.actions.all %}
+                  <tr class="hover:bg-base-200/20">
+                    <td class="font-mono text-xs text-base-content/40">{{ action.order }}</td>
+                    <td class="text-xs">{{ action.name }}</td>
+                    <td class="text-xs">
+                      {% if action.responsible_role %}
+                      <span class="badge badge-ghost badge-xs font-mono">{{ action.responsible_role.code }}</span>
+                      {% else %}—{% endif %}
+                    </td>
+                    <td class="text-right text-xs font-mono">{{ action.estimated_hours }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr class="border-t border-base-300/50 text-base-content/60">
+                    <td colspan="3" class="text-xs">Subtotal actividad</td>
+                    <td class="text-right text-xs font-semibold font-mono">
+                      {{ kact.actions.all|length }} acc.
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            {% else %}
+            <p class="pl-6 py-2 text-xs text-base-content/40 italic">Sin acciones definidas.</p>
+            {% endif %}
+
+          </details>
+          {% empty %}
+          <p class="py-3 px-3 text-sm text-base-content/40 italic">Sin actividades clave.</p>
+          {% endfor %}
+        </div>
+      </details>
+      {% endfor %}
+
+    </div>
+    {% else %}
+    <div class="p-8 text-center text-base-content/40">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-30" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+      <p class="text-sm">Sin entregables. <a href="{% url 'services:servicetemplate_update' service_template.pk %}" class="link link-primary">Editar plantilla</a> para agregar.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
 {% endblock %}

@@ -145,6 +145,17 @@ urlpatterns = [
         views.CalcPricingView.as_view(),
         name="calc_pricing",
     ),
+    # Import / Export
+    path(
+        "templates/exportar/",
+        views.ServiceTemplateExportView.as_view(),
+        name="servicetemplate_export",
+    ),
+    path(
+        "templates/importar/",
+        views.ServiceTemplateImportView.as_view(),
+        name="servicetemplate_import",
+    ),
     # Pricing dashboard
     path(
         "pricing/",
