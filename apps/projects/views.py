@@ -31,6 +31,7 @@ from apps.projects.models import (
     ProjectPrerequisite,
     ProjectScope,
     ServiceInstance,
+    ServiceInstanceAction,
 )
 from apps.services.mixins import has_pricing_permission
 
@@ -682,13 +683,9 @@ class CalcServiceEndDateView(LoginRequiredMixin, View):
 
 
 class ScheduleServiceCreateView(LoginRequiredMixin, View):
-    """HTMX: muestra formulario / crea ServiceInstance en el cronograma."""
+    """HTMX: carga el modal de agregar servicio (GET) / crea ServiceInstance + acciones (POST)."""
 
-    def get(self, request, pk):
-        project = get_object_or_404(Project, pk=pk)
-        form = ScheduleServiceForm()
-
-        # Sugerir como fecha de inicio el día hábil siguiente a la última fecha de entrega
+    def _suggested_start(self, project):
         last = (
             ServiceInstance.objects
             .filter(project=project, phase_instance=None, projected_end_date__isnull=False)
@@ -696,40 +693,65 @@ class ScheduleServiceCreateView(LoginRequiredMixin, View):
             .values_list("projected_end_date", flat=True)
             .first()
         )
-        suggested_start = _add_working_days(last, 1) if last else None
+        return _add_working_days(last, 1) if last else None
 
+    def get(self, request, pk):
+        from apps.services.models import ServiceTemplate
+        project = get_object_or_404(Project, pk=pk)
+        service_templates = ServiceTemplate.objects.filter(is_active=True).select_related(
+            "category", "phase", "responsible_role"
+        ).order_by("code")
         return TemplateResponse(
             request,
-            "projects/partials/schedule_service_form.html",
-            {"form": form, "project": project, "suggested_start": suggested_start},
+            "projects/partials/schedule_service_modal.html",
+            {
+                "project": project,
+                "service_templates": service_templates,
+                "suggested_start": self._suggested_start(project),
+            },
         )
 
     def post(self, request, pk):
-        from datetime import date as date_type
         from apps.services.models import ServiceTemplate
-        from apps.accounts.models import WorkSchedule
+        from apps.accounts.models import WorkSchedule, User as _User
 
         project = get_object_or_404(Project, pk=pk)
-        form = ScheduleServiceForm(request.POST)
 
-        if not form.is_valid():
-            return TemplateResponse(
-                request,
-                "projects/partials/schedule_service_form.html",
-                {"form": form, "project": project},
+        # ── Campos de nivel servicio ──
+        template_id = request.POST.get("service_template")
+        start_raw   = request.POST.get("projected_start_date")
+        prof_id     = request.POST.get("assigned_professional")
+
+        if not template_id or not start_raw:
+            return HttpResponse("Servicio y fecha de inicio son requeridos.", status=400)
+
+        try:
+            st = ServiceTemplate.objects.get(pk=int(template_id), is_active=True)
+        except (ServiceTemplate.DoesNotExist, ValueError):
+            return HttpResponse("Servicio no válido.", status=400)
+
+        from datetime import date as _date
+        try:
+            start_date = _date.fromisoformat(start_raw)
+        except ValueError:
+            return HttpResponse("Fecha de inicio no válida.", status=400)
+
+        # Horas totales: suma de acciones enviadas (o fallback a plantilla)
+        act_total = int(request.POST.get("act-TOTAL") or 0)
+        if act_total:
+            total_hours = sum(
+                Decimal(request.POST.get(f"act-{i}-hours") or "0")
+                for i in range(act_total)
             )
-
-        st = form.cleaned_data["service_template"]
-        start_date = form.cleaned_data["projected_start_date"]
+        else:
+            total_hours = st.estimated_hours
 
         schedule = WorkSchedule.objects.filter(is_active=True).order_by("-weekly_hours").first()
         from apps.services.views import _working_days_needed
-        days = _working_days_needed(st.estimated_hours, schedule.weekly_hours) if schedule else 0
-        end_date = _add_working_days(start_date, days) if days else start_date
+        days = _working_days_needed(total_hours, schedule.weekly_hours) if schedule else 0
+        end_date = _add_working_days(start_date, int(days)) if days else start_date
 
-        from apps.accounts.models import User as _User
         professional = None
-        prof_id = request.POST.get("assigned_professional")
         if prof_id:
             try:
                 professional = _User.objects.get(pk=int(prof_id), is_active=True)
@@ -743,17 +765,140 @@ class ScheduleServiceCreateView(LoginRequiredMixin, View):
             code=st.code,
             name=st.name,
             unit_price=st.base_unit_price,
-            projected_hours=st.estimated_hours,
+            projected_hours=total_hours,
             projected_days=days,
             projected_start_date=start_date,
             projected_end_date=end_date,
             responsible_role=st.responsible_role,
             assigned_professional=professional,
         )
-        return TemplateResponse(
+
+        # ── Crear ServiceInstanceAction por cada acción ──
+        for i in range(act_total):
+            sa_id   = request.POST.get(f"act-{i}-service_activity")
+            aname   = request.POST.get(f"act-{i}-name") or ""
+            ahours  = Decimal(request.POST.get(f"act-{i}-hours") or "0")
+            apro_id = request.POST.get(f"act-{i}-professional")
+            arole_id = request.POST.get(f"act-{i}-role")
+
+            if not aname.strip():
+                continue
+
+            sa_obj = None
+            if sa_id:
+                from apps.services.models import ServiceActivity
+                try:
+                    sa_obj = ServiceActivity.objects.get(pk=int(sa_id))
+                except (ServiceActivity.DoesNotExist, ValueError):
+                    pass
+
+            apro = None
+            if apro_id:
+                try:
+                    apro = _User.objects.get(pk=int(apro_id), is_active=True)
+                except (_User.DoesNotExist, ValueError):
+                    pass
+
+            ServiceInstanceAction.objects.create(
+                service_instance=si,
+                service_activity=sa_obj,
+                name=aname.strip(),
+                order=i + 1,
+                responsible_role_id=arole_id or None,
+                assigned_professional=apro,
+                estimated_hours=ahours,
+            )
+
+        response = TemplateResponse(
             request,
             "projects/partials/schedule_service_row.html",
             {"si": si, "project": project},
+        )
+        response["HX-Trigger"] = "closeAddServiceModal, scheduleChanged"
+        return response
+
+
+class ScheduleServiceTreeView(LoginRequiredMixin, View):
+    """HTMX: dado un service_template, devuelve el árbol de acciones con inputs editables."""
+
+    def get(self, request, pk):
+        from apps.services.models import ServiceTemplate
+        from apps.accounts.models import User
+
+        template_id = request.GET.get("service_template")
+        if not template_id:
+            return HttpResponse("")
+
+        try:
+            st = ServiceTemplate.objects.get(pk=int(template_id), is_active=True)
+        except (ServiceTemplate.DoesNotExist, ValueError):
+            return HttpResponse("")
+
+        # Árbol prefetched
+        deliverables = list(
+            st.deliverables
+            .prefetch_related("key_activities__actions__responsible_role")
+            .order_by("order", "name")
+        )
+
+        # Recoger todos los role_ids necesarios
+        all_role_ids = set()
+        if st.responsible_role_id:
+            all_role_ids.add(st.responsible_role_id)
+        for d in deliverables:
+            for ka in d.key_activities.all():
+                for act in ka.actions.all():
+                    if act.responsible_role_id:
+                        all_role_ids.add(act.responsible_role_id)
+
+        # Cache: role_id → [User]
+        role_users: dict[int, list] = {}
+        for role_id in all_role_ids:
+            role_users[role_id] = list(
+                User.objects.filter(
+                    user_roles__role_id=role_id,
+                    is_active=True,
+                ).distinct().order_by("first_name", "last_name")
+            )
+
+        # Construir lista plana de acciones con índice global
+        actions_flat = []
+        for d in deliverables:
+            for ka in d.key_activities.all():
+                for act in ka.actions.all():
+                    actions_flat.append({
+                        "idx": len(actions_flat),
+                        "pk": act.pk,
+                        "name": act.name,
+                        "hours": act.estimated_hours,
+                        "role_id": act.responsible_role_id,
+                        "role_code": act.responsible_role.code if act.responsible_role else "",
+                        "users": role_users.get(act.responsible_role_id, []),
+                        "deliv_name": d.name,
+                        "kact_name": ka.name,
+                    })
+
+        # Agrupar para el árbol visual
+        tree = []
+        for d in deliverables:
+            kacts = []
+            for ka in d.key_activities.all():
+                acts = [a for a in actions_flat if a["deliv_name"] == d.name and a["kact_name"] == ka.name]
+                kacts.append({"name": ka.name, "actions": acts})
+            tree.append({"name": d.name, "unit": d.unit, "kacts": kacts})
+
+        service_users = role_users.get(st.responsible_role_id, []) if st.responsible_role_id else []
+
+        return TemplateResponse(
+            request,
+            "projects/partials/schedule_service_tree.html",
+            {
+                "st": st,
+                "tree": tree,
+                "actions_flat": actions_flat,
+                "service_users": service_users,
+                "act_total": len(actions_flat),
+            },
         )
 
 

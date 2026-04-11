@@ -401,12 +401,16 @@
           </h3>
           <button class="btn btn-primary btn-sm"
                   hx-get="{% url 'projects:schedule_service_create' project.pk %}"
-                  hx-target="#schedule-services-tbody"
-                  hx-swap="afterbegin">
+                  hx-target="#schedule-modal-container"
+                  hx-swap="innerHTML">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
             Agregar Servicio
           </button>
         </div>
+
+        {# Contenedor para el modal (se llena via HTMX) #}
+        <div id="schedule-modal-container"></div>
+
         <div class="overflow-x-auto">
           <table class="table table-zebra table-sm">
             <thead class="bg-base-200/50">

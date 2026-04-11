@@ -727,6 +727,69 @@ class ServiceInstance(TimeStampedModel):
 
 
 # ---------------------------------------------------------------------------
+# ServiceInstanceAction
+# ---------------------------------------------------------------------------
+class ServiceInstanceAction(TimeStampedModel):
+    """
+    Asignación de una acción de servicio (ServiceActivity) a un profesional
+    dentro de una instancia de servicio en el cronograma del proyecto.
+    Permite personalizar responsable y horas respecto a la plantilla.
+    """
+
+    service_instance = models.ForeignKey(
+        ServiceInstance,
+        on_delete=models.CASCADE,
+        related_name="action_assignments",
+        verbose_name="instancia de servicio",
+    )
+    service_activity = models.ForeignKey(
+        "services.ServiceActivity",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="instance_assignments",
+        verbose_name="acción de servicio",
+    )
+    name = models.CharField(
+        max_length=300,
+        verbose_name="nombre",
+    )
+    order = models.PositiveIntegerField(
+        default=1,
+        verbose_name="orden",
+    )
+    responsible_role = models.ForeignKey(
+        "accounts.Role",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="rol responsable",
+    )
+    assigned_professional = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="action_assignments",
+        verbose_name="profesional asignado",
+    )
+    estimated_hours = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        default=0,
+        verbose_name="horas estimadas",
+    )
+
+    class Meta:
+        ordering = ["service_instance", "order"]
+        verbose_name = "asignación de acción"
+        verbose_name_plural = "asignaciones de acciones"
+
+    def __str__(self):
+        return f"{self.service_instance.code} › {self.name}"
+
+
+# ---------------------------------------------------------------------------
 # Milestone
 # ---------------------------------------------------------------------------
 class Milestone(TimeStampedModel):

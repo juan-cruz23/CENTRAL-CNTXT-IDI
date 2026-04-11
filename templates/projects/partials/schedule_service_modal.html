@@ -1,0 +1,248 @@
+{% load common_tags %}
+{# Modal completo: se inserta en #schedule-modal-container y se abre automáticamente #}
+
+<dialog id="add-service-modal" class="modal">
+  <div class="modal-box w-11/12 max-w-4xl flex flex-col" style="max-height: 90vh;">
+
+    {# ── Header ── #}
+    <div class="flex items-center justify-between mb-4 shrink-0">
+      <h3 class="font-bold text-lg">Agregar Servicio al Cronograma</h3>
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </button>
+      </form>
+    </div>
+
+    {# ── Formulario ── #}
+    <div class="overflow-y-auto flex-1 pr-1">
+      <div id="modal-form-body">
+
+        {# ── Fila 1: Servicio + Fechas ── #}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+
+          {# Selector de servicio #}
+          <div class="form-control md:col-span-1">
+            <label class="label pb-1"><span class="label-text font-medium">Servicio <span class="text-error">*</span></span></label>
+            <select id="modal-service-select"
+                    name="service_template"
+                    class="select select-bordered select-sm w-full"
+                    hx-get="{% url 'projects:schedule_service_tree' project.pk %}"
+                    hx-trigger="change"
+                    hx-target="#service-tree-container"
+                    hx-swap="innerHTML"
+                    hx-include="#modal-service-select"
+                    hx-indicator="#tree-loading">
+              <option value="">— Selecciona un servicio —</option>
+              {% for st in service_templates %}
+              <option value="{{ st.pk }}" data-hours="{{ st.estimated_hours }}">
+                {{ st.code }} — {{ st.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          {# Fecha de inicio #}
+          <div class="form-control">
+            <label class="label pb-1">
+              <span class="label-text font-medium">Fecha Planeada de Inicio <span class="text-error">*</span></span>
+              {% if suggested_start %}
+              <span class="label-text-alt text-primary text-xs cursor-pointer hover:underline"
+                    id="use-suggested"
+                    title="Clic para usar">
+                Sugerida: {{ suggested_start|date:"d/m/Y" }}
+              </span>
+              {% endif %}
+            </label>
+            <input type="date" name="projected_start_date" id="modal-start-date"
+                   value="{{ suggested_start|date:'Y-m-d'|default:'' }}"
+                   class="input input-bordered input-sm w-full">
+          </div>
+
+          {# Fecha de entrega — calculada #}
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium">Fecha de Entrega</span></label>
+            <div id="modal-end-date"
+                 class="input input-bordered input-sm flex items-center bg-base-200/60 text-sm px-3 min-h-[2rem]">
+              <span class="text-base-content/40 text-xs">— selecciona servicio y fecha —</span>
+            </div>
+          </div>
+
+        </div>
+
+        {# ── Árbol de acciones (carga via HTMX) ── #}
+        <div id="service-tree-container" class="min-h-[80px] relative">
+          <div class="flex items-center justify-center py-6 text-base-content/40 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+            Selecciona un servicio para ver su estructura
+          </div>
+          <div id="tree-loading" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-base-100/70 rounded">
+            <span class="loading loading-spinner loading-md text-primary"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {# ── Footer con botones ── #}
+    <div class="modal-action mt-4 pt-3 border-t border-base-300/30 shrink-0">
+      <form method="dialog">
+        <button class="btn btn-ghost btn-sm">Cancelar</button>
+      </form>
+      <button type="button" id="modal-submit-btn"
+              class="btn btn-primary btn-sm gap-2"
+              disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        Agregar al Cronograma
+      </button>
+    </div>
+
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>cerrar</button></form>
+</dialog>
+
+<script>
+(function () {
+  const modal      = document.getElementById('add-service-modal');
+  const serviceEl  = document.getElementById('modal-service-select');
+  const startEl    = document.getElementById('modal-start-date');
+  const endEl      = document.getElementById('modal-end-date');
+  const submitBtn  = document.getElementById('modal-submit-btn');
+  const calcUrl    = "{% url 'projects:schedule_calc_end_date' project.pk %}";
+  const postUrl    = "{% url 'projects:schedule_service_create' project.pk %}";
+
+  // Abrir modal automáticamente al cargar
+  modal.showModal();
+
+  // Bloquear scroll del body cuando el modal está abierto
+  modal.addEventListener('close', () => { submitBtn.disabled = true; });
+
+  // ── Calcular fecha de entrega ──────────────────────────
+  function calcEndDate() {
+    const serviceId = serviceEl.value;
+    const startDate = startEl.value;
+    if (!serviceId || !startDate) {
+      endEl.innerHTML = '<span class="text-base-content/40 text-xs">— selecciona servicio y fecha —</span>';
+      return;
+    }
+    endEl.innerHTML = '<span class="loading loading-spinner loading-xs"></span>';
+
+    const fd = new FormData();
+    fd.append('service_template', serviceId);
+    fd.append('projected_start_date', startDate);
+    fd.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]')?.value || '');
+
+    fetch(calcUrl, { method: 'POST', body: fd })
+      .then(r => r.text())
+      .then(html => { endEl.innerHTML = html; });
+  }
+
+  // ── Habilitar botón cuando hay servicio seleccionado ──
+  function checkReady() {
+    submitBtn.disabled = !serviceEl.value || !startEl.value;
+  }
+
+  // Hook TomSelect si existe
+  function hookTomSelect() {
+    if (serviceEl.tomselect) {
+      serviceEl.tomselect.on('change', () => { calcEndDate(); checkReady(); });
+      return true;
+    }
+    return false;
+  }
+  if (!hookTomSelect()) {
+    const t = setInterval(() => { if (hookTomSelect()) clearInterval(t); }, 50);
+    setTimeout(() => clearInterval(t), 3000);
+  }
+
+  serviceEl.addEventListener('change', () => { calcEndDate(); checkReady(); });
+  startEl.addEventListener('change', () => { calcEndDate(); checkReady(); });
+
+  {% if suggested_start %}
+  const sugBtn = document.getElementById('use-suggested');
+  if (sugBtn) {
+    sugBtn.addEventListener('click', () => {
+      startEl.value = "{{ suggested_start|date:'Y-m-d' }}";
+      startEl.dispatchEvent(new Event('change'));
+    });
+  }
+  // Calcular fecha con fecha sugerida si ya hay servicio (no aplica en carga inicial)
+  if (startEl.value) calcEndDate();
+  {% endif %}
+
+  checkReady();
+
+  // ── Submit via fetch para insertar fila en la tabla ──
+  submitBtn.addEventListener('click', () => {
+    const serviceId = serviceEl.value;
+    const startDate = startEl.value;
+    if (!serviceId || !startDate) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> Guardando…';
+
+    const fd = new FormData();
+    fd.append('service_template', serviceId);
+    fd.append('projected_start_date', startDate);
+
+    // Profesional del servicio
+    const profEl = document.getElementById('tree-service-professional');
+    if (profEl) fd.append('assigned_professional', profEl.value);
+
+    // Acciones
+    const actTotalEl = document.getElementById('modal-act-total');
+    const actTotal   = actTotalEl ? parseInt(actTotalEl.value) : 0;
+    fd.append('act-TOTAL', actTotal);
+
+    for (let i = 0; i < actTotal; i++) {
+      ['service_activity', 'name', 'hours', 'professional', 'role'].forEach(field => {
+        const el = document.getElementById(`act-${i}-${field}`);
+        if (el) fd.append(`act-${i}-${field}`, el.value);
+      });
+    }
+
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    fd.append('csrfmiddlewaretoken', csrf);
+
+    fetch(postUrl, {
+      method: 'POST',
+      body: fd,
+      headers: { 'X-CSRFToken': csrf, 'HX-Request': 'true' },
+    })
+    .then(r => {
+      if (!r.ok) { r.text().then(t => alert('Error: ' + t)); return null; }
+      return r.text();
+    })
+    .then(html => {
+      if (!html) return;
+      // Insertar fila en la tabla del cronograma
+      const tbody = document.getElementById('schedule-services-tbody');
+      if (tbody) {
+        const emptyRow = document.getElementById('schedule-empty');
+        if (emptyRow) emptyRow.remove();
+        tbody.insertAdjacentHTML('beforeend', html);
+      }
+      // Cerrar modal
+      modal.close();
+      // Disparar evento para actualizar equipo
+      htmx.trigger(document.body, 'scheduleChanged');
+    })
+    .catch(err => {
+      alert('Error al guardar: ' + err);
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '✓ Agregar al Cronograma';
+    });
+  });
+
+  // Inicializar TomSelect en el selector de servicio
+  if (typeof TomSelect !== 'undefined' && !serviceEl.tomselect) {
+    new TomSelect(serviceEl, {
+      allowEmptyOption: true,
+      maxOptions: null,
+      dropdownParent: 'body',
+      searchField: ['text'],
+      onChange(value) { calcEndDate(); checkReady(); },
+    });
+  }
+})();
+</script>

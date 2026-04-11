@@ -1,0 +1,129 @@
+{% load common_tags %}
+{# Árbol de acciones de un servicio — se inyecta en #service-tree-container #}
+
+{# Campo oculto con total de acciones #}
+<input type="hidden" id="modal-act-total" value="{{ act_total }}">
+
+{% if not tree %}
+<p class="text-sm text-base-content/40 italic py-3">Este servicio no tiene entregables ni acciones definidas.</p>
+{% else %}
+
+<div class="flex flex-col gap-4">
+
+  {# ── Responsable del servicio ── #}
+  <div class="bg-base-200/40 rounded-lg p-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+      <div class="form-control">
+        <label class="label pb-1">
+          <span class="label-text font-medium text-sm">Responsable del servicio</span>
+          {% if st.responsible_role %}
+          <span class="label-text-alt text-xs text-base-content/50">Rol: {{ st.responsible_role.code }}</span>
+          {% endif %}
+        </label>
+        <select id="tree-service-professional" class="select select-bordered select-sm w-full">
+          <option value="">— Sin asignar —</option>
+          {% for user in service_users %}
+          <option value="{{ user.pk }}">{{ user.get_full_name }}</option>
+          {% endfor %}
+          {% if not service_users %}
+          <option value="" disabled>Sin usuarios con este rol</option>
+          {% endif %}
+        </select>
+      </div>
+      <div class="text-xs text-base-content/50 pb-1">
+        <span class="font-medium">{{ st.estimated_hours }}h</span> estimadas ·
+        {{ act_total }} acción{{ act_total|pluralize:"es" }} en total
+      </div>
+    </div>
+  </div>
+
+  {# ── Árbol Entregable → Actividad → Acciones ── #}
+  <div class="flex flex-col divide-y divide-base-300/30 border border-base-300/30 rounded-lg overflow-hidden">
+
+    {% for deliv in tree %}
+    <details open class="group">
+      <summary class="flex items-center gap-2 px-3 py-2 cursor-pointer list-none bg-base-200/30 hover:bg-base-200/60 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-base-content/40 group-open:rotate-90 transition-transform shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="badge badge-primary badge-xs shrink-0">Entregable</span>
+        <span class="font-medium text-sm">{{ deliv.name }}</span>
+        {% if deliv.unit %}<span class="text-xs text-base-content/40">{{ deliv.unit }}</span>{% endif %}
+      </summary>
+
+      <div class="px-3 pb-2 pt-1">
+        {% for kact in deliv.kacts %}
+        <div class="mb-3">
+          <div class="flex items-center gap-2 py-1">
+            <span class="badge badge-secondary badge-xs shrink-0">Actividad</span>
+            <span class="text-sm font-medium text-base-content/80">{{ kact.name }}</span>
+          </div>
+
+          {% if kact.actions %}
+          <div class="ml-4 overflow-x-auto">
+            <table class="table table-xs w-full">
+              <thead>
+                <tr class="text-base-content/50">
+                  <th class="text-xs">#</th>
+                  <th class="text-xs">Acción</th>
+                  <th class="text-xs w-36">Responsable</th>
+                  <th class="text-xs w-20 text-right">Horas</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for act in kact.actions %}
+                <tr class="hover:bg-base-200/20">
+                  <td class="text-base-content/40 text-xs">{{ act.idx|add:1 }}</td>
+                  <td class="text-xs">
+                    {{ act.name }}
+                    {# Campos ocultos para el POST #}
+                    <input type="hidden" id="act-{{ act.idx }}-service_activity" value="{{ act.pk }}">
+                    <input type="hidden" id="act-{{ act.idx }}-name" value="{{ act.name }}">
+                    <input type="hidden" id="act-{{ act.idx }}-role" value="{{ act.role_id|default:'' }}">
+                  </td>
+                  <td>
+                    <select id="act-{{ act.idx }}-professional"
+                            class="select select-bordered select-xs w-full">
+                      <option value="">— Sin asignar —</option>
+                      {% for user in act.users %}
+                      <option value="{{ user.pk }}">{{ user.get_full_name }}</option>
+                      {% endfor %}
+                      {% if not act.users %}
+                      <option value="" disabled class="text-base-content/30">
+                        {% if act.role_code %}Sin usuarios ({{ act.role_code }}){% else %}Sin rol asignado{% endif %}
+                      </option>
+                      {% endif %}
+                    </select>
+                  </td>
+                  <td class="text-right">
+                    <input type="number"
+                           id="act-{{ act.idx }}-hours"
+                           value="{{ act.hours }}"
+                           step="0.5" min="0"
+                           class="input input-bordered input-xs w-16 text-right">
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="ml-4 text-xs text-base-content/40 italic py-1">Sin acciones.</p>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-xs text-base-content/40 italic py-1">Sin actividades clave.</p>
+        {% endfor %}
+      </div>
+    </details>
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}
+
+<script>
+// Habilitar el botón de submit cuando se carga el árbol
+(function() {
+  const btn = document.getElementById('modal-submit-btn');
+  if (btn) btn.disabled = false;
+})();
+</script>

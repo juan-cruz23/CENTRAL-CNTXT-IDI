@@ -96,6 +96,11 @@ urlpatterns = [
         views.ScheduleServiceResponsiblesView.as_view(),
         name="schedule_service_responsibles",
     ),
+    path(
+        "<int:pk>/cronograma/servicios/arbol/",
+        views.ScheduleServiceTreeView.as_view(),
+        name="schedule_service_tree",
+    ),
     # Validation (HTMX)
     path(
         "<int:pk>/validar-asignacion/",
