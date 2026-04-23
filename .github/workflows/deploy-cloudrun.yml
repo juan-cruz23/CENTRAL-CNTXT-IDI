@@ -66,6 +66,8 @@ jobs:
           DB_PASSWORD: "${{ secrets.DB_PASSWORD }}"
           SECRET_KEY: "${{ secrets.DJANGO_SECRET_KEY }}"
           TIME_ZONE: "America/Bogota"
+          GOOGLE_CLOUD_PROJECT: "appsindunnova"
+          GS_BUCKET_NAME: "contexto-media"
           EOF
           sed -i 's/^          //' /tmp/env-vars.yaml
 

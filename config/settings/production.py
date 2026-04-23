@@ -57,6 +57,16 @@ if not config("CELERY_BROKER_URL", default=""):
 # WhiteNoise  --  compressed + hashed static files
 # ---------------------------------------------------------------------------
 STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "bucket_name": config("GS_BUCKET_NAME", default="contexto-media"),
+            "project_id": config("GOOGLE_CLOUD_PROJECT", default="appsindunnova"),
+            "default_acl": None,
+            "querystring_auth": True,
+            "expiration": 3600,
+        },
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
