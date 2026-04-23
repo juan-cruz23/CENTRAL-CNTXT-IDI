@@ -58,7 +58,7 @@ if not config("CELERY_BROKER_URL", default=""):
 # ---------------------------------------------------------------------------
 STORAGES = {
     "default": {
-        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "BACKEND": "apps.common.storage.IAMSignedGoogleCloudStorage",
         "OPTIONS": {
             "bucket_name": config("GS_BUCKET_NAME", default="contexto-media"),
             "project_id": config("GOOGLE_CLOUD_PROJECT", default="appsindunnova"),
