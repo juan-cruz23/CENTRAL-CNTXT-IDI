@@ -1,0 +1,100 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Pagos — {{ software.name }}{% endblock %}
+{% block breadcrumb %}
+{% url 'services:software_list' as list_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/maestros/" grandparent_label="Maestros" parent_url=list_url parent_label="Software" current=software.name %}
+{% endblock %}
+{% block content %}
+<div class="max-w-3xl space-y-6">
+  {% include "components/page_header.html" with title=software.name subtitle="Historial de pagos" %}
+
+  {% comment %} Resumen {% endcomment %}
+  <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+    <div class="stat bg-base-100 shadow-sm border border-base-300/30 rounded-xl p-4">
+      <div class="stat-title text-xs">Total pagado</div>
+      <div class="stat-value text-xl">{{ total_paid|cop_format }}</div>
+    </div>
+    <div class="stat bg-base-100 shadow-sm border border-base-300/30 rounded-xl p-4">
+      <div class="stat-title text-xs">Pagos registrados</div>
+      <div class="stat-value text-xl">{{ payments|length }}</div>
+    </div>
+    {% if software.annual_value %}
+    <div class="stat bg-base-100 shadow-sm border border-base-300/30 rounded-xl p-4">
+      <div class="stat-title text-xs">Valor anual esperado</div>
+      <div class="stat-value text-xl">{{ software.annual_value|cop_format }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% comment %} Formulario nuevo pago {% endcomment %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wider mb-3">Registrar pago</h3>
+      <form method="post" class="flex flex-wrap gap-3 items-end">
+        {% csrf_token %}
+        <div class="form-control flex-1 min-w-36">
+          <label class="label pb-1"><span class="label-text font-medium">{{ form.payment_date.label }}</span></label>
+          {{ form.payment_date }}
+        </div>
+        <div class="form-control flex-1 min-w-36">
+          <label class="label pb-1"><span class="label-text font-medium">{{ form.amount.label }}</span></label>
+          {{ form.amount }}
+        </div>
+        <div class="form-control flex-1 min-w-36">
+          <label class="label pb-1">
+            <span class="label-text font-medium">{{ form.new_expiration_date.label }}</span>
+            <span class="label-text-alt text-base-content/40">opcional</span>
+          </label>
+          {{ form.new_expiration_date }}
+        </div>
+        <div class="form-control flex-2 min-w-48">
+          <label class="label pb-1"><span class="label-text font-medium">{{ form.notes.label }}</span></label>
+          {{ form.notes }}
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          Agregar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  {% comment %} Historial {% endcomment %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="overflow-x-auto">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th class="text-right">Valor pagado</th>
+            <th>Notas</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in payments %}
+          <tr>
+            <td class="font-mono text-sm">{{ p.payment_date|date:"d/m/Y" }}</td>
+            <td class="text-right font-mono">{{ p.amount|cop_format }}</td>
+            <td class="text-sm text-base-content/70">{{ p.notes|default:"—" }}</td>
+            <td class="text-right">
+              <form method="post" action="{% url 'services:software_payment_delete' p.pk %}" onsubmit="return confirm('¿Eliminar este pago?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-xs text-error">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center text-base-content/50 py-8">No hay pagos registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <a href="{% url 'services:software_list' %}" class="btn btn-ghost btn-sm">← Volver a Software</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load common_tags %}
 {% block title %}Software{% endblock %}
 {% block breadcrumb %}
 {% include "components/breadcrumb.html" with parent_url="/maestros/" parent_label="Maestros" current="Software" %}
@@ -17,30 +18,85 @@
       <thead>
         <tr>
           <th>Nombre</th>
+          <th>Proveedor</th>
+          <th>Tipo</th>
+          <th class="text-center">Puestos</th>
           <th class="text-right">Valor anual</th>
           <th class="text-right">Valor/hora</th>
+          <th>Vencimiento</th>
+          <th>Último pago</th>
           <th>Estado</th>
           <th class="text-right">Acciones</th>
         </tr>
       </thead>
       <tbody>
         {% for sw in software_list %}
+        {% with pago=payments_by_sw|get_item:sw.pk %}
         <tr>
-          <td class="font-medium">{{ sw.name }}</td>
-          <td class="text-right font-mono">${{ sw.annual_value|floatformat:0 }}</td>
-          <td class="text-right font-mono">${{ sw.hourly_value|floatformat:0 }}</td>
-          <td>{% if sw.is_active %}<span class="badge badge-success badge-sm">Activo</span>{% else %}<span class="badge badge-ghost badge-sm">Inactivo</span>{% endif %}</td>
+          <td>
+            <div class="font-medium">{{ sw.name }}</div>
+            {% if sw.version %}<div class="text-xs text-base-content/50">v{{ sw.version }}</div>{% endif %}
+          </td>
+          <td class="text-sm">{{ sw.vendor|default:"—" }}</td>
+          <td class="text-sm">{{ sw.get_license_type_display }}</td>
+          <td class="text-center text-sm">{{ sw.seats }}</td>
+          <td class="text-right font-mono">{{ sw.annual_value|cop_format }}</td>
+          <td class="text-right font-mono">{{ sw.hourly_value|cop_format }}</td>
+          <td class="text-sm">
+            {% if sw.expiration_date %}
+              {% if sw.days_to_expiration < 0 %}
+                <span class="badge badge-error badge-sm">Vencido {{ sw.expiration_date|date:"d/m/Y" }}</span>
+              {% elif sw.days_to_expiration <= 30 %}
+                <span class="badge badge-warning badge-sm">Vence {{ sw.expiration_date|date:"d/m/Y" }}</span>
+              {% else %}
+                {{ sw.expiration_date|date:"d/m/Y" }}
+                {% if sw.auto_renewal %}<span class="badge badge-ghost badge-xs ml-1" title="Renovación automática">↺</span>{% endif %}
+              {% endif %}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="text-sm">
+            {% if pago %}
+              <div>{{ pago.last_payment|date:"d/m/Y" }}</div>
+              <div class="text-xs text-base-content/50">{{ pago.total_paid|cop_format }} total</div>
+            {% else %}
+              <span class="text-base-content/30">Sin pagos</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if sw.is_active %}
+              <span class="badge badge-success badge-sm">Activo</span>
+            {% else %}
+              <span class="badge badge-ghost badge-sm">Inactivo</span>
+            {% endif %}
+          </td>
           <td class="text-right">
-            <div class="flex justify-end gap-2">
+            <div class="flex justify-end gap-1">
+              <a href="{% url 'services:software_payments' sw.pk %}" class="btn btn-ghost btn-xs" title="Pagos">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>
+                Pagos
+              </a>
               <a href="{% url 'services:software_update' sw.pk %}" class="btn btn-ghost btn-xs">Editar</a>
               <a href="{% url 'services:software_delete' sw.pk %}" class="btn btn-ghost btn-xs text-error">Eliminar</a>
             </div>
           </td>
         </tr>
+        {% endwith %}
         {% empty %}
-        <tr><td colspan="5" class="text-center text-base-content/50 py-8">No hay software registrado.</td></tr>
+        <tr><td colspan="10" class="text-center text-base-content/50 py-8">No hay software registrado.</td></tr>
         {% endfor %}
       </tbody>
+      {% if software_list %}
+      <tfoot>
+        <tr class="font-bold border-t-2 border-base-300">
+          <td colspan="4">Total ({{ software_list|length }} licencias)</td>
+          <td class="text-right font-mono">{{ total_annual_value|cop_format }}</td>
+          <td class="text-right font-mono">{{ total_hourly_value|cop_format }}</td>
+          <td colspan="4"></td>
+        </tr>
+      </tfoot>
+      {% endif %}
     </table>
   </div>
 </div>

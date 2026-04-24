@@ -1,0 +1,121 @@
+{% extends "base/base.html" %}
+{% load common_tags %}
+{% block title %}Mantenimientos — {{ hardware.name }}{% endblock %}
+{% block breadcrumb %}
+{% url 'services:hardware_list' as list_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/maestros/" grandparent_label="Maestros" parent_url=list_url parent_label="Hardware" current=hardware.name %}
+{% endblock %}
+{% block content %}
+<div class="max-w-3xl space-y-6">
+  {% include "components/page_header.html" with title=hardware.name subtitle="Historial de mantenimientos" %}
+
+  <div class="grid grid-cols-3 gap-4">
+    <div class="stat bg-base-100 shadow-sm border border-base-300/30 rounded-xl p-4">
+      <div class="stat-title text-xs">Total invertido</div>
+      <div class="stat-value text-xl">{{ total_cost|cop_format }}</div>
+    </div>
+    <div class="stat bg-base-100 shadow-sm border border-base-300/30 rounded-xl p-4">
+      <div class="stat-title text-xs">Registros</div>
+      <div class="stat-value text-xl">{{ maintenances|length }}</div>
+    </div>
+    <div class="stat bg-base-100 shadow-sm border border-base-300/30 rounded-xl p-4">
+      <div class="stat-title text-xs">Valor del equipo</div>
+      <div class="stat-value text-xl">{{ hardware.value|cop_format }}</div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wider mb-3">Registrar mantenimiento</h3>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium">{{ form.maintenance_type.label }}</span></label>
+            {{ form.maintenance_type }}
+          </div>
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium">{{ form.date.label }}</span></label>
+            {{ form.date }}
+          </div>
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium">{{ form.cost.label }}</span></label>
+            {{ form.cost }}
+          </div>
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium">{{ form.provider.label }}</span></label>
+            {{ form.provider }}
+          </div>
+          <div class="form-control">
+            <label class="label pb-1">
+              <span class="label-text font-medium">{{ form.next_maintenance_date.label }}</span>
+              <span class="label-text-alt text-base-content/40">opcional</span>
+            </label>
+            {{ form.next_maintenance_date }}
+          </div>
+        </div>
+        <div class="form-control">
+          <label class="label pb-1"><span class="label-text font-medium">{{ form.description.label }}</span></label>
+          {{ form.description }}
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="btn btn-primary btn-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Agregar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="overflow-x-auto">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Proveedor / Técnico</th>
+            <th class="text-right">Costo</th>
+            <th>Próximo</th>
+            <th>Descripción</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in maintenances %}
+          <tr>
+            <td class="font-mono text-sm">{{ m.date|date:"d/m/Y" }}</td>
+            <td>
+              {% if m.maintenance_type == "preventivo" %}
+                <span class="badge badge-info badge-sm">Preventivo</span>
+              {% elif m.maintenance_type == "correctivo" %}
+                <span class="badge badge-warning badge-sm">Correctivo</span>
+              {% else %}
+                <span class="badge badge-success badge-sm">Garantía</span>
+              {% endif %}
+            </td>
+            <td class="text-sm">{{ m.provider|default:"—" }}</td>
+            <td class="text-right font-mono">{{ m.cost|cop_format }}</td>
+            <td class="text-sm">{{ m.next_maintenance_date|date:"d/m/Y"|default:"—" }}</td>
+            <td class="text-sm text-base-content/70 max-w-xs truncate">{{ m.description|default:"—" }}</td>
+            <td>
+              <form method="post" action="{% url 'services:hardware_maintenance_delete' m.pk %}" onsubmit="return confirm('¿Eliminar este registro?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-xs text-error">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center text-base-content/50 py-8">No hay mantenimientos registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <a href="{% url 'services:hardware_list' %}" class="btn btn-ghost btn-sm">← Volver a Hardware</a>
+  </div>
+</div>
+{% endblock %}

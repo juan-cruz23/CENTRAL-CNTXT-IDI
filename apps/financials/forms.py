@@ -1,7 +1,7 @@
 from django import forms
 
 from apps.common.forms import DaisyUIFormMixin
-from apps.financials.models import ColombianHoliday, CostCenterMapping, OperationalExpenseType, PaymentMilestone, ProfitabilitySummary
+from apps.financials.models import ColombianHoliday, CostCenterMapping, CostCenterSubCategory, ExpenseCategory, ExpenseSubCategory, OperationalExpenseType, PaymentMilestone, ProfitabilitySummary
 
 
 class PaymentMilestoneForm(DaisyUIFormMixin, forms.ModelForm):
@@ -123,10 +123,32 @@ class ProfitabilitySummaryForm(DaisyUIFormMixin, forms.ModelForm):
         }
 
 
+class ExpenseCategoryForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = ExpenseCategory
+        fields = ["code", "name", "category_type", "is_active"]
+
+
+class ExpenseSubCategoryForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = ExpenseSubCategory
+        fields = ["category", "code", "name", "is_active"]
+
+
 class OperationalExpenseTypeForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = OperationalExpenseType
-        fields = ["name", "is_active"]
+        fields = ["subcategory", "name", "vendor", "monthly_reference", "is_active"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["monthly_reference"].required = False
+
+
+class CostCenterSubCategoryForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = CostCenterSubCategory
+        fields = ["cost_center", "code", "name", "is_active"]
 
 
 class ColombianHolidayForm(DaisyUIFormMixin, forms.ModelForm):

@@ -1,7 +1,7 @@
 from django import forms
 
 from apps.common.forms import DaisyUIFormMixin
-from apps.services.models import Deliverable, Hardware, KeyActivity, ProjectCategory, ProjectPhase, ServiceActivity, ServiceSubCategory, ServiceTemplate, Software
+from apps.services.models import Deliverable, Hardware, HardwareMaintenance, KeyActivity, ProjectCategory, ProjectPhase, ServiceActivity, ServiceSubCategory, ServiceTemplate, Software, SoftwarePayment
 
 
 class ProjectCategoryForm(DaisyUIFormMixin, forms.ModelForm):
@@ -14,14 +14,84 @@ class ProjectCategoryForm(DaisyUIFormMixin, forms.ModelForm):
 class HardwareForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = Hardware
-        fields = ["name", "value", "depreciation_per_hour", "is_active"]
-        widgets = {"name": forms.TextInput(attrs={"placeholder": "Ej. Workstation Alta Gama (opcional)"})}
+        fields = [
+            "name", "brand", "model_name", "serial_number", "location",
+            "value", "depreciation_years", "depreciation_per_hour",
+            "purchase_date", "warranty_expiration",
+            "is_direct_cost", "is_active",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "Ej. Workstation Alta Gama (opcional)"}),
+            "purchase_date": forms.DateInput(attrs={"type": "date"}),
+            "warranty_expiration": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in ("value", "depreciation_per_hour"):
+            self.fields[f].required = False
+
+    def clean_value(self):
+        return self.cleaned_data.get("value") or 0
+
+    def clean_depreciation_per_hour(self):
+        return self.cleaned_data.get("depreciation_per_hour") or 0
+
+
+class HardwareMaintenanceForm(DaisyUIFormMixin, forms.ModelForm):
+    class Meta:
+        model = HardwareMaintenance
+        fields = ["maintenance_type", "date", "cost", "provider", "description", "next_maintenance_date"]
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+            "next_maintenance_date": forms.DateInput(attrs={"type": "date"}),
+            "description": forms.Textarea(attrs={"rows": 2}),
+        }
 
 
 class SoftwareForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = Software
-        fields = ["name", "annual_value", "hourly_value", "is_active"]
+        fields = [
+            "name", "vendor", "version", "license_type", "seats",
+            "annual_value", "monthly_value", "hourly_value",
+            "acquisition_date", "expiration_date", "auto_renewal", "is_direct_cost",
+            "vendor_url", "notes", "is_active",
+        ]
+        widgets = {
+            "acquisition_date": forms.DateInput(attrs={"type": "date"}),
+            "expiration_date": forms.DateInput(attrs={"type": "date"}),
+            "notes": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in ("annual_value", "monthly_value", "hourly_value"):
+            self.fields[f].required = False
+
+    def clean_annual_value(self):
+        return self.cleaned_data.get("annual_value") or 0
+
+    def clean_monthly_value(self):
+        return self.cleaned_data.get("monthly_value") or 0
+
+    def clean_hourly_value(self):
+        return self.cleaned_data.get("hourly_value") or 0
+
+
+class SoftwarePaymentForm(DaisyUIFormMixin, forms.ModelForm):
+    new_expiration_date = forms.DateField(
+        required=False,
+        label="Actualizar vencimiento a",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+
+    class Meta:
+        model = SoftwarePayment
+        fields = ["payment_date", "amount", "notes"]
+        widgets = {
+            "payment_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
 
 class ProjectPhaseForm(DaisyUIFormMixin, forms.ModelForm):

@@ -45,3 +45,8 @@ def percentage_format(value):
     # Replace dot with comma for Colombian format
     str_value = str_value.replace(".", ",")
     return f"{str_value}%"
+
+
+@register.filter(name="get_item")
+def get_item(dictionary, key):
+    return dictionary.get(key)

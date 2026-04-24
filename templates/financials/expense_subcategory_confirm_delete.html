@@ -1,0 +1,17 @@
+{% extends "base/base.html" %}
+{% block title %}Eliminar Subcategoría{% endblock %}
+{% block content %}
+<div class="max-w-md">
+  {% include "components/page_header.html" with title="Eliminar Subcategoría" %}
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <p>¿Confirmas que deseas eliminar <strong>{{ object }}</strong>?</p>
+      <p class="text-sm text-base-content/50 mt-1">Se eliminarán también todos los conceptos de gasto asociados.</p>
+      <div class="flex justify-end gap-3 mt-4">
+        <a href="{% url 'financials:expense_subcategory_list' %}" class="btn btn-ghost">Cancelar</a>
+        <form method="post">{% csrf_token %}<button type="submit" class="btn btn-error">Eliminar</button></form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -276,9 +276,11 @@ def import_services(file_obj, inactivate_missing=True):
 
     # ── Agrupar por CÓDIGO (mantener orden de aparición) ──
     services_data: dict[str, list] = OrderedDict()
+    rows_without_code = 0
     for row in all_rows:
         code = get(row, "CÓDIGO")
         if not code:
+            rows_without_code += 1
             continue
         services_data.setdefault(code, []).append(row)
 
@@ -296,6 +298,8 @@ def import_services(file_obj, inactivate_missing=True):
 
     created = updated = 0
     errors  = []
+    if rows_without_code:
+        errors.append(f"{rows_without_code} fila(s) omitidas por CÓDIGO vacío — completa la columna CÓDIGO para crear nuevos servicios.")
     processed_codes = set()
 
     for code, rows in services_data.items():

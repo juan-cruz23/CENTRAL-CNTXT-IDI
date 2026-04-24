@@ -56,11 +56,19 @@ class Hardware(TimeStampedModel):
         verbose_name="nombre",
         help_text="Ej. 'Workstation Alta Gama'. Puede dejarse en blanco.",
     )
+    brand = models.CharField(max_length=100, blank=True, verbose_name="marca")
+    model_name = models.CharField(max_length=100, blank=True, verbose_name="modelo")
+    serial_number = models.CharField(max_length=100, blank=True, verbose_name="número de serie")
+    location = models.CharField(max_length=200, blank=True, verbose_name="ubicación")
     value = models.DecimalField(
         max_digits=14,
         decimal_places=2,
         default=0,
         verbose_name="valor del equipo ($COP)",
+    )
+    depreciation_years = models.PositiveSmallIntegerField(
+        default=5,
+        verbose_name="años de depreciación",
     )
     depreciation_per_hour = models.DecimalField(
         max_digits=10,
@@ -68,6 +76,9 @@ class Hardware(TimeStampedModel):
         default=0,
         verbose_name="depreciación por hora ($COP)",
     )
+    purchase_date = models.DateField(null=True, blank=True, verbose_name="fecha de compra")
+    warranty_expiration = models.DateField(null=True, blank=True, verbose_name="garantía hasta")
+    is_direct_cost = models.BooleanField(default=True, verbose_name="costo directo")
     is_active = models.BooleanField(default=True, verbose_name="activo")
 
     class Meta:
@@ -75,19 +86,88 @@ class Hardware(TimeStampedModel):
         verbose_name = "hardware"
         verbose_name_plural = "hardware"
 
+    @property
+    def warranty_days_left(self):
+        if not self.warranty_expiration:
+            return None
+        from django.utils import timezone
+        return (self.warranty_expiration - timezone.now().date()).days
+
     def __str__(self):
         return self.name or f"Hardware ${self.value:,.0f}"
+
+
+class HardwareMaintenance(TimeStampedModel):
+    """Registro de mantenimiento de un equipo."""
+
+    TYPE_CHOICES = [
+        ("preventivo", "Preventivo"),
+        ("correctivo", "Correctivo"),
+        ("garantia", "Garantía"),
+    ]
+
+    hardware = models.ForeignKey(
+        Hardware,
+        on_delete=models.CASCADE,
+        related_name="maintenances",
+        verbose_name="equipo",
+    )
+    maintenance_type = models.CharField(
+        max_length=20,
+        choices=TYPE_CHOICES,
+        default="preventivo",
+        verbose_name="tipo",
+    )
+    date = models.DateField(verbose_name="fecha")
+    cost = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        verbose_name="costo ($COP)",
+    )
+    provider = models.CharField(max_length=200, blank=True, verbose_name="proveedor / técnico")
+    description = models.TextField(blank=True, verbose_name="descripción")
+    next_maintenance_date = models.DateField(null=True, blank=True, verbose_name="próximo mantenimiento")
+
+    class Meta:
+        ordering = ["-date"]
+        verbose_name = "mantenimiento"
+        verbose_name_plural = "mantenimientos"
+
+    def __str__(self):
+        return f"{self.hardware} — {self.get_maintenance_type_display()} {self.date}"
 
 
 class Software(TimeStampedModel):
     """Licencia de software. Fuente de costo de licencias por hora."""
 
+    LICENSE_TYPE_CHOICES = [
+        ("perpetua", "Perpetua"),
+        ("suscripcion", "Suscripción"),
+        ("por_usuario", "Por usuario"),
+    ]
+
     name = models.CharField(max_length=200, verbose_name="nombre")
+    vendor = models.CharField(max_length=200, blank=True, verbose_name="proveedor")
+    version = models.CharField(max_length=100, blank=True, verbose_name="versión")
+    license_type = models.CharField(
+        max_length=20,
+        choices=LICENSE_TYPE_CHOICES,
+        default="suscripcion",
+        verbose_name="tipo de licencia",
+    )
+    seats = models.PositiveSmallIntegerField(default=1, verbose_name="cantidad de puestos")
     annual_value = models.DecimalField(
         max_digits=14,
         decimal_places=2,
         default=0,
         verbose_name="valor anual ($COP)",
+    )
+    monthly_value = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        verbose_name="valor mensual ($COP)",
     )
     hourly_value = models.DecimalField(
         max_digits=10,
@@ -95,6 +175,12 @@ class Software(TimeStampedModel):
         default=0,
         verbose_name="valor por hora ($COP)",
     )
+    acquisition_date = models.DateField(null=True, blank=True, verbose_name="fecha de adquisición")
+    expiration_date = models.DateField(null=True, blank=True, verbose_name="fecha de vencimiento")
+    auto_renewal = models.BooleanField(default=False, verbose_name="renovación automática")
+    is_direct_cost = models.BooleanField(default=True, verbose_name="costo directo")
+    vendor_url = models.URLField(blank=True, verbose_name="URL del proveedor")
+    notes = models.TextField(blank=True, verbose_name="notas")
     is_active = models.BooleanField(default=True, verbose_name="activo")
 
     class Meta:
@@ -102,8 +188,41 @@ class Software(TimeStampedModel):
         verbose_name = "software"
         verbose_name_plural = "software"
 
+    @property
+    def days_to_expiration(self):
+        if not self.expiration_date:
+            return None
+        from django.utils import timezone
+        return (self.expiration_date - timezone.now().date()).days
+
     def __str__(self):
         return self.name
+
+
+class SoftwarePayment(TimeStampedModel):
+    """Registro de un pago de licencia de software."""
+
+    software = models.ForeignKey(
+        Software,
+        on_delete=models.CASCADE,
+        related_name="payments",
+        verbose_name="software",
+    )
+    payment_date = models.DateField(verbose_name="fecha de pago")
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        verbose_name="valor pagado ($COP)",
+    )
+    notes = models.CharField(max_length=300, blank=True, verbose_name="notas")
+
+    class Meta:
+        ordering = ["-payment_date"]
+        verbose_name = "pago de software"
+        verbose_name_plural = "pagos de software"
+
+    def __str__(self):
+        return f"{self.software.name} — {self.payment_date} — ${self.amount:,.0f}"
 
 
 class ServiceSubCategory(TimeStampedModel):

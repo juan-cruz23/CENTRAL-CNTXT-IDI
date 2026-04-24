@@ -78,11 +78,31 @@ urlpatterns = [
         views_allocation.CostAllocationDetailView.as_view(),
         name="cost_allocation_detail",
     ),
-    # Maestros — Tipos de gasto operacional
+    path(
+        "prorrateo/pesos/<str:quarter>/",
+        views_allocation.LineWeightConfigView.as_view(),
+        name="line_weight_config",
+    ),
+    # Maestros — Categorías (Nivel 1)
+    path("maestros/categorias-gasto/", views.ExpenseCategoryListView.as_view(), name="expense_category_list"),
+    path("maestros/categorias-gasto/crear/", views.ExpenseCategoryCreateView.as_view(), name="expense_category_create"),
+    path("maestros/categorias-gasto/<int:pk>/editar/", views.ExpenseCategoryUpdateView.as_view(), name="expense_category_update"),
+    path("maestros/categorias-gasto/<int:pk>/eliminar/", views.ExpenseCategoryDeleteView.as_view(), name="expense_category_delete"),
+    # Maestros — Subcategorías (Nivel 2)
+    path("maestros/subcategorias-gasto/", views.ExpenseSubCategoryListView.as_view(), name="expense_subcategory_list"),
+    path("maestros/subcategorias-gasto/crear/", views.ExpenseSubCategoryCreateView.as_view(), name="expense_subcategory_create"),
+    path("maestros/subcategorias-gasto/<int:pk>/editar/", views.ExpenseSubCategoryUpdateView.as_view(), name="expense_subcategory_update"),
+    path("maestros/subcategorias-gasto/<int:pk>/eliminar/", views.ExpenseSubCategoryDeleteView.as_view(), name="expense_subcategory_delete"),
+    # Maestros — Conceptos de gasto (Nivel 3)
     path("maestros/tipos-gasto/", views.ExpenseTypeListView.as_view(), name="expense_type_list"),
     path("maestros/tipos-gasto/crear/", views.ExpenseTypeCreateView.as_view(), name="expense_type_create"),
     path("maestros/tipos-gasto/<int:pk>/editar/", views.ExpenseTypeUpdateView.as_view(), name="expense_type_update"),
     path("maestros/tipos-gasto/<int:pk>/eliminar/", views.ExpenseTypeDeleteView.as_view(), name="expense_type_delete"),
+    # Maestros — Subcategorías de centros de costo
+    path("maestros/subcategorias-cc/", views.CostCenterSubCategoryListView.as_view(), name="cost_center_subcategory_list"),
+    path("maestros/subcategorias-cc/crear/", views.CostCenterSubCategoryCreateView.as_view(), name="cost_center_subcategory_create"),
+    path("maestros/subcategorias-cc/<int:pk>/editar/", views.CostCenterSubCategoryUpdateView.as_view(), name="cost_center_subcategory_update"),
+    path("maestros/subcategorias-cc/<int:pk>/eliminar/", views.CostCenterSubCategoryDeleteView.as_view(), name="cost_center_subcategory_delete"),
     # Maestros — Festivos colombianos
     path(
         "maestros/festivos/",

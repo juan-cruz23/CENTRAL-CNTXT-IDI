@@ -5,21 +5,128 @@
 {% include "components/breadcrumb.html" with grandparent_url="/maestros/" grandparent_label="Maestros" parent_url=list_url parent_label="Software" current=form.instance.pk|yesno:"Editar,Nuevo" %}
 {% endblock %}
 {% block content %}
-<div class="max-w-lg">
+<div class="max-w-2xl">
   {% include "components/page_header.html" with title=form.instance.pk|yesno:"Editar Software,Nuevo Software" %}
-  <form method="post" class="space-y-6">
+  <form method="post" class="space-y-5">
     {% csrf_token %}
+
+    {% comment %} Identificación {% endcomment %}
     <div class="card bg-base-100 shadow-sm border border-base-300/30">
       <div class="card-body space-y-4">
-        {% for field in form %}
-        <div class="form-control">
-          <label class="label" for="{{ field.id_for_label }}"><span class="label-text font-medium">{{ field.label }}</span></label>
-          {{ field }}
-          {% if field.errors %}<div class="label"><span class="label-text-alt text-error">{{ field.errors|join:", " }}</span></div>{% endif %}
+        <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wider">Identificación</h3>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="form-control sm:col-span-2">
+            <label class="label" for="{{ form.name.id_for_label }}"><span class="label-text font-medium">{{ form.name.label }}</span></label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.name.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label" for="{{ form.vendor.id_for_label }}"><span class="label-text font-medium">{{ form.vendor.label }}</span></label>
+            {{ form.vendor }}
+            {% if form.vendor.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.vendor.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label" for="{{ form.version.id_for_label }}"><span class="label-text font-medium">{{ form.version.label }}</span></label>
+            {{ form.version }}
+            {% if form.version.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.version.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label" for="{{ form.license_type.id_for_label }}"><span class="label-text font-medium">{{ form.license_type.label }}</span></label>
+            {{ form.license_type }}
+            {% if form.license_type.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.license_type.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label" for="{{ form.seats.id_for_label }}"><span class="label-text font-medium">{{ form.seats.label }}</span></label>
+            {{ form.seats }}
+            {% if form.seats.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.seats.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control sm:col-span-2">
+            <label class="label" for="{{ form.vendor_url.id_for_label }}"><span class="label-text font-medium">{{ form.vendor_url.label }}</span></label>
+            {{ form.vendor_url }}
+            {% if form.vendor_url.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.vendor_url.errors|join:", " }}</span></div>{% endif %}
+          </div>
         </div>
-        {% endfor %}
       </div>
     </div>
+
+    {% comment %} Costos {% endcomment %}
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body space-y-4">
+        <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wider">Costos</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="form-control">
+            <label class="label" for="{{ form.annual_value.id_for_label }}"><span class="label-text font-medium">{{ form.annual_value.label }}</span></label>
+            {{ form.annual_value }}
+            {% if form.annual_value.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.annual_value.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label" for="{{ form.monthly_value.id_for_label }}"><span class="label-text font-medium">{{ form.monthly_value.label }}</span></label>
+            {{ form.monthly_value }}
+            {% if form.monthly_value.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.monthly_value.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label" for="{{ form.hourly_value.id_for_label }}"><span class="label-text font-medium">{{ form.hourly_value.label }}</span></label>
+            {{ form.hourly_value }}
+            {% if form.hourly_value.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.hourly_value.errors|join:", " }}</span></div>{% endif %}
+          </div>
+        </div>
+        <p class="text-xs text-base-content/40">Cálculo automático: anual ÷ 12 = mensual · anual ÷ 2.160 h = hora. Edita cualquier campo y los demás se actualizan.</p>
+      </div>
+    </div>
+
+    {% comment %} Vigencia {% endcomment %}
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body space-y-4">
+        <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wider">Vigencia</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label" for="{{ form.acquisition_date.id_for_label }}"><span class="label-text font-medium">{{ form.acquisition_date.label }}</span></label>
+            {{ form.acquisition_date }}
+            {% if form.acquisition_date.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.acquisition_date.errors|join:", " }}</span></div>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label" for="{{ form.expiration_date.id_for_label }}"><span class="label-text font-medium">{{ form.expiration_date.label }}</span></label>
+            {{ form.expiration_date }}
+            {% if form.expiration_date.errors %}<div class="label"><span class="label-text-alt text-error">{{ form.expiration_date.errors|join:", " }}</span></div>{% endif %}
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="flex items-center gap-3 cursor-pointer">
+              {{ form.auto_renewal }}
+              <span class="label-text font-medium">{{ form.auto_renewal.label }}</span>
+            </label>
+          </div>
+          <div class="form-control">
+            <label class="flex items-center gap-3 cursor-pointer">
+              {{ form.is_direct_cost }}
+              <div>
+                <span class="label-text font-medium">{{ form.is_direct_cost.label }}</span>
+                <p class="text-xs text-base-content/40">Se incluye en el costo directo del servicio</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% comment %} Otros {% endcomment %}
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body space-y-4">
+        <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wider">Otros</h3>
+        <div class="form-control">
+          <label class="label" for="{{ form.notes.id_for_label }}"><span class="label-text font-medium">{{ form.notes.label }}</span></label>
+          {{ form.notes }}
+        </div>
+        <div class="form-control">
+          <label class="flex items-center gap-3 cursor-pointer">
+            {{ form.is_active }}
+            <span class="label-text font-medium">{{ form.is_active.label }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <div class="flex justify-end gap-3">
       <a href="{% url 'services:software_list' %}" class="btn btn-ghost">Cancelar</a>
       <button type="submit" class="btn btn-primary">
@@ -29,4 +136,40 @@
     </div>
   </form>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+  const HOURS_PER_YEAR = 2160;
+  const annual  = document.getElementById('{{ form.annual_value.id_for_label }}');
+  const monthly = document.getElementById('{{ form.monthly_value.id_for_label }}');
+  const hourly  = document.getElementById('{{ form.hourly_value.id_for_label }}');
+
+  function round2(n) { return Math.round(n * 100) / 100; }
+
+  annual.addEventListener('input', function () {
+    const v = parseFloat(this.value);
+    if (!isNaN(v) && v > 0) {
+      monthly.value = round2(v / 12);
+      hourly.value  = round2(v / HOURS_PER_YEAR);
+    }
+  });
+
+  monthly.addEventListener('input', function () {
+    const v = parseFloat(this.value);
+    if (!isNaN(v) && v > 0) {
+      annual.value = round2(v * 12);
+      hourly.value = round2((v * 12) / HOURS_PER_YEAR);
+    }
+  });
+
+  hourly.addEventListener('input', function () {
+    const v = parseFloat(this.value);
+    if (!isNaN(v) && v > 0) {
+      annual.value  = round2(v * HOURS_PER_YEAR);
+      monthly.value = round2((v * HOURS_PER_YEAR) / 12);
+    }
+  });
+})();
+</script>
 {% endblock %}

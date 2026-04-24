@@ -168,6 +168,14 @@ class Project(TimeStampedModel):
         blank=True,
         verbose_name="unidad de negocio",
     )
+    cost_center = models.ForeignKey(
+        "financials.CostCenterMapping",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
+        verbose_name="centro de costo",
+    )
     operative_line = models.ForeignKey(
         "organizations.OperativeLine",
         on_delete=models.SET_NULL,

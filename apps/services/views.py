@@ -19,11 +19,12 @@ from django.views.generic import (
 )
 
 from apps.common.mixins import user_can_edit_pricing
-from apps.services.forms import DeliverableForm, HardwareForm, KeyActivityForm, KeyActivityInlineForm, ProjectCategoryForm, ProjectPhaseForm, ServiceActivityForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm, action_inline_formset, deliverable_inline_formset, keyactivity_inline_formset
+from apps.services.forms import DeliverableForm, HardwareForm, HardwareMaintenanceForm, KeyActivityForm, KeyActivityInlineForm, ProjectCategoryForm, ProjectPhaseForm, ServiceActivityForm, ServiceSubCategoryForm, ServiceTemplateForm, SoftwareForm, SoftwarePaymentForm, action_inline_formset, deliverable_inline_formset, keyactivity_inline_formset
 from apps.services.mixins import has_pricing_permission
 from apps.services.models import (
     Deliverable,
     Hardware,
+    HardwareMaintenance,
     KeyActivity,
     ProjectCategory,
     ProjectPhase,
@@ -31,6 +32,7 @@ from apps.services.models import (
     ServiceSubCategory,
     ServiceTemplate,
     Software,
+    SoftwarePayment,
 )
 
 
@@ -78,6 +80,25 @@ class HardwareListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
     template_name = "services/hardware_list.html"
     context_object_name = "hardware_list"
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        qs = self.get_queryset()
+        from django.db.models import Max, Sum
+        totals = qs.aggregate(
+            total_val=Sum("value"),
+            total_dep=Sum("depreciation_per_hour"),
+        )
+        ctx["total_value"] = totals["total_val"] or 0
+        ctx["total_depreciation"] = totals["total_dep"] or 0
+        ctx["maint_by_hw"] = {
+            m["hardware_id"]: m
+            for m in HardwareMaintenance.objects.values("hardware_id").annotate(
+                last_date=Max("date"),
+                next_date=Max("next_maintenance_date"),
+            )
+        }
+        return ctx
+
 
 class HardwareCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
     model = Hardware
@@ -96,6 +117,48 @@ class HardwareUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
 class HardwareDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     model = Hardware
     template_name = "services/hardware_confirm_delete.html"
+
+
+class HardwareMaintenanceView(LoginRequiredMixin, StaffRequiredMixin, View):
+    template_name = "services/hardware_maintenance.html"
+
+    def get_hardware(self, pk):
+        return get_object_or_404(Hardware, pk=pk)
+
+    def get(self, request, pk):
+        hw = self.get_hardware(pk)
+        maintenances = hw.maintenances.all()
+        import datetime
+        form = HardwareMaintenanceForm(initial={"date": datetime.date.today()})
+        from django.db.models import Sum
+        total_cost = maintenances.aggregate(t=Sum("cost"))["t"] or 0
+        return TemplateResponse(request, self.template_name, {
+            "hardware": hw, "maintenances": maintenances, "form": form, "total_cost": total_cost,
+        })
+
+    def post(self, request, pk):
+        hw = self.get_hardware(pk)
+        form = HardwareMaintenanceForm(request.POST)
+        if form.is_valid():
+            m = form.save(commit=False)
+            m.hardware = hw
+            m.save()
+        maintenances = hw.maintenances.all()
+        from django.db.models import Sum
+        total_cost = maintenances.aggregate(t=Sum("cost"))["t"] or 0
+        return TemplateResponse(request, self.template_name, {
+            "hardware": hw, "maintenances": maintenances,
+            "form": HardwareMaintenanceForm(), "total_cost": total_cost,
+        })
+
+
+class HardwareMaintenanceDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from django.shortcuts import redirect
+        m = get_object_or_404(HardwareMaintenance, pk=pk)
+        hw_pk = m.hardware_id
+        m.delete()
+        return redirect("services:hardware_maintenance", pk=hw_pk)
     success_url = reverse_lazy("services:hardware_list")
 
 
@@ -103,6 +166,31 @@ class SoftwareListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
     model = Software
     template_name = "services/software_list.html"
     context_object_name = "software_list"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        qs = self.get_queryset()
+        from django.db.models import Max, Sum
+        totals = qs.aggregate(
+            total_annual=Sum("annual_value"),
+            total_hourly=Sum("hourly_value"),
+        )
+        ctx["total_annual_value"] = totals["total_annual"] or 0
+        ctx["total_hourly_value"] = totals["total_hourly"] or 0
+        # Último pago y total pagado por software
+        from django.db.models import Q
+        from django.utils import timezone
+        year = timezone.now().year
+        payments_by_sw = {
+            p["software_id"]: p
+            for p in SoftwarePayment.objects.values("software_id").annotate(
+                last_payment=Max("payment_date"),
+                total_paid=Sum("amount"),
+                total_paid_year=Sum("amount", filter=Q(payment_date__year=year)),
+            )
+        }
+        ctx["payments_by_sw"] = payments_by_sw
+        return ctx
 
 
 class SoftwareCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
@@ -123,6 +211,50 @@ class SoftwareDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     model = Software
     template_name = "services/software_confirm_delete.html"
     success_url = reverse_lazy("services:software_list")
+
+
+class SoftwarePaymentHistoryView(LoginRequiredMixin, StaffRequiredMixin, View):
+    template_name = "services/software_payments.html"
+
+    def get_software(self, pk):
+        return get_object_or_404(Software, pk=pk)
+
+    def get(self, request, pk):
+        sw = self.get_software(pk)
+        payments = sw.payments.all()
+        form = SoftwarePaymentForm(initial={"payment_date": __import__("datetime").date.today()})
+        from django.db.models import Sum
+        total = payments.aggregate(t=Sum("amount"))["t"] or 0
+        return TemplateResponse(request, self.template_name, {
+            "software": sw, "payments": payments, "form": form, "total_paid": total,
+        })
+
+    def post(self, request, pk):
+        sw = self.get_software(pk)
+        form = SoftwarePaymentForm(request.POST)
+        if form.is_valid():
+            payment = form.save(commit=False)
+            payment.software = sw
+            payment.save()
+            new_exp = form.cleaned_data.get("new_expiration_date")
+            if new_exp:
+                sw.expiration_date = new_exp
+                sw.save(update_fields=["expiration_date"])
+        payments = sw.payments.all()
+        from django.db.models import Sum
+        total = payments.aggregate(t=Sum("amount"))["t"] or 0
+        return TemplateResponse(request, self.template_name, {
+            "software": sw, "payments": payments, "form": SoftwarePaymentForm(), "total_paid": total,
+        })
+
+
+class SoftwarePaymentDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
+    def post(self, request, pk):
+        payment = get_object_or_404(SoftwarePayment, pk=pk)
+        sw_pk = payment.software_id
+        payment.delete()
+        from django.shortcuts import redirect
+        return redirect("services:software_payments", pk=sw_pk)
 
 
 class ServiceSubCategoryListView(LoginRequiredMixin, StaffRequiredMixin, ListView):

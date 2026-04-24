@@ -16,6 +16,9 @@ from apps.financials.forms import (
     AccountingTransactionFilterForm,
     ColombianHolidayForm,
     CostCenterMappingForm,
+    ExpenseCategoryForm,
+    CostCenterSubCategoryForm,
+    ExpenseSubCategoryForm,
     OperationalExpenseTypeForm,
     PaymentMilestoneForm,
 )
@@ -23,6 +26,9 @@ from apps.financials.models import (
     AccountingTransaction,
     ColombianHoliday,
     CostCenterMapping,
+    CostCenterSubCategory,
+    ExpenseCategory,
+    ExpenseSubCategory,
     OperationalExpenseType,
     PaymentMilestone,
     ProfitabilitySummary,
@@ -311,14 +317,109 @@ class RecalculateCostsView(FinancialAccessMixin, View):
 
 
 # ---------------------------------------------------------------------------
-# OperationalExpenseType CRUD (Maestros)
+# ExpenseCategory CRUD (Nivel 1)
+# ---------------------------------------------------------------------------
+class ExpenseCategoryListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = ExpenseCategory
+    template_name = "financials/expense_category_list.html"
+    context_object_name = "categories"
+
+class ExpenseCategoryCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = ExpenseCategory
+    form_class = ExpenseCategoryForm
+    template_name = "financials/expense_category_form.html"
+    success_url = reverse_lazy("financials:expense_category_list")
+
+class ExpenseCategoryUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = ExpenseCategory
+    form_class = ExpenseCategoryForm
+    template_name = "financials/expense_category_form.html"
+    success_url = reverse_lazy("financials:expense_category_list")
+
+class ExpenseCategoryDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = ExpenseCategory
+    template_name = "financials/expense_category_confirm_delete.html"
+    success_url = reverse_lazy("financials:expense_category_list")
+
+
+# ---------------------------------------------------------------------------
+# ExpenseSubCategory CRUD (Nivel 2)
+# ---------------------------------------------------------------------------
+class ExpenseSubCategoryListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = ExpenseSubCategory
+    template_name = "financials/expense_subcategory_list.html"
+    context_object_name = "subcategories"
+
+class ExpenseSubCategoryCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = ExpenseSubCategory
+    form_class = ExpenseSubCategoryForm
+    template_name = "financials/expense_subcategory_form.html"
+    success_url = reverse_lazy("financials:expense_subcategory_list")
+
+class ExpenseSubCategoryUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = ExpenseSubCategory
+    form_class = ExpenseSubCategoryForm
+    template_name = "financials/expense_subcategory_form.html"
+    success_url = reverse_lazy("financials:expense_subcategory_list")
+
+class ExpenseSubCategoryDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = ExpenseSubCategory
+    template_name = "financials/expense_subcategory_confirm_delete.html"
+    success_url = reverse_lazy("financials:expense_subcategory_list")
+
+
+# ---------------------------------------------------------------------------
+# CostCenterSubCategory CRUD
+# ---------------------------------------------------------------------------
+class CostCenterSubCategoryListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
+    model = CostCenterSubCategory
+    template_name = "financials/cost_center_subcategory_list.html"
+    context_object_name = "subcategories"
+
+    def get_queryset(self):
+        return CostCenterSubCategory.objects.select_related("cost_center").order_by(
+            "cost_center__cost_center_code", "code"
+        )
+
+
+class CostCenterSubCategoryCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = CostCenterSubCategory
+    form_class = CostCenterSubCategoryForm
+    template_name = "financials/cost_center_subcategory_form.html"
+    success_url = reverse_lazy("financials:cost_center_subcategory_list")
+
+
+class CostCenterSubCategoryUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    model = CostCenterSubCategory
+    form_class = CostCenterSubCategoryForm
+    template_name = "financials/cost_center_subcategory_form.html"
+    success_url = reverse_lazy("financials:cost_center_subcategory_list")
+
+
+class CostCenterSubCategoryDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
+    model = CostCenterSubCategory
+    template_name = "financials/cost_center_subcategory_confirm_delete.html"
+    success_url = reverse_lazy("financials:cost_center_subcategory_list")
+
+
+# ---------------------------------------------------------------------------
+# OperationalExpenseType CRUD (Nivel 3 — Concepto)
 # ---------------------------------------------------------------------------
 class ExpenseTypeListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
     model = OperationalExpenseType
     template_name = "financials/expense_type_list.html"
     context_object_name = "expense_types"
 
-
+    def get_queryset(self):
+        return (
+            OperationalExpenseType.objects
+            .select_related("subcategory__category")
+            .order_by(
+                "subcategory__category__code",
+                "subcategory__code",
+                "name",
+            )
+        )
 
 class ExpenseTypeCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
     model = OperationalExpenseType
@@ -326,13 +427,11 @@ class ExpenseTypeCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
     template_name = "financials/expense_type_form.html"
     success_url = reverse_lazy("financials:expense_type_list")
 
-
 class ExpenseTypeUpdateView(LoginRequiredMixin, StaffRequiredMixin, UpdateView):
     model = OperationalExpenseType
     form_class = OperationalExpenseTypeForm
     template_name = "financials/expense_type_form.html"
     success_url = reverse_lazy("financials:expense_type_list")
-
 
 class ExpenseTypeDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     model = OperationalExpenseType

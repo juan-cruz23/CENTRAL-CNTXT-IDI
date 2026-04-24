@@ -301,6 +301,29 @@ class CostCenterMapping(TimeStampedModel):
         return f"{self.cost_center_code} - {self.cost_center_name}"
 
 
+class CostCenterSubCategory(TimeStampedModel):
+    """Subcategorías variables dentro de un centro de costo."""
+
+    cost_center = models.ForeignKey(
+        CostCenterMapping,
+        on_delete=models.CASCADE,
+        related_name="subcategories",
+        verbose_name="centro de costo",
+    )
+    code = models.CharField(max_length=50, verbose_name="código")
+    name = models.CharField(max_length=200, verbose_name="nombre")
+    is_active = models.BooleanField(default=True, verbose_name="activo")
+
+    class Meta:
+        ordering = ["cost_center__cost_center_code", "code"]
+        unique_together = [("cost_center", "code")]
+        verbose_name = "subcategoría de centro de costo"
+        verbose_name_plural = "subcategorías de centros de costo"
+
+    def __str__(self):
+        return f"{self.cost_center.cost_center_code} / {self.code} - {self.name}"
+
+
 class AccountingTransaction(TimeStampedModel):
     """Transacción contable individual importada de Loggro."""
 
@@ -486,16 +509,126 @@ class CostAllocation(TimeStampedModel):
         return f"{self.period} - {self.project} - {self.get_cost_type_display()}"
 
 
-class OperationalExpenseType(TimeStampedModel):
-    """Tipos de gasto operacional. Los valores se registran por período, no aquí."""
+class LineAllocationWeight(TimeStampedModel):
+    """Peso porcentual de una unidad de negocio (MADE/SELECT) para el prorrateo de un trimestre.
 
+    El cliente define cuánto del costo total del mes corresponde a cada unidad
+    (ej. MADE 30 % / SELECT 70 %) antes de ejecutar el prorrateo. Si no hay
+    registro manual, el motor propone pesos automáticos basados en horas.
+    """
+
+    quarter = models.CharField(
+        max_length=7,
+        verbose_name="trimestre",
+        help_text='Formato "YYYY-QN", ej. "2026-Q1".',
+    )
+    business_unit = models.ForeignKey(
+        "organizations.BusinessUnit",
+        on_delete=models.CASCADE,
+        related_name="allocation_weights",
+        verbose_name="unidad de negocio",
+    )
+    weight_pct = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        verbose_name="peso (%)",
+        help_text="Porcentaje del costo total asignado a esta unidad. La suma de las dos unidades del trimestre debe ser 100.",
+    )
+    is_manual = models.BooleanField(
+        default=True,
+        verbose_name="configurado manualmente",
+    )
+
+    class Meta:
+        unique_together = [("quarter", "business_unit")]
+        ordering = ["quarter", "business_unit__code"]
+        verbose_name = "peso de unidad de negocio por trimestre"
+        verbose_name_plural = "pesos de unidades de negocio por trimestre"
+
+    def __str__(self):
+        return f"{self.quarter} — {self.business_unit.code}: {self.weight_pct}%"
+
+
+class ExpenseCategory(TimeStampedModel):
+    """Nivel 1 — Categoría contable: Ingreso Op., Costo Op., Gasto Op., etc."""
+
+    TYPE_CHOICES = [
+        ("ingreso", "Ingreso"),
+        ("costo", "Costo"),
+        ("gasto", "Gasto"),
+        ("impuesto", "Impuesto"),
+    ]
+
+    code = models.CharField(max_length=20, unique=True, verbose_name="código")
+    name = models.CharField(max_length=200, verbose_name="nombre")
+    category_type = models.CharField(
+        max_length=20, choices=TYPE_CHOICES, default="gasto", verbose_name="tipo"
+    )
+    is_active = models.BooleanField(default=True, verbose_name="activo")
+
+    class Meta:
+        ordering = ["category_type", "name"]
+        verbose_name = "categoría de gasto"
+        verbose_name_plural = "categorías de gasto"
+
+    def __str__(self):
+        return f"{self.code} | {self.name}"
+
+
+class ExpenseSubCategory(TimeStampedModel):
+    """Nivel 2 — Subcategoría: Honorarios Op., Gastos Adm., MADE, SELECT, etc."""
+
+    category = models.ForeignKey(
+        ExpenseCategory,
+        on_delete=models.CASCADE,
+        related_name="subcategories",
+        verbose_name="categoría",
+    )
+    operative_line = models.ForeignKey(
+        "organizations.OperativeLine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="expense_subcategories",
+        verbose_name="línea operativa (opcional)",
+    )
+    code = models.CharField(max_length=20, verbose_name="código")
     name = models.CharField(max_length=200, verbose_name="nombre")
     is_active = models.BooleanField(default=True, verbose_name="activo")
 
     class Meta:
-        ordering = ["name"]
-        verbose_name = "tipo de gasto operacional"
-        verbose_name_plural = "tipos de gasto operacional"
+        ordering = ["category", "name"]
+        unique_together = [("category", "code")]
+        verbose_name = "subcategoría de gasto"
+        verbose_name_plural = "subcategorías de gasto"
+
+    def __str__(self):
+        return f"{self.code} | {self.name}"
+
+
+class OperationalExpenseType(TimeStampedModel):
+    """Nivel 3 — Concepto específico de gasto con tercero y valor de referencia."""
+
+    subcategory = models.ForeignKey(
+        ExpenseSubCategory,
+        on_delete=models.CASCADE,
+        related_name="expense_types",
+        verbose_name="subcategoría",
+        null=True,
+        blank=True,
+    )
+    name = models.CharField(max_length=200, verbose_name="concepto")
+    vendor = models.CharField(max_length=200, blank=True, verbose_name="tercero / proveedor")
+    monthly_reference = models.DecimalField(
+        max_digits=14, decimal_places=2, default=0,
+        verbose_name="valor mensual referencia ($COP)",
+    )
+    is_active = models.BooleanField(default=True, verbose_name="activo")
+
+    class Meta:
+        ordering = ["subcategory__category__code", "subcategory__code", "name"]
+        verbose_name = "concepto de gasto"
+        verbose_name_plural = "conceptos de gasto"
 
     def __str__(self):
         return self.name

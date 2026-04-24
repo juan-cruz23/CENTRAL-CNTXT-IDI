@@ -12,6 +12,19 @@ from decimal import ROUND_HALF_UP, Decimal
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
+
+@receiver(post_save, sender="projects.Project")
+def auto_assign_cost_center(sender, instance, **kwargs):
+    """Assign cost center based on business_unit when project is saved."""
+    if not instance.business_unit_id:
+        return
+    from apps.financials.models import CostCenterMapping
+    cc = CostCenterMapping.objects.filter(
+        business_unit_id=instance.business_unit_id
+    ).first()
+    if cc and instance.cost_center_id != cc.pk:
+        sender.objects.filter(pk=instance.pk).update(cost_center=cc)
+
 ZERO = Decimal("0")
 
 
