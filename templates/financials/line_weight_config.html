@@ -1,0 +1,143 @@
+{% extends "base/base.html" %}
+{% block title %}Pesos por Línea — {{ quarter }}{% endblock %}
+{% block breadcrumb %}
+{% include "components/breadcrumb.html" with parent_url="/financiero/prorrateo/" parent_label="Prorrateo" current="Pesos" %}
+{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Pesos por Línea Operativa" subtitle=quarter %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Formulario de configuración -->
+  <div class="lg:col-span-2">
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body">
+        <h2 class="card-title text-base mb-1">Configurar pesos para {{ quarter }}</h2>
+        <p class="text-sm text-base-content/60 mb-4">
+          Define qué porcentaje del costo total mensual corresponde a cada línea operativa.
+          La suma debe ser exactamente <strong>100 %</strong>.
+          La columna "Propuesta" muestra la distribución automática según horas actuales de proyectos.
+        </p>
+
+        {% if rows %}
+        <form method="post">
+          {% csrf_token %}
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead class="bg-base-200/50">
+                <tr>
+                  <th class="text-xs uppercase tracking-wider">Línea</th>
+                  <th class="text-xs uppercase tracking-wider text-right">Horas activas</th>
+                  <th class="text-xs uppercase tracking-wider text-right">Propuesta automática</th>
+                  <th class="text-xs uppercase tracking-wider text-right">Peso a usar (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in rows %}
+                <tr class="hover">
+                  <td>
+                    <input type="hidden" name="line_id" value="{{ row.line_id }}" />
+                    <span class="font-medium">{{ row.line_name }}</span>
+                    <span class="text-xs text-base-content/40 ml-1">{{ row.line_code }}</span>
+                  </td>
+                  <td class="text-right text-sm">{{ row.hours|floatformat:1 }}h</td>
+                  <td class="text-right">
+                    <span class="badge badge-ghost">{{ row.proposed_pct|floatformat:1 }}%</span>
+                  </td>
+                  <td class="text-right">
+                    <input
+                      type="number"
+                      name="weight_pct"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      value="{{ row.saved_pct|default:row.proposed_pct|floatformat:2 }}"
+                      class="input input-bordered input-sm w-28 text-right"
+                      required
+                      oninput="updateTotal()"
+                    />
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr class="font-bold border-t-2 border-base-300">
+                  <td colspan="3" class="text-right pr-4">Total:</td>
+                  <td class="text-right">
+                    <span id="total-pct" class="text-lg">—</span>
+                    <span class="text-sm ml-1">%</span>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-4">
+            <a href="{% url 'financials:cost_allocation_overview' %}" class="btn btn-ghost">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Guardar pesos</button>
+          </div>
+        </form>
+
+        {% else %}
+        <div class="alert alert-warning">
+          <span>No hay proyectos activos con horas estimadas y línea operativa asignada. No se pueden proponer pesos.</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel de ayuda -->
+  <div class="space-y-4">
+    {% if has_saved %}
+    <div class="alert alert-success alert-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <div>
+        <p class="font-bold text-sm">Pesos guardados</p>
+        <p class="text-xs">Este trimestre ya tiene pesos configurados manualmente (suma: {{ total_saved_pct|floatformat:1 }}%).</p>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning alert-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" /></svg>
+      <div>
+        <p class="font-bold text-sm">Sin pesos configurados</p>
+        <p class="text-xs">Los valores mostrados son la propuesta automática basada en horas. Ajústalos y guarda.</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card bg-base-100 shadow-sm border border-base-300/30">
+      <div class="card-body">
+        <h3 class="font-bold text-sm mb-2">¿Cómo funciona?</h3>
+        <ol class="text-sm text-base-content/70 space-y-2 list-decimal list-inside">
+          <li>Defines el peso de cada línea para el trimestre.</li>
+          <li>Al ejecutar el prorrateo de cualquier mes de ese trimestre, el sistema aplica esos pesos.</li>
+          <li>Dentro de cada línea, los proyectos reciben su parte proporcional a las horas estimadas.</li>
+        </ol>
+        <div class="mt-3 p-3 bg-base-200/50 rounded-lg text-xs font-mono">
+          <p class="font-bold mb-1">Ejemplo:</p>
+          <p>Costo total: $10.000.000</p>
+          <p>Made 30% → $3.000.000 → distribuido entre proyectos Made por horas</p>
+          <p>Select 70% → $7.000.000 → distribuido entre proyectos Select por horas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function updateTotal() {
+  const inputs = document.querySelectorAll('input[name="weight_pct"]');
+  let total = 0;
+  inputs.forEach(inp => { total += parseFloat(inp.value || 0); });
+  const el = document.getElementById('total-pct');
+  el.textContent = total.toFixed(2);
+  el.className = Math.abs(total - 100) < 0.1
+    ? 'text-lg text-success font-bold'
+    : 'text-lg text-error font-bold';
+}
+document.addEventListener('DOMContentLoaded', updateTotal);
+</script>
+{% endblock %}

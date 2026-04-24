@@ -1,48 +1,87 @@
 {% extends "base/base.html" %}
+{% load common_tags %}
 {% block title %}Ejecutar Prorrateo - {{ period }}{% endblock %}
 {% block breadcrumb %}
-{% include "components/breadcrumb.html" with parent_url="/financiero/prorrateo/" parent_label="Prorrateo" current="Ejecutar" %}
+{% include "components/breadcrumb.html" with parent_url="/financiero/prorrateo/" parent_label="Prorrateo" current="Previsualizar" %}
 {% endblock %}
 {% block content %}
 {% include "components/page_header.html" with title="Previsualización del Prorrateo" %}
 
 {% if preview %}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+<!-- Métricas resumen -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
   <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
     <div class="stat-title text-xs">Periodo</div>
     <div class="stat-value text-lg font-mono">{{ preview.period }}</div>
+    <div class="stat-desc">{{ preview.quarter }}</div>
   </div>
   <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
     <div class="stat-title text-xs">Costos Totales</div>
-    <div class="stat-value text-lg">${{ preview.total_costs|floatformat:0 }}</div>
+    <div class="stat-value text-lg">{{ preview.total_costs|floatformat:0|intcomma }}</div>
   </div>
   <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
     <div class="stat-title text-xs">Horas Totales</div>
     <div class="stat-value text-lg">{{ preview.total_hours|floatformat:1 }}h</div>
   </div>
+  <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50">
+    <div class="stat-title text-xs">Pesos del trimestre</div>
+    <div class="stat-value text-sm">
+      {% if preview.weight_source == "manual" %}
+      <span class="badge badge-success">Configurados</span>
+      {% else %}
+      <span class="badge badge-warning">Automático (horas)</span>
+      {% endif %}
+    </div>
+    {% if preview.weight_source == "auto" %}
+    <div class="stat-desc">
+      <a href="{% url 'financials:line_weight_config' preview.quarter %}" class="link link-primary text-xs">
+        Configurar pesos manualmente →
+      </a>
+    </div>
+    {% endif %}
+  </div>
 </div>
 
-{% if preview.projects %}
-<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
+{% if preview.by_line %}
+
+<!-- Desglose por línea operativa -->
+{% for line in preview.by_line %}
+<div class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
   <div class="card-body p-0">
+    <!-- Cabecera de línea -->
+    <div class="flex items-center justify-between px-4 py-3 border-b border-base-300/30 bg-base-200/40">
+      <div class="flex items-center gap-3">
+        <span class="font-bold text-base">{{ line.line_name }}</span>
+        <span class="badge badge-primary badge-outline">{{ line.weight_pct|floatformat:1 }}% del total</span>
+        <span class="text-sm text-base-content/60">{{ line.line_hours|floatformat:1 }}h</span>
+      </div>
+      <div class="text-right">
+        <span class="font-bold text-lg">${{ line.line_amount|floatformat:0 }}</span>
+      </div>
+    </div>
+
+    <!-- Proyectos dentro de la línea -->
     <div class="overflow-x-auto">
-      <table class="table table-zebra">
-        <thead class="bg-base-200/50">
+      <table class="table table-sm">
+        <thead class="bg-base-200/30">
           <tr>
             <th class="text-xs uppercase tracking-wider">Código</th>
             <th class="text-xs uppercase tracking-wider">Proyecto</th>
             <th class="text-xs uppercase tracking-wider text-right">Horas</th>
-            <th class="text-xs uppercase tracking-wider text-right">% Asignación</th>
+            <th class="text-xs uppercase tracking-wider text-right">% dentro línea</th>
+            <th class="text-xs uppercase tracking-wider text-right">% global</th>
             <th class="text-xs uppercase tracking-wider text-right">Monto</th>
           </tr>
         </thead>
         <tbody>
-          {% for p in preview.projects %}
+          {% for p in line.projects %}
           <tr class="hover">
-            <td class="font-mono">{{ p.project_code }}</td>
+            <td class="font-mono text-sm">{{ p.project_code }}</td>
             <td>{{ p.project_name }}</td>
             <td class="text-right">{{ p.hours|floatformat:1 }}</td>
-            <td class="text-right">{{ p.pct|floatformat:2 }}%</td>
+            <td class="text-right">{{ p.within_line_pct|floatformat:2 }}%</td>
+            <td class="text-right text-base-content/50">{{ p.pct|floatformat:2 }}%</td>
             <td class="text-right font-medium">${{ p.amount|floatformat:0 }}</td>
           </tr>
           {% endfor %}
@@ -51,15 +90,22 @@
     </div>
   </div>
 </div>
+{% endfor %}
 
 <form method="post" action="{% url 'financials:cost_allocation_run' %}">
   {% csrf_token %}
   <input type="hidden" name="period" value="{{ period }}" />
-  <div class="flex justify-end gap-3">
+  <div class="flex justify-end gap-3 mt-4">
     <a href="{% url 'financials:cost_allocation_overview' %}" class="btn btn-ghost">Cancelar</a>
+    {% if preview.weight_source == "auto" %}
+    <a href="{% url 'financials:line_weight_config' preview.quarter %}" class="btn btn-secondary btn-outline">
+      Ajustar pesos antes de ejecutar
+    </a>
+    {% endif %}
     <button type="submit" class="btn btn-primary">Confirmar y Ejecutar</button>
   </div>
 </form>
+
 {% else %}
 <div class="alert alert-warning">
   <span>{{ preview.message|default:"No hay datos para asignar." }}</span>
