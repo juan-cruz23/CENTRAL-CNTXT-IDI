@@ -16,11 +16,73 @@ from apps.projects.models import Project, ServiceInstance
 
 
 class CapacityContextMixin:
-    """Adds pending_alerts count to every capacity view."""
+    """Adds pending_alerts count (live overload from current allocations) to every capacity view."""
 
     def get_context_data(self, **kwargs):
+        from apps.accounts.models import User
+        from apps.projects.models import ServiceInstanceAction
+
         context = super().get_context_data(**kwargs)
-        context["pending_alerts"] = CapacityAlert.objects.filter(is_resolved=False).count()
+        today = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        week_end = week_start + timedelta(days=6)
+        DEFAULT = Decimal("40")
+
+        cap_map = {
+            c.user_id: Decimal(c.weekly_available_hours)
+            for c in TeamMemberCapacity.objects.filter(
+                effective_from__lte=week_end,
+            ).filter(
+                Q(effective_until__isnull=True) | Q(effective_until__gte=week_start),
+            )
+        }
+
+        hours_by_user: dict[int, Decimal] = {}
+
+        for a in ProjectAllocation.objects.filter(
+            start_date__lte=week_end,
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=week_start),
+        ):
+            hours_by_user[a.user_id] = hours_by_user.get(a.user_id, Decimal("0")) + Decimal(a.weekly_hours)
+
+        def share(start, end, total_h):
+            if not total_h:
+                return Decimal("0")
+            total_days = (end - start).days + 1
+            if total_days <= 0:
+                return Decimal("0")
+            ov_start = max(start, week_start)
+            ov_end = min(end, week_end)
+            if ov_start > ov_end:
+                return Decimal("0")
+            overlap = (ov_end - ov_start).days + 1
+            return Decimal(str(total_h)) / Decimal(total_days) * Decimal(overlap)
+
+        for s in ServiceInstance.objects.filter(
+            assigned_professional__isnull=False,
+            projected_start_date__lte=week_end,
+            projected_end_date__gte=week_start,
+        ):
+            h = share(s.projected_start_date, s.projected_end_date, s.projected_hours)
+            if h > 0:
+                hours_by_user[s.assigned_professional_id] = hours_by_user.get(s.assigned_professional_id, Decimal("0")) + h
+
+        for ac in ServiceInstanceAction.objects.filter(
+            assigned_professional__isnull=False,
+            service_instance__projected_start_date__lte=week_end,
+            service_instance__projected_end_date__gte=week_start,
+        ).select_related("service_instance"):
+            si = ac.service_instance
+            h = share(si.projected_start_date, si.projected_end_date, ac.estimated_hours)
+            if h > 0:
+                hours_by_user[ac.assigned_professional_id] = hours_by_user.get(ac.assigned_professional_id, Decimal("0")) + h
+
+        overloaded = sum(
+            1 for uid, allocated in hours_by_user.items()
+            if allocated > cap_map.get(uid, DEFAULT)
+        )
+        context["pending_alerts"] = overloaded
         return context
 
 
@@ -473,24 +535,154 @@ class AllocationMatrixView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
 
 
 class CapacityAlertListView(LoginRequiredMixin, CapacityContextMixin, ListView):
-    """List of unresolved capacity alerts."""
+    """Alertas de capacidad calculadas en vivo desde alocaciones + cronograma."""
 
     model = CapacityAlert
     template_name = "capacity/alerts.html"
     context_object_name = "alerts"
-    paginate_by = 25
+    paginate_by = 50
 
     def get_queryset(self):
-        return (
-            CapacityAlert.objects.filter(is_resolved=False)
-            .select_related("user")
-            .order_by("-week_start")
-        )
+        return CapacityAlert.objects.none()
+
+    def _compute_live_alerts(self):
+        """Calcula sobrecargas y subcargas para las semanas (4 pasadas + 12 futuras).
+
+        Combina ProjectAllocation + ServiceInstance + ServiceInstanceAction como
+        las otras vistas. No persiste — son alertas vivas que reflejan el estado
+        actual del cronograma y las alocaciones manuales.
+        """
+        from apps.accounts.models import User
+        from apps.projects.models import ServiceInstanceAction
+        DEFAULT_HOURS = Decimal("40")
+        UNDERLOAD_PCT = 50  # menos de este % se considera subcarga
+        WEEKS_PAST = 0  # solo presente y futuro
+        WEEKS_AHEAD = 12
+
+        today = date.today()
+        start_monday = today - timedelta(days=today.weekday())
+        weeks = [start_monday + timedelta(weeks=i) for i in range(-WEEKS_PAST, WEEKS_AHEAD)]
+        last_week_end = weeks[-1] + timedelta(days=6)
+
+        cap_map = {
+            c.user_id: Decimal(c.weekly_available_hours)
+            for c in TeamMemberCapacity.objects.filter(
+                effective_from__lte=last_week_end,
+            ).filter(
+                Q(effective_until__isnull=True) | Q(effective_until__gte=weeks[0]),
+            )
+        }
+
+        # Profesionales con rol activo
+        users = {
+            u.pk: u for u in User.objects.filter(
+                is_active=True, user_roles__isnull=False,
+            ).distinct()
+        }
+
+        # Datos crudos
+        allocs = list(ProjectAllocation.objects.filter(
+            start_date__lte=last_week_end,
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=weeks[0]),
+        ).select_related("user", "project"))
+
+        sis = list(ServiceInstance.objects.filter(
+            assigned_professional__isnull=False,
+            projected_start_date__isnull=False,
+            projected_end_date__isnull=False,
+            projected_start_date__lte=last_week_end,
+            projected_end_date__gte=weeks[0],
+        ).select_related("assigned_professional", "project"))
+
+        actions = list(ServiceInstanceAction.objects.filter(
+            assigned_professional__isnull=False,
+            service_instance__projected_start_date__isnull=False,
+            service_instance__projected_end_date__isnull=False,
+            service_instance__projected_start_date__lte=last_week_end,
+            service_instance__projected_end_date__gte=weeks[0],
+        ).select_related("assigned_professional", "service_instance"))
+
+        # Asegurar usuarios involucrados
+        for a in allocs:
+            users.setdefault(a.user_id, a.user)
+        for s in sis:
+            users.setdefault(s.assigned_professional_id, s.assigned_professional)
+        for ac in actions:
+            users.setdefault(ac.assigned_professional_id, ac.assigned_professional)
+
+        def week_share(start, end, total_h, w_start, w_end):
+            if not total_h:
+                return Decimal("0")
+            total_days = (end - start).days + 1
+            if total_days <= 0:
+                return Decimal("0")
+            ov_start = max(start, w_start)
+            ov_end = min(end, w_end)
+            if ov_start > ov_end:
+                return Decimal("0")
+            overlap = (ov_end - ov_start).days + 1
+            return Decimal(str(total_h)) / Decimal(total_days) * Decimal(overlap)
+
+        alerts = []
+        for w in weeks:
+            w_end = w + timedelta(days=6)
+            # Acumular horas por usuario en esta semana
+            hours_by_user: dict[int, Decimal] = {}
+            for a in allocs:
+                if a.start_date <= w_end and (a.end_date or last_week_end) >= w:
+                    hours_by_user[a.user_id] = hours_by_user.get(a.user_id, Decimal("0")) + Decimal(a.weekly_hours)
+            for s in sis:
+                share = week_share(s.projected_start_date, s.projected_end_date, s.projected_hours, w, w_end)
+                if share > 0:
+                    hours_by_user[s.assigned_professional_id] = hours_by_user.get(s.assigned_professional_id, Decimal("0")) + share
+            for ac in actions:
+                si = ac.service_instance
+                share = week_share(si.projected_start_date, si.projected_end_date, ac.estimated_hours, w, w_end)
+                if share > 0:
+                    hours_by_user[ac.assigned_professional_id] = hours_by_user.get(ac.assigned_professional_id, Decimal("0")) + share
+
+            for uid, allocated in hours_by_user.items():
+                user = users.get(uid)
+                if not user:
+                    continue
+                available = cap_map.get(uid, DEFAULT_HOURS)
+                pct = (allocated / available * 100) if available else Decimal("0")
+                if allocated > available:
+                    overage = (allocated - available).quantize(Decimal("0.1"))
+                    alerts.append({
+                        "week_start": w,
+                        "user": user,
+                        "alert_type": "OVERLOAD",
+                        "alert_type_display": "Sobrecarga",
+                        "allocated_hours": allocated.quantize(Decimal("0.1")),
+                        "available_hours": available.quantize(Decimal("0.1")),
+                        "details": f"Sobrecarga de {overage}h en la semana del {w:%d/%m/%Y}.",
+                    })
+                elif pct < UNDERLOAD_PCT and allocated > 0:
+                    alerts.append({
+                        "week_start": w,
+                        "user": user,
+                        "alert_type": "UNDERLOAD",
+                        "alert_type_display": "Subcarga",
+                        "allocated_hours": allocated.quantize(Decimal("0.1")),
+                        "available_hours": available.quantize(Decimal("0.1")),
+                        "details": f"Solo {pct.quantize(Decimal('1'))}% de utilización en la semana del {w:%d/%m/%Y}.",
+                    })
+
+        # Ordenar: sobrecargas primero, luego por semana ascendente
+        alerts.sort(key=lambda a: (0 if a["alert_type"] == "OVERLOAD" else 1, a["week_start"]))
+        return alerts
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        live_alerts = self._compute_live_alerts()
+        context["alerts"] = live_alerts
+        context["overload_count"] = sum(1 for a in live_alerts if a["alert_type"] == "OVERLOAD")
+        context["underload_count"] = sum(1 for a in live_alerts if a["alert_type"] == "UNDERLOAD")
         context["active_tab"] = "alerts"
         context["page_title"] = "Alertas de Capacidad"
+        # No paginar — sobrescribir paginate_by no es necesario porque alerts es lista
         return context
 
 

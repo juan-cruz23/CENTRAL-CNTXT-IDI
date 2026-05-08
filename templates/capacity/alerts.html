@@ -3,6 +3,28 @@
 {% block content %}
 {% include "capacity/_nav_tabs.html" %}
 
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+  <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
+    <div class="stat-title text-xs">Sobrecargas</div>
+    <div class="stat-value text-2xl {% if overload_count > 0 %}text-error{% else %}text-success{% endif %}">{{ overload_count }}</div>
+    <div class="stat-desc">semanas con asignación &gt; capacidad</div>
+  </div>
+  <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
+    <div class="stat-title text-xs">Subcargas</div>
+    <div class="stat-value text-2xl {% if underload_count > 0 %}text-info{% else %}text-base-content/40{% endif %}">{{ underload_count }}</div>
+    <div class="stat-desc">semanas con &lt; 50% de utilización</div>
+  </div>
+  <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
+    <div class="stat-title text-xs">Total alertas</div>
+    <div class="stat-value text-2xl">{{ alerts|length }}</div>
+    <div class="stat-desc">esta semana + 12 siguientes</div>
+  </div>
+</div>
+
+<p class="text-xs text-base-content/50 mb-3">
+  Alertas calculadas en vivo desde alocaciones manuales + servicios y acciones asignados en cronograma.
+</p>
+
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
     <div class="overflow-x-auto">
@@ -19,12 +41,12 @@
         </thead>
         <tbody>
           {% for alert in alerts %}
-          <tr class="hover">
+          <tr class="hover {% if alert.alert_type == 'OVERLOAD' %}bg-error/5{% endif %}">
             <td class="font-mono text-sm">{{ alert.week_start|date:"d/m/Y" }}</td>
             <td>
               <div class="flex items-center gap-2">
                 <div class="avatar placeholder">
-                  <div class="bg-{% if alert.alert_type == 'OVERLOAD' %}error{% elif alert.alert_type == 'UNDERLOAD' %}info{% else %}warning{% endif %} text-{% if alert.alert_type == 'OVERLOAD' %}error{% elif alert.alert_type == 'UNDERLOAD' %}info{% else %}warning{% endif %}-content w-6 rounded-full">
+                  <div class="bg-{% if alert.alert_type == 'OVERLOAD' %}error{% else %}info{% endif %} text-{% if alert.alert_type == 'OVERLOAD' %}error{% else %}info{% endif %}-content w-6 rounded-full">
                     <span class="text-[10px]">{{ alert.user.first_name|first }}{{ alert.user.last_name|first }}</span>
                   </div>
                 </div>
@@ -32,21 +54,20 @@
               </div>
             </td>
             <td>
-              <span class="badge badge-sm {% if alert.alert_type == 'OVERLOAD' %}badge-error{% elif alert.alert_type == 'UNDERLOAD' %}badge-info{% else %}badge-warning{% endif %}">
-                {{ alert.get_alert_type_display }}
+              <span class="badge badge-sm {% if alert.alert_type == 'OVERLOAD' %}badge-error{% else %}badge-info{% endif %}">
+                {{ alert.alert_type_display }}
               </span>
             </td>
-            <td class="text-center font-mono {% if alert.allocated_hours > alert.available_hours %}text-error font-bold{% endif %}">{{ alert.allocated_hours }}h</td>
+            <td class="text-center font-mono {% if alert.alert_type == 'OVERLOAD' %}text-error font-bold{% endif %}">{{ alert.allocated_hours }}h</td>
             <td class="text-center font-mono">{{ alert.available_hours }}h</td>
-            <td class="max-w-sm text-sm opacity-80">{{ alert.details|default:"-" }}</td>
+            <td class="max-w-sm text-sm opacity-80">{{ alert.details }}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay alertas pendientes. Todo el equipo esta dentro de su capacidad." icon="bell" %}</td></tr>
+          <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay alertas. Todo el equipo está dentro de su capacidad." icon="bell" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    {% if is_paginated %}{% include "components/pagination.html" with page_obj=page_obj %}{% endif %}
   </div>
 </div>
 {% endblock %}
