@@ -717,7 +717,16 @@ class ServiceInstance(TimeStampedModel):
         return self.is_fully_complete
 
     def save(self, *args, **kwargs):
-        """Compute total_value and operative_deviation_pct before saving."""
+        """Compute total_value y opcionalmente sincroniza unit_price con
+        la plantilla (precio en vivo desde valor_total_servicio)."""
+        # Sincronizar unit_price con la plantilla (precio en vivo)
+        if self.service_template_id:
+            try:
+                live_price = self.service_template.valor_total_servicio
+                if live_price and live_price > 0:
+                    self.unit_price = live_price
+            except Exception:
+                pass
         self.total_value = self.quantity * self.unit_price
         if self.projected_hours and self.actual_hours:
             self.operative_deviation_pct = round(
