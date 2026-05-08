@@ -225,7 +225,7 @@ def deliverable_inline_formset(instance=None, data=None):
         ServiceTemplate,
         Deliverable,
         form=DeliverableInlineForm,
-        extra=1,
+        extra=0,
         can_delete=True,
     )
     if data:
