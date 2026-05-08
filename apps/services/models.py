@@ -86,12 +86,25 @@ class Hardware(TimeStampedModel):
         verbose_name = "hardware"
         verbose_name_plural = "hardware"
 
+    # Horas anuales productivas (52 semanas × 40 h/sem)
+    ANNUAL_HOURS = Decimal("2080")
+
     @property
     def warranty_days_left(self):
         if not self.warranty_expiration:
             return None
         from django.utils import timezone
         return (self.warranty_expiration - timezone.now().date()).days
+
+    def save(self, *args, **kwargs):
+        # Auto-calcular depreciation_per_hour = value / depreciation_years / ANNUAL_HOURS
+        if self.value and self.depreciation_years and self.depreciation_years > 0:
+            self.depreciation_per_hour = (
+                Decimal(str(self.value))
+                / Decimal(str(self.depreciation_years))
+                / self.ANNUAL_HOURS
+            ).quantize(Decimal("0.01"))
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name or f"Hardware ${self.value:,.0f}"
@@ -188,12 +201,28 @@ class Software(TimeStampedModel):
         verbose_name = "software"
         verbose_name_plural = "software"
 
+    ANNUAL_HOURS = Decimal("2080")  # 52 semanas × 40 h/sem
+
     @property
     def days_to_expiration(self):
         if not self.expiration_date:
             return None
         from django.utils import timezone
         return (self.expiration_date - timezone.now().date()).days
+
+    def save(self, *args, **kwargs):
+        # Auto-calcular hourly_value desde annual_value (o monthly × 12)
+        annual = self.annual_value or (
+            Decimal(str(self.monthly_value)) * Decimal("12") if self.monthly_value else Decimal("0")
+        )
+        if annual and annual > 0:
+            self.hourly_value = (
+                Decimal(str(annual)) / self.ANNUAL_HOURS
+            ).quantize(Decimal("0.01"))
+            # Sincronizar también annual_value si solo se ingresó monthly_value
+            if not self.annual_value and self.monthly_value:
+                self.annual_value = (Decimal(str(self.monthly_value)) * Decimal("12")).quantize(Decimal("0.01"))
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
