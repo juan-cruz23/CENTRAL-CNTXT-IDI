@@ -112,6 +112,15 @@ class ServiceSubCategoryForm(DaisyUIFormMixin, forms.ModelForm):
 
 
 class ServiceTemplateForm(DaisyUIFormMixin, forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Aceptar decimales con coma (es-CO) o punto. Sin esto, la entrada
+        # localizada del navegador "30,00" falla con "Ingrese un número".
+        for field in self.fields.values():
+            if isinstance(field, forms.DecimalField):
+                field.localize = True
+                field.widget.is_localized = True
+
     class Meta:
         model = ServiceTemplate
         fields = [

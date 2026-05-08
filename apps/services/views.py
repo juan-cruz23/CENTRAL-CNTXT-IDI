@@ -644,7 +644,7 @@ def _save_nested_activities(request, deliverable_formset):
                 if not act_entry["name"]:
                     continue
                 arole = act_entry["role"] or None
-                ahours = act_entry["hours"] or None
+                ahours = act_entry["hours"] or 0
                 if act_entry["id"]:
                     try:
                         act = ServiceActivity.objects.get(pk=act_entry["id"], key_activity=kact)

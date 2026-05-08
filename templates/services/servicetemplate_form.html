@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load common_tags %}
+{% load common_tags l10n %}
 {% block title %}{% if form.instance.pk %}Editar{% else %}Nueva{% endif %} Plantilla de Servicio{% endblock %}
 {% block breadcrumb %}
 {% include "components/breadcrumb.html" with parent_url="/servicios/templates/" parent_label="Plantillas" current=form.instance.pk|yesno:"Editar,Nueva Plantilla" %}
@@ -10,9 +10,21 @@
 
   <form method="post">
     {% csrf_token %}
-    {% if form.non_field_errors %}
-    <div class="alert alert-error mb-4">
+    {% if form.errors or deliverable_formset.errors or deliverable_formset.non_form_errors %}
+    <div class="alert alert-error mb-4 flex flex-col items-start gap-1 text-sm">
+      <strong>Errores de validación — no se guardó:</strong>
+      {% for field in form %}
+        {% if field.errors %}
+          <span><b>{{ field.label }}:</b> {{ field.errors|join:", " }}</span>
+        {% endif %}
+      {% endfor %}
       {% for error in form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+      {% for fs_error in deliverable_formset.non_form_errors %}<span>Formset: {{ fs_error }}</span>{% endfor %}
+      {% for fs_form in deliverable_formset %}
+        {% if fs_form.errors %}
+          <span>Entregable {{ forloop.counter }}: {{ fs_form.errors }}</span>
+        {% endif %}
+      {% endfor %}
     </div>
     {% endif %}
 
@@ -387,13 +399,13 @@
                 <div class="form-control">
                   <label class="label pb-1"><span class="label-text font-medium text-sm">Horas estimadas</span><span class="label-text-alt text-base-content/50">h</span></label>
                   <input type="number" id="id_estimated_hours" name="estimated_hours"
-                         value="{{ form.estimated_hours.value|default:0 }}"
+                         value="{{ form.estimated_hours.value|default:0|unlocalize }}"
                          class="input input-bordered input-sm bg-base-200/60" readonly>
                 </div>
                 <div class="form-control">
                   <label class="label pb-1"><span class="label-text font-medium text-sm">Días estimados</span><span class="label-text-alt text-base-content/50">días hábiles</span></label>
                   <input type="number" id="id_estimated_days" name="estimated_days"
-                         value="{{ form.estimated_days.value|default:0 }}"
+                         value="{{ form.estimated_days.value|default:0|unlocalize }}"
                          class="input input-bordered input-sm bg-base-200/60" readonly>
                 </div>
               </div>
@@ -449,9 +461,9 @@
               </div>
 
               {# Campos ocultos servidor #}
-              <input type="hidden" name="base_unit_price" id="id_base_unit_price" value="{{ form.base_unit_price.value|default:0 }}">
-              <input type="hidden" name="target_margin_pct" id="id_target_margin_pct" value="{{ form.target_margin_pct.value|default:0 }}">
-              <input type="hidden" name="hourly_rate" id="id_hourly_rate" value="{{ form.hourly_rate.value|default:0 }}">
+              <input type="hidden" name="base_unit_price" id="id_base_unit_price" value="{{ form.base_unit_price.value|default:0|unlocalize }}">
+              <input type="hidden" name="target_margin_pct" id="id_target_margin_pct" value="{{ form.target_margin_pct.value|default:0|unlocalize }}">
+              <input type="hidden" name="hourly_rate" id="id_hourly_rate" value="{{ form.hourly_rate.value|default:0|unlocalize }}">
             </div>
 
             {# ── Columna 2: breakdown de costos (calculado) ── #}
