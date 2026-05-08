@@ -63,8 +63,8 @@ def rollup_phase_progress(sender, instance, **kwargs):
 
 def _update_project_schedule_dates(project):
     """
-    Recalculate planned/actual dates and total_value on the Project
-    from its schedule ServiceInstances (phase_instance=None).
+    Recalculate planned/actual dates, total_value y avance global del Project
+    a partir de los ServiceInstance del cronograma (phase_instance=None).
     """
     from django.db.models import Max, Min, Sum
 
@@ -75,6 +75,8 @@ def _update_project_schedule_dates(project):
         min_actual=Min("actual_start_date"),
         max_actual=Max("actual_end_date"),
         total=Sum("total_value"),
+        sum_projected_hours=Sum("projected_hours"),
+        sum_actual_hours=Sum("actual_hours"),
     )
     update_fields = []
     for model_field, agg_key in (
@@ -93,8 +95,39 @@ def _update_project_schedule_dates(project):
         project.total_value = new_total
         update_fields.append("total_value")
 
+    # Avance global ponderado por valor de cada servicio del cronograma
+    total_weighted = ZERO
+    total_for_progress = ZERO
+    for si in qs:
+        si_value = Decimal(str(si.total_value or 0))
+        si_progress = Decimal(str(si.progress_pct or 0))
+        total_weighted += si_value * si_progress
+        total_for_progress += si_value
+    if total_for_progress > ZERO:
+        new_progress = (total_weighted / total_for_progress).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+    else:
+        new_progress = ZERO
+    if project.current_progress_pct != new_progress:
+        project.current_progress_pct = new_progress
+        update_fields.append("current_progress_pct")
+
+    # Desviación por horas: (Σ reales - Σ planeadas) / Σ planeadas × 100
+    sum_proj = Decimal(str(agg["sum_projected_hours"] or 0))
+    sum_act = Decimal(str(agg["sum_actual_hours"] or 0))
+    if sum_proj > ZERO:
+        new_dev = ((sum_act - sum_proj) / sum_proj * Decimal("100")).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+    else:
+        new_dev = ZERO
+    if project.schedule_deviation_pct != new_dev:
+        project.schedule_deviation_pct = new_dev
+        update_fields.append("schedule_deviation_pct")
+
     if update_fields:
-        project.save(update_fields=update_fields)
+        project.save(update_fields=update_fields + ["updated_at"])
 
 
 @receiver(post_save, sender="projects.ServiceInstance")
