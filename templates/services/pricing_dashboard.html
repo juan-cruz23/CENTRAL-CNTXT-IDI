@@ -150,7 +150,7 @@
             <td class="text-sm">{{ st.name }}</td>
             <td class="text-sm">{{ st.phase.name|default:"—" }}</td>
             <td class="text-xs text-base-content/70">{{ st.subcategory.code|default:"—" }}</td>
-            <td class="text-right font-mono text-sm">${{ st.base_unit_price|floatformat:0|intcomma }}</td>
+            <td class="text-right font-mono text-sm">${{ st.valor_total_servicio|floatformat:0|intcomma }}</td>
             <td class="text-right text-sm">{{ st.estimated_hours }}</td>
             <td class="text-right text-sm">{{ st.target_margin_pct }}%</td>
             <td>
