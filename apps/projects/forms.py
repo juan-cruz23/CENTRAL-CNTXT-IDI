@@ -130,14 +130,15 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
         if "category" in self.fields:
             self.fields["category"].queryset = ProjectCategory.objects.filter(is_active=True).order_by("code")
 
-        # Filtrar líderes: usuarios con rol is_leader=True o superusuarios
+        # Filtrar líderes: usuarios activos con rol marcado is_leader=True
+        # o superusuarios. Aplica siempre (aunque resulte vacío) para no mostrar
+        # accidentalmente todos los usuarios del sistema.
         from django.db.models import Q
-        leader_qs = User.objects.filter(
-            Q(user_roles__role__is_leader=True) | Q(is_superuser=True),
-            is_active=True,
-        ).distinct().order_by("first_name", "last_name")
-        if leader_qs.exists():
-            self.fields["leader"].queryset = leader_qs
+        if "leader" in self.fields:
+            self.fields["leader"].queryset = User.objects.filter(
+                Q(user_roles__role__is_leader=True) | Q(is_superuser=True),
+                is_active=True,
+            ).distinct().order_by("first_name", "last_name")
 
         # En ambos casos (crear y editar) el código no lo llena el usuario:
         # en creación se genera automáticamente; en edición se preserva en el view.
