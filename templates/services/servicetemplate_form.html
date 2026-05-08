@@ -428,7 +428,7 @@
                                class="checkbox checkbox-xs checkbox-primary js-resource-cb"
                                data-rate="{{ h.depreciation_per_hour|default:0|unlocalize }}"
                                data-target="hw"
-                               {% if form.instance.pk and h in selected_hardwares %}checked{% endif %}>
+                               {% if h in selected_hardwares %}checked{% endif %}>
                         <span>{% firstof h.name h.model_name h.brand h.serial_number "Sin nombre" %}</span>
                       </div>
                       <span class="font-mono text-base-content/60">{{ h.depreciation_per_hour|floatformat:0 }}/h</span>
@@ -454,7 +454,7 @@
                                class="checkbox checkbox-xs checkbox-primary js-resource-cb"
                                data-rate="{{ s.hourly_value|default:0|unlocalize }}"
                                data-target="sw"
-                               {% if form.instance.pk and s in selected_softwares %}checked{% endif %}>
+                               {% if s in selected_softwares %}checked{% endif %}>
                         <span>{% firstof s.name s.vendor "Sin nombre" %}</span>
                       </div>
                       <span class="font-mono text-base-content/60">{{ s.hourly_value|floatformat:0 }}/h</span>

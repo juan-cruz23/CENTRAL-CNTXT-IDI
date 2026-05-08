@@ -686,7 +686,8 @@ class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
         context["deliverable_defaults"] = _deliverable_defaults()
         context["deliv_kact_map"] = _deliverable_kact_map()
         context["kact_act_map"] = _kact_act_map()
-        context["selected_hardwares"] = []
+        # Pre-seleccionar todo el hardware al crear (el usuario desmarca lo que no aplica)
+        context["selected_hardwares"] = list(Hardware.objects.filter(is_active=True))
         context["selected_softwares"] = []
         from apps.accounts.models import Role
         context["roles"] = list(Role.objects.filter(is_active=True).order_by("name").values("pk", "name", "code", "default_hourly_rate"))
@@ -743,7 +744,12 @@ class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
         context["deliverable_defaults"] = _deliverable_defaults()
         context["deliv_kact_map"] = _deliverable_kact_map()
         context["kact_act_map"] = _kact_act_map()
-        context["selected_hardwares"] = list(st.hardwares.all()) if st.pk else []
+        # Pre-seleccionar todo el hardware si la plantilla todavía no tiene
+        # selección explícita (nueva o legada). El usuario desmarca lo que no aplica.
+        sel_hw = list(st.hardwares.all()) if st.pk else []
+        if not sel_hw:
+            sel_hw = list(Hardware.objects.filter(is_active=True))
+        context["selected_hardwares"] = sel_hw
         context["selected_softwares"] = list(st.softwares.all()) if st.pk else []
         from apps.accounts.models import Role
         context["roles"] = list(Role.objects.filter(is_active=True).order_by("name").values("pk", "name", "code", "default_hourly_rate"))
