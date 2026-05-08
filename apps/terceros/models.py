@@ -87,6 +87,11 @@ class ThirdParty(TimeStampedModel):
         blank=True,
         verbose_name="ciudad",
     )
+    address = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="dirección",
+    )
     is_active = models.BooleanField(
         default=True,
         verbose_name="activo",

@@ -20,6 +20,7 @@ class ThirdPartyForm(DaisyUIFormMixin, forms.ModelForm):
             "email",
             "phone",
             "city",
+            "address",
             "is_active",
             "notes",
         ]
