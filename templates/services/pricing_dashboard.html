@@ -12,11 +12,11 @@
 </div>
 
 <!-- KPI Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-{{ kpi_cols }} gap-4 mb-6">
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body p-4">
       <div class="text-2xl font-bold text-primary">{{ total_services }}</div>
-      <div class="text-xs text-base-content/60 uppercase tracking-wider">Servicios Totales</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">Servicios Activos</div>
     </div>
   </div>
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
@@ -25,26 +25,99 @@
       <div class="text-xs text-base-content/60 uppercase tracking-wider">Horas Estimadas</div>
     </div>
   </div>
+  {% for ol_data in line_kpis %}
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body p-4">
-      <div class="text-2xl font-bold text-info">{{ visual_count }}</div>
-      <div class="text-xs text-base-content/60 uppercase tracking-wider">Servicios V.sual</div>
+      <div class="text-2xl font-bold text-info">{{ ol_data.count }}</div>
+      <div class="text-xs text-base-content/60 uppercase tracking-wider">{{ ol_data.name }}</div>
     </div>
   </div>
-  <div class="card bg-base-100 shadow-sm border border-base-300/30">
-    <div class="card-body p-4">
-      <div class="text-2xl font-bold text-warning">{{ design_count }}</div>
-      <div class="text-xs text-base-content/60 uppercase tracking-wider">Servicios D.sign</div>
-    </div>
-  </div>
+  {% endfor %}
 </div>
 
-<!-- Line tabs -->
-<div class="flex flex-wrap gap-1.5 mb-4">
-  <a href="?linea=" class="btn btn-sm {% if not current_line %}btn-primary{% else %}btn-ghost{% endif %}">Todos</a>
-  <a href="?linea=VIS" class="btn btn-sm {% if current_line == 'VIS' %}btn-primary{% else %}btn-ghost{% endif %}">V.sual</a>
-  <a href="?linea=DV" class="btn btn-sm {% if current_line == 'DV' %}btn-primary{% else %}btn-ghost{% endif %}">D.sign</a>
-</div>
+<!-- Filtros -->
+<form method="get" class="card bg-base-100 shadow-sm border border-base-300/30 mb-4">
+  <div class="card-body p-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
+
+      <!-- Búsqueda -->
+      <div class="form-control md:col-span-2">
+        <label class="label py-1"><span class="label-text text-xs font-medium">Buscar</span></label>
+        <input type="text" name="q" value="{{ filters.q }}"
+               placeholder="Nombre o código…"
+               class="input input-bordered input-sm w-full">
+      </div>
+
+      <!-- Línea operativa -->
+      <div class="form-control">
+        <label class="label py-1"><span class="label-text text-xs font-medium">Línea</span></label>
+        <select name="linea" class="select select-bordered select-sm w-full">
+          <option value="">Todas</option>
+          {% for ol in operative_lines %}
+          <option value="{{ ol.code }}" {% if filters.linea == ol.code %}selected{% endif %}>{{ ol.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Categoría -->
+      <div class="form-control">
+        <label class="label py-1"><span class="label-text text-xs font-medium">Categoría</span></label>
+        <select name="categoria" class="select select-bordered select-sm w-full">
+          <option value="">Todas</option>
+          {% for c in categories %}
+          <option value="{{ c.pk }}" {% if filters.categoria == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.code }} — {{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Subcategoría -->
+      <div class="form-control">
+        <label class="label py-1"><span class="label-text text-xs font-medium">Subcategoría</span></label>
+        <select name="subcategoria" class="select select-bordered select-sm w-full">
+          <option value="">Todas</option>
+          {% for sc in subcategories %}
+          <option value="{{ sc.pk }}" {% if filters.subcategoria == sc.pk|stringformat:"s" %}selected{% endif %}>{{ sc.code }} — {{ sc.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Fase -->
+      <div class="form-control">
+        <label class="label py-1"><span class="label-text text-xs font-medium">Fase</span></label>
+        <select name="fase" class="select select-bordered select-sm w-full">
+          <option value="">Todas</option>
+          {% for p in phases %}
+          <option value="{{ p.pk }}" {% if filters.fase == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Estado -->
+      <div class="form-control">
+        <label class="label py-1"><span class="label-text text-xs font-medium">Estado</span></label>
+        <select name="estado" class="select select-bordered select-sm w-full">
+          <option value="activos" {% if filters.estado == "activos" %}selected{% endif %}>Activos</option>
+          <option value="inactivos" {% if filters.estado == "inactivos" %}selected{% endif %}>Inactivos</option>
+          <option value="todos" {% if filters.estado == "todos" %}selected{% endif %}>Todos</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="flex items-center justify-between mt-3 pt-3 border-t border-base-300/30">
+      <div class="text-xs text-base-content/60">
+        <span class="font-semibold">{{ filtered_count }}</span> servicio{{ filtered_count|pluralize:"s" }} encontrado{{ filtered_count|pluralize:"s" }}
+        {% if has_filters %}<span class="text-primary ml-2">(con filtros)</span>{% endif %}
+      </div>
+      <div class="flex gap-2">
+        {% if has_filters %}
+        <a href="{% url 'services:pricing_dashboard' %}" class="btn btn-ghost btn-sm">Limpiar</a>
+        {% endif %}
+        <button type="submit" class="btn btn-primary btn-sm">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</form>
 
 <!-- Services Table -->
 {% for cat_name, services in grouped_services %}
@@ -62,6 +135,7 @@
             <th class="text-xs uppercase tracking-wider w-24">Código</th>
             <th class="text-xs uppercase tracking-wider">Nombre</th>
             <th class="text-xs uppercase tracking-wider w-20">Fase</th>
+            <th class="text-xs uppercase tracking-wider w-32">Subcategoría</th>
             <th class="text-xs uppercase tracking-wider w-28 text-right">Precio Base</th>
             <th class="text-xs uppercase tracking-wider w-20 text-right">Horas</th>
             <th class="text-xs uppercase tracking-wider w-20 text-right">Margen %</th>
@@ -74,7 +148,8 @@
           <tr id="st-row-{{ st.pk }}" class="hover">
             <td class="font-mono font-bold text-sm">{{ st.code }}</td>
             <td class="text-sm">{{ st.name }}</td>
-            <td class="text-sm">{{ st.phase.name }}</td>
+            <td class="text-sm">{{ st.phase.name|default:"—" }}</td>
+            <td class="text-xs text-base-content/70">{{ st.subcategory.code|default:"—" }}</td>
             <td class="text-right font-mono text-sm">${{ st.base_unit_price|floatformat:0|intcomma }}</td>
             <td class="text-right text-sm">{{ st.estimated_hours }}</td>
             <td class="text-right text-sm">{{ st.target_margin_pct }}%</td>
@@ -102,7 +177,7 @@
 {% empty %}
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body text-center py-12">
-    <p class="text-base-content/50">No hay servicios para mostrar.</p>
+    <p class="text-base-content/50">No hay servicios que coincidan con los filtros aplicados.</p>
   </div>
 </div>
 {% endfor %}

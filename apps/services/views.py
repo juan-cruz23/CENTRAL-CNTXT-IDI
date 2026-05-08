@@ -4,7 +4,7 @@ from decimal import Decimal
 from math import ceil
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -901,39 +901,88 @@ class PricingDashboardView(LoginRequiredMixin, ListView):
     template_name = "services/pricing_dashboard.html"
     context_object_name = "service_templates"
 
+    def get_filters(self):
+        return {
+            "q": self.request.GET.get("q", "").strip(),
+            "linea": self.request.GET.get("linea", "").strip(),
+            "categoria": self.request.GET.get("categoria", "").strip(),
+            "subcategoria": self.request.GET.get("subcategoria", "").strip(),
+            "fase": self.request.GET.get("fase", "").strip(),
+            "estado": self.request.GET.get("estado", "activos").strip(),
+        }
+
     def get_queryset(self):
         qs = ServiceTemplate.objects.select_related(
-            "category", "phase", "operative_line",
-        ).filter(is_active=True)
-        line = self.request.GET.get("linea")
-        if line:
-            qs = qs.filter(operative_line__code=line)
+            "category", "phase", "operative_line", "subcategory",
+        )
+        f = self.get_filters()
+
+        if f["estado"] == "activos":
+            qs = qs.filter(is_active=True)
+        elif f["estado"] == "inactivos":
+            qs = qs.filter(is_active=False)
+
+        if f["q"]:
+            from django.db.models import Q as DQ
+            qs = qs.filter(DQ(name__icontains=f["q"]) | DQ(code__icontains=f["q"]))
+        if f["linea"]:
+            qs = qs.filter(operative_line__code=f["linea"])
+        if f["categoria"]:
+            qs = qs.filter(category_id=f["categoria"])
+        if f["subcategoria"]:
+            qs = qs.filter(subcategory_id=f["subcategoria"])
+        if f["fase"]:
+            qs = qs.filter(phase_id=f["fase"])
+
         return qs.order_by("category__code", "code")
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        all_templates = ServiceTemplate.objects.filter(is_active=True)
+        from apps.organizations.models import OperativeLine
+        from apps.services.models import ProjectCategory, ProjectPhase, ServiceSubCategory
 
-        context["total_services"] = all_templates.count()
-        context["total_hours"] = all_templates.aggregate(
-            h=Sum("estimated_hours"),
-        )["h"] or 0
-        context["visual_count"] = all_templates.filter(
-            operative_line__code="VIS",
-        ).count()
-        context["design_count"] = all_templates.filter(
-            operative_line__code="DV",
-        ).count()
-        context["current_line"] = self.request.GET.get("linea", "")
+        context = super().get_context_data(**kwargs)
+        f = self.get_filters()
+        qs = self.get_queryset()
+        all_active = ServiceTemplate.objects.filter(is_active=True)
+
+        # KPIs (basados en activos, sin importar otros filtros)
+        context["total_services"] = all_active.count()
+        context["total_hours"] = all_active.aggregate(h=Sum("estimated_hours"))["h"] or 0
+        context["filtered_count"] = qs.count()
+
+        # Por línea operativa (códigos reales de la BD)
+        line_counts = {
+            row["operative_line__code"]: row["c"]
+            for row in all_active.values("operative_line__code").annotate(c=Count("pk"))
+        }
+        line_kpis = []
+        for ol in OperativeLine.objects.all().order_by("code"):
+            n = line_counts.get(ol.code, 0)
+            if n > 0:
+                line_kpis.append({"name": ol.name, "count": n})
+        context["line_kpis"] = line_kpis
+        context["kpi_cols"] = min(2 + len(line_kpis), 6)
+
+        # Catálogos para los <select>
+        context["operative_lines"] = OperativeLine.objects.all().order_by("code")
+        cat_qs = ProjectCategory.objects.filter(is_active=True)
+        sub_qs = ServiceSubCategory.objects.filter(is_active=True)
+        if f["linea"]:
+            cat_qs = cat_qs.filter(operative_line__code=f["linea"])
+            sub_qs = sub_qs.filter(operative_line__code=f["linea"])
+        context["categories"] = cat_qs.order_by("code")
+        context["subcategories"] = sub_qs.order_by("code")
+        context["phases"] = ProjectPhase.objects.all().order_by("number")
 
         # Group by category
         grouped = OrderedDict()
-        for st in self.get_queryset():
-            cat_name = str(st.category)
-            if cat_name not in grouped:
-                grouped[cat_name] = []
-            grouped[cat_name].append(st)
+        for st in qs:
+            cat_name = str(st.category) if st.category else "Sin categoría"
+            grouped.setdefault(cat_name, []).append(st)
         context["grouped_services"] = list(grouped.items())
+
+        context["filters"] = f
+        context["has_filters"] = any(v for k, v in f.items() if k != "estado") or f["estado"] != "activos"
         context["can_edit"] = user_can_edit_pricing(self.request.user)
 
         return context
