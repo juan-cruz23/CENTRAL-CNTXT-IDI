@@ -137,17 +137,9 @@
                     {% endfor %}
                   </div>
 
-                  <div class="mb-3">
-                    <label class="text-xs text-base-content/50 block mb-1">Rol principal</label>
-                    <select name="primary_role" class="select select-bordered select-xs w-full">
-                      <option value="">Ninguno</option>
-                      {% for role in all_roles %}
-                      <option value="{{ role.pk }}" {% if item.primary_role and role.pk == item.primary_role.pk %}selected{% endif %}>
-                        {{ role.code }} - {{ role.name }}
-                      </option>
-                      {% endfor %}
-                    </select>
-                  </div>
+                  <p class="text-xs text-base-content/50 mb-3 italic">
+                    El primer rol marcado se usa como principal.
+                  </p>
 
                   <div class="flex justify-end gap-2">
                     <button type="button" @click="open = false" class="btn btn-ghost btn-xs">Cancelar</button>

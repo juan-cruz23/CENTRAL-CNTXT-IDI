@@ -84,23 +84,22 @@ class UserRoleUpdateView(LoginRequiredMixin, StaffRequiredMixin, View):
 
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
-        selected_roles = request.POST.getlist("roles")
-        primary_role_id = request.POST.get("primary_role")
+        selected_role_ids = request.POST.getlist("roles")
 
         # Remove all current roles
         UserRole.objects.filter(user=user).delete()
 
-        # Add selected roles
-        for role_id in selected_roles:
-            try:
-                role = Role.objects.get(pk=role_id)
-                UserRole.objects.create(
-                    user=user,
-                    role=role,
-                    is_primary=(str(role.pk) == primary_role_id),
-                )
-            except Role.DoesNotExist:
-                pass
+        # Resolver y agregar roles preservando el orden de exhibición (code).
+        # El primero marcado queda como principal.
+        roles = list(
+            Role.objects.filter(pk__in=selected_role_ids).order_by("code")
+        )
+        for idx, role in enumerate(roles):
+            UserRole.objects.create(
+                user=user,
+                role=role,
+                is_primary=(idx == 0),
+            )
 
         messages.success(
             request,
