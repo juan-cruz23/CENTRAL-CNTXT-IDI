@@ -94,6 +94,8 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = date.today()
+        week_start = today - timedelta(days=today.weekday())
+        week_end = week_start + timedelta(days=6)
         DEFAULT_WEEKLY_HOURS = Decimal("40")
 
         from apps.accounts.models import User
@@ -114,6 +116,19 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
             )
         }
 
+        def week_share(start, end, total_h):
+            if not start or not end or not total_h:
+                return Decimal("0")
+            total_days = (end - start).days + 1
+            if total_days <= 0:
+                return Decimal("0")
+            ov_start = max(start, week_start)
+            ov_end = min(end, week_end)
+            if ov_start > ov_end:
+                return Decimal("0")
+            overlap = (ov_end - ov_start).days + 1
+            return Decimal(str(total_h)) / Decimal(total_days) * Decimal(overlap)
+
         overview = []
         total_available = Decimal("0")
         total_allocated = Decimal("0")
@@ -125,14 +140,14 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
             avail = cap.weekly_available_hours if cap else DEFAULT_WEEKLY_HOURS
             has_capacity_config = cap is not None
 
-            # 2. Alocaciones manuales activas (ProjectAllocation)
+            # 2. Alocaciones manuales activas (ProjectAllocation) - ya son semanales
             allocs = ProjectAllocation.objects.filter(
                 user=user,
-                start_date__lte=today,
+                start_date__lte=week_end,
             ).filter(
-                Q(end_date__isnull=True) | Q(end_date__gte=today),
+                Q(end_date__isnull=True) | Q(end_date__gte=week_start),
             ).select_related("project", "role")
-            alloc_hours = allocs.aggregate(total=Sum("weekly_hours"))["total"] or Decimal("0")
+            manual_weekly = allocs.aggregate(total=Sum("weekly_hours"))["total"] or Decimal("0")
 
             # 3. Servicios del cronograma asignados (ServiceInstance)
             sis = ServiceInstance.objects.filter(
@@ -148,11 +163,27 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
             actions_planned = actions.aggregate(total=Sum("estimated_hours"))["total"] or Decimal("0")
             actions_actual = actions.aggregate(total=Sum("actual_hours"))["total"] or Decimal("0")
 
+            # 5. Prorrateo semanal del cronograma (servicios y acciones activos esta semana)
+            schedule_weekly = Decimal("0")
+            for si in sis.filter(
+                projected_start_date__lte=week_end,
+                projected_end_date__gte=week_start,
+            ):
+                schedule_weekly += week_share(si.projected_start_date, si.projected_end_date, si.projected_hours)
+            for act in actions.filter(
+                service_instance__projected_start_date__lte=week_end,
+                service_instance__projected_end_date__gte=week_start,
+            ):
+                si = act.service_instance
+                schedule_weekly += week_share(si.projected_start_date, si.projected_end_date, act.estimated_hours)
+
             # Total horas planeadas/reales en cronograma
             total_planned = schedule_planned + actions_planned
             total_actual = schedule_actual + actions_actual
 
-            # Dedicación semanal (alocaciones manuales son weekly; cronograma es total y se mantiene aparte)
+            # Asignación semanal total: manual + cronograma prorrateado
+            alloc_hours = manual_weekly + schedule_weekly
+
             pct = round((alloc_hours / avail * 100) if avail else 0)
             if pct > 100:
                 overloaded_count += 1
