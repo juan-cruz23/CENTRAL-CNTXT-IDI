@@ -164,6 +164,9 @@
     function initSelect2() {
       document.querySelectorAll('select').forEach(function(el) {
         if (el.tomselect) return;
+        // Saltar elementos ocultos (x-cloak, display:none): TomSelect calcula
+        // mal el ancho/posición y la inicialización queda rota cuando se muestra.
+        if (el.offsetParent === null) return;
         var force = el.classList.contains('js-select2');
         var many  = el.options.length > 10;
         if (force || many) {
@@ -173,6 +176,8 @@
     }
     document.addEventListener('DOMContentLoaded', initSelect2);
     document.addEventListener('htmx:afterSwap', initSelect2);
+    // Reintenta cuando Alpine revela elementos con x-cloak/x-show
+    document.addEventListener('alpine:initialized', initSelect2);
   </script>
 
   {% block extra_head %}{% endblock %}
