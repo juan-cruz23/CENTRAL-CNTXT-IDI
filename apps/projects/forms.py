@@ -48,14 +48,11 @@ class COPDecimalField(forms.DecimalField):
 # Project form
 # ---------------------------------------------------------------------------
 class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
-    """Form for creating and editing projects."""
+    """Form for creating and editing projects.
 
-    total_value = COPDecimalField(
-        max_digits=14,
-        decimal_places=2,
-        required=False,
-        label="Valor total",
-    )
+    Nota: total_value NO se incluye porque se autocalcula vía signal a
+    partir de los ServiceInstance del cronograma (ver signals.py).
+    """
 
     class Meta:
         model = Project
@@ -78,7 +75,6 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             "planned_end_date",
             "actual_start_date",
             "actual_end_date",
-            "total_value",
             "iva_rate",
             "notes",
         ]
@@ -144,10 +140,6 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
         # en creación se genera automáticamente; en edición se preserva en el view.
         if "code" in self.fields:
             self.fields.pop("code")
-
-    def clean_total_value(self):
-        value = self.cleaned_data.get("total_value")
-        return value if value is not None else Decimal("0")
 
     def clean_iva_rate(self):
         value = self.cleaned_data.get("iva_rate")

@@ -151,7 +151,15 @@
           Financiero
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          {% include "projects/partials/form_field.html" with field=form.total_value %}
+          {% if form.instance.pk %}
+          <div class="form-control">
+            <label class="label"><span class="label-text font-medium">Valor Total</span></label>
+            <div class="input input-bordered input-sm flex items-center bg-base-200/60 font-mono">
+              ${{ form.instance.total_value|default:0|floatformat:0 }}
+            </div>
+            <span class="label-text-alt text-xs text-base-content/40 mt-1">Se calcula automáticamente desde los servicios del cronograma.</span>
+          </div>
+          {% endif %}
           {% include "projects/partials/form_field.html" with field=form.iva_rate %}
         </div>
       </div>
