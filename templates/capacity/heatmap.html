@@ -5,26 +5,32 @@
 
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body">
-    <div class="flex items-center justify-between mb-3">
-      <p class="text-xs text-base-content/60">
-        Carga semanal por profesional · 16 semanas (4 atrás + 12 adelante)
-      </p>
-      <div class="flex items-center gap-3 text-xs">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+      <div class="flex items-center gap-3">
+        <div class="join">
+          <button id="mode-weeks" class="btn btn-sm join-item btn-primary">Semanas</button>
+          <button id="mode-days" class="btn btn-sm join-item btn-ghost">Días</button>
+        </div>
+        <p id="mode-desc" class="text-xs text-base-content/60">
+          16 semanas (4 atrás + 12 adelante)
+        </p>
+      </div>
+      <div id="legend" class="flex items-center gap-3 text-xs">
         <span class="flex items-center gap-1">
           <span class="w-3 h-3 rounded-sm" style="background:#22c55e"></span>
-          <span class="opacity-70">Bajo (&lt;20h)</span>
+          <span class="opacity-70" id="legend-low">Bajo</span>
         </span>
         <span class="flex items-center gap-1">
           <span class="w-3 h-3 rounded-sm" style="background:#fbbf24"></span>
-          <span class="opacity-70">Normal (20–35h)</span>
+          <span class="opacity-70" id="legend-normal">Normal</span>
         </span>
         <span class="flex items-center gap-1">
           <span class="w-3 h-3 rounded-sm" style="background:#f87171"></span>
-          <span class="opacity-70">Alto (35–40h)</span>
+          <span class="opacity-70" id="legend-high">Alto</span>
         </span>
         <span class="flex items-center gap-1">
           <span class="w-3 h-3 rounded-sm" style="background:#dc2626"></span>
-          <span class="opacity-70">Sobrecargado (&gt;40h)</span>
+          <span class="opacity-70" id="legend-over">Sobrecarga</span>
         </span>
       </div>
     </div>
@@ -54,27 +60,62 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <script>
-  fetch("{% url 'capacity:heatmap' %}", { headers: { 'Accept': 'application/json' } })
-    .then(r => r.json())
-    .then(data => {
-      if (!data.weeks.length || !data.users.length) {
-        document.getElementById('heatmap-chart').innerHTML =
-          '<div class="text-center py-16 text-base-content/50">No hay datos de asignación para mostrar.</div>';
-        return;
-      }
+  let chart = null;
+  let currentMode = 'weeks';
+  const heatmapUrl = "{% url 'capacity:heatmap' %}";
 
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      const textColor = isDark ? '#cbd5e1' : '#1f2937';
-      const subtleText = isDark ? '#64748b' : '#6b7280';
-      const caps = data.capacities || [];
+  function loadHeatmap(mode) {
+    currentMode = mode;
+    document.getElementById('mode-desc').textContent = mode === 'days'
+      ? '14 días desde el lunes de esta semana'
+      : '16 semanas (4 atrás + 12 adelante)';
+    // Actualizar leyenda
+    if (mode === 'days') {
+      document.getElementById('legend-low').textContent = 'Bajo (<4h)';
+      document.getElementById('legend-normal').textContent = 'Normal (4–7h)';
+      document.getElementById('legend-high').textContent = 'Alto (7–8h)';
+      document.getElementById('legend-over').textContent = 'Sobrecarga (>8h)';
+    } else {
+      document.getElementById('legend-low').textContent = 'Bajo (<20h)';
+      document.getElementById('legend-normal').textContent = 'Normal (20–35h)';
+      document.getElementById('legend-high').textContent = 'Alto (35–40h)';
+      document.getElementById('legend-over').textContent = 'Sobrecarga (>40h)';
+    }
+    // Estado visual de los botones
+    const wBtn = document.getElementById('mode-weeks');
+    const dBtn = document.getElementById('mode-days');
+    wBtn.classList.toggle('btn-primary', mode === 'weeks');
+    wBtn.classList.toggle('btn-ghost', mode !== 'weeks');
+    dBtn.classList.toggle('btn-primary', mode === 'days');
+    dBtn.classList.toggle('btn-ghost', mode !== 'days');
 
-      // Marca semana actual
+    fetch(heatmapUrl + '?mode=' + mode, { headers: { 'Accept': 'application/json' } })
+      .then(r => r.json())
+      .then(data => renderHeatmap(data));
+  }
+
+  function renderHeatmap(data) {
+    if (!data.weeks.length || !data.users.length) {
+      document.getElementById('heatmap-chart').innerHTML =
+        '<div class="text-center py-16 text-base-content/50">No hay datos de asignación para mostrar.</div>';
+      return;
+    }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#cbd5e1' : '#1f2937';
+    const subtleText = isDark ? '#64748b' : '#6b7280';
+    const caps = data.capacities || [];
+    const isDays = data.mode === 'days';
+
+      // Marca período actual (semana o día de hoy)
       const now = new Date();
+      const today = now.toISOString().slice(0, 10);
       const dayOfWeek = now.getDay() || 7;
       const monday = new Date(now);
       monday.setDate(now.getDate() - dayOfWeek + 1);
-      const currentWeekLabel = monday.toLocaleDateString('es', {day: '2-digit', month: 'short'});
-      const currentWeekIdx = data.weeks.indexOf(currentWeekLabel);
+      const mondayIso = monday.toISOString().slice(0, 10);
+      const targetIso = isDays ? today : mondayIso;
+      const currentWeekIdx = (data.week_dates || []).indexOf(targetIso);
 
       // Formatea horas: enteras sin decimales, decimales con coma
       function fmtHours(h) {
@@ -94,13 +135,13 @@
         }
       }
 
-      // Etiquetas de eje X con dos líneas (semana + mes)
+      // Etiquetas de eje X con badge HOY en periodo actual
       const weekLabels = data.weeks.map((w, i) => {
-        const isCurrent = i === currentWeekIdx;
-        return isCurrent ? '{HOY|' + w + '}' : w;
+        return i === currentWeekIdx ? '{HOY|' + w + '}' : w;
       });
 
-      const chart = echarts.init(document.getElementById('heatmap-chart'));
+      if (chart) chart.dispose();
+      chart = echarts.init(document.getElementById('heatmap-chart'));
 
       chart.setOption({
         animation: true,
@@ -114,7 +155,7 @@
             const userName = data.users[p.value[1]];
             const weekLabel = data.weeks[p.value[0]];
             const hours = p.value[2];
-            const cap = caps[p.value[1]] || 40;
+            const cap = caps[p.value[1]] || (isDays ? 8 : 40);
             const pct = cap ? Math.round(hours / cap * 100) : 0;
             const status = hours > cap
               ? '<span style="color:#ef4444;font-weight:600">⚠ SOBRECARGA</span>'
@@ -123,9 +164,10 @@
                 : hours === 0
                   ? '<span style="color:#9ca3af">Sin carga</span>'
                   : '<span style="color:#22c55e">OK</span>';
+            const periodLabel = isDays ? '' : 'Semana ';
             return `
               <div style="font-weight:600;font-size:13px;margin-bottom:4px">${userName}</div>
-              <div style="color:${subtleText};font-size:11px;margin-bottom:6px">Semana ${weekLabel}</div>
+              <div style="color:${subtleText};font-size:11px;margin-bottom:6px">${periodLabel}${weekLabel}</div>
               <div style="font-family:monospace;font-size:14px"><b>${fmtHours(hours) || '0h'}</b> <span style="color:${subtleText}">/ ${cap}h</span> · ${pct}%</div>
               <div style="margin-top:4px">${status}</div>
               ${hours > 0 ? '<div style="margin-top:6px;font-size:10px;color:'+subtleText+';font-style:italic">Clic para ver detalle</div>' : ''}
@@ -175,8 +217,9 @@
             fontSize: 13,
             fontWeight: 500,
             formatter: function(name, idx) {
-              const cap = caps[idx] || 40;
-              return `${name}\n{cap|${cap}h/sem}`;
+              const cap = caps[idx] || (isDays ? 8 : 40);
+              const unit = isDays ? 'h/día' : 'h/sem';
+              return `${name}\n{cap|${cap}${unit}}`;
             },
             rich: {
               cap: {
@@ -189,7 +232,7 @@
         },
         visualMap: {
           min: 0,
-          max: 50,
+          max: isDays ? 10 : 50,
           calculable: true,
           orient: 'horizontal',
           left: 'center',
@@ -202,7 +245,7 @@
               ? ['#0f172a', '#14532d', '#22c55e', '#fbbf24', '#f87171', '#dc2626']
               : ['#f1f5f9', '#dcfce7', '#22c55e', '#fbbf24', '#f87171', '#dc2626']
           },
-          text: ['50h+ ⚠', '0h']
+          text: [isDays ? '10h+ ⚠' : '50h+ ⚠', '0h']
         },
         series: [{
           type: 'heatmap',
@@ -214,7 +257,8 @@
             fontFamily: 'ui-monospace, monospace',
             formatter: function(p) { return fmtHours(p.value[2]); },
             color: function(p) {
-              return p.value[2] > 35 ? '#fff' : (isDark ? '#e2e8f0' : '#0f172a');
+              const limit = isDays ? 7 : 35;
+              return p.value[2] > limit ? '#fff' : (isDark ? '#e2e8f0' : '#0f172a');
             }
           },
           itemStyle: {
@@ -268,10 +312,11 @@
       });
 
       window.addEventListener('resize', () => chart.resize());
-    })
-    .catch(() => {
-      document.getElementById('heatmap-chart').innerHTML =
-        '<div class="text-center py-16 text-base-content/50">Error al cargar los datos del mapa de calor.</div>';
-    });
+  }
+
+  // Init + listeners
+  document.getElementById('mode-weeks').addEventListener('click', () => loadHeatmap('weeks'));
+  document.getElementById('mode-days').addEventListener('click', () => loadHeatmap('days'));
+  loadHeatmap('weeks');
 </script>
 {% endblock %}

@@ -308,23 +308,53 @@ class CapacityHeatmapView(LoginRequiredMixin, CapacityContextMixin, TemplateView
     def get_json(self, request):
         """Return {weeks, users, values, capacities} for ECharts heatmap.
 
+        Modo:
+          - 'weeks' (default): 16 semanas (4 pasadas + 12 futuras), una columna
+            por semana
+          - 'days': 14 días desde el lunes de la semana actual, una columna
+            por día
+
         Combina tres fuentes de carga:
           - ProjectAllocation (alocaciones manuales con weekly_hours)
           - ServiceInstance (servicios del cronograma con projected_hours
-            distribuidas en las semanas del rango)
+            distribuidas en el rango)
           - ServiceInstanceAction (acciones asignadas a un profesional)
         """
         from apps.accounts.models import User
         from apps.projects.models import ServiceInstanceAction
         DEFAULT_HOURS = 40
+        DAYS_PER_WEEK = 5  # jornada laboral lunes-viernes
 
+        mode = request.GET.get("mode", "weeks")
         today = date.today()
 
-        # Generate 16 weeks: 4 past + 12 future
-        start_monday = today - timedelta(days=today.weekday()) - timedelta(weeks=4)
-        weeks = [start_monday + timedelta(weeks=i) for i in range(16)]
-        week_labels = [w.strftime("%d %b") for w in weeks]
-        last_week_end = weeks[-1] + timedelta(days=6)
+        if mode == "days":
+            # 14 días desde el lunes de la semana actual
+            start = today - timedelta(days=today.weekday())
+            buckets = [(start + timedelta(days=i),
+                        start + timedelta(days=i)) for i in range(14)]
+            day_es = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+            week_labels = [
+                f"{day_es[d.weekday()]} {d.strftime('%d %b')}"
+                for d, _ in buckets
+            ]
+            bucket_dates = [d.isoformat() for d, _ in buckets]
+            # Capacidad diaria = capacidad semanal / 5 (lun-vie)
+            cap_factor = Decimal("1") / Decimal(DAYS_PER_WEEK)
+        else:
+            # 16 semanas: 4 pasadas + 12 futuras
+            start_monday = today - timedelta(days=today.weekday()) - timedelta(weeks=4)
+            buckets = [
+                (start_monday + timedelta(weeks=i),
+                 start_monday + timedelta(weeks=i, days=6))
+                for i in range(16)
+            ]
+            week_labels = [b[0].strftime("%d %b") for b in buckets]
+            bucket_dates = [b[0].isoformat() for b in buckets]
+            cap_factor = Decimal("1")
+
+        last_week_end = buckets[-1][1]
+        weeks = [b[0] for b in buckets]
 
         # Capacidades configuradas
         cap_map = {
@@ -387,22 +417,27 @@ class CapacityHeatmapView(LoginRequiredMixin, CapacityContextMixin, TemplateView
                     user_ids.append(u.pk)
                     user_caps.append(cap_map.get(u.pk, DEFAULT_HOURS))
 
-        # Build heatmap grid: [week_idx, user_idx, hours]
+        # Construir grilla: [bucket_idx, user_idx, hours]
         grid = defaultdict(float)
+        is_days = (mode == "days")
+        # Factor para distribuir alocaciones manuales semanales sobre días
+        manual_alloc_factor = 1 / DAYS_PER_WEEK if is_days else 1
 
-        # 1. Alocaciones manuales — weekly_hours fijas
+        # 1. Alocaciones manuales — weekly_hours
         for alloc in allocations:
             uidx = user_set.get(alloc.user_id)
             if uidx is None:
                 continue
             a_start = alloc.start_date
             a_end = alloc.end_date or last_week_end
-            for wi, w in enumerate(weeks):
-                w_end = w + timedelta(days=6)
-                if a_start <= w_end and a_end >= w:
-                    grid[(wi, uidx)] += float(alloc.weekly_hours)
+            for bi, (b_start, b_end) in enumerate(buckets):
+                if a_start <= b_end and a_end >= b_start:
+                    # En modo días: solo lun-vie reciben carga
+                    if is_days and b_start.weekday() >= DAYS_PER_WEEK:
+                        continue
+                    grid[(bi, uidx)] += float(alloc.weekly_hours) * manual_alloc_factor
 
-        # 2. ServiceInstance — projected_hours distribuidas en las semanas del rango
+        # 2. ServiceInstance + acciones — prorrateo por días de solapamiento
         def distribute(start, end, total_hours, uidx):
             if not total_hours:
                 return
@@ -410,13 +445,12 @@ class CapacityHeatmapView(LoginRequiredMixin, CapacityContextMixin, TemplateView
             if total_days <= 0:
                 return
             hours_per_day = float(total_hours) / total_days
-            for wi, w in enumerate(weeks):
-                w_end = w + timedelta(days=6)
-                ov_start = max(start, w)
-                ov_end = min(end, w_end)
+            for bi, (b_start, b_end) in enumerate(buckets):
+                ov_start = max(start, b_start)
+                ov_end = min(end, b_end)
                 if ov_start <= ov_end:
                     overlap_days = (ov_end - ov_start).days + 1
-                    grid[(wi, uidx)] += hours_per_day * overlap_days
+                    grid[(bi, uidx)] += hours_per_day * overlap_days
 
         for si in sis:
             uidx = user_set.get(si.assigned_professional_id)
@@ -433,15 +467,22 @@ class CapacityHeatmapView(LoginRequiredMixin, CapacityContextMixin, TemplateView
             distribute(si.projected_start_date, si.projected_end_date,
                        act.estimated_hours, uidx)
 
-        values = [[wi, ui, round(h, 1)] for (wi, ui), h in grid.items()]
+        values = [[bi, ui, round(h, 1)] for (bi, ui), h in grid.items()]
+
+        # Capacidad escalada para días (semanal / 5)
+        if is_days:
+            user_caps_out = [round(c * float(cap_factor), 1) for c in user_caps]
+        else:
+            user_caps_out = user_caps
 
         return JsonResponse({
+            "mode": mode,
             "weeks": week_labels,
-            "week_dates": [w.isoformat() for w in weeks],
+            "week_dates": bucket_dates,
             "users": user_names,
             "user_ids": user_ids,
             "values": values,
-            "capacities": user_caps,
+            "capacities": user_caps_out,
         })
 
 
