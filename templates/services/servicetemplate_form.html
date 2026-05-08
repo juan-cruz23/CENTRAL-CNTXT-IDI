@@ -970,6 +970,9 @@ function buildRoleSummary(updatePrice = true) {
   // pero no lo sobrescribimos automáticamente.
   void directCost; void withUtility;
 
+  // Formateador de moneda usado en la tabla de roles más abajo
+  const fmt = n => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
+
   // ── Tabla de roles ──
   const container = document.getElementById('roles-summary-body');
   if (!container) return;

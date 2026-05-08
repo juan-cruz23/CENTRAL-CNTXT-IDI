@@ -113,13 +113,26 @@ class ServiceSubCategoryForm(DaisyUIFormMixin, forms.ModelForm):
 
 class ServiceTemplateForm(DaisyUIFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
+        # Pre-procesar POST: normalizar decimales con coma a punto antes
+        # de que las DecimalField intenten parsearlos. Así <input type=number>
+        # nunca ve "30,00" pero si llegara desde otra fuente igual se acepta.
+        if "data" in kwargs and kwargs["data"]:
+            from django.utils.formats import sanitize_separators
+            data = kwargs["data"].copy()
+            decimal_fields = {
+                "base_unit_price", "estimated_hours", "estimated_days",
+                "target_margin_pct", "hourly_rate", "hardware_cost_per_hour",
+                "software_cost_per_hour", "consumables_per_hour",
+                "subcontracts", "contingency_pct", "utility_pct",
+                "negotiation_pct",
+            }
+            for k in list(data.keys()):
+                if k in decimal_fields:
+                    v = data.get(k, "")
+                    if v and isinstance(v, str) and "," in v and v.count(",") == 1:
+                        data[k] = sanitize_separators(v)
+            kwargs["data"] = data
         super().__init__(*args, **kwargs)
-        # Aceptar decimales con coma (es-CO) o punto. Sin esto, la entrada
-        # localizada del navegador "30,00" falla con "Ingrese un número".
-        for field in self.fields.values():
-            if isinstance(field, forms.DecimalField):
-                field.localize = True
-                field.widget.is_localized = True
 
     class Meta:
         model = ServiceTemplate
