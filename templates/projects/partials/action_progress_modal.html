@@ -160,18 +160,9 @@
       if (!r.ok) { return r.text().then(t => { throw new Error(t); }); }
       return r.text();
     })
-    .then(html => {
+    .then(() => {
       modal.close();
-      // Reemplazar la fila de la acción con la versión actualizada
-      const container = document.getElementById('action-progress-modal').closest('[id^="schedule-modal-container"], body');
-      const tmp = document.createElement('div');
-      tmp.innerHTML = html;
-      const newRow = tmp.querySelector('tr');
-      if (newRow) {
-        const oldRow = document.getElementById('action-row-{{ action.pk }}');
-        if (oldRow) oldRow.replaceWith(newRow);
-      }
-      htmx.trigger(document.body, 'actionToggled');
+      window.location.reload();
     })
     .catch(err => {
       alert('Error: ' + err.message);
