@@ -102,7 +102,7 @@ timetracking    — Seguimiento de tiempo
 
 ## PILOTO — FECHA CRÍTICA
 
-**Reunión piloto:** 2026-04-08 (miércoles)
+**Reunión piloto:** 2026-04-08 (miércoles) — **FECHA YA PASADA** (hoy: 2026-04-17)
 **Proyecto piloto:** Select (unidad de vivienda residencial)
 
 Checklist previo:
@@ -121,23 +121,29 @@ Checklist previo:
 | # | Título | Tipo | Modelo | Estado |
 |---|--------|------|--------|--------|
 | #1 | Módulo Proyectos — UI, filtros y campos | Mejora + Bug | [-S] | 🟡 Bugs resueltos: botón Agregar (e936c29), botón Atrás y filtro código (922c39b). Fase actual ya estaba. Resto pendiente. |
-| #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] | 🟡 Servicios desde pricing implementados (c826829): agregar servicios, fecha fin automática, selector responsable por rol, auto-actualización fechas y valor total del proyecto, pestaña Equipo con roles. Pendiente: integración hitos, fechas por fases, revisiones. |
+| #2 | Módulo Cronograma — renombrar Hitos y nuevas funcionalidades | Mejora | [-O] | 🟡 Avance significativo: árbol de acciones con agrupación por fase (db80110), modal agregar servicio con árbol y responsables (b710c8d), fixes z-index y CSRF (5beab0c, 6782cf7), registro de avance por acción y aprobación de servicios (072249f). Pendiente: integración hitos, fechas por fases, revisiones. |
 | #3 | Módulo Usuarios / Accesos — roles y permisos | Mejora | [-S] | 🔴 Pendiente |
 | #4 | Módulo Servicios / Pricing — sincronización | Mejora + Bug | [-S] | 🔴 Pendiente |
-| #5 | Módulo Configuración / Maestros — nuevas tablas | Mejora | [-O] | ✅ CERRADO. Todos los maestros implementados: categorías, sub categorías, fases, hardware, software, tipos de gasto, festivos + import CSV/Excel. Seed: `seed_cntxt_masters`. |
+| #5 | Módulo Configuración / Maestros — nuevas tablas | Mejora | [-O] | 🟡 Reabierto: Deliverable (f4e96c9), KeyActivity (3a224d7), ServiceActivity (4a3e120) con CRUD y seed desde Excel. Base anterior cerrada (seed_cntxt_masters). |
 | #6 | Módulo Clientes / Terceros — CRM y carga masiva | Mejora | [-O] | 🔴 Pendiente |
 | #7 | Módulo Documentos / Prerrequisitos — checklist | Mejora + Bug | [-S] | 🟡 Bloque 2 y 3 resueltos (e936c29). Pendiente: bloquear avance por requisitos. |
-| #8 | Módulo Dashboard / Reportes — seguimiento | Mejora | [-S] | 🔴 Pendiente |
-| #9 | Piloto — primer proyecto real en el sistema | Hito | [-S] | 📅 2026-04-08 |
-| #10 | feat(servicios): desglose de pricing en ServiceTemplate | Mejora | [-S] | 🟡 Implementado (f478bff): WorkSchedule, subcategoría, rol responsable, 8 campos de costo, 12 propiedades calculadas, HTMX en tiempo real, auto-relleno honorarios por rol, 62 servicios en seed. Pendiente: validar en producción. |
+| #8 | Módulo Dashboard / Reportes — seguimiento | Mejora | [-S] | 🟡 Gantt colapsable con entregables, actividades y acciones (fa06de0), servicios del cronograma en Gantt (1397ceb), scroll independiente X/Y (d3d8476), servicios en sección Fases y Servicios (9ebb4f4). Pendiente: indicadores SPI/CPI, reportes. |
+| #9 | Piloto — primer proyecto real en el sistema | Hito | [-S] | 📅 2026-04-08 — fecha pasada, verificar estado real |
+| #10 | feat(servicios): desglose de pricing en ServiceTemplate | Mejora | [-S] | 🟡 Gestión inline de entregables, actividades y acciones con pricing unificado (1483f54), importar/exportar Excel con árbol jerárquico completo (e4ea2f3). Pendiente: validar en producción. |
 | #11 | feat(cronograma): agregar servicios con fecha planeada y cálculo automático | Mejora | [-S] | ✅ Implementado (c826829): agregar servicios desde pricing, fecha entrega automática (horas+jornada+festivos), selector responsable por rol con preselección, auto-sync fechas y valor total del proyecto vía señal, equipo con roles requeridos, prerrequisitos automáticos por categoría, fix form proyecto. |
 
 ### Últimos commits
 | Commit | Descripción |
 |--------|-------------|
-| c826829 | feat(cronograma): agregar servicios desde pricing con fechas, responsable y auto-actualización |
-| f478bff | feat(servicios): desglose de pricing, jornadas laborales y días estimados en ServiceTemplate |
-| ccdf476 | docs: cerrar issue #5 maestros y actualizar CLAUDE.md |
-| e677fb8 | fix(proyectos): renombrar Ubicación → Municipio en detalle y formulario |
-| 47fb5c4 | fix(maestros): simplificar OperationalExpenseType sin valores fijos |
-| a53148a | feat(maestros): tipos de gasto operacional en sección Financiero |
+| 072249f | feat(cronograma): registro de avance por acción y aprobación de servicios |
+| 9ebb4f4 | feat(dashboard): mostrar servicios del cronograma en sección Fases y Servicios |
+| d3d8476 | fix(gantt): collapsible tree funcional + scroll independiente en X e Y |
+| fa06de0 | feat(dashboard): Gantt colapsable con entregables, actividades y acciones |
+| 1397ceb | fix(dashboard): incluir servicios del cronograma en Gantt del proyecto |
+| db80110 | feat(cronograma): árbol de acciones, agrupación por fase y modal de edición |
+| b710c8d | feat(cronograma): modal de agregar servicio con árbol de acciones y responsables |
+| e4ea2f3 | feat(servicios): importar/exportar Excel con árbol completo y detalle jerárquico |
+| 1483f54 | feat(servicios): gestión inline de entregables, actividades y acciones con pricing unificado |
+| 4a3e120 | feat(maestros): agregar acciones clave (ServiceActivity) con CRUD y seed |
+| 3a224d7 | feat(maestros): agregar modelo KeyActivity con CRUD y seed desde Excel |
+| f4e96c9 | feat(maestros): agregar modelo Deliverable con CRUD y seed desde Excel |

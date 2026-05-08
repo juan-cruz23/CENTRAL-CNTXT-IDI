@@ -7,8 +7,11 @@ from apps.services.models import Deliverable, Hardware, HardwareMaintenance, Key
 class ProjectCategoryForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ProjectCategory
-        fields = ["code", "name", "description", "is_active"]
-        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+        fields = ["code", "name", "operative_line", "description", "is_active"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+            "operative_line": forms.Select(attrs={"class": "select select-bordered w-full"}),
+        }
 
 
 class HardwareForm(DaisyUIFormMixin, forms.ModelForm):

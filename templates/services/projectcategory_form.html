@@ -26,6 +26,12 @@
           </div>
 
           <div class="form-control">
+            <label class="label"><span class="label-text font-medium">{{ form.operative_line.label }}</span></label>
+            {{ form.operative_line }}
+            {% if form.operative_line.errors %}<span class="text-error text-xs">{{ form.operative_line.errors.0 }}</span>{% endif %}
+          </div>
+
+          <div class="form-control">
             <label class="label"><span class="label-text font-medium">{{ form.description.label }}</span></label>
             {{ form.description }}
           </div>
