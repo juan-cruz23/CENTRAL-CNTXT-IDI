@@ -257,8 +257,13 @@
             fontFamily: 'ui-monospace, monospace',
             formatter: function(p) { return fmtHours(p.value[2]); },
             color: function(p) {
-              const limit = isDays ? 7 : 35;
-              return p.value[2] > limit ? '#fff' : (isDark ? '#e2e8f0' : '#0f172a');
+              const v = p.value[2];
+              // Celdas oscuras: valores muy bajos (fondo azul/verde oscuro)
+              // o muy altos (rojo). El medio (verde/amarillo/coral) usa texto oscuro.
+              const lowDark = isDays ? 1 : 3;
+              const highDark = isDays ? 7 : 35;
+              if (v <= lowDark || v > highDark) return '#ffffff';
+              return '#0f172a';
             }
           },
           itemStyle: {
