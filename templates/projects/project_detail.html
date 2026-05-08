@@ -518,4 +518,28 @@
     {% include "projects/partials/satisfaction_tab.html" %}
   </div>
 </div>
+
+<script>
+// Restaurar servicios expandidos del cronograma tras recargar
+(function() {
+  const saved = sessionStorage.getItem('schedule_expanded');
+  if (!saved) return;
+  sessionStorage.removeItem('schedule_expanded');
+  let ids;
+  try { ids = JSON.parse(saved); } catch (e) { return; }
+  if (!Array.isArray(ids) || !ids.length) return;
+  // Esperar a que el DOM esté listo y disparar clic en cada botón de expandir
+  const restore = () => {
+    ids.forEach(pk => {
+      const btn = document.getElementById('expand-si-' + pk);
+      if (btn) btn.click();
+    });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restore);
+  } else {
+    restore();
+  }
+})();
+</script>
 {% endblock %}

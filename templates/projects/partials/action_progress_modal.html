@@ -162,6 +162,15 @@
     })
     .then(() => {
       modal.close();
+      // Guardar IDs de servicios expandidos para restaurarlos al recargar
+      const expanded = [];
+      document.querySelectorAll('[id^="detail-row-"]').forEach(row => {
+        if (!row.classList.contains('hidden')) {
+          const pk = row.id.replace('detail-row-', '');
+          expanded.push(pk);
+        }
+      });
+      sessionStorage.setItem('schedule_expanded', JSON.stringify(expanded));
       window.location.reload();
     })
     .catch(err => {
