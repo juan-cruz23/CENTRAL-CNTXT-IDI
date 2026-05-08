@@ -243,7 +243,7 @@
                             {% endfor %}
                           </select>
                           <input type="number" name="act-{{ di }}-{{ ji }}-{{ ki }}-estimated_hours"
-                                 value="{{ act_post.hours }}"
+                                 value="{{ act_post.hours|unlocalize }}"
                                  class="input input-bordered input-xs w-16" step="0.5" min="0" placeholder="h">
                           <input type="hidden" name="act-{{ di }}-{{ ji }}-{{ ki }}-id" value="{{ act_post.id }}">
                           <button type="button" class="btn btn-ghost btn-xs text-error"
@@ -326,7 +326,7 @@
                             {% endfor %}
                           </select>
                           <input type="number" name="act-{{ di }}-{{ ji }}-{{ ki }}-estimated_hours"
-                                 value="{{ act.estimated_hours|default:'' }}"
+                                 value="{{ act.estimated_hours|default:''|unlocalize }}"
                                  class="input input-bordered input-xs w-16" step="0.5" min="0" placeholder="h">
                           <input type="hidden" name="act-{{ di }}-{{ ji }}-{{ ki }}-id" value="{{ act.pk }}">
                           <button type="button" class="btn btn-ghost btn-xs text-error"
