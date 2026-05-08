@@ -209,64 +209,134 @@ class CapacityHeatmapView(LoginRequiredMixin, CapacityContextMixin, TemplateView
         return context
 
     def get_json(self, request):
-        """Return {weeks, users, values, capacities} for ECharts heatmap."""
-        today = date.today()
-        allocations = ProjectAllocation.objects.filter(
-            start_date__lte=today + timedelta(weeks=12),
-        ).filter(
-            Q(end_date__isnull=True) | Q(end_date__gte=today - timedelta(weeks=4)),
-        ).select_related("user", "project")
+        """Return {weeks, users, values, capacities} for ECharts heatmap.
 
-        if not allocations.exists():
-            return JsonResponse({"weeks": [], "users": [], "values": [], "capacities": []})
+        Combina tres fuentes de carga:
+          - ProjectAllocation (alocaciones manuales con weekly_hours)
+          - ServiceInstance (servicios del cronograma con projected_hours
+            distribuidas en las semanas del rango)
+          - ServiceInstanceAction (acciones asignadas a un profesional)
+        """
+        from apps.accounts.models import User
+        from apps.projects.models import ServiceInstanceAction
+        DEFAULT_HOURS = 40
+
+        today = date.today()
 
         # Generate 16 weeks: 4 past + 12 future
         start_monday = today - timedelta(days=today.weekday()) - timedelta(weeks=4)
         weeks = [start_monday + timedelta(weeks=i) for i in range(16)]
         week_labels = [w.strftime("%d %b") for w in weeks]
+        last_week_end = weeks[-1] + timedelta(days=6)
 
-        # Collect users preserving order from capacities
-        capacities = TeamMemberCapacity.objects.filter(
-            effective_from__lte=today,
-        ).filter(
-            Q(effective_until__isnull=True) | Q(effective_until__gte=today),
-        ).select_related("user").order_by("user__first_name")
+        # Capacidades configuradas
+        cap_map = {
+            c.user_id: int(c.weekly_available_hours)
+            for c in TeamMemberCapacity.objects.filter(
+                effective_from__lte=today,
+            ).filter(
+                Q(effective_until__isnull=True) | Q(effective_until__gte=today),
+            )
+        }
+
+        # Construir lista de usuarios: todos los activos con rol
+        users_qs = User.objects.filter(
+            is_active=True,
+            user_roles__isnull=False,
+        ).distinct().order_by("first_name", "last_name")
 
         user_names = []
-        user_set = {}
+        user_ids = []
         user_caps = []
-        for cap in capacities:
-            if cap.user.pk not in user_set:
-                user_set[cap.user.pk] = len(user_names)
-                user_names.append(cap.user.get_full_name() or cap.user.username)
-                user_caps.append(int(cap.weekly_available_hours))
+        user_set = {}
+        for u in users_qs:
+            user_set[u.pk] = len(user_names)
+            user_names.append(u.get_full_name() or u.username)
+            user_ids.append(u.pk)
+            user_caps.append(cap_map.get(u.pk, DEFAULT_HOURS))
 
-        # Add any allocated users not in capacities
-        for alloc in allocations:
-            if alloc.user.pk not in user_set:
-                user_set[alloc.user.pk] = len(user_names)
-                user_names.append(alloc.user.get_full_name() or alloc.user.username)
-                user_caps.append(40)  # default
+        # 1. Alocaciones manuales (ProjectAllocation)
+        allocations = ProjectAllocation.objects.filter(
+            start_date__lte=last_week_end,
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=weeks[0]),
+        ).select_related("user")
+
+        # 2. ServiceInstance del cronograma con responsable y fechas
+        sis = ServiceInstance.objects.filter(
+            assigned_professional__isnull=False,
+            projected_start_date__isnull=False,
+            projected_end_date__isnull=False,
+            projected_start_date__lte=last_week_end,
+            projected_end_date__gte=weeks[0],
+        ).select_related("assigned_professional", "project")
+
+        # 3. ServiceInstanceAction asignadas (heredan fechas del ServiceInstance)
+        actions = ServiceInstanceAction.objects.filter(
+            assigned_professional__isnull=False,
+            service_instance__projected_start_date__isnull=False,
+            service_instance__projected_end_date__isnull=False,
+            service_instance__projected_start_date__lte=last_week_end,
+            service_instance__projected_end_date__gte=weeks[0],
+        ).select_related("assigned_professional", "service_instance")
+
+        # Asegurarse que usuarios asignados existan (aunque no tengan rol)
+        for src in (allocations, sis, actions):
+            for obj in src:
+                u = obj.user if hasattr(obj, "user") else obj.assigned_professional
+                if u and u.pk not in user_set:
+                    user_set[u.pk] = len(user_names)
+                    user_names.append(u.get_full_name() or u.username)
+                    user_ids.append(u.pk)
+                    user_caps.append(cap_map.get(u.pk, DEFAULT_HOURS))
 
         # Build heatmap grid: [week_idx, user_idx, hours]
         grid = defaultdict(float)
+
+        # 1. Alocaciones manuales — weekly_hours fijas
         for alloc in allocations:
-            if alloc.user.pk not in user_set:
+            uidx = user_set.get(alloc.user_id)
+            if uidx is None:
                 continue
-            user_idx = user_set[alloc.user.pk]
             a_start = alloc.start_date
-            a_end = alloc.end_date or (today + timedelta(weeks=12))
+            a_end = alloc.end_date or last_week_end
             for wi, w in enumerate(weeks):
                 w_end = w + timedelta(days=6)
                 if a_start <= w_end and a_end >= w:
-                    grid[(wi, user_idx)] += float(alloc.weekly_hours)
+                    grid[(wi, uidx)] += float(alloc.weekly_hours)
+
+        # 2. ServiceInstance — projected_hours distribuidas en las semanas del rango
+        def distribute(start, end, total_hours, uidx):
+            if not total_hours:
+                return
+            total_days = (end - start).days + 1
+            if total_days <= 0:
+                return
+            hours_per_day = float(total_hours) / total_days
+            for wi, w in enumerate(weeks):
+                w_end = w + timedelta(days=6)
+                ov_start = max(start, w)
+                ov_end = min(end, w_end)
+                if ov_start <= ov_end:
+                    overlap_days = (ov_end - ov_start).days + 1
+                    grid[(wi, uidx)] += hours_per_day * overlap_days
+
+        for si in sis:
+            uidx = user_set.get(si.assigned_professional_id)
+            if uidx is None:
+                continue
+            distribute(si.projected_start_date, si.projected_end_date,
+                       si.projected_hours, uidx)
+
+        for act in actions:
+            uidx = user_set.get(act.assigned_professional_id)
+            if uidx is None:
+                continue
+            si = act.service_instance
+            distribute(si.projected_start_date, si.projected_end_date,
+                       act.estimated_hours, uidx)
 
         values = [[wi, ui, round(h, 1)] for (wi, ui), h in grid.items()]
-
-        # Build user_ids list in same order as user_names
-        user_ids = [None] * len(user_names)
-        for uid, idx in user_set.items():
-            user_ids[idx] = uid
 
         return JsonResponse({
             "weeks": week_labels,
@@ -570,15 +640,9 @@ class HeatmapDrilldownView(LoginRequiredMixin, View):
         if not user:
             return HttpResponse("")
 
-        # Get allocations active during this week
-        allocations = ProjectAllocation.objects.filter(
-            user_id=user_id,
-            start_date__lte=week_end,
-        ).filter(
-            Q(end_date__isnull=True) | Q(end_date__gte=week_start),
-        ).select_related("project", "role", "service_instance")
+        from apps.projects.models import ServiceInstanceAction
 
-        # Get capacity
+        # Capacidad
         cap = TeamMemberCapacity.objects.filter(
             user_id=user_id,
             effective_from__lte=week_start,
@@ -587,29 +651,93 @@ class HeatmapDrilldownView(LoginRequiredMixin, View):
         ).first()
         available_hours = int(cap.weekly_available_hours) if cap else 40
 
-        # Get assigned services for each project
-        project_details = []
-        total_hours = 0
+        # Construye detalle por proyecto desde 3 fuentes
+        project_details: dict[int, dict] = {}
+        total_hours = 0.0
+
+        # 1. Alocaciones manuales activas en la semana
+        allocations = ProjectAllocation.objects.filter(
+            user_id=user_id,
+            start_date__lte=week_end,
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=week_start),
+        ).select_related("project", "role")
         for alloc in allocations:
-            services = ServiceInstance.objects.filter(
-                project=alloc.project,
-                assigned_professional_id=user_id,
-            ).values_list("code", "name", "progress_pct")
-
-            svc_list = [
-                {"code": s[0], "name": s[1], "progress": float(s[2] or 0)}
-                for s in services
-            ]
-
-            hours = int(alloc.weekly_hours)
-            total_hours += hours
-            project_details.append({
+            d = project_details.setdefault(alloc.project_id, {
                 "project_code": alloc.project.code,
                 "project_name": alloc.project.name,
-                "role": alloc.role.name if alloc.role else "-",
-                "hours": hours,
-                "services": svc_list,
+                "role": alloc.role.name if alloc.role else "",
+                "hours": 0.0,
+                "services": [],
             })
+            d["hours"] += float(alloc.weekly_hours)
+            total_hours += float(alloc.weekly_hours)
+
+        # Helper: prorratear horas de un servicio a la semana indicada
+        def week_share(start, end, total_h):
+            if not start or not end or not total_h:
+                return 0.0
+            total_days = (end - start).days + 1
+            if total_days <= 0:
+                return 0.0
+            ov_start = max(start, week_start)
+            ov_end = min(end, week_end)
+            if ov_start > ov_end:
+                return 0.0
+            overlap = (ov_end - ov_start).days + 1
+            return float(total_h) / total_days * overlap
+
+        # 2. ServiceInstance del cronograma activos en esta semana
+        sis = ServiceInstance.objects.filter(
+            assigned_professional_id=user_id,
+            projected_start_date__lte=week_end,
+            projected_end_date__gte=week_start,
+        ).select_related("project")
+        for si in sis:
+            h = week_share(si.projected_start_date, si.projected_end_date, si.projected_hours)
+            if h <= 0:
+                continue
+            d = project_details.setdefault(si.project_id, {
+                "project_code": si.project.code,
+                "project_name": si.project.name,
+                "role": "",
+                "hours": 0.0,
+                "services": [],
+            })
+            d["hours"] += h
+            d["services"].append({
+                "code": si.code,
+                "name": si.name,
+                "progress": float(si.progress_pct or 0),
+            })
+            total_hours += h
+
+        # 3. Acciones asignadas que caigan en esta semana
+        actions = ServiceInstanceAction.objects.filter(
+            assigned_professional_id=user_id,
+            service_instance__projected_start_date__lte=week_end,
+            service_instance__projected_end_date__gte=week_start,
+        ).select_related("service_instance__project")
+        for act in actions:
+            si = act.service_instance
+            h = week_share(si.projected_start_date, si.projected_end_date, act.estimated_hours)
+            if h <= 0:
+                continue
+            d = project_details.setdefault(si.project_id, {
+                "project_code": si.project.code,
+                "project_name": si.project.name,
+                "role": "",
+                "hours": 0.0,
+                "services": [],
+            })
+            d["hours"] += h
+            total_hours += h
+
+        # Render: redondear horas y volver a lista
+        for d in project_details.values():
+            d["hours"] = round(d["hours"], 1)
+        project_details = list(project_details.values())
+        total_hours = round(total_hours, 1)
 
         return TemplateResponse(
             request,
@@ -622,6 +750,7 @@ class HeatmapDrilldownView(LoginRequiredMixin, View):
                 "total_hours": total_hours,
                 "available_hours": available_hours,
                 "utilization_pct": round(total_hours / available_hours * 100) if available_hours else 0,
+                "any_data": bool(project_details),
             },
         )
 
