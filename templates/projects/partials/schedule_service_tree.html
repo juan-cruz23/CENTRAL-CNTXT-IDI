@@ -1,4 +1,4 @@
-{% load common_tags %}
+{% load common_tags l10n %}
 {# Árbol de acciones de un servicio — se inyecta en #service-tree-container #}
 
 {# Campo oculto con total de acciones #}
@@ -96,7 +96,7 @@
                   <td class="text-right">
                     <input type="number"
                            id="act-{{ act.idx }}-hours"
-                           value="{{ act.hours }}"
+                           value="{{ act.hours|unlocalize }}"
                            step="0.5" min="0"
                            class="input input-bordered input-xs w-16 text-right">
                   </td>
