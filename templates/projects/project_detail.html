@@ -87,7 +87,8 @@
 {% endif %}
 
 <!-- Tabs -->
-<div x-data="{ tab: 'info' }">
+<div x-data="{ tab: sessionStorage.getItem('project_{{ project.pk }}_tab') || 'info' }"
+     x-init="$watch('tab', v => sessionStorage.setItem('project_{{ project.pk }}_tab', v))">
   <div role="tablist" class="tabs tabs-boxed bg-base-200/50 mb-6 p-1 overflow-x-auto flex-nowrap">
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'info' }" @click="tab = 'info'">Info</a>
     <a role="tab" class="tab whitespace-nowrap" :class="{ 'tab-active': tab === 'prereqs' }" @click="tab = 'prereqs'">Pre-requisitos</a>
