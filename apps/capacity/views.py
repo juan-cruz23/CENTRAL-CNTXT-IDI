@@ -32,58 +32,142 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = date.today()
+        DEFAULT_WEEKLY_HOURS = Decimal("40")
 
-        capacities = TeamMemberCapacity.objects.filter(
-            effective_from__lte=today,
-        ).filter(
-            Q(effective_until__isnull=True) | Q(effective_until__gte=today),
-        ).select_related("user")
+        from apps.accounts.models import User
+        from apps.projects.models import ServiceInstanceAction
+
+        # Profesionales activos con al menos un rol
+        users = User.objects.filter(
+            is_active=True,
+            user_roles__isnull=False,
+        ).distinct().prefetch_related("user_roles__role")
+
+        # Mapeo capacidades configuradas
+        cap_map = {
+            c.user_id: c for c in TeamMemberCapacity.objects.filter(
+                effective_from__lte=today,
+            ).filter(
+                Q(effective_until__isnull=True) | Q(effective_until__gte=today),
+            )
+        }
 
         overview = []
         total_available = Decimal("0")
         total_allocated = Decimal("0")
         overloaded_count = 0
 
-        for cap in capacities:
-            allocations = ProjectAllocation.objects.filter(
-                user=cap.user,
+        for user in users:
+            # 1. Capacidad disponible (configurada o default)
+            cap = cap_map.get(user.pk)
+            avail = cap.weekly_available_hours if cap else DEFAULT_WEEKLY_HOURS
+            has_capacity_config = cap is not None
+
+            # 2. Alocaciones manuales activas (ProjectAllocation)
+            allocs = ProjectAllocation.objects.filter(
+                user=user,
                 start_date__lte=today,
             ).filter(
                 Q(end_date__isnull=True) | Q(end_date__gte=today),
             ).select_related("project", "role")
+            alloc_hours = allocs.aggregate(total=Sum("weekly_hours"))["total"] or Decimal("0")
 
-            alloc_hours = allocations.aggregate(total=Sum("weekly_hours"))["total"] or Decimal("0")
-            avail = cap.weekly_available_hours
+            # 3. Servicios del cronograma asignados (ServiceInstance)
+            sis = ServiceInstance.objects.filter(
+                assigned_professional=user,
+            ).select_related("project", "responsible_role")
+            schedule_planned = sis.aggregate(total=Sum("projected_hours"))["total"] or Decimal("0")
+            schedule_actual = sis.aggregate(total=Sum("actual_hours"))["total"] or Decimal("0")
+
+            # 4. Acciones del cronograma asignadas (ServiceInstanceAction)
+            actions = ServiceInstanceAction.objects.filter(
+                assigned_professional=user,
+            ).select_related("service_instance__project")
+            actions_planned = actions.aggregate(total=Sum("estimated_hours"))["total"] or Decimal("0")
+            actions_actual = actions.aggregate(total=Sum("actual_hours"))["total"] or Decimal("0")
+
+            # Total horas planeadas/reales en cronograma
+            total_planned = schedule_planned + actions_planned
+            total_actual = schedule_actual + actions_actual
+
+            # Dedicación semanal (alocaciones manuales son weekly; cronograma es total y se mantiene aparte)
             pct = round((alloc_hours / avail * 100) if avail else 0)
-
             if pct > 100:
                 overloaded_count += 1
 
             total_available += avail
             total_allocated += alloc_hours
 
-            # Build project detail list for expandable row
-            project_details = []
-            for alloc in allocations:
-                project_details.append({
+            # Detalle por proyecto (combina alocaciones + servicios)
+            details_by_project: dict[int, dict] = {}
+            for alloc in allocs:
+                k = alloc.project_id
+                d = details_by_project.setdefault(k, {
                     "code": alloc.project.code,
                     "name": alloc.project.name,
-                    "role": alloc.role.name if alloc.role else "-",
-                    "hours": int(alloc.weekly_hours),
                     "project_pk": alloc.project.pk,
+                    "alloc_hours": Decimal("0"),
+                    "planned_hours": Decimal("0"),
+                    "actual_hours": Decimal("0"),
+                    "services_count": 0,
+                    "actions_count": 0,
+                    "role": alloc.role.name if alloc.role else "",
                 })
+                d["alloc_hours"] += alloc.weekly_hours
+            for si in sis:
+                k = si.project_id
+                d = details_by_project.setdefault(k, {
+                    "code": si.project.code,
+                    "name": si.project.name,
+                    "project_pk": si.project.pk,
+                    "alloc_hours": Decimal("0"),
+                    "planned_hours": Decimal("0"),
+                    "actual_hours": Decimal("0"),
+                    "services_count": 0,
+                    "actions_count": 0,
+                    "role": si.responsible_role.name if si.responsible_role else "",
+                })
+                d["planned_hours"] += si.projected_hours or 0
+                d["actual_hours"] += si.actual_hours or 0
+                d["services_count"] += 1
+            for act in actions:
+                proj = act.service_instance.project
+                k = proj.pk
+                d = details_by_project.setdefault(k, {
+                    "code": proj.code,
+                    "name": proj.name,
+                    "project_pk": proj.pk,
+                    "alloc_hours": Decimal("0"),
+                    "planned_hours": Decimal("0"),
+                    "actual_hours": Decimal("0"),
+                    "services_count": 0,
+                    "actions_count": 0,
+                    "role": "",
+                })
+                d["planned_hours"] += act.estimated_hours or 0
+                d["actual_hours"] += act.actual_hours or 0
+                d["actions_count"] += 1
+
+            project_details = list(details_by_project.values())
+
+            # Avance %: real / planeado en cronograma
+            progress_pct = round((total_actual / total_planned * 100) if total_planned else 0)
 
             overview.append({
-                "user": cap.user,
+                "user": user,
+                "has_capacity_config": has_capacity_config,
                 "available_hours": int(avail),
                 "allocated_hours": int(alloc_hours),
                 "allocation_pct": pct,
+                "schedule_planned": int(total_planned),
+                "schedule_actual": int(total_actual),
+                "progress_pct": progress_pct,
                 "project_count": len(project_details),
                 "project_details": project_details,
             })
 
-        # Sort: overloaded first, then by allocation descending
-        overview.sort(key=lambda x: -x["allocation_pct"])
+        # Orden: con asignaciones primero, sobrecargados arriba
+        overview.sort(key=lambda x: (-x["allocation_pct"], -x["schedule_planned"]))
 
         # KPI summary
         team_size = len(overview)
@@ -91,6 +175,8 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
             sum(item["allocation_pct"] for item in overview) / team_size
         ) if team_size else 0
         free_hours = int(total_available - total_allocated) if total_allocated < total_available else 0
+        total_planned_kpi = sum(item["schedule_planned"] for item in overview)
+        total_actual_kpi = sum(item["schedule_actual"] for item in overview)
 
         context["overview"] = overview
         context["kpi"] = {
@@ -98,6 +184,8 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
             "avg_utilization": avg_utilization,
             "overloaded": overloaded_count,
             "free_hours": free_hours,
+            "schedule_planned": total_planned_kpi,
+            "schedule_actual": total_actual_kpi,
         }
         context["active_tab"] = "overview"
         context["page_title"] = "Capacidad del Equipo"

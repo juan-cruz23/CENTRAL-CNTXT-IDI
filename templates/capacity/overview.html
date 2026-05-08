@@ -4,26 +4,31 @@
 {% include "capacity/_nav_tabs.html" %}
 
 <!-- KPI Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
   <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
     <div class="stat-title text-xs">Equipo</div>
     <div class="stat-value text-2xl">{{ kpi.team_size }}</div>
     <div class="stat-desc">profesionales activos</div>
   </div>
   <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
-    <div class="stat-title text-xs">Utilizacion Promedio</div>
+    <div class="stat-title text-xs">Utilización Promedio</div>
     <div class="stat-value text-2xl {% if kpi.avg_utilization > 90 %}text-warning{% elif kpi.avg_utilization > 100 %}text-error{% else %}text-primary{% endif %}">{{ kpi.avg_utilization }}%</div>
-    <div class="stat-desc">del equipo</div>
+    <div class="stat-desc">alocación manual</div>
   </div>
   <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
     <div class="stat-title text-xs">Sobrecargados</div>
     <div class="stat-value text-2xl {% if kpi.overloaded > 0 %}text-error{% else %}text-success{% endif %}">{{ kpi.overloaded }}</div>
-    <div class="stat-desc">{% if kpi.overloaded > 0 %}requieren atencion{% else %}todo en orden{% endif %}</div>
+    <div class="stat-desc">{% if kpi.overloaded > 0 %}requieren atención{% else %}todo en orden{% endif %}</div>
   </div>
   <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
-    <div class="stat-title text-xs">Horas Libres</div>
-    <div class="stat-value text-2xl text-success">{{ kpi.free_hours }}h</div>
-    <div class="stat-desc">capacidad disponible</div>
+    <div class="stat-title text-xs">Cronograma Planeado</div>
+    <div class="stat-value text-2xl text-info">{{ kpi.schedule_planned }}h</div>
+    <div class="stat-desc">total proyectado</div>
+  </div>
+  <div class="stat bg-base-100 border border-base-300/30 rounded-box p-4">
+    <div class="stat-title text-xs">Cronograma Real</div>
+    <div class="stat-value text-2xl text-success">{{ kpi.schedule_actual }}h</div>
+    <div class="stat-desc">trabajado a la fecha</div>
   </div>
 </div>
 
@@ -36,8 +41,10 @@
           <tr>
             <th class="text-xs uppercase tracking-wider">Profesional</th>
             <th class="text-xs uppercase tracking-wider text-center">Disponible</th>
-            <th class="text-xs uppercase tracking-wider text-center">Asignado</th>
-            <th class="text-xs uppercase tracking-wider">Dedicacion</th>
+            <th class="text-xs uppercase tracking-wider text-center">Asignado/sem</th>
+            <th class="text-xs uppercase tracking-wider">Dedicación</th>
+            <th class="text-xs uppercase tracking-wider text-center">Cronograma plan/real</th>
+            <th class="text-xs uppercase tracking-wider">Avance</th>
             <th class="text-xs uppercase tracking-wider text-center">Proyectos</th>
             <th class="text-xs uppercase tracking-wider"></th>
           </tr>
@@ -54,6 +61,9 @@
                 </div>
                 <div>
                   <div class="font-medium">{{ item.user.get_full_name }}</div>
+                  {% if not item.has_capacity_config %}
+                  <div class="text-xs text-base-content/40 italic">Capacidad por defecto (40h)</div>
+                  {% endif %}
                 </div>
               </div>
             </td>
@@ -65,6 +75,21 @@
                 <span class="text-sm font-mono w-10 {% if item.allocation_pct > 100 %}text-error font-bold{% endif %}">{{ item.allocation_pct }}%</span>
               </div>
             </td>
+            <td class="text-center">
+              <span class="font-mono text-info">{{ item.schedule_planned }}h</span>
+              <span class="text-base-content/30">/</span>
+              <span class="font-mono text-success">{{ item.schedule_actual }}h</span>
+            </td>
+            <td>
+              {% if item.schedule_planned > 0 %}
+              <div class="flex items-center gap-2">
+                <progress class="progress progress-success w-20" value="{{ item.progress_pct }}" max="100"></progress>
+                <span class="text-sm font-mono w-10">{{ item.progress_pct }}%</span>
+              </div>
+              {% else %}
+              <span class="text-xs text-base-content/30">—</span>
+              {% endif %}
+            </td>
             <td class="text-center"><span class="badge badge-ghost badge-sm">{{ item.project_count }}</span></td>
             <td class="text-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" :class="expanded === {{ forloop.counter }} ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
@@ -72,13 +97,17 @@
           </tr>
           <!-- Expandable detail row -->
           <tr x-show="expanded === {{ forloop.counter }}" x-collapse x-cloak>
-            <td colspan="6" class="bg-base-200/30 p-0">
+            <td colspan="8" class="bg-base-200/30 p-0">
               <div class="px-6 py-3">
+                {% if item.project_details %}
                 <table class="table table-xs">
                   <thead><tr>
                     <th class="text-xs opacity-60">Proyecto</th>
                     <th class="text-xs opacity-60">Rol</th>
-                    <th class="text-xs opacity-60 text-right">Horas/Sem</th>
+                    <th class="text-xs opacity-60 text-right">Aloc/sem</th>
+                    <th class="text-xs opacity-60 text-right">Servicios</th>
+                    <th class="text-xs opacity-60 text-right">Acciones</th>
+                    <th class="text-xs opacity-60 text-right">Plan/Real</th>
                   </tr></thead>
                   <tbody>
                     {% for pd in item.project_details %}
@@ -87,17 +116,27 @@
                         <a href="{% url 'dashboards:project' pd.project_pk %}" class="link link-hover font-mono text-xs">{{ pd.code }}</a>
                         <span class="text-xs opacity-70 ml-1">{{ pd.name }}</span>
                       </td>
-                      <td class="text-xs">{{ pd.role }}</td>
-                      <td class="text-right font-mono text-xs">{{ pd.hours }}h</td>
+                      <td class="text-xs">{{ pd.role|default:"—" }}</td>
+                      <td class="text-right font-mono text-xs">{% if pd.alloc_hours %}{{ pd.alloc_hours|floatformat:0 }}h{% else %}—{% endif %}</td>
+                      <td class="text-right font-mono text-xs">{{ pd.services_count }}</td>
+                      <td class="text-right font-mono text-xs">{{ pd.actions_count }}</td>
+                      <td class="text-right text-xs">
+                        <span class="text-info">{{ pd.planned_hours|floatformat:1 }}h</span>
+                        <span class="text-base-content/30">/</span>
+                        <span class="text-success">{{ pd.actual_hours|floatformat:1 }}h</span>
+                      </td>
                     </tr>
                     {% endfor %}
                   </tbody>
                 </table>
+                {% else %}
+                <p class="text-xs text-base-content/40 italic py-2">Sin asignaciones manuales ni servicios en cronograma.</p>
+                {% endif %}
               </div>
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="6">{% include "components/empty_state.html" with message="No hay datos de capacidad del equipo. Configura las horas disponibles de cada profesional." icon="users" %}</td></tr>
+          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay profesionales activos con rol asignado." icon="users" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
