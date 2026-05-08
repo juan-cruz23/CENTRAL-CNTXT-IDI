@@ -308,6 +308,23 @@ def _geo_context():
     }
 
 
+def _third_party_data():
+    """Mapa {tp_id: {client_category, city, ...}} para autocompletar el form."""
+    from apps.terceros.models import ThirdParty
+    return {
+        str(tp.pk): {
+            "client_category": tp.client_category or "",
+            "city": tp.city or "",
+            "email": tp.email or "",
+            "phone": tp.phone or "",
+        }
+        for tp in ThirdParty.objects.filter(
+            relationship_type=ThirdParty.RelationshipType.CLIENTE,
+            is_active=True,
+        )
+    }
+
+
 class ProjectCreateView(LoginRequiredMixin, CreateView):
     """Create a new project."""
 
@@ -316,7 +333,11 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = "projects/project_form.html"
 
     def get_context_data(self, **kwargs):
-        return {**super().get_context_data(**kwargs), **_geo_context()}
+        return {
+            **super().get_context_data(**kwargs),
+            **_geo_context(),
+            "third_party_data": _third_party_data(),
+        }
 
     def form_valid(self, form):
         # Generate next sequential code from existing numeric codes
@@ -344,7 +365,11 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "projects/project_form.html"
 
     def get_context_data(self, **kwargs):
-        return {**super().get_context_data(**kwargs), **_geo_context()}
+        return {
+            **super().get_context_data(**kwargs),
+            **_geo_context(),
+            "third_party_data": _third_party_data(),
+        }
 
     def form_valid(self, form):
         # El campo code fue excluido del form; preservar el valor existente.

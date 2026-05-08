@@ -187,4 +187,45 @@
 
   </form>
 </div>
+
+{{ third_party_data|json_script:"third-party-data" }}
+<script>
+(function() {
+  const data = JSON.parse(document.getElementById('third-party-data').textContent);
+  const tpEl = document.getElementById('id_third_party');
+  if (!tpEl) return;
+
+  function setVal(elId, value) {
+    const el = document.getElementById(elId);
+    if (!el || !value) return;
+    el.value = value;
+    // Si TomSelect está aplicado, sincroniza la UI
+    if (el.tomselect) el.tomselect.setValue(value, true);
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function applyClient() {
+    const tpId = tpEl.value;
+    if (!tpId || !data[tpId]) return;
+    const info = data[tpId];
+    setVal('id_client_category', info.client_category);
+    // Si el proyecto aún no tiene ubicación cargada, sugerir la ciudad del cliente
+    const locEl = document.getElementById('id_location');
+    if (locEl && !locEl.value && info.city) locEl.value = info.city;
+  }
+
+  // Bind tanto al select nativo como a TomSelect (si está)
+  tpEl.addEventListener('change', applyClient);
+  if (tpEl.tomselect) {
+    tpEl.tomselect.on('change', applyClient);
+  } else {
+    // Si TomSelect aún no está montado, esperar al evento alpine:initialized o DOMContentLoaded
+    const trySync = () => {
+      if (tpEl.tomselect) tpEl.tomselect.on('change', applyClient);
+    };
+    document.addEventListener('alpine:initialized', trySync);
+    setTimeout(trySync, 500);
+  }
+})();
+</script>
 {% endblock %}
