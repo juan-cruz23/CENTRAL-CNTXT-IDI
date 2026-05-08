@@ -22,6 +22,13 @@ class ThirdParty(TimeStampedModel):
         SILVER = "SILVER", "Silver"
         SELECT = "SELECT", "Select"
 
+    class DocumentType(models.TextChoices):
+        NIT = "NIT", "NIT"
+        CC = "CC", "Cédula de ciudadanía"
+        CE = "CE", "Cédula de extranjería"
+        PASAPORTE = "PASAPORTE", "Pasaporte"
+        OTRO = "OTRO", "Otro"
+
     name = models.CharField(
         max_length=200,
         verbose_name="nombre",
@@ -31,11 +38,18 @@ class ThirdParty(TimeStampedModel):
         blank=True,
         verbose_name="empresa",
     )
+    document_type = models.CharField(
+        max_length=15,
+        choices=DocumentType.choices,
+        default=DocumentType.NIT,
+        blank=True,
+        verbose_name="tipo de documento",
+    )
     nit = models.CharField(
         max_length=20,
         blank=True,
-        verbose_name="NIT",
-        help_text="Número de identificación tributaria (para cruce con Loggro).",
+        verbose_name="número de documento",
+        help_text="Número de documento (NIT, cédula, etc.) para cruce con Loggro.",
     )
     relationship_type = models.CharField(
         max_length=30,

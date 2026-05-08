@@ -12,6 +12,7 @@ class ThirdPartyForm(DaisyUIFormMixin, forms.ModelForm):
         fields = [
             "name",
             "company",
+            "document_type",
             "nit",
             "relationship_type",
             "client_category",
@@ -38,6 +39,11 @@ class ThirdPartyFilterForm(DaisyUIFormMixin, forms.Form):
         required=False,
         label="Tipo",
         choices=[("", "Todos")] + list(ThirdParty.RelationshipType.choices),
+    )
+    document_type = forms.ChoiceField(
+        required=False,
+        label="Tipo de documento",
+        choices=[("", "Todos")] + list(ThirdParty.DocumentType.choices),
     )
     is_active = forms.ChoiceField(
         required=False,

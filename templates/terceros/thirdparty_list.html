@@ -21,6 +21,15 @@
           {% endfor %}
         </select>
       </div>
+      <div class="form-control w-44">
+        <label class="label py-0"><span class="label-text text-xs">Tipo de documento</span></label>
+        <select name="document_type" class="select select-bordered select-sm w-full">
+          <option value="">Todos</option>
+          {% for code, label in document_types %}
+          <option value="{{ code }}" {% if current_document_type == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
       <div class="form-control w-32">
         <label class="label py-0"><span class="label-text text-xs">Estado</span></label>
         <select name="is_active" class="select select-bordered select-sm w-full">
@@ -43,6 +52,7 @@
           <tr>
             <th class="text-xs uppercase tracking-wider">Nombre</th>
             <th class="text-xs uppercase tracking-wider">Empresa</th>
+            <th class="text-xs uppercase tracking-wider">Documento</th>
             <th class="text-xs uppercase tracking-wider">Tipo</th>
             <th class="text-xs uppercase tracking-wider">Categoría</th>
             <th class="text-xs uppercase tracking-wider">Ciudad</th>
@@ -57,6 +67,9 @@
               <a href="{% url 'terceros:detail' tp.pk %}" class="link link-hover">{{ tp.name }}</a>
             </td>
             <td>{{ tp.company|default:"-" }}</td>
+            <td class="text-sm">
+              {% if tp.nit %}<span class="badge badge-ghost badge-sm font-mono">{{ tp.get_document_type_display }}</span> {{ tp.nit }}{% else %}<span class="text-base-content/30">—</span>{% endif %}
+            </td>
             <td>
               <span class="badge badge-outline badge-sm">{{ tp.get_relationship_type_display }}</span>
             </td>
@@ -80,7 +93,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="7">{% include "components/empty_state.html" with message="No hay terceros registrados." action_url=create_url action_label="Nuevo Tercero" action_icon="plus" icon="users" %}</td></tr>
+          <tr><td colspan="8">{% include "components/empty_state.html" with message="No hay terceros registrados." action_url=create_url action_label="Nuevo Tercero" action_icon="plus" icon="users" %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

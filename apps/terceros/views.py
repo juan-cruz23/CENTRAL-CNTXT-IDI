@@ -26,6 +26,9 @@ class ThirdPartyListView(LoginRequiredMixin, ListView):
         relationship_type = self.request.GET.get("relationship_type")
         if relationship_type:
             qs = qs.filter(relationship_type=relationship_type)
+        document_type = self.request.GET.get("document_type")
+        if document_type:
+            qs = qs.filter(document_type=document_type)
         is_active = self.request.GET.get("is_active")
         if is_active == "true":
             qs = qs.filter(is_active=True)
@@ -36,7 +39,9 @@ class ThirdPartyListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["relationship_types"] = ThirdParty.RelationshipType.choices
+        context["document_types"] = ThirdParty.DocumentType.choices
         context["current_type"] = self.request.GET.get("relationship_type", "")
+        context["current_document_type"] = self.request.GET.get("document_type", "")
         context["search_query"] = self.request.GET.get("q", "")
         context["current_active"] = self.request.GET.get("is_active", "")
         context["create_url"] = reverse_lazy("terceros:create")
