@@ -822,6 +822,7 @@ class ActionProgressLog(TimeStampedModel):
         verbose_name="acción",
     )
     description = models.TextField(
+        blank=True,
         verbose_name="qué se hizo",
     )
     attachment = models.FileField(

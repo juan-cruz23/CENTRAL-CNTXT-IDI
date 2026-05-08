@@ -1246,7 +1246,7 @@ class ActionProgressLogView(LoginRequiredMixin, View):
         executed_by_id = request.POST.get("executed_by", "").strip()
         attachment = request.FILES.get("attachment")
 
-        if not description or not start_dt_raw or not end_dt_raw or not executed_by_id:
+        if not start_dt_raw or not end_dt_raw or not executed_by_id:
             return HttpResponse("Faltan campos requeridos.", status=400)
 
         from datetime import datetime
