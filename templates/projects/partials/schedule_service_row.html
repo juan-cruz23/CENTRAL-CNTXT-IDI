@@ -7,19 +7,12 @@
       hx-get="{% url 'projects:schedule_service_actions' project.pk si.pk %}"
       hx-target="#detail-cell-{{ si.pk }}"
       hx-swap="innerHTML"
-      hx-trigger="click[!this.dataset.loaded]"
-      hx-on::after-request="
-        this.dataset.loaded='1';
-        document.getElementById('detail-row-{{ si.pk }}').classList.remove('hidden');
-        this.querySelector('svg').classList.add('rotate-90');
-      "
-      onclick="if(this.dataset.loaded){
-        document.getElementById('detail-row-{{ si.pk }}').classList.toggle('hidden');
-        this.querySelector('svg').classList.toggle('rotate-90');
-      }"
+      hx-trigger="load once"
+      onclick="document.getElementById('detail-row-{{ si.pk }}').classList.toggle('hidden');
+        this.querySelector('svg').classList.toggle('rotate-90');"
       title="Ver entregables y acciones"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform duration-150" viewBox="0 0 20 20" fill="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform duration-150 rotate-90" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
       </svg>
     </button>
@@ -81,7 +74,7 @@
     </div>
   </td>
 </tr>
-<tr id="detail-row-{{ si.pk }}" class="hidden bg-base-200/20">
+<tr id="detail-row-{{ si.pk }}" class="bg-base-200/20">
   <td colspan="10" class="pt-0 pb-3 pl-10 pr-4">
     <div id="detail-cell-{{ si.pk }}" class="border-l-2 border-primary/20 pl-3">
     </div>
