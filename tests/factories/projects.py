@@ -1,21 +1,26 @@
 import factory
 from decimal import Decimal
 from factory.django import DjangoModelFactory
-from apps.projects.models import Client, Project, ProjectPhaseInstance, ServiceInstance, Milestone
+from apps.projects.models import Project, ProjectPhaseInstance, ServiceInstance, Milestone
+from apps.terceros.models import ThirdParty
 from tests.factories.accounts import UserFactory
 from tests.factories.organizations import BusinessUnitFactory, OperativeLineFactory
 from tests.factories.services import ProjectCategoryFactory, ProjectPhaseFactory
 
 
 class ClientFactory(DjangoModelFactory):
+    """Backwards-compat alias: creates a ThirdParty of type CLIENTE."""
+
     class Meta:
-        model = Client
+        model = ThirdParty
 
     name = factory.Faker("name", locale="es_CO")
     company = factory.Faker("company", locale="es_CO")
-    category = "BLACK"
+    relationship_type = ThirdParty.RelationshipType.CLIENTE
+    client_category = "BLACK"
     email = factory.Faker("email")
     phone = factory.Faker("phone_number", locale="es_CO")
+    is_active = True
 
 
 class ProjectFactory(DjangoModelFactory):
@@ -24,7 +29,7 @@ class ProjectFactory(DjangoModelFactory):
 
     code = factory.Sequence(lambda n: f"{200 + n}")
     name = factory.Faker("sentence", nb_words=3, locale="es_CO")
-    client = factory.SubFactory(ClientFactory)
+    third_party = factory.SubFactory(ClientFactory)
     category = factory.SubFactory(ProjectCategoryFactory)
     status = "ACTIVE"
     business_unit = factory.SubFactory(BusinessUnitFactory)

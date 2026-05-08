@@ -200,7 +200,7 @@ class ProjectService:
         return (
             Project.objects.filter(status=Project.Status.ACTIVE)
             .select_related(
-                "client",
+                "third_party",
                 "category",
                 "business_unit",
                 "operative_line",
@@ -228,7 +228,7 @@ class ProjectService:
 
         project = (
             Project.objects.select_related(
-                "client",
+                "third_party",
                 "category",
                 "business_unit",
                 "operative_line",
@@ -303,7 +303,7 @@ class ProjectService:
                 "code": project.code,
                 "name": project.name,
                 "status": project.status,
-                "client": str(project.client) if project.client else None,
+                "client": str(project.third_party) if project.third_party else None,
                 "leader": str(project.leader) if project.leader else None,
                 "planned_start_date": project.planned_start_date,
                 "planned_end_date": project.planned_end_date,

@@ -14,7 +14,6 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView, V
 
 from apps.geography.models import Country, Municipality
 from apps.projects.forms import (
-    ClientForm,
     MilestoneForm,
     PrerequisiteForm,
     PrerequisiteTemplateForm,
@@ -26,7 +25,6 @@ from apps.projects.forms import (
 )
 from apps.projects.models import (
     ActionProgressLog,
-    Client,
     Milestone,
     PrerequisiteTemplate,
     Project,
@@ -37,6 +35,7 @@ from apps.projects.models import (
     ServiceInstanceAction,
 )
 from apps.services.mixins import has_pricing_permission
+from apps.terceros.models import ThirdParty
 
 
 # ---------------------------------------------------------------------------
@@ -57,7 +56,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset().select_related(
-            "client", "leader", "business_unit", "operative_line", "category",
+            "third_party", "leader", "business_unit", "operative_line", "category",
         )
         user = self.request.user
         # Visibilidad: staff o can_access_all_projects ven todo; el resto solo sus proyectos
@@ -75,7 +74,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
             qs = qs.filter(leader_id=leader_id)
         client_id = self.request.GET.get("client")
         if client_id:
-            qs = qs.filter(client_id=client_id)
+            qs = qs.filter(third_party_id=client_id)
         code = self.request.GET.get("code")
         if code:
             qs = qs.filter(code__icontains=code)
@@ -97,8 +96,9 @@ class ProjectListView(LoginRequiredMixin, ListView):
         context["leaders"] = User.objects.filter(
             led_projects__isnull=False
         ).distinct().order_by("first_name", "last_name")
-        context["clients"] = Client.objects.filter(
-            projects__isnull=False
+        context["clients"] = ThirdParty.objects.filter(
+            relationship_type=ThirdParty.RelationshipType.CLIENTE,
+            projects__isnull=False,
         ).distinct().order_by("name")
         context["active_filters_count"] = sum([
             bool(self.request.GET.get("status")),
@@ -123,7 +123,7 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             super()
             .get_queryset()
             .select_related(
-                "client",
+                "third_party",
                 "leader",
                 "business_unit",
                 "operative_line",
@@ -1585,49 +1585,6 @@ class ScopeDeleteView(LoginRequiredMixin, View):
         scope = get_object_or_404(ProjectScope, pk=scope_pk, project_id=pk)
         scope.delete()
         return HttpResponse("")
-
-
-# ---------------------------------------------------------------------------
-# Client views
-# ---------------------------------------------------------------------------
-class ClientListView(LoginRequiredMixin, ListView):
-    """List all clients with search support."""
-
-    model = Client
-    template_name = "projects/client_list.html"
-    context_object_name = "clients"
-    paginate_by = 25
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        search = self.request.GET.get("q")
-        if search:
-            qs = qs.filter(
-                Q(name__icontains=search) | Q(company__icontains=search)
-            )
-        category = self.request.GET.get("category")
-        if category:
-            qs = qs.filter(category=category)
-        return qs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["category_choices"] = Client.Category.choices
-        context["current_category"] = self.request.GET.get("category", "")
-        context["search_query"] = self.request.GET.get("q", "")
-        context["create_url"] = reverse_lazy("projects:client_create")
-        return context
-
-
-class ClientCreateView(LoginRequiredMixin, CreateView):
-    """Create a new client."""
-
-    model = Client
-    form_class = ClientForm
-    template_name = "projects/client_form.html"
-
-    def get_success_url(self):
-        return reverse_lazy("projects:client_list")
 
 
 # ---------------------------------------------------------------------------

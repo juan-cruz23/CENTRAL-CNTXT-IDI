@@ -3,7 +3,7 @@
 <tr class="hover cursor-pointer" onclick="window.location='{% url 'projects:detail' project.pk %}'">
   <td class="font-mono font-bold">{{ project.code }}</td>
   <td>{{ project.name }}</td>
-  <td>{{ project.client.name }}</td>
+  <td>{{ project.third_party.name|default:"—" }}</td>
   <td class="text-sm text-base-content/70">{{ project.category|default:"-" }}</td>
   <td>
     <span class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% elif project.status == 'COMPLETED' %}badge-info{% else %}badge-ghost{% endif %} badge-sm">

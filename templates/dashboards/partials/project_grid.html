@@ -7,7 +7,7 @@
         <div>
           <span class="badge badge-outline font-mono text-xs">{{ project.code }}</span>
           <h3 class="font-bold mt-1">{{ project.name }}</h3>
-          <p class="text-sm text-base-content/60">{{ project.third_party.name|default:project.client.name }}</p>
+          <p class="text-sm text-base-content/60">{{ project.third_party.name|default:"—" }}</p>
         </div>
         <div class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %} badge-sm">
           {{ project.get_status_display }}

@@ -7,55 +7,6 @@ from apps.common.models import TimeStampedModel
 
 
 # ---------------------------------------------------------------------------
-# Client
-# ---------------------------------------------------------------------------
-class Client(TimeStampedModel):
-    """Client entity managed by Contexto."""
-
-    class Category(models.TextChoices):
-        BLACK = "BLACK", "Black"
-        GOLD = "GOLD", "Gold"
-        SILVER = "SILVER", "Silver"
-        SELECT = "SELECT", "Select"
-
-    name = models.CharField(
-        max_length=200,
-        verbose_name="nombre",
-    )
-    company = models.CharField(
-        max_length=200,
-        blank=True,
-        verbose_name="empresa",
-    )
-    category = models.CharField(
-        max_length=10,
-        choices=Category.choices,
-        verbose_name="categoría",
-    )
-    email = models.EmailField(
-        blank=True,
-        verbose_name="correo electrónico",
-    )
-    phone = models.CharField(
-        max_length=20,
-        blank=True,
-        verbose_name="teléfono",
-    )
-    notes = models.TextField(
-        blank=True,
-        verbose_name="notas",
-    )
-
-    class Meta:
-        ordering = ["name"]
-        verbose_name = "cliente"
-        verbose_name_plural = "clientes"
-
-    def __str__(self):
-        return self.name
-
-
-# ---------------------------------------------------------------------------
 # Project
 # ---------------------------------------------------------------------------
 class Project(TimeStampedModel):
@@ -94,12 +45,6 @@ class Project(TimeStampedModel):
         max_length=300,
         verbose_name="nombre",
         help_text='Nombre del proyecto, ej. "Casa Saint Regis".',
-    )
-    client = models.ForeignKey(
-        Client,
-        on_delete=models.CASCADE,
-        related_name="projects",
-        verbose_name="cliente",
     )
     third_party = models.ForeignKey(
         "terceros.ThirdParty",

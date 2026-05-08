@@ -7,8 +7,9 @@ from apps.accounts.models import User
 from apps.common.forms import DaisyUIFormMixin
 from apps.common.utils import format_cop, parse_cop_currency
 from apps.geography.models import Country, Municipality
-from apps.projects.models import Client, Milestone, PrerequisiteTemplate, Project, ProjectPrerequisite, ProjectScope, ServiceInstance
+from apps.projects.models import Milestone, PrerequisiteTemplate, Project, ProjectPrerequisite, ProjectScope, ServiceInstance
 from apps.services.models import ProjectCategory, ServiceTemplate
+from apps.terceros.models import ThirdParty
 
 
 # ---------------------------------------------------------------------------
@@ -61,9 +62,10 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
         fields = [
             "code",
             "name",
-            "client",
+            "third_party",
             "category",
             "client_category",
+            "access_type",
             "access_package",
             "location",
             "country",
@@ -111,10 +113,18 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             self.fields[field_name].input_formats = ["%Y-%m-%d"]
         # En creación: ocultar código (se genera automáticamente)
         # En edición: mostrar como solo lectura
-        for fname in ("leader", "client"):
+        for fname in ("leader", "third_party"):
             if fname in self.fields:
                 cls = self.fields[fname].widget.attrs.get("class", "")
                 self.fields[fname].widget.attrs["class"] = (cls + " js-select2").strip()
+
+        # Filtrar terceros: solo los que son tipo CLIENTE y están activos
+        if "third_party" in self.fields:
+            self.fields["third_party"].queryset = ThirdParty.objects.filter(
+                relationship_type=ThirdParty.RelationshipType.CLIENTE,
+                is_active=True,
+            ).order_by("name")
+            self.fields["third_party"].label = "Cliente"
 
         # Filtrar categorías activas
         if "category" in self.fields:
@@ -177,27 +187,6 @@ class PrerequisiteTemplateForm(DaisyUIFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["prerequisite_type"].widget.attrs["placeholder"] = "Ej. Planos, Contrato..."
         self.fields["name"].widget.attrs["placeholder"] = "Descripción breve"
-
-
-# ---------------------------------------------------------------------------
-# Client form
-# ---------------------------------------------------------------------------
-class ClientForm(DaisyUIFormMixin, forms.ModelForm):
-    """Form for creating and editing clients."""
-
-    class Meta:
-        model = Client
-        fields = [
-            "name",
-            "company",
-            "category",
-            "email",
-            "phone",
-            "notes",
-        ]
-        widgets = {
-            "notes": forms.Textarea(attrs={"rows": 3}),
-        }
 
 
 # ---------------------------------------------------------------------------

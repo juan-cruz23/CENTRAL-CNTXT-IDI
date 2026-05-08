@@ -36,7 +36,7 @@
           <tr class="hover">
             <td class="font-mono font-bold">{{ project.code }}</td>
             <td>{{ project.name }}</td>
-            <td>{{ project.client.name|default:"-" }}</td>
+            <td>{{ project.third_party.name|default:"-" }}</td>
             <td>
               <span class="badge {% if project.status == 'ACTIVE' %}badge-success{% elif project.status == 'PAUSED' %}badge-warning{% else %}badge-ghost{% endif %} badge-sm">
                 {{ project.get_status_display }}

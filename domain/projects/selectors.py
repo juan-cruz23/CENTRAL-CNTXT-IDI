@@ -22,7 +22,7 @@ def get_project_with_details(project_id: int):
 
     return (
         Project.objects.select_related(
-            "client",
+            "third_party",
             "category",
             "business_unit",
             "operative_line",
@@ -60,7 +60,7 @@ def get_projects_by_status(status: str) -> QuerySet:
 
     return (
         Project.objects.filter(status=status)
-        .select_related("client", "leader", "operative_line")
+        .select_related("third_party", "leader", "operative_line")
         .order_by("-created_at")
     )
 
@@ -79,7 +79,7 @@ def get_projects_by_leader(user_id: int) -> QuerySet:
 
     return (
         Project.objects.filter(leader_id=user_id)
-        .select_related("client", "leader", "operative_line")
+        .select_related("third_party", "leader", "operative_line")
         .order_by("-created_at")
     )
 
@@ -120,7 +120,7 @@ def get_projects_by_system(system_code: str) -> QuerySet:
         Project.objects.filter(
             Q(leader_id=system.leader_id)
         )
-        .select_related("client", "leader", "operative_line")
+        .select_related("third_party", "leader", "operative_line")
         .distinct()
         .order_by("-created_at")
     )
@@ -187,7 +187,7 @@ def get_projects_at_risk() -> QuerySet:
             pk__in=risky_project_ids,
             status=Project.Status.ACTIVE,
         )
-        .select_related("client", "leader")
+        .select_related("third_party", "leader")
         .order_by("-created_at")
     )
 
@@ -215,7 +215,7 @@ def search_projects(query: str) -> QuerySet:
             | Q(name__icontains=q)
             | Q(client__name__icontains=q)
         )
-        .select_related("client", "leader")
+        .select_related("third_party", "leader")
         .distinct()
         .order_by("-created_at")
     )

@@ -44,11 +44,7 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
         if status_filter:
             active_projects = Project.objects.filter(status=status_filter)
 
-        client_filter = self.request.GET.get("client")
-        if client_filter:
-            active_projects = active_projects.filter(client_id=client_filter)
-
-        tp_filter = self.request.GET.get("third_party")
+        tp_filter = self.request.GET.get("third_party") or self.request.GET.get("client")
         if tp_filter:
             active_projects = active_projects.filter(third_party_id=tp_filter)
 
@@ -125,7 +121,7 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
         ).values_list("project_id", flat=True)
         at_risk_qs = active_projects.filter(
             pk__in=at_risk_ids
-        ).select_related("client", "leader")
+        ).select_related("third_party", "leader")
         context["projects_at_risk"] = at_risk_qs
         context["projects_at_risk_count"] = at_risk_qs.count()
 
@@ -149,7 +145,7 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
         ).order_by("-snapshot_date")
 
         context["projects"] = active_projects.select_related(
-            "client", "leader", "category", "operative_line", "third_party"
+            "third_party", "leader", "category", "operative_line"
         ).annotate(
             service_count=Count("service_instances"),
             latest_spi=Subquery(latest_snap_sub.values("spi")[:1]),
@@ -203,7 +199,7 @@ class PortfolioDashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["projects"] = (
-            Project.objects.select_related("client", "leader")
+            Project.objects.select_related("third_party", "leader")
             .all()
             .order_by("-created_at")
         )
@@ -226,7 +222,7 @@ class ProjectDashboardView(LoginRequiredMixin, DetailView):
 
     def get_queryset(self):
         return Project.objects.select_related(
-            "client", "leader", "category", "operative_line", "business_unit"
+            "third_party", "leader", "category", "operative_line", "business_unit"
         )
 
     def get_context_data(self, **kwargs):
@@ -357,7 +353,7 @@ class SystemDashboardView(LoginRequiredMixin, TemplateView):
                 Q(business_unit__in=system.code)
                 | Q(operative_line__business_unit__code=system.code)
             )
-            .select_related("client", "leader")
+            .select_related("third_party", "leader")
             .distinct()
             if hasattr(system, "business_units")
             else Project.objects.none()
@@ -368,7 +364,7 @@ class SystemDashboardView(LoginRequiredMixin, TemplateView):
         if not context["projects"].exists():
             context["projects"] = Project.objects.filter(
                 status=Project.Status.ACTIVE
-            ).select_related("client", "leader")
+            ).select_related("third_party", "leader")
 
         return context
 
@@ -393,7 +389,7 @@ class LeaderDashboardView(LoginRequiredMixin, TemplateView):
         # ------------------------------------------------------------------
         context["my_projects"] = (
             Project.objects.filter(leader=user)
-            .select_related("client", "category")
+            .select_related("third_party", "category")
             .order_by("-created_at")
         )
 
@@ -485,7 +481,7 @@ def portfolio_data_api(request):
     total_value, leader, deviation.
     """
     projects = (
-        Project.objects.select_related("client", "leader")
+        Project.objects.select_related("third_party", "leader")
         .all()
         .order_by("code")
     )
@@ -528,7 +524,7 @@ def portfolio_data_api(request):
             {
                 "code": project.code,
                 "name": project.name,
-                "client": project.client.name if project.client else "",
+                "client": project.third_party.name if project.third_party else "",
                 "status": project.get_status_display(),
                 "progress": float(project.current_progress_pct),
                 "spi": float(snapshot.spi) if snapshot else None,

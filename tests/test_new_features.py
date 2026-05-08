@@ -26,7 +26,8 @@ from apps.calendar_sync.models import (
     GoogleCalendarConnection,
     ProjectKeywordMapping,
 )
-from apps.projects.models import Client as ProjectClient, Project
+from apps.projects.models import Project
+from apps.terceros.models import ThirdParty
 from apps.services.models import (
     ProjectCategory,
     ProjectPhase,
@@ -103,13 +104,15 @@ class BaseTestCase(TestCase):
         )
 
         # Project data
-        cls.client_obj = ProjectClient.objects.create(
-            name="Cliente Test", category="GOLD"
+        cls.client_obj = ThirdParty.objects.create(
+            name="Cliente Test",
+            relationship_type=ThirdParty.RelationshipType.CLIENTE,
+            client_category="GOLD",
         )
         cls.project = Project.objects.create(
             code="TEST-001",
             name="Proyecto Test Pontevedra",
-            client=cls.client_obj,
+            third_party=cls.client_obj,
             status="ACTIVE",
             total_value=Decimal("50000000"),
             planned_start_date=date.today() - timedelta(days=30),
@@ -118,7 +121,7 @@ class BaseTestCase(TestCase):
         cls.project_2 = Project.objects.create(
             code="TEST-002",
             name="Proyecto Test Marea",
-            client=cls.client_obj,
+            third_party=cls.client_obj,
             status="ACTIVE",
             total_value=Decimal("30000000"),
             planned_start_date=date.today() - timedelta(days=15),

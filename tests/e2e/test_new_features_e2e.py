@@ -65,9 +65,10 @@ def seed_data(transactional_db):
     """Create all necessary seed data for e2e tests."""
     from django.contrib.auth import get_user_model
     from apps.accounts.models import Role, UserRole
-    from apps.projects.models import Client as PClient, Project
+    from apps.projects.models import Project
     from apps.services.models import ProjectCategory, ProjectPhase, ServiceTemplate
     from apps.capacity.models import TeamMemberCapacity, ProjectAllocation
+    from apps.terceros.models import ThirdParty
 
     User = get_user_model()
 
@@ -109,15 +110,21 @@ def seed_data(transactional_db):
     )
 
     # Projects
-    client_obj, _ = PClient.objects.get_or_create(name="Cliente E2E", defaults={"category": "GOLD"})
+    client_obj, _ = ThirdParty.objects.get_or_create(
+        name="Cliente E2E",
+        defaults={
+            "relationship_type": ThirdParty.RelationshipType.CLIENTE,
+            "client_category": "GOLD",
+        },
+    )
     proj1, _ = Project.objects.get_or_create(code="E2E-001", defaults={
-        "name": "Pontevedra E2E", "client": client_obj, "status": "ACTIVE",
+        "name": "Pontevedra E2E", "third_party": client_obj, "status": "ACTIVE",
         "total_value": Decimal("50000000"),
         "planned_start_date": date.today() - timedelta(days=30),
         "planned_end_date": date.today() + timedelta(days=60),
     })
     proj2, _ = Project.objects.get_or_create(code="E2E-002", defaults={
-        "name": "Marea E2E", "client": client_obj, "status": "ACTIVE",
+        "name": "Marea E2E", "third_party": client_obj, "status": "ACTIVE",
         "total_value": Decimal("30000000"),
         "planned_start_date": date.today() - timedelta(days=15),
         "planned_end_date": date.today() + timedelta(days=90),

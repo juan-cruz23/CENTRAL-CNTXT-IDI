@@ -163,17 +163,6 @@ urlpatterns = [
         views.ScopeDeleteView.as_view(),
         name="scope_delete",
     ),
-    # Clients
-    path(
-        "clientes/",
-        views.ClientListView.as_view(),
-        name="client_list",
-    ),
-    path(
-        "clientes/crear/",
-        views.ClientCreateView.as_view(),
-        name="client_create",
-    ),
     # Prerequisite: load template (HTMX)
     path(
         "<int:pk>/prerequisitos/cargar-plantilla/",

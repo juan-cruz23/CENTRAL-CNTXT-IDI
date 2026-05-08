@@ -167,17 +167,20 @@ class Command(BaseCommand):
         self.stdout.write(f"  {len(templates)} plantillas de servicio ({count} nuevas)")
 
     def _seed_clients(self):
-        from apps.projects.models import Client
+        from apps.terceros.models import ThirdParty
 
         clients = [
-            {"name": "Constructora Bolívar", "company": "Grupo Bolívar S.A.", "category": "BLACK", "email": "proyectos@bolivar.com.co", "phone": "601-3456789"},
-            {"name": "Amarilo S.A.S.", "company": "Amarilo S.A.S.", "category": "GOLD", "email": "comercial@amarilo.com.co", "phone": "601-7654321"},
-            {"name": "Arquitectura & Concreto", "company": "A&C S.A.S.", "category": "GOLD", "email": "info@ayc.com.co", "phone": "604-2345678"},
-            {"name": "Inversiones Metrópoli", "company": "Grupo Metrópoli", "category": "SILVER", "email": "gestion@metropoli.co", "phone": "601-8901234"},
-            {"name": "Hotel Estelar", "company": "Hoteles Estelar S.A.", "category": "BLACK", "email": "diseño@estelar.com", "phone": "601-5678901"},
+            {"name": "Constructora Bolívar", "company": "Grupo Bolívar S.A.", "client_category": "BLACK", "email": "proyectos@bolivar.com.co", "phone": "601-3456789"},
+            {"name": "Amarilo S.A.S.", "company": "Amarilo S.A.S.", "client_category": "GOLD", "email": "comercial@amarilo.com.co", "phone": "601-7654321"},
+            {"name": "Arquitectura & Concreto", "company": "A&C S.A.S.", "client_category": "GOLD", "email": "info@ayc.com.co", "phone": "604-2345678"},
+            {"name": "Inversiones Metrópoli", "company": "Grupo Metrópoli", "client_category": "SILVER", "email": "gestion@metropoli.co", "phone": "601-8901234"},
+            {"name": "Hotel Estelar", "company": "Hoteles Estelar S.A.", "client_category": "BLACK", "email": "diseño@estelar.com", "phone": "601-5678901"},
         ]
         for c in clients:
-            Client.objects.update_or_create(name=c["name"], defaults=c)
+            ThirdParty.objects.update_or_create(
+                name=c["name"],
+                defaults={**c, "relationship_type": ThirdParty.RelationshipType.CLIENTE, "is_active": True},
+            )
 
         self.stdout.write(f"  {len(clients)} clientes")
 
@@ -208,7 +211,8 @@ class Command(BaseCommand):
         self.stdout.write(f"  {len(team)} miembros de equipo")
 
     def _seed_projects(self):
-        from apps.projects.models import Client, Project, ProjectPhaseInstance, ServiceInstance, ProjectPrerequisite
+        from apps.projects.models import Project, ProjectPhaseInstance, ServiceInstance, ProjectPrerequisite
+        from apps.terceros.models import ThirdParty
         from apps.services.models import ProjectCategory, ProjectPhase, ServiceTemplate
         from apps.financials.models import PaymentMilestone
         from apps.organizations.models import BusinessUnit, OperativeLine
@@ -229,18 +233,18 @@ class Command(BaseCommand):
         camila = User.objects.get(username="camila.ortiz")
         andres = User.objects.get(username="andres.valencia")
 
-        client_bolivar = Client.objects.get(name="Constructora Bolívar")
-        client_amarilo = Client.objects.get(name="Amarilo S.A.S.")
-        client_ayc = Client.objects.get(name="Arquitectura & Concreto")
-        client_metro = Client.objects.get(name="Inversiones Metrópoli")
-        client_estelar = Client.objects.get(name="Hotel Estelar")
+        client_bolivar = ThirdParty.objects.get(name="Constructora Bolívar")
+        client_amarilo = ThirdParty.objects.get(name="Amarilo S.A.S.")
+        client_ayc = ThirdParty.objects.get(name="Arquitectura & Concreto")
+        client_metro = ThirdParty.objects.get(name="Inversiones Metrópoli")
+        client_estelar = ThirdParty.objects.get(name="Hotel Estelar")
 
         today = date.today()
 
         # ── PROJECT 1: Active, 65% done, on schedule ──────────────
         p1, _ = Project.objects.update_or_create(code="CNTXT-2026-001", defaults={
             "name": "Torre Residencial Parque Central",
-            "client": client_bolivar, "category": cat_arq, "client_category": "BLACK",
+            "third_party": client_bolivar, "category": cat_arq, "client_category": "BLACK",
             "access_type": "PREMIUM", "location": "Bogotá, Chicó Norte",
             "status": "ACTIVE", "business_unit": made, "operative_line": ol_dv,
             "leader": carolina, "iva_rate": 19,
@@ -272,7 +276,7 @@ class Command(BaseCommand):
         # ── PROJECT 2: Active, 35% done, behind schedule ──────────
         p2, _ = Project.objects.update_or_create(code="CNTXT-2026-002", defaults={
             "name": "Lobby & Áreas Comunes Edificio Oasis",
-            "client": client_amarilo, "category": cat_int, "client_category": "GOLD",
+            "third_party": client_amarilo, "category": cat_int, "client_category": "GOLD",
             "access_type": "STANDARD", "location": "Medellín, El Poblado",
             "status": "ACTIVE", "business_unit": made, "operative_line": ol_dv,
             "leader": valentina, "iva_rate": 19,
@@ -301,7 +305,7 @@ class Command(BaseCommand):
         # ── PROJECT 3: Active, 85% done, ahead of schedule ───────
         p3, _ = Project.objects.update_or_create(code="CNTXT-2026-003", defaults={
             "name": "Recorrido Virtual Proyecto Serranía",
-            "client": client_ayc, "category": cat_vis, "client_category": "GOLD",
+            "third_party": client_ayc, "category": cat_vis, "client_category": "GOLD",
             "access_type": "STANDARD", "location": "Bucaramanga",
             "status": "ACTIVE", "business_unit": made, "operative_line": ol_vis,
             "leader": santiago, "iva_rate": 19,
@@ -327,7 +331,7 @@ class Command(BaseCommand):
         # ── PROJECT 4: Completed ─────────────────────────────────
         p4, _ = Project.objects.update_or_create(code="CNTXT-2025-018", defaults={
             "name": "Remodelación Suite Presidencial Estelar",
-            "client": client_estelar, "category": cat_int, "client_category": "BLACK",
+            "third_party": client_estelar, "category": cat_int, "client_category": "BLACK",
             "access_type": "PREMIUM", "location": "Cartagena, Bocagrande",
             "status": "COMPLETED", "business_unit": made, "operative_line": ol_dv,
             "leader": carolina, "iva_rate": 19,
@@ -360,7 +364,7 @@ class Command(BaseCommand):
         # ── PROJECT 5: Planning ──────────────────────────────────
         p5, _ = Project.objects.update_or_create(code="CNTXT-2026-004", defaults={
             "name": "Sala de Ventas Torres del Parque III",
-            "client": client_metro, "category": cat_int, "client_category": "SILVER",
+            "third_party": client_metro, "category": cat_int, "client_category": "SILVER",
             "access_type": "STANDARD", "location": "Bogotá, Salitre",
             "status": "PLANNING", "business_unit": select, "operative_line": ol_tv,
             "leader": santiago, "iva_rate": 19,

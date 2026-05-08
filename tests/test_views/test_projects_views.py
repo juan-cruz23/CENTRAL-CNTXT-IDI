@@ -11,7 +11,7 @@ from tests.factories import (
     OperativeLineFactory,
     UserFactory,
 )
-from apps.projects.models import Client, Project
+from apps.projects.models import Project
 
 
 # ---------------------------------------------------------------------------
@@ -97,11 +97,11 @@ class TestProjectCreateView:
         assert "projects/project_form.html" in [t.name for t in resp.templates]
 
     def test_valid_post_creates_project(self, authenticated_client, db):
-        cl = ClientFactory()
+        tp = ClientFactory()
         data = {
             "code": "999",
             "name": "Proyecto Test",
-            "client": cl.pk,
+            "third_party": tp.pk,
             "status": "PLANNING",
             "access_type": "STANDARD",
             "country": "Colombia",
@@ -174,61 +174,3 @@ class TestServiceInstanceUpdateView:
         assert resp.status_code == 200
 
 
-# ---------------------------------------------------------------------------
-# ClientListView
-# ---------------------------------------------------------------------------
-class TestClientListView:
-    url = reverse("projects:client_list")
-
-    def test_anonymous_redirects(self, client):
-        resp = client.get(self.url)
-        assert resp.status_code == 302
-
-    def test_authenticated_get(self, authenticated_client):
-        resp = authenticated_client.get(self.url)
-        assert resp.status_code == 200
-        assert "projects/client_list.html" in [t.name for t in resp.templates]
-
-    def test_context_keys(self, authenticated_client):
-        resp = authenticated_client.get(self.url)
-        ctx = resp.context
-        for key in ("clients", "category_choices", "current_category", "search_query"):
-            assert key in ctx
-
-    def test_search(self, authenticated_client):
-        ClientFactory(name="Cliente Alfa")
-        ClientFactory(name="Cliente Beta")
-        resp = authenticated_client.get(self.url + "?q=Alfa")
-        assert len(list(resp.context["clients"])) == 1
-
-
-# ---------------------------------------------------------------------------
-# ClientCreateView
-# ---------------------------------------------------------------------------
-class TestClientCreateView:
-    url = reverse("projects:client_create")
-
-    def test_anonymous_redirects(self, client):
-        resp = client.get(self.url)
-        assert resp.status_code == 302
-
-    def test_authenticated_get(self, authenticated_client):
-        resp = authenticated_client.get(self.url)
-        assert resp.status_code == 200
-        assert "projects/client_form.html" in [t.name for t in resp.templates]
-
-    def test_valid_post(self, authenticated_client):
-        data = {
-            "name": "Nuevo Cliente",
-            "company": "Empresa Test",
-            "category": "BLACK",
-            "email": "test@example.com",
-            "phone": "3001234567",
-        }
-        resp = authenticated_client.post(self.url, data)
-        assert resp.status_code == 302
-        assert Client.objects.filter(name="Nuevo Cliente").exists()
-
-    def test_invalid_post(self, authenticated_client):
-        resp = authenticated_client.post(self.url, {})
-        assert resp.status_code == 200

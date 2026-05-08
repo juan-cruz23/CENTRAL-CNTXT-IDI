@@ -11,7 +11,7 @@ from decimal import Decimal
 from datetime import date, timedelta
 
 from apps.accounts.models import User
-from apps.projects.models import Project, ServiceInstance, Client, ProjectPhaseInstance
+from apps.projects.models import Project, ServiceInstance, ProjectPhaseInstance
 from apps.services.models import ServiceTemplate, ProjectPhase, ProjectCategory
 from apps.organizations.models import BusinessUnit, OperativeLine
 from apps.terceros.models import ThirdParty, ThirdPartyContact
@@ -273,19 +273,6 @@ projects_data = [
     },
 ]
 
-def get_or_create_client_for_tercero(tercero):
-    """Ensure a legacy Client record exists for this ThirdParty."""
-    client, _ = Client.objects.get_or_create(
-        name=tercero.name,
-        defaults={
-            "company": tercero.company or "",
-            "category": tercero.client_category or "",
-            "email": tercero.email or "",
-            "phone": tercero.phone or "",
-        }
-    )
-    return client
-
 created_projects = []
 for pd in projects_data:
     tp = pd.pop("third_party")
@@ -294,15 +281,11 @@ for pd in projects_data:
     ol = pd.pop("operative_line")
     bu = pd.pop("business_unit")
 
-    # Get or create legacy Client for the ThirdParty
-    client = get_or_create_client_for_tercero(tp)
-
     obj, created = Project.objects.get_or_create(
         code=pd["code"],
         defaults={
             **pd,
             "third_party": tp,
-            "client": client,
             "leader": leader,
             "category": category,
             "operative_line": ol,

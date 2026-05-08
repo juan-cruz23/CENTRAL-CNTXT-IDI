@@ -10,7 +10,7 @@
     <h1 class="text-2xl font-bold">{{ project.code }} - {{ project.name }}</h1>
     <p class="text-base-content/60 mt-1">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-      {{ project.client.name }}
+      {{ project.third_party.name|default:"—" }}
       <span class="mx-1">|</span>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
       {{ project.location }}
@@ -111,7 +111,7 @@
           </h3>
           <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             <dt class="font-medium text-base-content/70">Categoría</dt><dd>{{ project.category }}</dd>
-            <dt class="font-medium text-base-content/70">Cliente</dt><dd>{{ project.client.name }} ({{ project.client.get_category_display }})</dd>
+            <dt class="font-medium text-base-content/70">Cliente</dt><dd>{{ project.third_party.name|default:"—" }}{% if project.third_party.client_category %} ({{ project.third_party.get_client_category_display }}){% endif %}</dd>
             <dt class="font-medium text-base-content/70">Municipio</dt>
             <dd>
               {% if project.municipality %}

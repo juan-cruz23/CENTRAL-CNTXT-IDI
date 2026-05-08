@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from apps.projects.models import (
-    Client,
     Milestone,
     PrerequisiteTemplate,
     Project,
@@ -72,20 +71,12 @@ class ProjectPhaseInstanceInline(admin.TabularInline):
 # ---------------------------------------------------------------------------
 # ModelAdmin classes
 # ---------------------------------------------------------------------------
-@admin.register(Client)
-class ClientAdmin(admin.ModelAdmin):
-    list_display = ("name", "company", "category", "email", "phone")
-    list_filter = ("category",)
-    search_fields = ("name", "company", "email")
-    ordering = ("name",)
-
-
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = (
         "code",
         "name",
-        "client",
+        "third_party",
         "status",
         "leader",
         "current_progress_pct",
@@ -101,9 +92,9 @@ class ProjectAdmin(admin.ModelAdmin):
         "operative_line",
         "country",
     )
-    search_fields = ("code", "name", "client__name")
+    search_fields = ("code", "name", "third_party__name")
     autocomplete_fields = (
-        "client",
+        "third_party",
         "category",
         "business_unit",
         "operative_line",
@@ -123,7 +114,7 @@ class ProjectAdmin(admin.ModelAdmin):
                 "fields": (
                     "code",
                     "name",
-                    "client",
+                    "third_party",
                     "category",
                     "client_category",
                     "access_type",
