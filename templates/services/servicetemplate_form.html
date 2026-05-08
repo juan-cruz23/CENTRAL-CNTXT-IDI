@@ -414,18 +414,22 @@
               <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Recursos aplicables</p>
               <div class="grid grid-cols-2 gap-3">
                 <div class="form-control">
-                  <label class="label pb-1">
+                  <label class="label pb-1 flex justify-between">
                     <span class="label-text font-medium text-sm">Hardware</span>
-                    <span class="label-text-alt text-xs text-base-content/50">Selecciona los que aplican</span>
+                    <span class="label-text-alt text-xs">
+                      Total: <span class="font-mono font-bold text-primary" id="hw-rate-display">0</span>/h
+                    </span>
                   </label>
                   <div class="border border-base-300/50 rounded-lg p-2 max-h-40 overflow-y-auto bg-base-200/20">
                     {% for h in form.hardwares.field.queryset %}
                     <label class="flex items-center justify-between gap-2 py-1 px-1 hover:bg-base-200/50 rounded cursor-pointer text-xs">
                       <div class="flex items-center gap-2">
                         <input type="checkbox" name="hardwares" value="{{ h.pk }}"
-                               class="checkbox checkbox-xs checkbox-primary"
+                               class="checkbox checkbox-xs checkbox-primary js-resource-cb"
+                               data-rate="{{ h.depreciation_per_hour|default:0|unlocalize }}"
+                               data-target="hw"
                                {% if form.instance.pk and h in selected_hardwares %}checked{% endif %}>
-                        <span>{{ h.name }}</span>
+                        <span>{% firstof h.name h.model_name h.brand h.serial_number "Sin nombre" %}</span>
                       </div>
                       <span class="font-mono text-base-content/60">{{ h.depreciation_per_hour|floatformat:0 }}/h</span>
                     </label>
@@ -436,18 +440,22 @@
                   <input type="hidden" name="hardware_cost_per_hour" id="id_hardware_cost_per_hour" value="{{ form.hardware_cost_per_hour.value|default:0|unlocalize }}">
                 </div>
                 <div class="form-control">
-                  <label class="label pb-1">
+                  <label class="label pb-1 flex justify-between">
                     <span class="label-text font-medium text-sm">Software</span>
-                    <span class="label-text-alt text-xs text-base-content/50">Selecciona los que aplican</span>
+                    <span class="label-text-alt text-xs">
+                      Total: <span class="font-mono font-bold text-primary" id="sw-rate-display">0</span>/h
+                    </span>
                   </label>
                   <div class="border border-base-300/50 rounded-lg p-2 max-h-40 overflow-y-auto bg-base-200/20">
                     {% for s in form.softwares.field.queryset %}
                     <label class="flex items-center justify-between gap-2 py-1 px-1 hover:bg-base-200/50 rounded cursor-pointer text-xs">
                       <div class="flex items-center gap-2">
                         <input type="checkbox" name="softwares" value="{{ s.pk }}"
-                               class="checkbox checkbox-xs checkbox-primary"
+                               class="checkbox checkbox-xs checkbox-primary js-resource-cb"
+                               data-rate="{{ s.hourly_value|default:0|unlocalize }}"
+                               data-target="sw"
                                {% if form.instance.pk and s in selected_softwares %}checked{% endif %}>
-                        <span>{{ s.name }}</span>
+                        <span>{% firstof s.name s.vendor "Sin nombre" %}</span>
                       </div>
                       <span class="font-mono text-base-content/60">{{ s.hourly_value|floatformat:0 }}/h</span>
                     </label>
@@ -1029,20 +1037,25 @@ window.toggleActPanel = function(di, ji) {
 
 buildRoleSummary(false); // carga inicial: actualiza horas/tabla pero no sobreescribe precio/tarifa guardados
 
-// ── Prorrateo hardware / software ────────────────────────────────────
-const hwItems = JSON.parse(document.getElementById('hw-items-data').textContent);
-const swItems = JSON.parse(document.getElementById('sw-items-data').textContent);
-const hwTotal = hwItems.reduce((s, h) => s + parseFloat(h.depreciation_per_hour || 0), 0);
-const swTotal = swItems.reduce((s, s2) => s + parseFloat(s2.hourly_value || 0), 0);
-
-function applyHwRate() {
-  const el = document.getElementById('id_hardware_cost_per_hour');
-  if (el) { el.value = hwTotal.toFixed(2); buildRoleSummary(); }
+// ── Recursos aplicables: suma en vivo al marcar checkboxes ──────────
+function recalcResources() {
+  const fmt = n => new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(n);
+  ['hw', 'sw'].forEach(target => {
+    const total = Array.from(
+      document.querySelectorAll(`.js-resource-cb[data-target="${target}"]:checked`)
+    ).reduce((s, cb) => s + (parseFloat(cb.dataset.rate) || 0), 0);
+    const display = document.getElementById(`${target}-rate-display`);
+    if (display) display.textContent = fmt(total);
+    const inputId = target === 'hw' ? 'id_hardware_cost_per_hour' : 'id_software_cost_per_hour';
+    const input = document.getElementById(inputId);
+    if (input) input.value = total.toFixed(2);
+  });
+  buildRoleSummary();
 }
-function applySwRate() {
-  const el = document.getElementById('id_software_cost_per_hour');
-  if (el) { el.value = swTotal.toFixed(2); buildRoleSummary(); }
-}
+document.querySelectorAll('.js-resource-cb').forEach(cb => {
+  cb.addEventListener('change', recalcResources);
+});
+recalcResources(); // sumar lo ya marcado al cargar
 
 // ── Auto-fill tarifa por rol (campo principal del formulario) ─────────
 (function() {
