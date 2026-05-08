@@ -354,65 +354,121 @@ class AllocationMatrixView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
     template_name = "capacity/matrix.html"
 
     def get_context_data(self, **kwargs):
+        from apps.accounts.models import User
+        from apps.projects.models import Project, ServiceInstanceAction
+        DEFAULT_HOURS = 40
+
         context = super().get_context_data(**kwargs)
         today = date.today()
+        # Semana actual: lunes a domingo
+        week_start = today - timedelta(days=today.weekday())
+        week_end = week_start + timedelta(days=6)
 
-        # Get capacities for the "available" column
-        cap_map = {}
-        for cap in TeamMemberCapacity.objects.filter(
-            effective_from__lte=today,
+        # Capacidades configuradas
+        cap_map = {
+            c.user_id: int(c.weekly_available_hours)
+            for c in TeamMemberCapacity.objects.filter(
+                effective_from__lte=today,
+            ).filter(
+                Q(effective_until__isnull=True) | Q(effective_until__gte=today),
+            )
+        }
+
+        # Profesionales con rol activo
+        users_qs = User.objects.filter(
+            is_active=True,
+            user_roles__isnull=False,
+        ).distinct().order_by("first_name", "last_name")
+
+        users: dict[int, dict] = {}
+        for u in users_qs:
+            users[u.pk] = {"user": u, "projects": {}}
+
+        projects_set: dict[int, Project] = {}
+
+        def add(user_id, project, hours):
+            if not user_id or hours <= 0:
+                return
+            if user_id not in users:
+                u = User.objects.filter(pk=user_id).first()
+                if not u:
+                    return
+                users[user_id] = {"user": u, "projects": {}}
+            users[user_id]["projects"][project.pk] = (
+                users[user_id]["projects"].get(project.pk, 0) + hours
+            )
+            projects_set[project.pk] = project
+
+        # 1. Alocaciones manuales activas hoy
+        for alloc in ProjectAllocation.objects.filter(
+            start_date__lte=week_end,
         ).filter(
-            Q(effective_until__isnull=True) | Q(effective_until__gte=today),
-        ).select_related("user"):
-            cap_map[cap.user.pk] = int(cap.weekly_available_hours)
+            Q(end_date__isnull=True) | Q(end_date__gte=week_start),
+        ).select_related("user", "project"):
+            add(alloc.user_id, alloc.project, float(alloc.weekly_hours))
 
-        allocations = ProjectAllocation.objects.filter(
-            start_date__lte=today,
-        ).filter(
-            Q(end_date__isnull=True) | Q(end_date__gte=today),
-        ).select_related("user", "project")
+        # Helper: prorratear horas totales a la semana actual
+        def week_share(start, end, total_h):
+            if not start or not end or not total_h:
+                return 0.0
+            total_days = (end - start).days + 1
+            if total_days <= 0:
+                return 0.0
+            ov_start = max(start, week_start)
+            ov_end = min(end, week_end)
+            if ov_start > ov_end:
+                return 0.0
+            overlap = (ov_end - ov_start).days + 1
+            return float(total_h) / total_days * overlap
 
-        users = {}
-        projects_set = set()
-        for alloc in allocations:
-            user_key = alloc.user.pk
-            if user_key not in users:
-                users[user_key] = {
-                    "user": alloc.user,
-                    "projects": {},
-                }
-            proj_key = alloc.project.pk
-            if proj_key not in users[user_key]["projects"]:
-                users[user_key]["projects"][proj_key] = 0
-            users[user_key]["projects"][proj_key] += float(alloc.weekly_hours)
-            projects_set.add(alloc.project)
+        # 2. ServiceInstance del cronograma activos esta semana
+        for si in ServiceInstance.objects.filter(
+            assigned_professional__isnull=False,
+            projected_start_date__lte=week_end,
+            projected_end_date__gte=week_start,
+        ).select_related("assigned_professional", "project"):
+            h = week_share(si.projected_start_date, si.projected_end_date, si.projected_hours)
+            add(si.assigned_professional_id, si.project, h)
 
-        projects = sorted(projects_set, key=lambda p: p.code)
+        # 3. Acciones del cronograma activas esta semana
+        for act in ServiceInstanceAction.objects.filter(
+            assigned_professional__isnull=False,
+            service_instance__projected_start_date__lte=week_end,
+            service_instance__projected_end_date__gte=week_start,
+        ).select_related("assigned_professional", "service_instance__project"):
+            si = act.service_instance
+            h = week_share(si.projected_start_date, si.projected_end_date, act.estimated_hours)
+            add(act.assigned_professional_id, si.project, h)
+
+        projects = sorted(projects_set.values(), key=lambda p: p.code)
         project_pks = [p.pk for p in projects]
 
         matrix = []
-        for user_data in sorted(users.values(), key=lambda u: u["user"].first_name):
+        for user_data in sorted(users.values(), key=lambda u: (u["user"].first_name or "", u["user"].last_name or "")):
             cells = []
-            total = 0
+            total = 0.0
             for pk in project_pks:
                 hours = user_data["projects"].get(pk, 0)
-                cells.append({"hours": int(hours) if hours == int(hours) else hours})
+                cells.append({"hours": round(hours, 1) if hours else 0})
                 total += hours
-            available = cap_map.get(user_data["user"].pk, 40)
+            available = cap_map.get(user_data["user"].pk, DEFAULT_HOURS)
             free = available - total
             matrix.append({
                 "user": user_data["user"],
                 "cells": cells,
-                "total_hours": int(total),
+                "total_hours": round(total, 1),
                 "available_hours": available,
-                "free_hours": int(free),
+                "free_hours": round(free, 1),
                 "overloaded": total > available,
+                "has_capacity_config": user_data["user"].pk in cap_map,
             })
 
         context["matrix"] = matrix
         context["projects"] = projects
+        context["week_start"] = week_start
+        context["week_end"] = week_end
         context["active_tab"] = "matrix"
-        context["page_title"] = "Matriz de Asignacion"
+        context["page_title"] = "Matriz de Asignación"
         return context
 
 

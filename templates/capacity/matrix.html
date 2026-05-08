@@ -1,7 +1,12 @@
 {% extends "base/base.html" %}
-{% block title %}Matriz de Asignacion{% endblock %}
+{% block title %}Matriz de Asignación{% endblock %}
 {% block content %}
 {% include "capacity/_nav_tabs.html" %}
+
+<div class="flex items-center justify-between mb-3 text-xs text-base-content/60">
+  <span>Horas semanales prorrateadas por proyecto</span>
+  <span>Semana actual: <span class="font-mono font-medium text-primary">{{ week_start|date:"d M" }} – {{ week_end|date:"d M Y" }}</span></span>
+</div>
 
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body p-0">
@@ -30,7 +35,10 @@
                     <span class="text-[10px]">{{ row.user.first_name|first }}{{ row.user.last_name|first }}</span>
                   </div>
                 </div>
-                <span class="text-sm">{{ row.user.get_full_name }}</span>
+                <div>
+                  <div class="text-sm">{{ row.user.get_full_name }}</div>
+                  {% if not row.has_capacity_config %}<div class="text-[10px] text-base-content/40 italic">Default 40h</div>{% endif %}
+                </div>
               </div>
             </td>
             {% for cell in row.cells %}
