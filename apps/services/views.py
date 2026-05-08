@@ -425,9 +425,15 @@ class ServiceTemplateListView(LoginRequiredMixin, ListView):
             "category", "phase", "operative_line", "subcategory"
         ).order_by("operative_line__code", "category__code", "code")
         line = self.request.GET.get("line", "")
+        phase = self.request.GET.get("phase", "")
+        category = self.request.GET.get("category", "")
         q = self.request.GET.get("q", "")
         if line:
             qs = qs.filter(operative_line__pk=line)
+        if phase:
+            qs = qs.filter(phase__pk=phase)
+        if category:
+            qs = qs.filter(category__pk=category)
         if q:
             qs = qs.filter(code__icontains=q) | qs.filter(name__icontains=q)
         return qs
@@ -437,7 +443,11 @@ class ServiceTemplateListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["create_url"] = reverse_lazy("services:servicetemplate_create")
         context["operative_lines"] = OperativeLine.objects.filter(is_active=True).order_by("code")
+        context["phases"] = ProjectPhase.objects.all().order_by("number")
+        context["categories"] = ProjectCategory.objects.filter(is_active=True).order_by("code")
         context["current_line"] = self.request.GET.get("line", "")
+        context["current_phase"] = self.request.GET.get("phase", "")
+        context["current_category"] = self.request.GET.get("category", "")
         context["q"] = self.request.GET.get("q", "")
         return context
 
@@ -531,74 +541,130 @@ def _kact_act_map():
     return {k: sorted(v) for k, v in result.items()}
 
 
+def _parse_nested_activities_post(post_data):
+    """Scan POST keys for ``kact-{di}-...`` and ``act-{di}-{ji}-{ki}-...``.
+
+    Returns a dict ``{di: [{order, name, id, delete, actions: [{order, name, id, role, hours, delete}]}]}``
+    keyed by deliverable index found in the POST. Used both to persist the nested
+    activities and to repaint them on validation errors.
+    """
+    import re
+
+    kact_re = re.compile(r"^kact-(\d+)-(\d+)-name$")
+    by_deliv = {}
+    for key in post_data.keys():
+        m = kact_re.match(key)
+        if not m:
+            continue
+        di, ji = int(m.group(1)), int(m.group(2))
+        kp = f"kact-{di}-{ji}"
+        kact_entry = {
+            "index": ji,
+            "id": post_data.get(f"{kp}-id") or "",
+            "name": (post_data.get(f"{kp}-name") or "").strip(),
+            "order": post_data.get(f"{kp}-order") or (ji + 1),
+            "delete": bool(post_data.get(f"{kp}-DELETE")),
+            "actions": [],
+        }
+        act_re = re.compile(rf"^act-{di}-{ji}-(\d+)-name$")
+        for akey in post_data.keys():
+            am = act_re.match(akey)
+            if not am:
+                continue
+            ki = int(am.group(1))
+            ap = f"act-{di}-{ji}-{ki}"
+            kact_entry["actions"].append({
+                "index": ki,
+                "id": post_data.get(f"{ap}-id") or "",
+                "name": (post_data.get(f"{ap}-name") or "").strip(),
+                "order": post_data.get(f"{ap}-order") or (ki + 1),
+                "role": post_data.get(f"{ap}-responsible_role") or "",
+                "hours": post_data.get(f"{ap}-estimated_hours") or "",
+                "delete": bool(post_data.get(f"{ap}-DELETE")),
+            })
+        kact_entry["actions"].sort(key=lambda a: a["index"])
+        by_deliv.setdefault(di, []).append(kact_entry)
+    for di in by_deliv:
+        by_deliv[di].sort(key=lambda k: k["index"])
+    return by_deliv
+
+
 def _save_nested_activities(request, deliverable_formset):
-    """Parse and save key activities + actions nested inside the deliverable formset POST data."""
+    """Parse and save key activities + actions nested inside the deliverable formset POST data.
+
+    Maps each POST deliverable index (``di``) to the matching saved Deliverable
+    instance. Uses the formset order for the lookup, but skips DELETE-marked
+    forms so JS-added items still align.
+    """
     from apps.services.models import KeyActivity, ServiceActivity
 
+    nested = _parse_nested_activities_post(request.POST)
+    if not nested:
+        return
+
+    deliv_by_index = {}
     for i, deliv_form in enumerate(deliverable_formset.forms):
-        if not deliv_form.instance.pk:
+        cleaned = getattr(deliv_form, "cleaned_data", None) or {}
+        if cleaned.get("DELETE"):
             continue
-        deliv = deliv_form.instance
+        if deliv_form.instance.pk:
+            deliv_by_index[i] = deliv_form.instance
 
-        kact_total = int(request.POST.get(f"kact-{i}-TOTAL") or 0)
-        for j in range(kact_total):
-            kp = f"kact-{i}-{j}"
-            if request.POST.get(f"{kp}-DELETE"):
-                if pk := request.POST.get(f"{kp}-id"):
-                    KeyActivity.objects.filter(pk=pk, deliverable=deliv).delete()
+    for di, kacts in nested.items():
+        deliv = deliv_by_index.get(di)
+        if not deliv:
+            continue
+        for kact_entry in kacts:
+            if kact_entry["delete"]:
+                if kact_entry["id"]:
+                    KeyActivity.objects.filter(pk=kact_entry["id"], deliverable=deliv).delete()
                 continue
-
-            name = (request.POST.get(f"{kp}-name") or "").strip()
-            if not name:
+            if not kact_entry["name"]:
                 continue
-
-            order = request.POST.get(f"{kp}-order") or (j + 1)
-            pk = request.POST.get(f"{kp}-id")
-
-            if pk:
+            if kact_entry["id"]:
                 try:
-                    kact = KeyActivity.objects.get(pk=pk, deliverable=deliv)
-                    kact.name = name
-                    kact.order = order
+                    kact = KeyActivity.objects.get(pk=kact_entry["id"], deliverable=deliv)
+                    kact.name = kact_entry["name"]
+                    kact.order = kact_entry["order"]
                     kact.save()
                 except KeyActivity.DoesNotExist:
-                    kact = KeyActivity.objects.create(deliverable=deliv, name=name, order=order)
+                    kact = KeyActivity.objects.create(
+                        deliverable=deliv, name=kact_entry["name"], order=kact_entry["order"]
+                    )
             else:
-                kact = KeyActivity.objects.create(deliverable=deliv, name=name, order=order)
+                kact = KeyActivity.objects.create(
+                    deliverable=deliv, name=kact_entry["name"], order=kact_entry["order"]
+                )
 
-            act_total = int(request.POST.get(f"act-{i}-{j}-TOTAL") or 0)
-            for k in range(act_total):
-                ap = f"act-{i}-{j}-{k}"
-                if request.POST.get(f"{ap}-DELETE"):
-                    if apk := request.POST.get(f"{ap}-id"):
-                        ServiceActivity.objects.filter(pk=apk, key_activity=kact).delete()
+            for act_entry in kact_entry["actions"]:
+                if act_entry["delete"]:
+                    if act_entry["id"]:
+                        ServiceActivity.objects.filter(pk=act_entry["id"], key_activity=kact).delete()
                     continue
-
-                aname = (request.POST.get(f"{ap}-name") or "").strip()
-                if not aname:
+                if not act_entry["name"]:
                     continue
-
-                aorder = request.POST.get(f"{ap}-order") or (k + 1)
-                arole = request.POST.get(f"{ap}-responsible_role") or None
-                ahours = request.POST.get(f"{ap}-estimated_hours") or None
-                apk = request.POST.get(f"{ap}-id")
-
-                if apk:
+                arole = act_entry["role"] or None
+                ahours = act_entry["hours"] or None
+                if act_entry["id"]:
                     try:
-                        act = ServiceActivity.objects.get(pk=apk, key_activity=kact)
-                        act.name = aname
-                        act.order = aorder
+                        act = ServiceActivity.objects.get(pk=act_entry["id"], key_activity=kact)
+                        act.name = act_entry["name"]
+                        act.order = act_entry["order"]
                         act.responsible_role_id = arole
                         act.estimated_hours = ahours
                         act.save()
                     except ServiceActivity.DoesNotExist:
                         ServiceActivity.objects.create(
                             service_template=deliv.service_template, key_activity=kact,
-                            name=aname, order=aorder, responsible_role_id=arole, estimated_hours=ahours)
+                            name=act_entry["name"], order=act_entry["order"],
+                            responsible_role_id=arole, estimated_hours=ahours,
+                        )
                 else:
                     ServiceActivity.objects.create(
                         service_template=deliv.service_template, key_activity=kact,
-                        name=aname, order=aorder, responsible_role_id=arole, estimated_hours=ahours)
+                        name=act_entry["name"], order=act_entry["order"],
+                        responsible_role_id=arole, estimated_hours=ahours,
+                    )
 
 
 class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
@@ -611,6 +677,7 @@ class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["role_rates_json"] = _role_rates_json()
         context["form_categories"] = ProjectCategory.objects.none()
+        context["form_subcategories"] = ServiceSubCategory.objects.none()
         if "deliverable_formset" not in context:
             context["deliverable_formset"] = deliverable_inline_formset()
         context["deliverable_names"] = list(
@@ -627,6 +694,10 @@ class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
         context["sw_items"] = sw_items
         context["hw_rate_total"] = sum(float(h["depreciation_per_hour"]) for h in hw_items)
         context["sw_rate_total"] = sum(float(s["hourly_value"]) for s in sw_items)
+        if self.request.method == "POST":
+            context["nested_activities_data"] = _parse_nested_activities_post(self.request.POST)
+        else:
+            context["nested_activities_data"] = {}
         return context
 
     def post(self, request, *args, **kwargs):
@@ -656,8 +727,12 @@ class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
             context["form_categories"] = ProjectCategory.objects.filter(
                 operative_line_id=st.operative_line_id
             ).order_by("code")
+            context["form_subcategories"] = ServiceSubCategory.objects.filter(
+                operative_line_id=st.operative_line_id, is_active=True
+            ).order_by("code")
         else:
             context["form_categories"] = ProjectCategory.objects.none()
+            context["form_subcategories"] = ServiceSubCategory.objects.none()
         if "deliverable_formset" not in context:
             context["deliverable_formset"] = deliverable_inline_formset(instance=st)
         context["deliverable_names"] = list(
@@ -674,6 +749,10 @@ class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
         context["sw_items"] = sw_items
         context["hw_rate_total"] = sum(float(h["depreciation_per_hour"]) for h in hw_items)
         context["sw_rate_total"] = sum(float(s["hourly_value"]) for s in sw_items)
+        if self.request.method == "POST":
+            context["nested_activities_data"] = _parse_nested_activities_post(self.request.POST)
+        else:
+            context["nested_activities_data"] = {}
         return context
 
     def post(self, request, *args, **kwargs):
@@ -788,20 +867,27 @@ class KeyActivityActionsView(LoginRequiredMixin, View):
 
 
 class FiltrarClasificacionView(LoginRequiredMixin, View):
-    """HTMX partial: returns filtered category select for a given operative_line."""
+    """HTMX partial: returns filtered category + subcategory selects for a given operative_line."""
 
     def get(self, request):
         line_id = request.GET.get("operative_line", "")
         selected_cat = request.GET.get("selected_cat", "")
+        selected_sub = request.GET.get("selected_sub", "")
 
         if line_id:
             categories = ProjectCategory.objects.filter(operative_line_id=line_id).order_by("code")
+            subcategories = ServiceSubCategory.objects.filter(
+                operative_line_id=line_id, is_active=True
+            ).order_by("code")
         else:
             categories = ProjectCategory.objects.none()
+            subcategories = ServiceSubCategory.objects.none()
 
         return TemplateResponse(request, "services/_categoria_options.html", {
             "categories": categories,
             "selected_cat": selected_cat,
+            "subcategories": subcategories,
+            "selected_sub": selected_sub,
         })
 
 

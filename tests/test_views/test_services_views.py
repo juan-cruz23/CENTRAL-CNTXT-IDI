@@ -195,3 +195,100 @@ class TestServiceTemplateDeleteView:
         resp = authenticated_client.post(url)
         assert resp.status_code == 302
         assert not ServiceTemplate.objects.filter(pk=st.pk).exists()
+
+
+# ---------------------------------------------------------------------------
+# Bug #9 — nested activities (Deliverable → KeyActivity → ServiceActivity)
+# ---------------------------------------------------------------------------
+import pytest
+from apps.services.views import _parse_nested_activities_post
+
+
+class TestParseNestedActivitiesPost:
+    def test_empty_post_returns_empty_dict(self):
+        assert _parse_nested_activities_post({}) == {}
+
+    def test_single_kact_with_actions(self):
+        post = {
+            "kact-0-0-name": "Topografía",
+            "kact-0-0-order": "1",
+            "kact-0-0-id": "",
+            "act-0-0-0-name": "Importar dwg",
+            "act-0-0-0-order": "1",
+            "act-0-0-0-responsible_role": "5",
+            "act-0-0-0-estimated_hours": "2",
+            "act-0-0-1-name": "Levantar topografía",
+            "act-0-0-1-order": "2",
+        }
+        result = _parse_nested_activities_post(post)
+        assert 0 in result
+        assert len(result[0]) == 1
+        kact = result[0][0]
+        assert kact["name"] == "Topografía"
+        assert len(kact["actions"]) == 2
+        assert kact["actions"][0]["name"] == "Importar dwg"
+        assert kact["actions"][1]["name"] == "Levantar topografía"
+
+    def test_unaligned_indices(self):
+        # JS may produce non-consecutive indices (e.g. user removed kact-0-1)
+        post = {
+            "kact-0-0-name": "A",
+            "kact-0-2-name": "C",  # gap at index 1
+        }
+        result = _parse_nested_activities_post(post)
+        assert len(result[0]) == 2
+        assert result[0][0]["index"] == 0
+        assert result[0][1]["index"] == 2
+
+    def test_multiple_deliverables(self):
+        post = {
+            "kact-0-0-name": "K1",
+            "kact-1-0-name": "K2",
+            "kact-3-0-name": "K3",  # JS-added, di=3 even though formset only had 2
+        }
+        result = _parse_nested_activities_post(post)
+        assert set(result.keys()) == {0, 1, 3}
+
+    def test_delete_flag_propagates(self):
+        post = {
+            "kact-0-0-name": "X",
+            "kact-0-0-DELETE": "1",
+            "kact-0-0-id": "42",
+        }
+        result = _parse_nested_activities_post(post)
+        assert result[0][0]["delete"] is True
+        assert result[0][0]["id"] == "42"
+
+
+class TestServiceTemplateFormPreservesNestedOnError:
+    """Bug #9: when validation fails, nested activities the user typed must reappear."""
+
+    def test_create_with_invalid_form_keeps_nested_in_context(self, authenticated_client, db):
+        url = reverse("services:servicetemplate_create")
+        # Missing required `category` → form invalid; we still send nested kact data.
+        data = {
+            "code": "TEST-D9-1",
+            "name": "Bug9 Service",
+            # category intentionally omitted to force validation failure
+            "deliverables-TOTAL_FORMS": "1",
+            "deliverables-INITIAL_FORMS": "0",
+            "deliverables-MIN_NUM_FORMS": "0",
+            "deliverables-MAX_NUM_FORMS": "1000",
+            "deliverables-0-name": "Modelo 3D",
+            "deliverables-0-unit": "Proyecto",
+            "deliverables-0-quantity": "1",
+            "kact-0-TOTAL": "1",
+            "kact-0-0-name": "Creación de topografía",
+            "kact-0-0-order": "1",
+            "act-0-0-TOTAL": "1",
+            "act-0-0-0-name": "Importar dwg a Revit",
+            "act-0-0-0-order": "1",
+        }
+        resp = authenticated_client.post(url, data)
+        assert resp.status_code == 200  # re-render due to invalid form
+        ctx = resp.context
+        assert "nested_activities_data" in ctx
+        nested = ctx["nested_activities_data"]
+        assert 0 in nested
+        assert nested[0][0]["name"] == "Creación de topografía"
+        assert nested[0][0]["actions"][0]["name"] == "Importar dwg a Revit"

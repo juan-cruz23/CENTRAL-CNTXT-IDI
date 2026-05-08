@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load common_tags %}
 {% block title %}{% if form.instance.pk %}Editar{% else %}Nueva{% endif %} Plantilla de Servicio{% endblock %}
 {% block breadcrumb %}
 {% include "components/breadcrumb.html" with parent_url="/servicios/templates/" parent_label="Plantillas" current=form.instance.pk|yesno:"Editar,Nueva Plantilla" %}
@@ -93,10 +94,18 @@
               {% if form.phase.errors %}<span class="text-error text-xs mt-1">{{ form.phase.errors.0 }}</span>{% endif %}
             </div>
 
-            <!-- 4. Sub Categoría — placeholder por ahora -->
-            <div class="form-control">
+            <!-- 4. Sub Categoría — filtrada por línea operativa vía OOB swap -->
+            <div class="form-control" id="subcategoria-wrapper">
               <label class="label pb-1"><span class="label-text font-medium">{{ form.subcategory.label }}</span></label>
-              {{ form.subcategory }}
+              <select name="subcategory" id="id_subcategory" class="select select-bordered w-full">
+                <option value="">---------</option>
+                {% for sub in form_subcategories %}
+                <option value="{{ sub.pk }}"
+                  {% if form.subcategory.value|stringformat:"s" == sub.pk|stringformat:"s" %}selected{% endif %}>
+                  {{ sub }}
+                </option>
+                {% endfor %}
+              </select>
               {% if form.subcategory.errors %}<span class="text-error text-xs mt-1">{{ form.subcategory.errors.0 }}</span>{% endif %}
             </div>
 
@@ -169,6 +178,82 @@
               <div class="deliv-panel hidden bg-base-200/30 border-t border-base-300/30 p-3"
                    id="deliv-panel-{{ di }}">
 
+                {% if nested_activities_data|get_item:di %}
+                  {# Datos POST: usar lo que el usuario digitó en lugar de la BD #}
+                  <input type="hidden" name="kact-{{ di }}-TOTAL" id="kact-{{ di }}-TOTAL"
+                         value="{{ nested_activities_data|get_item:di|length }}">
+                  <div class="flex flex-col gap-1" id="kact-body-{{ di }}">
+                  {% for kact_post in nested_activities_data|get_item:di %}
+                  {% with ji=kact_post.index %}
+                  <div class="kact-item" id="kact-item-{{ di }}-{{ ji }}">
+                    <div class="flex items-center gap-2 py-1 pl-2">
+                      <input type="number" name="kact-{{ di }}-{{ ji }}-order" value="{{ kact_post.order }}"
+                             class="input input-bordered input-xs w-12" min="1">
+                      <select name="kact-{{ di }}-{{ ji }}-name"
+                              id="kact-name-{{ di }}-{{ ji }}"
+                              class="select select-bordered select-xs flex-1 js-kact-name"
+                              data-di="{{ di }}" data-ji="{{ ji }}" data-current="{{ kact_post.name }}">
+                        <option value="{{ kact_post.name }}" selected>{{ kact_post.name }}</option>
+                      </select>
+                      <input type="hidden" name="kact-{{ di }}-{{ ji }}-id" value="{{ kact_post.id }}">
+                      <button type="button"
+                              class="btn btn-ghost btn-xs text-secondary gap-1 whitespace-nowrap"
+                              onclick="toggleActPanel({{ di }}, {{ ji }})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" id="act-arrow-{{ di }}-{{ ji }}" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        Acciones <span class="badge badge-xs badge-ghost">{{ kact_post.actions|length }}</span>
+                      </button>
+                      <button type="button" class="btn btn-ghost btn-xs text-error"
+                              onclick="removeKact(this, {{ di }}, {{ ji }})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                      </button>
+                      <input type="hidden" name="kact-{{ di }}-{{ ji }}-DELETE" id="kact-del-{{ di }}-{{ ji }}" value="{% if kact_post.delete %}1{% endif %}">
+                    </div>
+                    <div class="act-panel hidden pl-8 pb-2" id="act-panel-{{ di }}-{{ ji }}">
+                      <input type="hidden" name="act-{{ di }}-{{ ji }}-TOTAL" id="act-{{ di }}-{{ ji }}-TOTAL"
+                             value="{{ kact_post.actions|length }}">
+                      <div class="flex flex-col gap-1" id="act-body-{{ di }}-{{ ji }}">
+                        {% for act_post in kact_post.actions %}
+                        {% with ki=act_post.index %}
+                        <div class="act-item flex items-center gap-2 py-1">
+                          <input type="number" name="act-{{ di }}-{{ ji }}-{{ ki }}-order" value="{{ act_post.order }}"
+                                 class="input input-bordered input-xs w-12" min="1">
+                          <select name="act-{{ di }}-{{ ji }}-{{ ki }}-name"
+                                  id="act-name-{{ di }}-{{ ji }}-{{ ki }}"
+                                  class="select select-bordered select-xs flex-1 js-act-name"
+                                  data-di="{{ di }}" data-ji="{{ ji }}" data-ki="{{ ki }}" data-current="{{ act_post.name }}">
+                            <option value="{{ act_post.name }}" selected>{{ act_post.name }}</option>
+                          </select>
+                          <select name="act-{{ di }}-{{ ji }}-{{ ki }}-responsible_role"
+                                  class="select select-bordered select-xs w-28">
+                            <option value="">—</option>
+                            {% for role in roles %}
+                            <option value="{{ role.pk }}" {% if act_post.role|stringformat:"s" == role.pk|stringformat:"s" %}selected{% endif %}>{{ role.code }}</option>
+                            {% endfor %}
+                          </select>
+                          <input type="number" name="act-{{ di }}-{{ ji }}-{{ ki }}-estimated_hours"
+                                 value="{{ act_post.hours }}"
+                                 class="input input-bordered input-xs w-16" step="0.5" min="0" placeholder="h">
+                          <input type="hidden" name="act-{{ di }}-{{ ji }}-{{ ki }}-id" value="{{ act_post.id }}">
+                          <button type="button" class="btn btn-ghost btn-xs text-error"
+                                  onclick="removeAct(this, {{ di }}, {{ ji }})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                          </button>
+                          <input type="hidden" name="act-{{ di }}-{{ ji }}-{{ ki }}-DELETE" id="act-del-{{ di }}-{{ ji }}-{{ ki }}" value="{% if act_post.delete %}1{% endif %}">
+                        </div>
+                        {% endwith %}
+                        {% endfor %}
+                      </div>
+                      <button type="button" class="btn btn-ghost btn-xs gap-1 mt-1"
+                              onclick="addAction({{ di }}, {{ ji }})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                        Agregar acción
+                      </button>
+                    </div>
+                  </div>
+                  {% endwith %}
+                  {% endfor %}
+                  </div>
+                {% else %}
                 <input type="hidden" name="kact-{{ di }}-TOTAL" id="kact-{{ di }}-TOTAL"
                        value="{% if deliv_form.instance.pk %}{{ deliv_form.instance.key_activities.count }}{% else %}0{% endif %}">
 
@@ -254,6 +339,7 @@
                   {% endif %}
 
                 </div>
+                {% endif %}{# nested_activities_data #}
 
                 <button type="button" class="btn btn-ghost btn-xs gap-1 mt-2"
                         onclick="addKact({{ di }})">

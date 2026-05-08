@@ -13,10 +13,24 @@
       <option value="{{ ol.pk }}" {% if current_line == ol.pk|stringformat:"s" %}selected{% endif %}>{{ ol.name }}</option>
       {% endfor %}
     </select>
+    <select name="phase" class="select select-bordered select-sm w-40"
+            onchange="this.form.submit()">
+      <option value="">Todas las fases</option>
+      {% for ph in phases %}
+      <option value="{{ ph.pk }}" {% if current_phase == ph.pk|stringformat:"s" %}selected{% endif %}>{{ ph }}</option>
+      {% endfor %}
+    </select>
+    <select name="category" class="select select-bordered select-sm w-48"
+            onchange="this.form.submit()">
+      <option value="">Todas las categorías</option>
+      {% for cat in categories %}
+      <option value="{{ cat.pk }}" {% if current_category == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
     <input type="text" name="q" value="{{ q }}" placeholder="Buscar código o nombre…"
            class="input input-bordered input-sm w-56">
     <button type="submit" class="btn btn-sm">Filtrar</button>
-    {% if current_line or q %}
+    {% if current_line or current_phase or current_category or q %}
     <a href="?" class="btn btn-ghost btn-sm">Limpiar</a>
     {% endif %}
   </form>
