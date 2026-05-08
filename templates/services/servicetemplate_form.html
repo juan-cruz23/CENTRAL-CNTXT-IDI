@@ -472,16 +472,18 @@
               <div id="pricing-breakdown" class="bg-base-200/30 rounded-lg p-3">
                 {% if form.instance.pk %}{% include "services/_pricing_breakdown.html" with st=form.instance %}{% endif %}
               </div>
-              <div class="bg-primary/10 border border-primary/20 rounded-lg p-3 flex flex-col gap-2 mt-auto">
+              <div class="bg-primary/10 border border-primary/20 rounded-lg p-3 flex flex-col gap-1 mt-auto">
                 <div class="flex items-center justify-between">
-                  <span class="text-sm font-medium">Precio unitario calculado</span>
-                  <span class="text-lg font-bold text-primary" id="calculated-price">—</span>
+                  <span class="text-sm font-medium">Valor Total Servicio</span>
+                  {% if form.instance.pk %}
+                  <span class="text-xl font-bold text-primary">${{ form.instance.valor_total_servicio|floatformat:0|default:"0" }}</span>
+                  {% else %}
+                  <span class="text-sm text-base-content/40 italic">se calcula al guardar</span>
+                  {% endif %}
                 </div>
-                <button type="button"
-                        class="btn btn-primary btn-sm w-full"
-                        onclick="buildRoleSummary(true)">
-                  Aplicar precio calculado
-                </button>
+                <span class="text-xs text-base-content/50">
+                  Calculado en vivo desde la cascada (honorarios + costos + prorrateo + márgenes + impuestos).
+                </span>
               </div>
             </div>
 
@@ -931,11 +933,10 @@ function buildRoleSummary(updatePrice = true) {
   const denominator     = 1 - utilPct - negPct;
   const withUtility     = denominator > 0 ? withContingency / denominator : withContingency;
 
-  const fmt = n => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
-  const priceEl    = document.getElementById('calculated-price');
-  const priceInput = document.getElementById('id_base_unit_price');
-  if (priceEl)    priceEl.textContent = directCost > 0 ? fmt(withUtility) : '—';
-  if (priceInput && updatePrice) priceInput.value = directCost > 0 ? withUtility.toFixed(2) : (priceInput.value || 0);
+  // base_unit_price ya no se muestra al usuario (Valor Total Servicio se calcula
+  // dinámicamente desde el modelo). Mantenemos el hidden input por compatibilidad
+  // pero no lo sobrescribimos automáticamente.
+  void directCost; void withUtility;
 
   // ── Tabla de roles ──
   const container = document.getElementById('roles-summary-body');
