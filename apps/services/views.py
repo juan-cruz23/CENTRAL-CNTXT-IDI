@@ -898,6 +898,7 @@ class FiltrarClasificacionView(LoginRequiredMixin, View):
             "selected_cat": selected_cat,
             "subcategories": subcategories,
             "selected_sub": selected_sub,
+            "htmx": True,
         })
 
 
