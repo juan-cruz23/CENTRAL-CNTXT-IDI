@@ -432,8 +432,17 @@ class ServiceTemplate(TimeStampedModel):
     _Q = Decimal("0.01")
 
     @property
+    def effective_hourly_rate(self) -> Decimal:
+        """Tarifa horaria efectiva: usa hourly_rate si está, si no la del rol responsable."""
+        if self.hourly_rate and self.hourly_rate > 0:
+            return self.hourly_rate
+        if self.responsible_role_id and self.responsible_role.default_hourly_rate:
+            return self.responsible_role.default_hourly_rate
+        return Decimal("0")
+
+    @property
     def subtotal_honorarios(self) -> Decimal:
-        return (self.hourly_rate * self.estimated_hours).quantize(self._Q)
+        return (self.effective_hourly_rate * self.estimated_hours).quantize(self._Q)
 
     @property
     def hardware_total(self) -> Decimal:
@@ -452,8 +461,15 @@ class ServiceTemplate(TimeStampedModel):
         return (self.subtotal_honorarios + self.hardware_total + self.software_total + self.consumables_total + self.subcontracts).quantize(self._Q)
 
     @property
+    def effective_prorrateo_rate(self) -> Decimal:
+        """Tarifa de prorrateo desde el motor real; fallback a constante si no hay datos."""
+        from domain.financials.cost_allocation import get_current_prorrateo_rate
+        line_code = self.operative_line.code if self.operative_line_id else None
+        return get_current_prorrateo_rate(line_code)
+
+    @property
     def prorrateo_gastos(self) -> Decimal:
-        return (self.PRORRATEO_GASTOS_RATE * self.estimated_hours).quantize(self._Q)
+        return (self.effective_prorrateo_rate * self.estimated_hours).quantize(self._Q)
 
     @property
     def costos_operacionales(self) -> Decimal:

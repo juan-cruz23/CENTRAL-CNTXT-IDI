@@ -19,6 +19,53 @@ def _period_to_quarter(period_str: str) -> str:
     return f"{period_str[:4]}-Q{quarter}"
 
 
+# Tarifa por hora usada cuando no hay periodos cerrados con costos prorrateados.
+# Se conserva como fallback histórico del motor antes de conectar al prorrateo real.
+DEFAULT_PRORRATEO_RATE = Decimal("27789")
+
+
+def get_current_prorrateo_rate(operative_line_code: str | None = None) -> Decimal:
+    """
+    Calcula el costo prorrateado por hora desde el último periodo con datos.
+
+    Estrategia:
+      1. Buscar el último CostAllocationPeriod con total_costs > 0.
+      2. Sumar todas sus CostAllocation.allocated_amount.
+      3. Sumar todas las horas proyectadas de los servicios de los proyectos
+         alocados (filtrar por línea operativa si se pasa el código).
+      4. Tarifa = monto total / horas totales.
+      5. Si no hay datos, retornar DEFAULT_PRORRATEO_RATE.
+    """
+    from apps.financials.models import CostAllocation, CostAllocationPeriod
+    from apps.projects.models import ServiceInstance
+
+    period = (
+        CostAllocationPeriod.objects.filter(total_costs__gt=0)
+        .order_by("-period")
+        .first()
+    )
+    if not period:
+        return DEFAULT_PRORRATEO_RATE
+
+    allocs = CostAllocation.objects.filter(period=period).select_related("project")
+    if operative_line_code:
+        allocs = allocs.filter(project__operative_line__code=operative_line_code)
+
+    total_amount = sum((a.allocated_amount for a in allocs), Decimal("0"))
+    project_ids = [a.project_id for a in allocs]
+    if not project_ids or total_amount <= 0:
+        return DEFAULT_PRORRATEO_RATE
+
+    total_hours = sum(
+        (s.projected_hours or Decimal("0"))
+        for s in ServiceInstance.objects.filter(project_id__in=project_ids)
+    )
+    if total_hours <= 0:
+        return DEFAULT_PRORRATEO_RATE
+
+    return (total_amount / total_hours).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+
+
 class CostAllocationEngine:
     ZERO = Decimal("0")
     HUNDRED = Decimal("100")
