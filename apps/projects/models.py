@@ -52,7 +52,7 @@ class Project(TimeStampedModel):
         null=True,
         blank=True,
         related_name="projects",
-        verbose_name="tercero",
+        verbose_name="cliente",
     )
     category = models.ForeignKey(
         "services.ProjectCategory",

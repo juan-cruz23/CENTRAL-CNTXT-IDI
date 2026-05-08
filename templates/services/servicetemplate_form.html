@@ -460,9 +460,16 @@
               <div id="pricing-breakdown" class="bg-base-200/30 rounded-lg p-3">
                 {% if form.instance.pk %}{% include "services/_pricing_breakdown.html" with st=form.instance %}{% endif %}
               </div>
-              <div class="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center justify-between mt-auto">
-                <span class="text-sm font-medium">Precio unitario calculado</span>
-                <span class="text-lg font-bold text-primary" id="calculated-price">—</span>
+              <div class="bg-primary/10 border border-primary/20 rounded-lg p-3 flex flex-col gap-2 mt-auto">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium">Precio unitario calculado</span>
+                  <span class="text-lg font-bold text-primary" id="calculated-price">—</span>
+                </div>
+                <button type="button"
+                        class="btn btn-primary btn-sm w-full"
+                        onclick="buildRoleSummary(true)">
+                  Aplicar precio calculado
+                </button>
               </div>
             </div>
 
@@ -860,7 +867,7 @@ rolesData.forEach(r => {
 
 const WORK_HOURS_PER_DAY = 8; // fallback; idealmente viene del WorkSchedule
 
-function buildRoleSummary() {
+function buildRoleSummary(updatePrice = true) {
   const summary = {}; // { rolePk: { code, name, rate, hours } }
   let totalHours     = 0;
   let totalHonorary  = 0;
@@ -894,7 +901,7 @@ function buildRoleSummary() {
   // ── Actualizar honorarios/hora (promedio ponderado) ──
   const avgRate = totalHours > 0 ? totalHonorary / totalHours : 0;
   const hrInput = document.getElementById('id_hourly_rate');
-  if (hrInput) hrInput.value = avgRate.toFixed(2);
+  if (hrInput && updatePrice) hrInput.value = avgRate.toFixed(2);
 
   // ── Calcular precio con ajustes manuales ──
   function fieldVal(id) { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; }
@@ -916,7 +923,7 @@ function buildRoleSummary() {
   const priceEl    = document.getElementById('calculated-price');
   const priceInput = document.getElementById('id_base_unit_price');
   if (priceEl)    priceEl.textContent = directCost > 0 ? fmt(withUtility) : '—';
-  if (priceInput) priceInput.value    = directCost > 0 ? withUtility.toFixed(2) : (priceInput.value || 0);
+  if (priceInput && updatePrice) priceInput.value = directCost > 0 ? withUtility.toFixed(2) : (priceInput.value || 0);
 
   // ── Tabla de roles ──
   const container = document.getElementById('roles-summary-body');
@@ -983,7 +990,7 @@ window.toggleActPanel = function(di, ji) {
   buildRoleSummary();
 };
 
-buildRoleSummary();
+buildRoleSummary(false); // carga inicial: actualiza horas/tabla pero no sobreescribe precio/tarifa guardados
 
 // ── Prorrateo hardware / software ────────────────────────────────────
 const hwItems = JSON.parse(document.getElementById('hw-items-data').textContent);
