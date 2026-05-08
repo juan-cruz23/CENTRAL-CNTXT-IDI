@@ -10,6 +10,7 @@ class ThirdPartyForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ThirdParty
         fields = [
+            "person_type",
             "name",
             "company",
             "document_type",

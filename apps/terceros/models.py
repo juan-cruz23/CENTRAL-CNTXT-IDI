@@ -29,9 +29,19 @@ class ThirdParty(TimeStampedModel):
         PASAPORTE = "PASAPORTE", "Pasaporte"
         OTRO = "OTRO", "Otro"
 
+    class PersonType(models.TextChoices):
+        NATURAL = "NATURAL", "Persona Natural"
+        JURIDICA = "JURIDICA", "Persona Jurídica"
+
     name = models.CharField(
         max_length=200,
         verbose_name="nombre",
+    )
+    person_type = models.CharField(
+        max_length=10,
+        choices=PersonType.choices,
+        default=PersonType.NATURAL,
+        verbose_name="tipo de persona",
     )
     company = models.CharField(
         max_length=200,
