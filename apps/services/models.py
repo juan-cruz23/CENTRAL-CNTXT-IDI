@@ -370,6 +370,20 @@ class ServiceTemplate(TimeStampedModel):
         max_digits=10, decimal_places=2, default=0,
         verbose_name="consumibles/hora ($COP)",
     )
+    hardwares = models.ManyToManyField(
+        "Hardware",
+        blank=True,
+        related_name="service_templates_using",
+        verbose_name="hardware aplicable",
+        help_text="Hardware que aplica a este servicio. La depreciación/hora se autocalcula de la suma.",
+    )
+    softwares = models.ManyToManyField(
+        "Software",
+        blank=True,
+        related_name="service_templates_using",
+        verbose_name="software aplicable",
+        help_text="Software que aplica a este servicio. El costo/hora se autocalcula de la suma.",
+    )
     subcontracts = models.DecimalField(
         max_digits=14, decimal_places=2, default=0,
         verbose_name="subcontratos ($COP)",
@@ -445,12 +459,38 @@ class ServiceTemplate(TimeStampedModel):
         return (self.effective_hourly_rate * self.estimated_hours).quantize(self._Q)
 
     @property
+    def effective_hardware_cost_per_hour(self) -> Decimal:
+        """Suma de depreciación/hora del hardware seleccionado; si no hay
+        selección, cae al valor manual de hardware_cost_per_hour."""
+        if self.pk:
+            selected = self.hardwares.filter(is_active=True)
+            if selected.exists():
+                return sum(
+                    (h.depreciation_per_hour or Decimal("0") for h in selected),
+                    Decimal("0"),
+                )
+        return self.hardware_cost_per_hour or Decimal("0")
+
+    @property
+    def effective_software_cost_per_hour(self) -> Decimal:
+        """Suma de costo/hora del software seleccionado; si no hay selección,
+        cae al valor manual de software_cost_per_hour."""
+        if self.pk:
+            selected = self.softwares.filter(is_active=True)
+            if selected.exists():
+                return sum(
+                    (s.hourly_value or Decimal("0") for s in selected),
+                    Decimal("0"),
+                )
+        return self.software_cost_per_hour or Decimal("0")
+
+    @property
     def hardware_total(self) -> Decimal:
-        return (self.hardware_cost_per_hour * self.estimated_hours).quantize(self._Q)
+        return (self.effective_hardware_cost_per_hour * self.estimated_hours).quantize(self._Q)
 
     @property
     def software_total(self) -> Decimal:
-        return (self.software_cost_per_hour * self.estimated_hours).quantize(self._Q)
+        return (self.effective_software_cost_per_hour * self.estimated_hours).quantize(self._Q)
 
     @property
     def consumables_total(self) -> Decimal:

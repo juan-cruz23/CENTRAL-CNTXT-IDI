@@ -411,27 +411,51 @@
               </div>
 
               {# Ajustes por hora #}
-              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Ajustes por hora ($COP)</p>
+              <p class="text-xs text-base-content/50 uppercase tracking-wider font-semibold">Recursos aplicables</p>
               <div class="grid grid-cols-2 gap-3">
                 <div class="form-control">
-                  <label class="label pb-1 flex justify-between">
-                    <span class="label-text font-medium text-sm">Hardware depreciación</span>
-                    <button type="button" class="text-primary text-xs underline" onclick="applyHwRate()">Prorrateo ({{ hw_rate_total|floatformat:2 }})</button>
+                  <label class="label pb-1">
+                    <span class="label-text font-medium text-sm">Hardware</span>
+                    <span class="label-text-alt text-xs text-base-content/50">Selecciona los que aplican</span>
                   </label>
-                  {{ form.hardware_cost_per_hour }}
-                  <div class="mt-1 text-xs text-base-content/40 space-y-0.5">
-                    {% for h in hw_items %}<div class="flex justify-between"><span>{{ h.name }}</span><span>{{ h.depreciation_per_hour|floatformat:2 }}/h</span></div>{% empty %}<span class="italic">Sin hardware activo</span>{% endfor %}
+                  <div class="border border-base-300/50 rounded-lg p-2 max-h-40 overflow-y-auto bg-base-200/20">
+                    {% for h in form.hardwares.field.queryset %}
+                    <label class="flex items-center justify-between gap-2 py-1 px-1 hover:bg-base-200/50 rounded cursor-pointer text-xs">
+                      <div class="flex items-center gap-2">
+                        <input type="checkbox" name="hardwares" value="{{ h.pk }}"
+                               class="checkbox checkbox-xs checkbox-primary"
+                               {% if form.instance.pk and h in selected_hardwares %}checked{% endif %}>
+                        <span>{{ h.name }}</span>
+                      </div>
+                      <span class="font-mono text-base-content/60">{{ h.depreciation_per_hour|floatformat:0 }}/h</span>
+                    </label>
+                    {% empty %}
+                    <p class="text-xs italic text-base-content/40 p-2">Sin hardware activo</p>
+                    {% endfor %}
                   </div>
+                  <input type="hidden" name="hardware_cost_per_hour" id="id_hardware_cost_per_hour" value="{{ form.hardware_cost_per_hour.value|default:0|unlocalize }}">
                 </div>
                 <div class="form-control">
-                  <label class="label pb-1 flex justify-between">
-                    <span class="label-text font-medium text-sm">Software licencias</span>
-                    <button type="button" class="text-primary text-xs underline" onclick="applySwRate()">Prorrateo ({{ sw_rate_total|floatformat:2 }})</button>
+                  <label class="label pb-1">
+                    <span class="label-text font-medium text-sm">Software</span>
+                    <span class="label-text-alt text-xs text-base-content/50">Selecciona los que aplican</span>
                   </label>
-                  {{ form.software_cost_per_hour }}
-                  <div class="mt-1 text-xs text-base-content/40 space-y-0.5">
-                    {% for s in sw_items %}<div class="flex justify-between"><span>{{ s.name }}</span><span>{{ s.hourly_value|floatformat:2 }}/h</span></div>{% empty %}<span class="italic">Sin software activo</span>{% endfor %}
+                  <div class="border border-base-300/50 rounded-lg p-2 max-h-40 overflow-y-auto bg-base-200/20">
+                    {% for s in form.softwares.field.queryset %}
+                    <label class="flex items-center justify-between gap-2 py-1 px-1 hover:bg-base-200/50 rounded cursor-pointer text-xs">
+                      <div class="flex items-center gap-2">
+                        <input type="checkbox" name="softwares" value="{{ s.pk }}"
+                               class="checkbox checkbox-xs checkbox-primary"
+                               {% if form.instance.pk and s in selected_softwares %}checked{% endif %}>
+                        <span>{{ s.name }}</span>
+                      </div>
+                      <span class="font-mono text-base-content/60">{{ s.hourly_value|floatformat:0 }}/h</span>
+                    </label>
+                    {% empty %}
+                    <p class="text-xs italic text-base-content/40 p-2">Sin software activo</p>
+                    {% endfor %}
                   </div>
+                  <input type="hidden" name="software_cost_per_hour" id="id_software_cost_per_hour" value="{{ form.software_cost_per_hour.value|default:0|unlocalize }}">
                 </div>
                 <div class="form-control">
                   <label class="label pb-1"><span class="label-text font-medium text-sm">Consumibles</span></label>

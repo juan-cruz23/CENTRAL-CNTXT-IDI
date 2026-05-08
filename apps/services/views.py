@@ -686,6 +686,8 @@ class ServiceTemplateCreateView(LoginRequiredMixin, CreateView):
         context["deliverable_defaults"] = _deliverable_defaults()
         context["deliv_kact_map"] = _deliverable_kact_map()
         context["kact_act_map"] = _kact_act_map()
+        context["selected_hardwares"] = []
+        context["selected_softwares"] = []
         from apps.accounts.models import Role
         context["roles"] = list(Role.objects.filter(is_active=True).order_by("name").values("pk", "name", "code", "default_hourly_rate"))
         hw_items = list(Hardware.objects.filter(is_active=True).values("name", "depreciation_per_hour"))
@@ -741,6 +743,8 @@ class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
         context["deliverable_defaults"] = _deliverable_defaults()
         context["deliv_kact_map"] = _deliverable_kact_map()
         context["kact_act_map"] = _kact_act_map()
+        context["selected_hardwares"] = list(st.hardwares.all()) if st.pk else []
+        context["selected_softwares"] = list(st.softwares.all()) if st.pk else []
         from apps.accounts.models import Role
         context["roles"] = list(Role.objects.filter(is_active=True).order_by("name").values("pk", "name", "code", "default_hourly_rate"))
         hw_items = list(Hardware.objects.filter(is_active=True).values("name", "depreciation_per_hour"))

@@ -143,6 +143,8 @@ class ServiceTemplateForm(DaisyUIFormMixin, forms.ModelForm):
             "contingency_pct",
             "utility_pct",
             "negotiation_pct",
+            "hardwares",
+            "softwares",
             "description",
             "is_active",
         ]
