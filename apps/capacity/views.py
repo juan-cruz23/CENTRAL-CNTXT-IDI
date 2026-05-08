@@ -191,55 +191,59 @@ class CapacityOverviewView(LoginRequiredMixin, CapacityContextMixin, TemplateVie
             total_available += avail
             total_allocated += alloc_hours
 
-            # Detalle por proyecto (combina alocaciones + servicios)
+            # Rol fallback: rol principal del usuario si no hay rol específico
+            user_primary_role = ""
+            ur = user.user_roles.first() if hasattr(user, "user_roles") else None
+            if ur and getattr(ur, "role", None):
+                user_primary_role = ur.role.name
+
+            # Detalle por proyecto (combina alocaciones + servicios + acciones)
             details_by_project: dict[int, dict] = {}
+
+            def get_or_create(pk, code, name, role):
+                d = details_by_project.setdefault(pk, {
+                    "code": code,
+                    "name": name,
+                    "project_pk": pk,
+                    "alloc_hours": Decimal("0"),
+                    "weekly_hours": Decimal("0"),
+                    "planned_hours": Decimal("0"),
+                    "actual_hours": Decimal("0"),
+                    "services_count": 0,
+                    "actions_count": 0,
+                    "role": role or "",
+                })
+                # Prefiere completar el rol si llega vacío
+                if not d["role"] and role:
+                    d["role"] = role
+                return d
+
             for alloc in allocs:
-                k = alloc.project_id
-                d = details_by_project.setdefault(k, {
-                    "code": alloc.project.code,
-                    "name": alloc.project.name,
-                    "project_pk": alloc.project.pk,
-                    "alloc_hours": Decimal("0"),
-                    "planned_hours": Decimal("0"),
-                    "actual_hours": Decimal("0"),
-                    "services_count": 0,
-                    "actions_count": 0,
-                    "role": alloc.role.name if alloc.role else "",
-                })
-                d["alloc_hours"] += alloc.weekly_hours
+                role = alloc.role.name if alloc.role else user_primary_role
+                d = get_or_create(alloc.project_id, alloc.project.code, alloc.project.name, role)
+                d["alloc_hours"] += Decimal(alloc.weekly_hours)
+                d["weekly_hours"] += Decimal(alloc.weekly_hours)
             for si in sis:
-                k = si.project_id
-                d = details_by_project.setdefault(k, {
-                    "code": si.project.code,
-                    "name": si.project.name,
-                    "project_pk": si.project.pk,
-                    "alloc_hours": Decimal("0"),
-                    "planned_hours": Decimal("0"),
-                    "actual_hours": Decimal("0"),
-                    "services_count": 0,
-                    "actions_count": 0,
-                    "role": si.responsible_role.name if si.responsible_role else "",
-                })
+                role = si.responsible_role.name if si.responsible_role else user_primary_role
+                d = get_or_create(si.project_id, si.project.code, si.project.name, role)
                 d["planned_hours"] += si.projected_hours or 0
                 d["actual_hours"] += si.actual_hours or 0
                 d["services_count"] += 1
+                if si.projected_start_date and si.projected_end_date and si.projected_start_date <= week_end and si.projected_end_date >= week_start:
+                    d["weekly_hours"] += week_share(si.projected_start_date, si.projected_end_date, si.projected_hours)
             for act in actions:
-                proj = act.service_instance.project
-                k = proj.pk
-                d = details_by_project.setdefault(k, {
-                    "code": proj.code,
-                    "name": proj.name,
-                    "project_pk": proj.pk,
-                    "alloc_hours": Decimal("0"),
-                    "planned_hours": Decimal("0"),
-                    "actual_hours": Decimal("0"),
-                    "services_count": 0,
-                    "actions_count": 0,
-                    "role": "",
-                })
+                si = act.service_instance
+                proj = si.project
+                role = (
+                    act.responsible_role.name if act.responsible_role
+                    else (si.responsible_role.name if si.responsible_role else user_primary_role)
+                )
+                d = get_or_create(proj.pk, proj.code, proj.name, role)
                 d["planned_hours"] += act.estimated_hours or 0
                 d["actual_hours"] += act.actual_hours or 0
                 d["actions_count"] += 1
+                if si.projected_start_date and si.projected_end_date and si.projected_start_date <= week_end and si.projected_end_date >= week_start:
+                    d["weekly_hours"] += week_share(si.projected_start_date, si.projected_end_date, act.estimated_hours)
 
             project_details = list(details_by_project.values())
 

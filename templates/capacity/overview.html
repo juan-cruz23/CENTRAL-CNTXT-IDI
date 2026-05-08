@@ -104,7 +104,7 @@
                   <thead><tr>
                     <th class="text-xs opacity-60">Proyecto</th>
                     <th class="text-xs opacity-60">Rol</th>
-                    <th class="text-xs opacity-60 text-right">Aloc/sem</th>
+                    <th class="text-xs opacity-60 text-right" title="Carga semanal: alocación manual + cronograma prorrateado">h/sem</th>
                     <th class="text-xs opacity-60 text-right">Servicios</th>
                     <th class="text-xs opacity-60 text-right">Acciones</th>
                     <th class="text-xs opacity-60 text-right">Plan/Real</th>
@@ -117,7 +117,7 @@
                         <span class="text-xs opacity-70 ml-1">{{ pd.name }}</span>
                       </td>
                       <td class="text-xs">{{ pd.role|default:"—" }}</td>
-                      <td class="text-right font-mono text-xs">{% if pd.alloc_hours %}{{ pd.alloc_hours|floatformat:0 }}h{% else %}—{% endif %}</td>
+                      <td class="text-right font-mono text-xs">{% if pd.weekly_hours %}{{ pd.weekly_hours|floatformat:1 }}h{% else %}—{% endif %}</td>
                       <td class="text-right font-mono text-xs">{{ pd.services_count }}</td>
                       <td class="text-right font-mono text-xs">{{ pd.actions_count }}</td>
                       <td class="text-right text-xs">
