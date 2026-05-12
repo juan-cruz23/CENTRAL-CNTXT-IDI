@@ -1,0 +1,5659 @@
+WEBVTT
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/4-0
+00:00:03.663 --> 00:00:09.285
+<v Andrea Velasquez>Podamos entrar como a cada una de las
+páginas de los templates,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/4-1
+00:00:09.285 --> 00:00:16.050
+<v Andrea Velasquez>de los formularios y empezar este sí,
+este no. ¿Cómo lo podemos tener mejor?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/4-2
+00:00:16.050 --> 00:00:22.023
+<v Andrea Velasquez>Pues como para terminarlo de adaptar más.
+Entonces no sé compartir.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/5-0
+00:00:24.943 --> 00:00:31.734
+<v Andrea Velasquez>No sé, bueno, o lo decimos de ahí,
+porque me dan un segundo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/5-1
+00:00:31.734 --> 00:00:34.183
+<v Andrea Velasquez>le contesto en Miguel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/6-0
+00:00:37.623 --> 00:00:37.943
+<v Andrea Velasquez>Hola.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/8-0
+00:00:59.063 --> 00:00:59.623
+<v Andrea Velasquez>Hola.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/11-0
+00:01:20.983 --> 00:01:24.711
+<v Andrea Velasquez>Listo,
+entonces empezamos con el qué módulo:</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/11-1
+00:01:24.711 --> 00:01:29.680
+<v Andrea Velasquez>gestión financiero,
+operaciones en cualquier de izquierda a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/11-2
+00:01:29.680 --> 00:01:30.343
+<v Andrea Velasquez>derecha.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/12-0
+00:01:34.183 --> 00:01:35.263
+<v Andrea Velasquez>Proyectos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/14-0
+00:01:36.343 --> 00:01:40.964
+<v Andrea Velasquez>Entonces aquí es donde se crean los
+proyectos y donde van a tener,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/14-1
+00:01:40.964 --> 00:01:44.343
+<v Andrea Velasquez>pues como toda la trazabilidad de los
+proyectos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/15-0
+00:01:45.343 --> 00:01:49.925
+<v Andrea Velasquez>Tenemos arriba lo que son unos filtros y
+todos solo los activos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/15-1
+00:01:49.925 --> 00:01:53.027
+<v Andrea Velasquez>solo en planeación,
+pausados o completados.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/15-2
+00:01:53.027 --> 00:01:58.244
+<v Andrea Velasquez>Les gustaría que quede así o que ponga
+filtros más dinámicos que yo pueda</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/15-3
+00:01:58.244 --> 00:02:01.487
+<v Andrea Velasquez>filtrar por código, por nombre,
+por clientes,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/15-4
+00:02:01.487 --> 00:02:05.223
+<v Andrea Velasquez>porque pues un cliente puede tener varios
+proyectos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/16-0
+00:02:05.303 --> 00:02:05.823
+<v Andrea Velasquez>2.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/17-0
+00:02:06.503 --> 00:02:07.543
+<v Andrea Velasquez>¿Y qué dime?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/18-0
+00:02:12.303 --> 00:02:13.863
+<v Andrea Velasquez>Solo que invita por cliente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/19-0
+00:02:15.943 --> 00:02:21.053
+<v Andrea Velasquez>Sí, puede ser interesante,
+porque me parece que es muy gente,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/19-1
+00:02:21.053 --> 00:02:25.503
+<v Andrea Velasquez>vale la pena tenerlo o K puede ser
+también por líder.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/20-0
+00:02:27.583 --> 00:02:30.983
+<v Andrea Velasquez>Pues unos filtros un poquito más
+dinámicos como si fueran los de Excel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/21-0
+00:02:33.063 --> 00:02:35.795
+<v Andrea Velasquez>Yo creo que sí,
+por líder también vale la pena.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/21-1
+00:02:35.795 --> 00:02:38.983
+<v Andrea Velasquez>Normalmente tenemos por cliente líder y
+categoría, o k.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/22-0
+00:02:40.263 --> 00:02:44.583
+<v Andrea Velasquez>Listo, ahí no se ve la categoría,
+si le damos en los 3 punticos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/23-0
+00:02:47.623 --> 00:02:48.983
+<v Andrea Velasquez>Vamos al detalle.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/24-0
+00:02:53.623 --> 00:02:57.829
+<v Andrea Velasquez>Bueno, sí, categoría arquitectura,
+entonces también que podamos ver desde la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/24-1
+00:02:57.829 --> 00:02:59.303
+<v Andrea Velasquez>otra visual las categorías.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/25-0
+00:03:00.263 --> 00:03:04.703
+<v Andrea Velasquez>Sí, sería muy chévere como saber,
+sobre todo si son parcelaciones o con</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/25-1
+00:03:04.703 --> 00:03:08.402
+<v Andrea Velasquez>peste o si es no sé comercial o si es
+altura. Listo. Bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/25-2
+00:03:08.402 --> 00:03:13.027
+<v Andrea Velasquez>yo le yo les organizo esa parte.
+Y no sé si obviamente pues está el filtro</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/25-3
+00:03:13.027 --> 00:03:17.035
+<v Andrea Velasquez>sencillo pues que no puede buscar el
+proyecto y solo para hacer.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/25-4
+00:03:17.035 --> 00:03:18.823
+<v Andrea Velasquez>Así estaba al lado izquierdo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/26-0
+00:03:19.463 --> 00:03:20.623
+<v Andrea Velasquez>Al lado derecho.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/27-0
+00:03:23.943 --> 00:03:25.503
+<v Andrea Velasquez>Dale atrás.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/28-0
+00:03:36.023 --> 00:03:39.303
+<v Andrea Velasquez>Y otra vez atrás,
+ese botón hay que arreglarlo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/29-0
+00:03:40.823 --> 00:03:42.863
+<v Andrea Velasquez>Listo, sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/30-0
+00:03:45.623 --> 00:03:49.645
+<v Andrea Velasquez>Y ordenar, ordenar por cliente,
+ordenar por proyecto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/30-1
+00:03:49.645 --> 00:03:55.082
+<v Andrea Velasquez>o ese no es tan necesario acá.
+Es que yo me estoy visualizando en cómodo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/30-2
+00:03:55.082 --> 00:03:56.423
+<v Andrea Velasquez>que uno entra acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/31-0
+00:03:57.783 --> 00:04:01.223
+<v Andrea Velasquez>Digamos el lunes, por ejemplo,
+que va a ver los proyectos con el equipo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/32-0
+00:04:02.383 --> 00:04:04.263
+<v Andrea Velasquez>Y lo primero que quieras son activos, o k.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/33-0
+00:04:06.983 --> 00:04:10.968
+<v Andrea Velasquez>Ya de pronto, si yo me le pondría más,
+pues si me presentan a mí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/33-1
+00:04:10.968 --> 00:04:15.134
+<v Andrea Velasquez>me parece que sí está bien,
+porque sirve mucho si no va a encontrar,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/33-2
+00:04:15.134 --> 00:04:19.360
+<v Andrea Velasquez>pues acá hay bastantes proyectos a veces,
+pero pues no son más de 20,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/33-3
+00:04:19.360 --> 00:04:23.345
+<v Andrea Velasquez>no se van a hacer más de 20 al mismo
+tiempo, pues sería muy raro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/33-4
+00:04:23.345 --> 00:04:26.183
+<v Andrea Velasquez>Pero yo digo que puedo, si vale la pena,
+pero.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/34-0
+00:04:26.423 --> 00:04:27.263
+<v Andrea Velasquez>Aparece.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/35-0
+00:04:28.263 --> 00:04:33.091
+<v Andrea Velasquez>Pero que lo pueda buscar, yo filtrar. Sí,
+vamos a decir cómo está Michael hoy, sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/35-1
+00:04:33.091 --> 00:04:35.709
+<v Andrea Velasquez>tocar el pito y que aparezca los de
+Michael.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/35-2
+00:04:35.709 --> 00:04:40.071
+<v Andrea Velasquez>Yo creo que eso es tal y para leer.
+Yo lo que no quiero es que llenar a de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/35-3
+00:04:40.071 --> 00:04:42.864
+<v Andrea Velasquez>cajoncitos ahí de puros filtros que
+contaminan.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/35-4
+00:04:42.864 --> 00:04:44.783
+<v Andrea Velasquez>Ese planeación se puede eliminar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/36-0
+00:04:46.023 --> 00:04:50.112
+<v Andrea Velasquez>A mí activos es perfecto y de pronto por
+líder list o por lo que dice Juanpa.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/36-1
+00:04:50.112 --> 00:04:52.367
+<v Andrea Velasquez>Bueno,
+vamos a revisar todos los de los de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/36-2
+00:04:52.367 --> 00:04:55.984
+<v Andrea Velasquez>Michael, todos los de Daniel,
+todos los de activo el líder y cliente</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/36-3
+00:04:55.984 --> 00:04:56.823
+<v Andrea Velasquez>para mí es unos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/37-0
+00:04:58.023 --> 00:04:59.023
+<v Andrea Velasquez>Una relevante.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/38-0
+00:05:01.143 --> 00:05:06.482
+<v Andrea Velasquez>Por estado activo, líder,
+cliente y estado y que se pueda ocultar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/38-1
+00:05:06.482 --> 00:05:11.983
+<v Andrea Velasquez>para que no se les llene así,
+que se pueda ocultar que los filtros.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/39-0
+00:05:12.983 --> 00:05:16.261
+<v Andrea Velasquez>Para que no pueda que no aparezcan,
+pues cuando el problema,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/39-1
+00:05:16.261 --> 00:05:20.183
+<v Andrea Velasquez>ellos para que no tiene punto de casa ya,
+pero es verdad que eliminamos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/40-0
+00:05:21.543 --> 00:05:22.223
+<v Andrea Velasquez>It's done.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/41-0
+00:05:23.383 --> 00:05:28.345
+<v Andrea Velasquez>Pues sería básicamente cambiar de
+planeación por líder y poner otro de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/41-1
+00:05:28.345 --> 00:05:29.183
+<v Andrea Velasquez>cliente o k.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/42-0
+00:05:32.263 --> 00:05:32.583
+<v Andrea Velasquez>Oh.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/43-0
+00:05:38.823 --> 00:05:39.383
+<v Andrea Velasquez>Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/44-0
+00:05:40.743 --> 00:05:43.635
+<v Andrea Velasquez>Bueno,
+entonces vamos a crear un nuevo proyecto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/44-1
+00:05:43.635 --> 00:05:47.490
+<v Andrea Velasquez>y ya muy por ejemplo,
+pero como ponerlos de norte en el primero</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/44-2
+00:05:47.490 --> 00:05:52.249
+<v Andrea Velasquez>todos, luego activos, luego paugados,
+luego completados y ya después poner por</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/44-3
+00:05:52.249 --> 00:05:55.983
+<v Andrea Velasquez>líder por ejemplo,
+como los sitios de estado primero y luego.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/44-4
+00:05:55.983 --> 00:05:58.754
+<v Andrea Velasquez>Ah,
+pero puede ser un cajoncito donde yo diga</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/44-5
+00:05:58.754 --> 00:06:00.983
+<v Andrea Velasquez>estado y despliego todos los estados.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/45-0
+00:06:01.383 --> 00:06:05.250
+<v Andrea Velasquez>Para que no quede tampoco tan largo,
+que es lo que él no quiere que se vea</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/45-1
+00:06:05.250 --> 00:06:06.023
+<v Andrea Velasquez>mucha cosa ahí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/46-0
+00:06:08.183 --> 00:06:11.131
+<v Andrea Velasquez>Bueno,
+entonces cuando yo estoy creando un nuevo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/46-1
+00:06:11.131 --> 00:06:15.463
+<v Andrea Velasquez>proyecto, me pide un código.
+¿El código lo dan ustedes o es automático?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/47-0
+00:06:17.463 --> 00:06:21.127
+<v Andrea Velasquez>Código o.
+Ahora lo damos nosotros como a la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/47-1
+00:06:21.127 --> 00:06:27.372
+<v Andrea Velasquez>cantidad de proyectos hasta el momento,
+por ejemplo ahora vamos en el 237.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/47-2
+00:06:27.372 --> 00:06:33.617
+<v Andrea Velasquez>Entonces puede ser que lo pongamos
+automático y ustedes me dicen desde que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/47-3
+00:06:33.617 --> 00:06:37.863
+<v Andrea Velasquez>consecutivo para que no tengan que estar
+buscando.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/48-0
+00:06:39.383 --> 00:06:41.783
+<v Andrea Velasquez>Cada uno y sino que automáticamente lo
+hace.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/49-0
+00:06:44.103 --> 00:06:48.426
+<v Andrea Velasquez>Y ya nosotros, a bueno,
+código único proyecto, ejemplo 216,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/49-1
+00:06:48.426 --> 00:06:54.118
+<v Andrea Velasquez>pero yo lo pongo automático y ya cuando
+empecemos en real nos dicen desde cuál</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/49-2
+00:06:54.118 --> 00:06:56.423
+<v Andrea Velasquez>número debe continuar, perfecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/50-0
+00:06:58.903 --> 00:07:01.623
+<v Andrea Velasquez>Bueno, el nombre del proyecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/51-0
+00:07:02.583 --> 00:07:03.983
+<v Andrea Velasquez>Los clientes.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/52-0
+00:07:04.823 --> 00:07:09.523
+<v Andrea Velasquez>En los clientes,
+pues ya nosotros los creamos desde otro</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/52-1
+00:07:09.523 --> 00:07:10.183
+<v Andrea Velasquez>maestro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/53-0
+00:07:11.543 --> 00:07:13.463
+<v Andrea Velasquez>Es el que va, se mete el manual.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/54-0
+00:07:14.503 --> 00:07:20.128
+<v Andrea Velasquez>No esos clientes no hay que crearlos
+desde otro maestro, sino porque bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/54-1
+00:07:20.128 --> 00:07:24.495
+<v Andrea Velasquez>la idea también es que pueda estar
+integrado con el logro,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/54-2
+00:07:24.495 --> 00:07:29.528
+<v Andrea Velasquez>pero por el momento o toca descargar el
+archivo, como decía Miguel,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/54-3
+00:07:29.528 --> 00:07:33.303
+<v Andrea Velasquez>y subirlo manual o lo puede crear ahí
+rápidamente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/55-0
+00:07:33.383 --> 00:07:38.813
+<v Andrea Velasquez>Así es un cliente, no hay problema,
+creo que los maestros o bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/55-1
+00:07:38.813 --> 00:07:45.133
+<v Andrea Velasquez>a lo que yo le digo maestros es esos
+formularios que me ayudan a parametrizar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/55-2
+00:07:45.133 --> 00:07:48.942
+<v Andrea Velasquez>para yo poder llamar este listadito.
+Entonces,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/55-3
+00:07:48.942 --> 00:07:55.263
+<v Andrea Velasquez>como el maestro de clientes o el maestro
+de categorías y si en algún momento.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/56-0
+00:07:55.623 --> 00:08:01.343
+<v Andrea Velasquez>En la categoría del proyecto,
+se cambia o hay alguno nuevo, ustedes no.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/57-0
+00:08:02.503 --> 00:08:06.567
+<v Andrea Velasquez>A nosotros,
+sino que ustedes lo crean desde el mismo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/57-1
+00:08:06.567 --> 00:08:12.778
+<v Andrea Velasquez>aplicativo y ya no tienen necesidad de
+esperar a que nosotros podamos organizar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/57-2
+00:08:12.778 --> 00:08:18.606
+<v Andrea Velasquez>Exactamente. Hola, ¿cómo están? Muy bien,
+¿y usted? Ok, un tercero. Exacto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/57-3
+00:08:18.606 --> 00:08:23.743
+<v Andrea Velasquez>y por ejemplo, este de categorías.
+Dale por favor en herramientas.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/58-0
+00:08:25.383 --> 00:08:27.223
+<v Andrea Velasquez>Arriba, sí, arriba a la derecha.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/59-0
+00:08:28.903 --> 00:08:35.183
+<v Andrea Velasquez>Listo, ese me falta crear ese maestro,
+dale en operaciones, por favor.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/60-0
+00:08:39.183 --> 00:08:43.063
+<v Andrea Velasquez>¿Dónde está? Listo,
+yo creo el de las categorías.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/61-0
+00:08:46.423 --> 00:08:46.703
+<v Andrea Velasquez>Mhm.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/62-0
+00:08:47.943 --> 00:08:53.097
+<v Andrea Velasquez>De proyecto para que ustedes también los
+puedan parametrizar fácilmente las</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/62-1
+00:08:53.097 --> 00:08:57.370
+<v Andrea Velasquez>categorías de clientes.
+También sería importante crearlas para</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/62-2
+00:08:57.370 --> 00:09:01.303
+<v Andrea Velasquez>que puedan tener, pues las métricas,
+los tipos de acceso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/63-0
+00:09:03.063 --> 00:09:04.263
+<v Andrea Velasquez>Aquí arriba, ese.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/64-0
+00:09:05.143 --> 00:09:08.663
+<v Andrea Velasquez>¿Serían esos 2 o es también necesario
+crear un maestro?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/65-0
+00:09:09.863 --> 00:09:11.383
+<v Andrea Velasquez>¿Son 3 realmente, no?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/66-0
+00:09:12.823 --> 00:09:15.663
+<v Andrea Velasquez>¿Qué están diciendo,
+no atiendo para proyecto?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/67-0
+00:09:18.183 --> 00:09:20.903
+<v Andrea Velasquez>Yo creo que la pregunta no de cuenta
+hasta que padre llega.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/68-0
+00:09:21.823 --> 00:09:25.750
+<v Andrea Velasquez>Pues dentro del equipo la informaré.
+¿Cómo hace desde el operativo? Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/68-1
+00:09:25.750 --> 00:09:29.623
+<v Andrea Velasquez>desde el comercial de pronto no,
+pero si es tengo que ir no operativo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/69-0
+00:09:32.423 --> 00:09:34.892
+<v Andrea Velasquez>Vamos a ver,
+pero la idea de utilizar lo de los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/69-1
+00:09:34.892 --> 00:09:35.303
+<v Andrea Velasquez>accesos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/70-0
+00:09:38.903 --> 00:09:43.714
+<v Andrea Velasquez>Pero ¿qué es el estándar ances?
+Lo que pasa es que los access son como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/70-1
+00:09:43.714 --> 00:09:47.916
+<v Andrea Velasquez>aglomeraciones de varios servicios para
+poder a ver qué pasa.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/70-2
+00:09:47.916 --> 00:09:53.201
+<v Andrea Velasquez>Es que nosotros tenemos lenguaje integral,
+entonces explicarleslo a cualquier</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/70-3
+00:09:53.201 --> 00:09:53.743
+<v Andrea Velasquez>cliente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/71-0
+00:09:54.863 --> 00:09:59.225
+<v Andrea Velasquez>Entonces no entiendes nada y a veces
+incluso si 1 les que pasó, 1 les vende,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/71-1
+00:09:59.225 --> 00:10:02.283
+<v Andrea Velasquez>pues digamos,
+un producto que puede llamarse parecido</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/71-2
+00:10:02.283 --> 00:10:06.588
+<v Andrea Velasquez>como un modelo que para arquitectura y un
+modelo para visualización. Ellos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/71-3
+00:10:06.588 --> 00:10:11.007
+<v Andrea Velasquez>los clientes entran en un tema que
+terminan preguntar por porque los modelos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/71-4
+00:10:11.007 --> 00:10:15.708
+<v Andrea Velasquez>pero entonces cuando 1 hace los estándar,
+porque nosotros hacemos conglomera mucho</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/71-5
+00:10:15.708 --> 00:10:19.503
+<v Andrea Velasquez>servicio y dile, bueno,
+eso es el estándar y vamos a llegar a eso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/72-0
+00:10:19.543 --> 00:10:23.510
+<v Andrea Velasquez>proyecto se va a ver así, o sea,
+es como una forma muy sencilla de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/72-1
+00:10:23.510 --> 00:10:28.188
+<v Andrea Velasquez>estandarizar y hacer como un menú de
+paquetes de varios servicios y el cliente</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/72-2
+00:10:28.188 --> 00:10:31.090
+<v Andrea Velasquez>no se centra tanto en ver servicio por
+servicio,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/72-3
+00:10:31.090 --> 00:10:34.998
+<v Andrea Velasquez>sino que adquirí un premium y con el
+premium tengo acceso a todo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/72-4
+00:10:34.998 --> 00:10:39.143
+<v Andrea Velasquez>podemos hacer todo con el la forma de
+visualizar, sí, pero realmente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/74-0
+00:10:39.263 --> 00:10:42.592
+<v Andrea Velasquez>Es algo que operativamente nosotros no
+usamos tanto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/74-1
+00:10:42.592 --> 00:10:46.863
+<v Andrea Velasquez>porque nosotros sí hablamos más de fácil
+hasta dónde llega el Eric.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/75-0
+00:10:47.863 --> 00:10:51.943
+<v Andrea Velasquez>Entonces si en esa parte más el proyecto
+va hasta más de 2 y ya todo el mundo sabe</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/75-1
+00:10:51.943 --> 00:10:53.663
+<v Andrea Velasquez>que ese proyecto va hasta más de 2.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/76-0
+00:10:54.703 --> 00:10:57.328
+<v Andrea Velasquez>Sí,
+yo creo que la el filtro de fase es más</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/76-1
+00:10:57.328 --> 00:11:01.026
+<v Andrea Velasquez>importante que el de Access,
+pero si se pueden tener los dos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/76-2
+00:11:01.026 --> 00:11:04.785
+<v Andrea Velasquez>a mí sí me parece que le agrega valor al
+al proceso comercial.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/76-3
+00:11:04.785 --> 00:11:09.020
+<v Andrea Velasquez>Pero ella está viendo que si eso sí es
+necesario que crear un maestro,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/76-4
+00:11:09.020 --> 00:11:13.971
+<v Andrea Velasquez>crear un maestro para que seguir creando
+un montón de categorías de acceso o van a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/76-5
+00:11:13.971 --> 00:11:15.343
+<v Andrea Velasquez>ver. Es que solo hay 3.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/77-0
+00:11:15.663 --> 00:11:20.543
+<v Andrea Velasquez>Solo hay 3 y eso va votando según la
+categoría. ¿Cuáles son las 3 entonces?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/78-0
+00:11:21.663 --> 00:11:26.234
+<v Andrea Velasquez>Es esencial, es esencial advance premium.
+Ajá,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/78-1
+00:11:26.234 --> 00:11:31.583
+<v Andrea Velasquez>eso para ponerlo en limpio son los
+paquetes, es decir.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/79-0
+00:11:32.703 --> 00:11:36.104
+<v Andrea Velasquez>Hay una serie de servicios,
+digamos en tema y básicamente esos access</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/79-1
+00:11:36.104 --> 00:11:39.748
+<v Andrea Velasquez>son los paquetes que van, digamos,
+como agrupando sus servicios y hay unos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/79-2
+00:11:39.748 --> 00:11:43.343
+<v Andrea Velasquez>paquetes que incluyen más servicios que
+otros. Listo, es básicamente eso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/80-0
+00:11:45.663 --> 00:11:50.863
+<v Andrea Velasquez>Bueno,
+en la ubicación es como la dirección.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/81-0
+00:11:52.223 --> 00:11:57.587
+<v Andrea Velasquez>¿La dejamos así o que sea diferente? No,
+llamamos más que todo el municipio,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/81-1
+00:11:57.587 --> 00:12:02.393
+<v Andrea Velasquez>ha sido como el municipio donde está
+ubicado. Entonces país y bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/81-2
+00:12:02.393 --> 00:12:06.921
+<v Andrea Velasquez>el país también es necesario.
+Entonces ese de ubicación lo puedo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/81-3
+00:12:06.921 --> 00:12:11.658
+<v Andrea Velasquez>cambiar que sea municipio,
+que me traiga todos los municipios y las</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/81-4
+00:12:11.658 --> 00:12:12.703
+<v Andrea Velasquez>ciudades, pues.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/82-0
+00:12:12.783 --> 00:12:16.023
+<v Andrea Velasquez>Como junticos, Santa Rosa de Antioquia.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/83-0
+00:12:17.903 --> 00:12:21.463
+<v Andrea Velasquez>Y que puedan tener, pues como y sí,
+en el caso de que sea otro país.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/84-0
+00:12:24.143 --> 00:12:29.917
+<v Andrea Velasquez>no había visto que país era un que hizo
+una categoría Pero entonces para cuando</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/84-1
+00:12:29.917 --> 00:12:34.968
+<v Andrea Velasquez>sea país Colombia que me traiga
+automáticamente todos los de Colombia</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/84-2
+00:12:34.968 --> 00:12:40.742
+<v Andrea Velasquez>pero cuando sea otro país que ustedes sí
+pongan el nombre manual porque tampoco</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/84-3
+00:12:40.742 --> 00:12:46.732
+<v Andrea Velasquez>pueden ser muchos o porque pues llenar la
+base de datos de un montón de países del</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/84-4
+00:12:46.732 --> 00:12:48.103
+<v Andrea Velasquez>mundo no de acuerdo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/85-0
+00:12:49.823 --> 00:12:59.227
+<v Andrea Velasquez>Sí, sí, de acuerdo, si no hay informe,
+se puede categoría, categoría proyecto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/85-1
+00:12:59.227 --> 00:12:59.703
+<v Andrea Velasquez>así.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/86-0
+00:13:00.703 --> 00:13:04.176
+<v Andrea Velasquez>Solo que hay un tema más de, o sea,
+está bien,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/86-1
+00:13:04.176 --> 00:13:09.718
+<v Andrea Velasquez>pero las categorías nosotros llamamos
+categorías a otra cosa o k esos son,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/86-2
+00:13:09.718 --> 00:13:10.383
+<v Andrea Velasquez>esos son.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/87-0
+00:13:12.383 --> 00:13:16.941
+<v Andrea Velasquez>Unidades de negocio. Ajá,
+son las unidades de negocio.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/87-1
+00:13:16.941 --> 00:13:21.748
+<v Andrea Velasquez>Si vienen por una venta de visualización,
+otros la vemos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/87-2
+00:13:21.748 --> 00:13:27.716
+<v Andrea Velasquez>pero las categorías es más saber a qué
+categoría pertenece el proyecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/87-3
+00:13:27.716 --> 00:13:33.103
+<v Andrea Velasquez>Las categorías son vivienda,
+parcelaciones, hotelería y turismo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/87-4
+00:13:33.103 --> 00:13:35.423
+<v Andrea Velasquez>En qué ya es una listica de.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/88-0
+00:13:38.463 --> 00:13:41.063
+<v Andrea Velasquez>Tienda Campestre, edificio Alduras.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/89-0
+00:13:46.463 --> 00:13:47.663
+<v Andrea Velasquez>Live stone.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/90-0
+00:13:50.063 --> 00:13:50.103
+<v Andrea Velasquez>O.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/91-0
+00:13:52.783 --> 00:13:57.332
+<v Andrea Velasquez>También podríamos agrupar como por
+secciones, o sea,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/91-1
+00:13:57.332 --> 00:14:04.198
+<v Andrea Velasquez>como la sección de información general,
+información pues de ubicación puede ser</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/91-2
+00:14:04.198 --> 00:14:05.743
+<v Andrea Velasquez>para que tenga un.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/92-0
+00:14:08.343 --> 00:14:17.042
+<v Andrea Velasquez>Les doy una propuesta y si algo,
+pues cambiamos algunas cosas. Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/92-1
+00:14:17.042 --> 00:14:24.623
+<v Andrea Velasquez>Bueno, está el estado principal,
+pues que serían planeación.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/93-0
+00:14:26.303 --> 00:14:29.543
+<v Andrea Velasquez>La unidad de negocio.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/94-0
+00:14:32.863 --> 00:14:38.556
+<v Andrea Velasquez>la línea operativa esos son maestro para
+unidad de negocio con esos dos estaría</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/94-1
+00:14:38.556 --> 00:14:44.463
+<v Andrea Velasquez>bien esa ese no es unidad de negocio sino
+que es modelo de desarrollo el modelo de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/94-2
+00:14:44.463 --> 00:14:50.085
+<v Andrea Velasquez>desarrollo la unidad de negocios Sería
+más Digamos como lo tenían ahí la línea</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/94-3
+00:14:50.085 --> 00:14:51.223
+<v Andrea Velasquez>operativa cierto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/95-0
+00:14:52.063 --> 00:14:55.734
+<v Andrea Velasquez>Exacto, esa sería la unidad de negocio,
+visualización,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/95-1
+00:14:55.734 --> 00:15:00.807
+<v Andrea Velasquez>y yo que estoy y esos 2 de arriba son más
+los modelos de desarrollo. Listo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/95-2
+00:15:00.807 --> 00:15:02.743
+<v Andrea Velasquez>lo puedes hacer desde México.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/96-0
+00:15:03.663 --> 00:15:06.597
+<v Andrea Velasquez>Bueno,
+el líder también es importante tener la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/96-1
+00:15:06.597 --> 00:15:11.342
+<v Andrea Velasquez>información de pues que ustedes la puedan
+manejar porque entra una persona,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/96-2
+00:15:11.342 --> 00:15:14.463
+<v Andrea Velasquez>sale una persona,
+yo ustedes los podrían manejar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/97-0
+00:15:16.063 --> 00:15:19.465
+<v Andrea Velasquez>Con usuarios y roles y con hablando de
+líder,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/97-1
+00:15:19.465 --> 00:15:25.380
+<v Andrea Velasquez>hacemos algún tipo de filtro para que
+solo me muestre algunos tipos de personas</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/97-2
+00:15:25.380 --> 00:15:29.743
+<v Andrea Velasquez>aquí de usuarios. Ejemplo,
+puedes abrir en otra pestañita.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/98-0
+00:15:30.943 --> 00:15:32.223
+<v Andrea Velasquez>Dale en herramientas.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/99-0
+00:15:33.063 --> 00:15:38.710
+<v Andrea Velasquez>Te para, no le das clic, control,
+dale control y ahí y ahí sí el clic,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/99-1
+00:15:38.710 --> 00:15:39.903
+<v Andrea Velasquez>control y clic.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/100-0
+00:15:41.103 --> 00:15:42.263
+<v Andrea Velasquez>Y ya ahí te abrió el otro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/101-0
+00:15:45.023 --> 00:15:50.328
+<v Andrea Velasquez>Tenemos unos roles que es DMBL, entonces,
+por decir ahí que nos aparezca los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/101-1
+00:15:50.328 --> 00:15:53.841
+<v Andrea Velasquez>usuarios,
+los líderes que estén con un tipo de rol</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/101-2
+00:15:53.841 --> 00:15:58.663
+<v Andrea Velasquez>o que nos aparezcan todas las personas y
+cualquiera se puede asignar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/102-0
+00:15:59.503 --> 00:16:02.743
+<v Andrea Velasquez>No es importante que tengan el rol que yo
+te iba a preguntar algo y es.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/103-0
+00:16:05.183 --> 00:16:08.303
+<v Andrea Velasquez>¿Cuando un líder se va a loguear acá,
+cómo lo hace?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/104-0
+00:16:10.223 --> 00:16:15.829
+<v Andrea Velasquez>líder va a entrar a llenar la información
+de su de su proyecto Cómo ingresa a esta</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/104-1
+00:16:15.829 --> 00:16:21.435
+<v Andrea Velasquez>con el con el usuario y contraseña que le
+demos pero todavía no he verificado bien</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/104-2
+00:16:21.435 --> 00:16:26.704
+<v Andrea Velasquez>si Miguel ya le les habilitó los usuarios
+ese para entender eso es alguien se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/104-3
+00:16:26.704 --> 00:16:31.904
+<v Andrea Velasquez>loguea y la plataforma sabe que ese
+alguien es ese la que Michael es Michael</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/104-4
+00:16:31.904 --> 00:16:33.863
+<v Andrea Velasquez>y cuando yo le doy la entidad</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/105-0
+00:16:33.983 --> 00:16:37.408
+<v Andrea Velasquez>Michael allá sí, sí,
+yo lo pongo a que filtre que todo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/105-1
+00:16:37.408 --> 00:16:41.751
+<v Andrea Velasquez>todas las tareas o todo lo que sea
+asociado a Michael se le aparezca a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/105-2
+00:16:41.751 --> 00:16:44.626
+<v Andrea Velasquez>Michael.
+Michael no tiene que ver lo de Steven</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/105-3
+00:16:44.626 --> 00:16:48.662
+<v Andrea Velasquez>porque pues es mi proyecto,
+pero ustedes sí van a poder ver lo de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/105-4
+00:16:48.662 --> 00:16:52.577
+<v Andrea Velasquez>todos. Entonces sí, sí,
+a mí sí me parece importante los roles,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/105-5
+00:16:52.577 --> 00:16:56.063
+<v Andrea Velasquez>claro para entender quién es quién y
+quién está jugando.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/106-0
+00:16:56.463 --> 00:17:03.696
+<v Andrea Velasquez>Sí y esos mismos usuarios con según el
+tipo de rol que tengan van a tener la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/106-1
+00:17:03.696 --> 00:17:10.834
+<v Andrea Velasquez>opción de hacer cosas o no dentro del
+sistema que es eso más o menos sí por</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/106-2
+00:17:10.834 --> 00:17:15.343
+<v Andrea Velasquez>decir en este caso Andrés Valencia tiene
+un rol</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/107-0
+00:17:15.503 --> 00:17:21.479
+<v Andrea Velasquez>De DM que es ejecutivo,
+pero Camila Ortiz tiene uno básico.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/107-1
+00:17:21.479 --> 00:17:28.850
+<v Andrea Velasquez>Ya yo investigo bien qué accesos tienen
+los usuarios y ahí yo les dejo el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/107-2
+00:17:28.850 --> 00:17:35.623
+<v Andrea Velasquez>listadito de los accesos o si hay que
+cambiar alguno, lo cambiamos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/108-0
+00:17:35.823 --> 00:17:40.525
+<v Andrea Velasquez>Porque pues puede que haga falta o tenga
+accesos a cosas que no deberían.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/108-1
+00:17:40.525 --> 00:17:45.354
+<v Andrea Velasquez>Ustedes no creen chicos que sería bueno
+como hacer ese trabajo a nosotros y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/108-2
+00:17:45.354 --> 00:17:49.865
+<v Andrea Velasquez>poderlo socializar con ellas,
+con Andrea y con Miguel también para que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/108-3
+00:17:49.865 --> 00:17:54.503
+<v Andrea Velasquez>de una vez eso quede programado de la
+manera en que tenemos la solución.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/109-0
+00:17:54.943 --> 00:17:59.717
+<v Andrea Velasquez>o simplemente claro como poner hoy los
+roles del equipo en un estadito poner al</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/109-1
+00:17:59.717 --> 00:18:04.611
+<v Andrea Velasquez>frente cuáles son los roles que tenemos
+hoy y aclararle esos roles cómo funcionan</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/109-2
+00:18:04.611 --> 00:18:09.266
+<v Andrea Velasquez>la aclararle que es un líder aclararle
+que hace un un visual que hace digamos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/109-3
+00:18:09.266 --> 00:18:13.503
+<v Andrea Velasquez>cada uno de esos roles para que esta
+programación pues sea con ese rol</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/110-0
+00:18:13.743 --> 00:18:20.560
+<v Andrea Velasquez>Sí pues o lo hacemos o si puede que en el
+camino lo lo no sea de pronto opina pues</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/110-1
+00:18:20.560 --> 00:18:26.473
+<v Andrea Velasquez>igual forma el hay que seguirlo
+modificando porque mañana vamos a crear</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/110-2
+00:18:26.473 --> 00:18:32.633
+<v Andrea Velasquez>otro módulo entonces hay que volver a
+parametrizar estas cosas pero pues a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/110-3
+00:18:32.633 --> 00:18:35.343
+<v Andrea Velasquez>medida que sean creando estoy acá</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/111-0
+00:18:35.463 --> 00:18:41.919
+<v Andrea Velasquez>Contando pasar lista de gobierno,
+estado de líneas operativas y pasarlos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/111-1
+00:18:41.919 --> 00:18:48.552
+<v Andrea Velasquez>todos robles. Entonces, como en general,
+pues listo, como las compartidas,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/111-2
+00:18:48.552 --> 00:18:54.743
+<v Andrea Velasquez>no le consultas y comentador. No, total,
+lo que yo digo es que no es.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/112-0
+00:18:54.903 --> 00:19:01.427
+<v Andrea Velasquez>Como con la estructura que es normal que
+tiene en la pre, al manual de usuario,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/112-1
+00:19:01.427 --> 00:19:05.423
+<v Andrea Velasquez>perdón,
+de roles que ustedes manejan actualmente</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/112-2
+00:19:05.423 --> 00:19:07.543
+<v Andrea Velasquez>dentro de la organización.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/113-0
+00:19:09.423 --> 00:19:09.943
+<v Andrea Velasquez>Tell me.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/114-0
+00:19:12.943 --> 00:19:13.623
+<v Andrea Velasquez>Ozzy.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/115-0
+00:19:16.463 --> 00:19:23.823
+<v Andrea Velasquez>Como referencia al nivel de detalle del
+proyecto, son 3 o ky hasta.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/116-0
+00:19:25.543 --> 00:19:29.900
+<v Andrea Velasquez>Bueno, sí, ya me esperé,
+pero en activo que aparezca como activo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/116-1
+00:19:29.900 --> 00:19:32.983
+<v Andrea Velasquez>Facebook,
+no activo Facebook o k sí se puede.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/117-0
+00:19:33.823 --> 00:19:39.484
+<v Andrea Velasquez>Que en la vista de detalles aparezca
+arriba la fase y abajo, perdón,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/117-1
+00:19:39.484 --> 00:19:45.392
+<v Andrea Velasquez>arriba el estado y después la fase. Listo.
+Bueno, las fechas planeadas,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/117-2
+00:19:45.392 --> 00:19:49.822
+<v Andrea Velasquez>cuando se planea iniciar,
+cuando se planea finalizar,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/117-3
+00:19:49.822 --> 00:19:54.663
+<v Andrea Velasquez>cuando iniciamos realmente y cuando
+finalizamos realmente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/118-0
+00:19:55.103 --> 00:20:01.639
+<v Andrea Velasquez>El valor total planeado aquí debería
+decir planeado y cuánto sería la tasa de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/118-1
+00:20:01.639 --> 00:20:06.833
+<v Andrea Velasquez>IVA y algunas notas.
+No sé si quieran agregarle adjuntos como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/118-2
+00:20:06.833 --> 00:20:09.263
+<v Andrea Velasquez>una cotización o el contrato.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/119-0
+00:20:10.423 --> 00:20:18.038
+<v Andrea Velasquez>Yo que sé, sí, el contrato también. Hola,
+es que se anunció. ¿Dónde estás muy bien,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/119-1
+00:20:18.038 --> 00:20:23.023
+<v Andrea Velasquez>usted entonces le preguntaba qué fue lo
+que se vendió?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/120-0
+00:20:24.223 --> 00:20:26.743
+<v Andrea Velasquez>Y nadie tiene la respuesta.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/122-0
+00:20:27.703 --> 00:20:34.171
+<v Andrea Velasquez>¿No crees que es un todo bien? Sí,
+yo creo que es un algo que sí sería bueno</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/122-1
+00:20:34.171 --> 00:20:38.623
+<v Andrea Velasquez>entonces como poder anexar los alcanes
+contactuales.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/123-0
+00:20:40.703 --> 00:20:41.383
+<v Andrea Velasquez>No, your day.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/124-0
+00:20:43.103 --> 00:20:43.823
+<v Andrea Velasquez>Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/125-0
+00:20:45.583 --> 00:20:47.583
+<v Andrea Velasquez>Bueno, le das por favor y cancelar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/126-0
+00:20:48.623 --> 00:20:55.480
+<v Andrea Velasquez>Y vamos a tenía una duda,
+todos son llenado manual o pues vienen de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/126-1
+00:20:55.480 --> 00:21:00.220
+<v Andrea Velasquez>auto a lado.
+Pues si lo integramos con el CRM,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/126-2
+00:21:00.220 --> 00:21:05.463
+<v Andrea Velasquez>puede ser con el CRM que se llenen
+automáticamente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/127-0
+00:21:06.143 --> 00:21:08.423
+<v Andrea Velasquez>Por el momento, si toca manual.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/128-0
+00:21:12.943 --> 00:21:16.743
+<v Andrea Velasquez>Listo y vamos a entrar a cualquiera de
+los proyectos en los 3 punticos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/129-0
+00:21:18.223 --> 00:21:19.823
+<v Andrea Velasquez>Y dan en detalle, porfa.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/130-0
+00:21:22.383 --> 00:21:25.886
+<v Andrea Velasquez>Pues aquí ya vamos a ver toda la
+información del proyecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/130-1
+00:21:25.886 --> 00:21:29.271
+<v Andrea Velasquez>Entonces tenemos una sección,
+aquí sí está en secciones,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/130-2
+00:21:29.271 --> 00:21:33.783
+<v Andrea Velasquez>por eso me parecía raro que el otro lado
+no tuviera de los datos generales.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/131-0
+00:21:35.023 --> 00:21:36.783
+<v Andrea Velasquez>Del cronograma.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/132-0
+00:21:38.463 --> 00:21:41.063
+<v Andrea Velasquez>Luego nos muestra una un pequeño avance
+ahí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/133-0
+00:21:47.263 --> 00:21:51.195
+<v Andrea Velasquez>Bueno,
+un resumen final cero y las métricas.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/133-1
+00:21:51.195 --> 00:21:55.738
+<v Andrea Velasquez>Ese es demasiado sencillo.
+Si quieren cambiar algo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/133-2
+00:21:55.738 --> 00:22:02.903
+<v Andrea Velasquez>pues me dicen o que quiera que el avance
+se vea más grande ya dependiendo que se.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/134-0
+00:22:05.583 --> 00:22:07.903
+<v Andrea Velasquez>De detallitos que les gustaría ver acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/135-0
+00:22:09.623 --> 00:22:14.092
+<v Andrea Velasquez>Entonces aquí tenemos varias,
+tenemos varias pestañas que está arriba y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/135-1
+00:22:14.092 --> 00:22:16.823
+<v Andrea Velasquez>dice info,
+otra que son los prerrequisitos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/136-0
+00:22:18.783 --> 00:22:28.292
+<v Andrea Velasquez>Sí, le das agregar. No está funcionando.
+Baja un poquitico que ahí está colocando.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/136-1
+00:22:28.292 --> 00:22:33.103
+<v Andrea Velasquez>Sí, pero no está funcionando como debería.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/137-0
+00:22:35.663 --> 00:22:37.583
+<v Andrea Velasquez>Eso es como el.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/138-0
+00:22:41.023 --> 00:22:44.371
+<v Andrea Velasquez>¿Qué es eso?
+Eso es antes de empezar en proyectos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/138-1
+00:22:44.371 --> 00:22:49.031
+<v Andrea Velasquez>Se necesitan unas cosas básicas para
+poder empezar como platofografía,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/138-2
+00:22:49.031 --> 00:22:53.494
+<v Andrea Velasquez>información, no sé, judicial del proyecto,
+el normativo. Ah, listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/138-3
+00:22:53.494 --> 00:22:57.826
+<v Andrea Velasquez>La categoría de proyectos necesitan
+diferentes para poder empezar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/138-4
+00:22:57.826 --> 00:23:00.583
+<v Andrea Velasquez>oficialmente. Si eso no es estar chuleado.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/139-0
+00:23:01.223 --> 00:23:05.988
+<v Andrea Velasquez>difícil empezar el proyecto Okay listo
+entonces en la categoría porque como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/139-1
+00:23:05.988 --> 00:23:10.815
+<v Andrea Velasquez>ustedes me dicen que según la categoría
+hay unos requisitos entonces podemos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/139-2
+00:23:10.815 --> 00:23:15.517
+<v Andrea Velasquez>asociar la categoría que yo seleccione
+una y de una medida usted tiene que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/139-3
+00:23:15.517 --> 00:23:20.658
+<v Andrea Velasquez>llenar estos y si no está lleno pues no
+me va a dejar continuar qué opina ahí que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/139-4
+00:23:20.658 --> 00:23:23.103
+<v Andrea Velasquez>es la que ha creado los proyectos en la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/140-0
+00:23:23.343 --> 00:23:26.543
+<v Andrea Velasquez>¿Qué cambian los requisitos? Uno los ve.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/141-0
+00:23:29.103 --> 00:23:32.610
+<v Andrea Velasquez>Pues no, sí, lo pongo yo a categoría.
+Okay,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/141-1
+00:23:32.610 --> 00:23:36.994
+<v Andrea Velasquez>esto automáticamente traigo requisitos
+por categorías.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/141-2
+00:23:36.994 --> 00:23:41.856
+<v Andrea Velasquez>Si rompió un diseño comercial,
+pues no tener topografía. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/141-3
+00:23:41.856 --> 00:23:47.197
+<v Andrea Velasquez>cuando tienes topografía,
+pero tienes manualismo de los requisitos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/141-4
+00:23:47.197 --> 00:23:50.863
+<v Andrea Velasquez>cuando se asocie a la categoría,
+pongo pan y.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/142-0
+00:23:51.103 --> 00:23:56.484
+<v Andrea Velasquez>parcelación y acá ya aparece Pues el
+listado pre requisitos automáticamente no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/142-1
+00:23:56.484 --> 00:24:01.933
+<v Andrea Velasquez>es que yo los quiera los que yo escoja
+sino que le genere recordación tengo que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/142-2
+00:24:01.933 --> 00:24:07.382
+<v Andrea Velasquez>llenar cinco requisitos y hasta que no
+llen esos cinco requisitos pues no me va</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/142-3
+00:24:07.382 --> 00:24:12.626
+<v Andrea Velasquez>a dejar hacer nada más ahí sería en la
+categoría me aparezcan los requisitos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/142-4
+00:24:12.626 --> 00:24:15.623
+<v Andrea Velasquez>listados eh el tipo pues ya no es
+necesario</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/143-0
+00:24:15.783 --> 00:24:22.072
+<v Andrea Velasquez>una es el nombre para la descripción y un
+adjunto porque no estoy bien de que tenga</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/143-1
+00:24:22.072 --> 00:24:24.543
+<v Andrea Velasquez>la opción de adjuntar el archivo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/144-0
+00:24:26.383 --> 00:24:30.302
+<v Andrea Velasquez>Y ya ahí lo puedo guardar y ahí le queda.
+Si están todos chulados,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/144-1
+00:24:30.302 --> 00:24:31.823
+<v Andrea Velasquez>pues ya parecen verdecito.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/145-0
+00:24:34.223 --> 00:24:37.183
+<v Andrea Velasquez>Listo, en hitos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/146-0
+00:24:39.703 --> 00:24:40.703
+<v Andrea Velasquez>De ahí en agregar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/147-0
+00:24:42.063 --> 00:24:43.183
+<v Andrea Velasquez>Y ya bajas porque.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/148-0
+00:24:44.303 --> 00:24:44.943
+<v Andrea Velasquez>A pedir.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/149-0
+00:24:48.623 --> 00:24:53.445
+<v Andrea Velasquez>ustedes cómo hacen esta parte de las
+actividades del cronograma hoy en un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/149-1
+00:24:53.445 --> 00:24:58.332
+<v Andrea Velasquez>Excel en algún lado Sí en el Excel
+maestro que que yo le pasé a Miguel Ahí</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/149-2
+00:24:58.332 --> 00:25:03.284
+<v Andrea Velasquez>está Pues en el dashboard en la ficha uno
+le va colocando los productos los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/149-3
+00:25:03.284 --> 00:25:08.301
+<v Andrea Velasquez>productos tienen un tiempo y eso va
+sumando pues y te dan unas fechas y hace</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/149-4
+00:25:08.301 --> 00:25:09.343
+<v Andrea Velasquez>todo ese proceso</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/150-0
+00:25:09.583 --> 00:25:15.813
+<v Andrea Velasquez>Porque en una de las empresas donde nos,
+pues yo le he hecho el mismo aplicante,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/150-1
+00:25:15.813 --> 00:25:19.889
+<v Andrea Velasquez>pues similar,
+ellos suben un Excel y automáticamente</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/150-2
+00:25:19.889 --> 00:25:24.350
+<v Andrea Velasquez>los carga todos,
+pero es porque por facilidad lo hacen en</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/150-3
+00:25:24.350 --> 00:25:28.503
+<v Andrea Velasquez>Excel y porque también lo descargan es de
+el planner.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/151-0
+00:25:28.943 --> 00:25:34.487
+<v Andrea Velasquez>De perdón de proyecto y y ese mismo lo
+suben al Excel lo lo suben acá para poder</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/151-1
+00:25:34.487 --> 00:25:39.826
+<v Andrea Velasquez>tener el control de ya del seguimiento.
+No sé si de pronto lo quieran manejar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/151-2
+00:25:39.826 --> 00:25:45.507
+<v Andrea Velasquez>todo desde acá o tener la opción de subir
+el Excel lo hacen en un Excel y lo suben</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/151-3
+00:25:45.507 --> 00:25:47.423
+<v Andrea Velasquez>aquí desde un archivo plano.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/152-0
+00:25:48.143 --> 00:25:49.663
+<v Andrea Velasquez>Pero a ver.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/153-0
+00:25:51.983 --> 00:25:56.183
+<v Andrea Velasquez>Pues van a ser las 2 opciones,
+pero es para ver cómo lo hacemos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/153-1
+00:25:56.183 --> 00:26:01.417
+<v Andrea Velasquez>si se los hacemos bien fácil acá o si lo
+hacen normal desde el Excel y con subir</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/153-2
+00:26:01.417 --> 00:26:04.906
+<v Andrea Velasquez>un archivo,
+el sistema automáticamente nos va a tomar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/153-3
+00:26:04.906 --> 00:26:08.654
+<v Andrea Velasquez>todos los campos que tengan en el Excel.
+Eso es el ideal,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/153-4
+00:26:08.654 --> 00:26:12.983
+<v Andrea Velasquez>porque si lo para la calidad,
+luego si se va a conectar con cosas.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-0
+00:26:13.103 --> 00:26:16.300
+<v Andrea Velasquez>Pues mejor que lo traiga directamente. Sí,
+que tenga el pricing.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-1
+00:26:16.300 --> 00:26:20.431
+<v Andrea Velasquez>Si el pricing está acá dentro donde están
+todos los servicios que tienen por dentro</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-2
+00:26:20.431 --> 00:26:23.038
+<v Andrea Velasquez>las actividades que que traiga esas
+actividades. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-3
+00:26:23.038 --> 00:26:26.677
+<v Andrea Velasquez>porque es que uno uno designa son las
+actividades que están dentro de los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-4
+00:26:26.677 --> 00:26:29.185
+<v Andrea Velasquez>servicios,
+que fue lo que hablamos de esto. O sea,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-5
+00:26:29.185 --> 00:26:32.726
+<v Andrea Velasquez>que dentro de un solo servicio hay
+diferentes actividades que la pueden</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-6
+00:26:32.726 --> 00:26:35.972
+<v Andrea Velasquez>hacer diferentes personas y cuando se
+completan esas actividades,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/154-7
+00:26:35.972 --> 00:26:37.103
+<v Andrea Velasquez>el servicio está hecho.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/155-0
+00:26:37.183 --> 00:26:42.138
+<v Andrea Velasquez>Sí y esas actividades por dentro dentro
+del pricing dentro de la dentro de la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/155-1
+00:26:42.138 --> 00:26:47.221
+<v Andrea Velasquez>dice la actividad Qué es Cuánto se demora
+quién la hace y cuánto vale y debería</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/155-2
+00:26:47.221 --> 00:26:52.176
+<v Andrea Velasquez>coger ese tiempo y ahí sí de sumar y
+decir pues qué es lo que hace el Ah mira</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/155-3
+00:26:52.176 --> 00:26:57.385
+<v Andrea Velasquez>ahí va a abrir Mati que se tenía relación
+con lo que yo te preguntaba ahora si él</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/155-4
+00:26:57.385 --> 00:26:59.863
+<v Andrea Velasquez>se estaba viendo como manual o él me le</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/156-0
+00:27:01.223 --> 00:27:02.783
+<v Andrea Velasquez>¿Cómo dice eso de trabajo?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/157-0
+00:27:05.343 --> 00:27:10.003
+<v Andrea Velasquez>Que esto es que no sé si lo has visto,
+que estoy de lo mande Miguel como más de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/157-1
+00:27:10.003 --> 00:27:11.983
+<v Andrea Velasquez>2 semanas, esto es lo que hace es.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/158-0
+00:27:12.783 --> 00:27:18.474
+<v Andrea Velasquez>tiene el proyecto que es casa sculta en
+este momento es casa sculta y lo que se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/158-1
+00:27:18.474 --> 00:27:23.597
+<v Andrea Velasquez>hizo manualmente es meter esos estos
+servicios que hay los trajimos del</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/158-2
+00:27:23.597 --> 00:27:27.082
+<v Andrea Velasquez>pricing,
+que es lo otro que también y lo incluso</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/158-3
+00:27:27.082 --> 00:27:31.137
+<v Andrea Velasquez>se lo metieron ahí y vamos trayendo la
+columna de obras,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/158-4
+00:27:31.137 --> 00:27:33.983
+<v Andrea Velasquez>la columna de cuánto vale la columna de.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/159-0
+00:27:34.143 --> 00:27:37.346
+<v Andrea Velasquez>De del nombre,
+el servicio y él acá lo que hace es coger</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/159-1
+00:27:37.346 --> 00:27:41.953
+<v Andrea Velasquez>y preguntarme cuándo empieza el proyecto
+y cuando yo le cuando empieza el coge la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/159-2
+00:27:41.953 --> 00:27:45.437
+<v Andrea Velasquez>fecha es la que empieza y empieza a sumar
+y decir bueno al 9.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/159-3
+00:27:45.437 --> 00:27:49.876
+<v Andrea Velasquez>4 horas y él pues yo le hice una fórmula
+ahí para que dijera que un día son 9.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/159-4
+00:27:49.876 --> 00:27:53.303
+<v Andrea Velasquez>2 horas, pues que no dijera que 24 horas,
+entonces cada que.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/160-0
+00:27:53.503 --> 00:27:57.771
+<v Andrea Velasquez>llena las horas diciendo Bueno este
+servicio va a estar tal día y entonces le</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/160-1
+00:27:57.771 --> 00:28:02.148
+<v Andrea Velasquez>sumo el otro basta y ahí te da la fecha
+fin no pero ya entendí ahí es más fácil</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/160-2
+00:28:02.148 --> 00:28:06.689
+<v Andrea Velasquez>los hitos manejarlos es con el pricing yo
+selecciono el servicio del pricing y que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/160-3
+00:28:06.689 --> 00:28:11.121
+<v Andrea Velasquez>automáticamente me haga todo lo que está
+haciendo sin embargo Sí sería muy bueno</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/160-4
+00:28:11.121 --> 00:28:14.623
+<v Andrea Velasquez>tener hacer manualmente hitos muy
+particulares Como por ejemplo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/161-0
+00:28:15.263 --> 00:28:20.298
+<v Andrea Velasquez>el hito de entrega que a veces el hito de
+entrega a pesar de que tiene un tiempo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/161-1
+00:28:20.298 --> 00:28:25.334
+<v Andrea Velasquez>estipulado a decir bueno después de haber
+terminado el último servicio a los dos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/161-2
+00:28:25.334 --> 00:28:30.431
+<v Andrea Velasquez>días vamos a tener entrega por lo general
+no es así Si aguanta tener un manual el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/161-3
+00:28:30.431 --> 00:28:34.223
+<v Andrea Velasquez>que no ponga entrega tal día porque a
+veces las entregas son</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/162-0
+00:28:34.383 --> 00:28:37.664
+<v Andrea Velasquez>Son consensuadas,
+son cliente cuando puede,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/162-1
+00:28:37.664 --> 00:28:43.332
+<v Andrea Velasquez>no puedo tal día y eso pues puede que no
+corresponda con el pricing. Listo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/162-2
+00:28:43.332 --> 00:28:46.613
+<v Andrea Velasquez>entrega tal día y ella aparezca ahí.
+Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/162-3
+00:28:46.613 --> 00:28:52.728
+<v Andrea Velasquez>Entonces aquí lo que voy a organizar es
+seleccionar el de algún servicio producto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/162-4
+00:28:52.728 --> 00:28:53.623
+<v Andrea Velasquez>del pricing.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/163-0
+00:28:53.903 --> 00:28:59.332
+<v Andrea Velasquez>y que automáticamente me prellene algunos
+datos según la información que yo ya le</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/163-1
+00:28:59.332 --> 00:29:04.629
+<v Andrea Velasquez>he metido ya sea del proyecto en general
+o de mito anterior y que ya ustedes si</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/163-2
+00:29:04.629 --> 00:29:10.058
+<v Andrea Velasquez>necesitan cambiar algún dato como lo de
+las entregas lo puedan hacer manual y que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/163-3
+00:29:10.058 --> 00:29:13.103
+<v Andrea Velasquez>les guarde bien Sí entonces aquí en ese
+sería</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/164-0
+00:29:13.343 --> 00:29:20.169
+<v Andrea Velasquez>pricing voy a darle agregar y selecciono
+algo del pricing me va a salir la me va a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/164-1
+00:29:20.169 --> 00:29:26.749
+<v Andrea Velasquez>sacar el código me va a sacar el nombre
+la fecha planeada y la fecha real según</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/164-2
+00:29:26.749 --> 00:29:30.943
+<v Andrea Velasquez>los cálculos de 9.25 3.
+2 y cuánto están natidades</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/165-0
+00:29:32.223 --> 00:29:35.636
+<v Andrea Velasquez>9.
+4 para que también el sistema sepa que se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/165-1
+00:29:35.636 --> 00:29:38.974
+<v Andrea Velasquez>debe demorar en el price índice 5 10
+horas.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/165-2
+00:29:38.974 --> 00:29:42.463
+<v Andrea Velasquez>Entonces es un día y un pedacito de otro
+día.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/166-0
+00:29:43.983 --> 00:29:49.500
+<v Andrea Velasquez>Y ya ustedes tengan también la opción de
+modificarlo como si fuera en el Excel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/166-1
+00:29:49.500 --> 00:29:52.740
+<v Andrea Velasquez>No es que no lo necesito entregar para
+mañana,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/166-2
+00:29:52.740 --> 00:29:57.223
+<v Andrea Velasquez>sino que tiene que ser pasado mañana,
+pero yo lo termino mañana,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/166-3
+00:29:57.223 --> 00:30:01.429
+<v Andrea Velasquez>pero como un poquito.
+Es que digamos que ahora un mito es la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/166-4
+00:30:01.429 --> 00:30:02.463
+<v Andrea Velasquez>suma de varios.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/167-0
+00:30:02.703 --> 00:30:10.096
+<v Andrea Velasquez>productos y nosotros en el país de Pogotá
+nos hemos creado hitos es una cosa de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/167-1
+00:30:10.096 --> 00:30:17.397
+<v Andrea Velasquez>concepto es lo que estamos hablando Pues
+eso te va a calcular el tiempo que se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/167-2
+00:30:17.397 --> 00:30:21.463
+<v Andrea Velasquez>demora hacer el proyecto y él te va a
+decir</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/168-0
+00:30:22.143 --> 00:30:26.904
+<v Andrea Velasquez>automáticamente Pues debería hacer que
+solo nos pregunte la fecha inicial que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/168-1
+00:30:26.904 --> 00:30:31.725
+<v Andrea Velasquez>nosotros le digamos empezamos tal día y a
+partir de ese día automáticamente él</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/168-2
+00:30:31.725 --> 00:30:36.303
+<v Andrea Velasquez>empieza a sumar todos los directos que
+están incluidos se puede cambiar el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/168-3
+00:30:36.303 --> 00:30:41.063
+<v Andrea Velasquez>nombre Sí en realidad porque nosotros le
+hablamos esas cosas muy particulares</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/169-0
+00:30:41.463 --> 00:30:44.928
+<v Andrea Velasquez>O K,
+por eso que no todos los productos son</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/169-1
+00:30:44.928 --> 00:30:49.259
+<v Andrea Velasquez>hitos, pero sí,
+yo hago todo esto y a esta fecha voy a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/169-2
+00:30:49.259 --> 00:30:53.511
+<v Andrea Velasquez>tener débito,
+que es la entrega o k que sería como el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/169-3
+00:30:53.511 --> 00:30:53.983
+<v Andrea Velasquez>padre.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/171-0
+00:30:56.943 --> 00:31:02.776
+<v Andrea Velasquez>En esa cuando uno está haciendo en el
+project que es el uno y después tengo 1.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/171-1
+00:31:02.776 --> 00:31:06.542
+<v Andrea Velasquez>1 1.2. Sí,
+es la fase uno y todo uno es la entrega</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/171-2
+00:31:06.542 --> 00:31:11.710
+<v Andrea Velasquez>de la fase uno que está compuesta de
+muchos servicios y dentro de los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/171-3
+00:31:11.710 --> 00:31:17.543
+<v Andrea Velasquez>servicios hay actividades y que esas
+actividades pueden tener sus actividades.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/172-0
+00:31:17.943 --> 00:31:22.861
+<v Andrea Velasquez>Yo creo que ya no hay más de ahí.
+No las se está para que lo comemos en</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/172-1
+00:31:22.861 --> 00:31:25.525
+<v Andrea Velasquez>orden.
+Está acá está sumando todas las</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/172-2
+00:31:25.525 --> 00:31:28.940
+<v Andrea Velasquez>actividades acá. O sea, no, no llega. No,
+ahí no,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/172-3
+00:31:28.940 --> 00:31:32.423
+<v Andrea Velasquez>pero es que es que si es lo que estás
+preguntando,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/172-4
+00:31:32.423 --> 00:31:36.863
+<v Andrea Velasquez>está la fase que es así la madre.
+La fase engloba servicios. Sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/173-0
+00:31:37.063 --> 00:31:40.620
+<v Andrea Velasquez>Y entre los servicios de actividades y
+esas actividades son las que tienen</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/173-1
+00:31:40.620 --> 00:31:42.802
+<v Andrea Velasquez>tiempo,
+tienen responsable y se lo entregan a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/173-2
+00:31:42.802 --> 00:31:46.122
+<v Andrea Velasquez>cada uno para que las hagan.
+Ellos las hacen los servicios se hacen y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/173-3
+00:31:46.122 --> 00:31:49.063
+<v Andrea Velasquez>cuando todos los servicios se hacen,
+hay una entrega de fase.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/174-0
+00:31:52.103 --> 00:31:57.088
+<v Andrea Velasquez>Pero yo creo que yo sé,
+pues sé como que se va ya con el del</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/174-1
+00:31:57.088 --> 00:32:01.583
+<v Andrea Velasquez>módulo del pricing. Sí,
+con el pricing ayuda bastante,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/174-2
+00:32:01.583 --> 00:32:07.059
+<v Andrea Velasquez>ya solamente es asignar la las fechas y
+los responsables como tal,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/174-3
+00:32:07.059 --> 00:32:11.063
+<v Andrea Velasquez>incluso si de pronto por lo general
+sabemos que.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/175-0
+00:32:11.303 --> 00:32:16.005
+<v Andrea Velasquez>Del servicio de ensamblar mesas casi
+siempre lo va a hacer Mario.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/175-1
+00:32:16.005 --> 00:32:20.636
+<v Andrea Velasquez>Entonces podemos también hacer algo que
+en el pricing se asocie,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/175-2
+00:32:20.636 --> 00:32:25.908
+<v Andrea Velasquez>que por lo general va a ser él,
+pero en el momento que ustedes lo llamen,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/175-3
+00:32:25.908 --> 00:32:30.823
+<v Andrea Velasquez>si Mario no puede en ese momento,
+pues se lo van a asociar a Carlos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/176-0
+00:32:31.223 --> 00:32:36.129
+<v Andrea Velasquez>Pero desde que todo en el hito, perdón,
+en el pricing este configurado,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/176-1
+00:32:36.129 --> 00:32:41.784
+<v Andrea Velasquez>pues nos va a ayudar a decir el tiempo,
+te vas a decir cuánto vale, quién lo hace,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/176-2
+00:32:41.784 --> 00:32:46.689
+<v Andrea Velasquez>pero listo, también está bueno,
+yo le tengo exactamente el nombre de la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/176-3
+00:32:46.689 --> 00:32:49.823
+<v Andrea Velasquez>persona,
+sino el rol que lo hace normalmente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/177-0
+00:32:51.463 --> 00:32:55.958
+<v Andrea Velasquez>Y yo creo que normalmente sí sería ideal
+que nosotros le demos manualmente quién</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/177-1
+00:32:55.958 --> 00:32:59.453
+<v Andrea Velasquez>lo quién hace esa actividad,
+quiero la llame y la actividad se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/177-2
+00:32:59.453 --> 00:33:03.726
+<v Andrea Velasquez>encargue con el tiempo, con el valor,
+pero nosotros le digamos a quién se la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/177-3
+00:33:03.726 --> 00:33:07.943
+<v Andrea Velasquez>vamos a poner porque pueden haber también
+varios por ejemplo, varios roles,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/177-4
+00:33:07.943 --> 00:33:09.663
+<v Andrea Velasquez>varios problemas del mismo rol.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/178-0
+00:33:09.783 --> 00:33:12.503
+<v Andrea Velasquez>Usted no le puede asignar a cualquiera a
+él y.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/179-0
+00:33:13.663 --> 00:33:18.983
+<v Andrea Velasquez>Bueno, ayer aprendí que cuando uno.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/180-0
+00:33:20.983 --> 00:33:25.602
+<v Andrea Velasquez>Les puedo, si voy a asignarle a Carlos,
+pero Carlos también estaba,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/180-1
+00:33:25.602 --> 00:33:30.696
+<v Andrea Velasquez>va a estar ocupado para ese día,
+pues ya tiene otro proyecto que de pronto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/180-2
+00:33:30.696 --> 00:33:35.450
+<v Andrea Velasquez>le iba a dar porque está ocupado,
+pero ayer aprendí a hacerlo, súper,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/180-3
+00:33:35.450 --> 00:33:38.303
+<v Andrea Velasquez>súper importante, esto es como el pricing.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/181-0
+00:33:39.623 --> 00:33:45.464
+<v Andrea Velasquez>Listo, era como lo que te comentaba Juan,
+esa compañía nosotros lo tenemos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/181-1
+00:33:45.464 --> 00:33:50.370
+<v Andrea Velasquez>clasificados por partes,
+pues como para que nos vaya filtrando</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/181-2
+00:33:50.370 --> 00:33:55.276
+<v Andrea Velasquez>cuál es, esa categoría y todo eso.
+Pero entonces, por ejemplo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/181-3
+00:33:55.276 --> 00:33:57.223
+<v Andrea Velasquez>este es el código de 6.1.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/182-0
+00:33:59.623 --> 00:34:04.521
+<v Andrea Velasquez>como producto que se le entrega al
+cliente es uno mismo que es una</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/182-1
+00:34:04.521 --> 00:34:10.150
+<v Andrea Velasquez>conceptualización de propuesta y coida a
+través de preliminar eso es como el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/182-2
+00:34:10.150 --> 00:34:12.343
+<v Andrea Velasquez>nombre que aparece actualmente</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/183-0
+00:34:14.743 --> 00:34:18.660
+<v Andrea Velasquez>Acá en el producto y servicio. Sí,
+y ya pues te explico,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/183-1
+00:34:18.660 --> 00:34:23.127
+<v Andrea Velasquez>es que dentro de esta,
+pues si hay unas actividades que ya se le</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/183-2
+00:34:23.127 --> 00:34:28.762
+<v Andrea Velasquez>designan a cada persona. Por ejemplo, acá,
+pues tenemos al líder en este momento,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/183-3
+00:34:28.762 --> 00:34:32.061
+<v Andrea Velasquez>porque,
+pues porque lo estamos posteando con el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/183-4
+00:34:32.061 --> 00:34:33.023
+<v Andrea Velasquez>rock más caro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/184-0
+00:34:33.223 --> 00:34:36.774
+<v Andrea Velasquez>Okay,
+porque no teníamos como decir la cerrada.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/184-1
+00:34:36.774 --> 00:34:40.843
+<v Andrea Velasquez>Sí, sí, pero sí,
+entonces esto es lo que dicen, bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/184-2
+00:34:40.843 --> 00:34:46.614
+<v Andrea Velasquez>es que por ejemplo yo se lo puedo dar a
+María José, esta Isabella, esta está,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/184-3
+00:34:46.614 --> 00:34:49.943
+<v Andrea Velasquez>pero el producto pues sigue siendo en a
+uno.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/185-0
+00:34:51.783 --> 00:34:52.903
+<v Andrea Velasquez>Perfecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/186-0
+00:34:54.103 --> 00:34:56.183
+<v Andrea Velasquez>Sí, está ahí bien, sí, señor, sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/187-0
+00:35:00.423 --> 00:35:05.260
+<v Andrea Velasquez>Bueno, pues eso, por eso está confundidad,
+yo se lo digo como un cronograma, ajá,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/187-1
+00:35:05.260 --> 00:35:07.383
+<v Andrea Velasquez>cambiar el nombredito al cronograma.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/188-0
+00:35:08.863 --> 00:35:12.200
+<v Andrea Velasquez>Sí, ahí,
+pues nosotros también tenemos contemplado</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/188-1
+00:35:12.200 --> 00:35:16.911
+<v Andrea Velasquez>que pues no trabajamos los sábados ni
+amigos y los festivos, sí, salte,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/188-2
+00:35:16.911 --> 00:35:18.743
+<v Andrea Velasquez>sábados y amigos y festivos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/189-0
+00:35:21.783 --> 00:35:25.462
+<v Andrea Velasquez>Que crearon un no,
+pues los sábados y los domingos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/189-1
+00:35:25.462 --> 00:35:29.283
+<v Andrea Velasquez>pues no hay problema.
+Los festivos es a que cargamos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/189-2
+00:35:29.283 --> 00:35:34.023
+<v Andrea Velasquez>Tenemos una tabla, pues de data adicional,
+un maestro de festivos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/190-0
+00:35:39.623 --> 00:35:42.103
+<v Andrea Velasquez>¿Fue el cumpleaños?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/191-0
+00:35:48.263 --> 00:35:48.823
+<v Andrea Velasquez>Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/192-0
+00:35:53.143 --> 00:36:08.742
+<v Andrea Velasquez>en el de servicios Bueno eso ya ya lo
+entendí perfectamente una piña también</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/192-1
+00:36:08.742 --> 00:36:11.983
+<v Andrea Velasquez>para bueno señor</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/193-0
+00:36:13.303 --> 00:36:18.314
+<v Andrea Velasquez>Amigo, salí limón, por favor,
+pero mango o piña, piña para ti, mango,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/193-1
+00:36:18.314 --> 00:36:22.823
+<v Andrea Velasquez>mango, entonces 2 mangos y 2 pin. Sí,
+bueno, ¿vos querés algo?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/194-0
+00:36:26.743 --> 00:36:34.570
+<v Andrea Velasquez>y si ahí ta gil pero por ejemplo también
+hay algo que es como el periodo de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/194-1
+00:36:34.570 --> 00:36:42.706
+<v Andrea Velasquez>revisión del cliente y eso siempre lo
+solemos contemplar y varía como según la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/194-2
+00:36:42.706 --> 00:36:45.383
+<v Andrea Velasquez>categoría entonces también</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/195-0
+00:36:45.543 --> 00:36:50.240
+<v Andrea Velasquez>Sí, se puede,
+porque eso es lo ideal sería que fuera un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/195-1
+00:36:50.240 --> 00:36:50.743
+<v Andrea Velasquez>baile.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/196-0
+00:36:51.943 --> 00:36:58.028
+<v Andrea Velasquez>Donde tengas como el stage de cada
+cliente y lo veamos todavía moviendo. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/196-1
+00:36:58.028 --> 00:37:02.532
+<v Andrea Velasquez>se puede. Yo ya aprendí a decir,
+no como me ve, pero no,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/196-2
+00:37:02.532 --> 00:37:07.984
+<v Andrea Velasquez>ya yo les estoy entendiendo en la en el
+pricing está las categorías.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/196-3
+00:37:07.984 --> 00:37:11.303
+<v Andrea Velasquez>¿Cuánto se debería demorar más o menos el?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/197-0
+00:37:11.383 --> 00:37:18.486
+<v Andrea Velasquez>Cliente en revisar o no, no exacto, o sea,
+eso ahora lo hacemos desde el dashboard,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/197-1
+00:37:18.486 --> 00:37:21.023
+<v Andrea Velasquez>no está prueba en el internet.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/198-0
+00:37:22.423 --> 00:37:27.429
+<v Andrea Velasquez>en price pero pues si quieren podemos
+crear esa lista o sea acá tenemos que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/198-1
+00:37:27.429 --> 00:37:32.764
+<v Andrea Velasquez>estar listos como maestra podría crear
+nuestra lista maestra que ya es de tiempo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/198-2
+00:37:32.764 --> 00:37:37.705
+<v Andrea Velasquez>de revisión Cuántos más o menos se
+debería pues se tiene programado que se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/198-3
+00:37:37.705 --> 00:37:42.974
+<v Andrea Velasquez>demore el cliente en responder el tiempo
+de revisión posterior o que todos sean</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/198-4
+00:37:42.974 --> 00:37:44.423
+<v Andrea Velasquez>ejemplo 5 días hábiles</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/199-0
+00:37:44.663 --> 00:37:48.103
+<v Andrea Velasquez>Sí, ahora tenemos cinco días,
+a menos le tengo ese mismo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/200-0
+00:37:54.983 --> 00:37:55.303
+<v Andrea Velasquez>Say.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/201-0
+00:37:57.143 --> 00:37:57.383
+<v Andrea Velasquez>V.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/202-0
+00:38:02.663 --> 00:38:06.520
+<v Andrea Velasquez>En cuanto a los servicios que hacen en
+los servicios,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/202-1
+00:38:06.520 --> 00:38:12.305
+<v Andrea Velasquez>no son los mismos del pricing. Sí, sí,
+todos los otros gira en torno a ese a ese</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/202-2
+00:38:12.305 --> 00:38:16.090
+<v Andrea Velasquez>documento.
+Entonces los servicios son medios y es lo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/202-3
+00:38:16.090 --> 00:38:21.303
+<v Andrea Velasquez>mismo. Si tenés claro la estructura,
+yo creo que es muy claro, es bases.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/203-0
+00:38:21.383 --> 00:38:25.772
+<v Andrea Velasquez>Servicios y actividades,
+esos llenan a eso y esos llenan a eso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/203-1
+00:38:25.772 --> 00:38:29.063
+<v Andrea Velasquez>Listo,
+entonces aquí automáticamente todos los.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/204-0
+00:38:31.743 --> 00:38:36.270
+<v Andrea Velasquez>Pricing que se seleccione,
+que tengan servicios que me aparezcan</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/204-1
+00:38:36.270 --> 00:38:37.663
+<v Andrea Velasquez>automáticamente acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/205-0
+00:38:38.503 --> 00:38:41.709
+<v Andrea Velasquez>Como el resumen, sí, ajá, tipo así,
+pero estamos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/205-1
+00:38:41.709 --> 00:38:46.453
+<v Andrea Velasquez>estamos viendo en qué parte estamos
+viendo. Allá va, estamos a servicios,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/205-2
+00:38:46.453 --> 00:38:49.594
+<v Andrea Velasquez>ya estamos en el mismo módulo,
+pero en servicio.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/205-3
+00:38:49.594 --> 00:38:54.787
+<v Andrea Velasquez>Y eso va a ser el repositorio como en los
+servicios que no entre ahí y vea todos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/205-4
+00:38:54.787 --> 00:38:59.532
+<v Andrea Velasquez>los servicios y uno puede actualizar
+incluso si hay servicios nuevos. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/205-5
+00:38:59.532 --> 00:39:01.583
+<v Andrea Velasquez>si le agregan o si le modifican.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/206-0
+00:39:02.263 --> 00:39:05.982
+<v Andrea Velasquez>Importante,
+ya que hablo de agregar y quitar,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/206-1
+00:39:05.982 --> 00:39:09.943
+<v Andrea Velasquez>manejar un historial de versiones,
+¿quién quitó?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/207-0
+00:39:10.943 --> 00:39:16.423
+<v Andrea Velasquez>Cuando lo quitó para evitar,
+pues como en el futuro, algún son como se.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/208-0
+00:39:17.463 --> 00:39:21.331
+<v Andrea Velasquez>No lo tengo que agregar,
+antes de que se me olvide para que quede</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/208-1
+00:39:21.331 --> 00:39:24.613
+<v Andrea Velasquez>la grabación,
+que se agregue al grito donde se aparezca</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/208-2
+00:39:24.613 --> 00:39:28.187
+<v Andrea Velasquez>el historial de versiones.
+¿Quién lo modificó cuándo? Bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/208-3
+00:39:28.187 --> 00:39:32.700
+<v Andrea Velasquez>por qué no, pero al menos que sí quede,
+porque ya después le pregunten a esa</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/208-4
+00:39:32.700 --> 00:39:35.571
+<v Andrea Velasquez>persona,
+es que se puede quedar como los seremos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/208-5
+00:39:35.571 --> 00:39:36.743
+<v Andrea Velasquez>que son simplemente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/209-0
+00:39:36.943 --> 00:39:42.193
+<v Andrea Velasquez>como globot de texto que para no, no,
+no tanto notificaciones,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/209-1
+00:39:42.193 --> 00:39:48.193
+<v Andrea Velasquez>sino un cuadrito con textico que editado
+tal, tan fecha de trabajo tal,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/209-2
+00:39:48.193 --> 00:39:51.943
+<v Andrea Velasquez>así como de usuario, pues,
+pero en software.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/210-0
+00:39:59.863 --> 00:40:06.677
+<v Andrea Velasquez>Entonces aquí en esa parte,
+que automáticamente me los sectorice.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/210-1
+00:40:06.677 --> 00:40:15.143
+<v Andrea Velasquez>Todos los que digan diseño esquemático,
+pues me los trae acá y me los va a sumar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/211-0
+00:40:16.263 --> 00:40:18.183
+<v Andrea Velasquez>¿O no es necesario tener eso?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/212-0
+00:40:19.383 --> 00:40:21.063
+<v Andrea Velasquez>Pues si ya lo tienen al otro lado.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/213-0
+00:40:23.663 --> 00:40:28.086
+<v Andrea Velasquez>Pues en el otro lado la vamos a ver en
+forma más hipocronograma,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/213-1
+00:40:28.086 --> 00:40:30.943
+<v Andrea Velasquez>en este sería más por como por agrupación.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/214-0
+00:40:34.743 --> 00:40:40.869
+<v Andrea Velasquez>yo estaba viendo este otro que es equipo
+Entonces no sé si desde ese es que se va</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/214-1
+00:40:40.869 --> 00:40:46.696
+<v Andrea Velasquez>a hacer la asignación de las actividades
+o desde equipo Bueno cuando nosotros</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/214-2
+00:40:46.696 --> 00:40:52.897
+<v Andrea Velasquez>creamos el osito perdón el cronograma ya
+vamos a asignar a las personas y que aquí</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/214-3
+00:40:52.897 --> 00:40:58.575
+<v Andrea Velasquez>en este equipo automáticamente me
+aparezcan las personas que van a trabajar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/214-4
+00:40:58.575 --> 00:40:59.023
+<v Andrea Velasquez>en ese</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/215-0
+00:41:01.423 --> 00:41:09.181
+<v Andrea Velasquez>sí o que puedan agregar a alguien como
+para supervisar pero pues la idea es que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/215-1
+00:41:09.181 --> 00:41:16.551
+<v Andrea Velasquez>el cronograma sea la base de todo
+entonces acá pues yo creo que es lo mismo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/215-2
+00:41:16.551 --> 00:41:18.103
+<v Andrea Velasquez>lo mismo y padre</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/216-0
+00:41:18.623 --> 00:41:23.808
+<v Andrea Velasquez>Es, sería fácil. O sea,
+que lo hagan es como por fácil.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/216-1
+00:41:23.808 --> 00:41:30.938
+<v Andrea Velasquez>Pero es que yo quiero entender. A ver,
+esto era para saber qué servicios hay</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/216-2
+00:41:30.938 --> 00:41:38.623
+<v Andrea Velasquez>dentro de ese proyecto. Esta pestañita.
+Sí, pues es como un resumen agrupado de...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/218-0
+00:41:38.863 --> 00:41:43.060
+<v Andrea Velasquez>De los servicios que se seleccionaron en
+el cronograma,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/218-1
+00:41:43.060 --> 00:41:48.906
+<v Andrea Velasquez>de igual forma o lo dejamos así y ya
+cuando lo cambiemos y hagamos un cargue,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/218-2
+00:41:48.906 --> 00:41:53.703
+<v Andrea Velasquez>vemos si es necesario o no es necesario
+tener este resumen así.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/219-0
+00:41:59.263 --> 00:41:59.503
+<v Andrea Velasquez>No.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/220-0
+00:42:01.663 --> 00:42:02.063
+<v Andrea Velasquez>Claro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/221-0
+00:42:05.183 --> 00:42:08.487
+<v Andrea Velasquez>Sí, pero... Ah, mira,
+acá abajo y es para darle.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/221-1
+00:42:08.487 --> 00:42:13.544
+<v Andrea Velasquez>Sería mucho mejor por fases y que no.
+Pues porque es que hay proyectos que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/221-2
+00:42:13.544 --> 00:42:18.939
+<v Andrea Velasquez>pueden tener 70 productos. Es verdad,
+pues estás hablando de que esa agrupación</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/221-3
+00:42:18.939 --> 00:42:22.580
+<v Andrea Velasquez>usada por fases. Sí. Sí,
+yo creo que puede ser mejor.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/221-4
+00:42:22.580 --> 00:42:24.063
+<v Andrea Velasquez>Que uno entre y vea...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/222-0
+00:42:24.383 --> 00:42:26.876
+<v Andrea Velasquez>Abajo.
+Y que esto se llama de rapidos incluso y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/222-1
+00:42:26.876 --> 00:42:27.343
+<v Andrea Velasquez>no pases.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/223-0
+00:42:30.303 --> 00:42:35.628
+<v Andrea Velasquez>listo para la fase uno qué servicios
+tiene la fase dos qué servicios tiene</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/223-1
+00:42:35.628 --> 00:42:35.983
+<v Andrea Velasquez>listo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/224-0
+00:42:42.663 --> 00:42:44.303
+<v Andrea Velasquez>financiero supongo que soy</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/225-0
+00:42:47.023 --> 00:42:51.929
+<v Andrea Velasquez>Sí,
+entonces puede registrar el historial de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/225-1
+00:42:51.929 --> 00:42:52.583
+<v Andrea Velasquez>pagos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/226-0
+00:42:55.183 --> 00:43:00.683
+<v Andrea Velasquez>Teniendo en cuenta algo que un cambio que
+hice hace poquito en la otra empresa,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/226-1
+00:43:00.683 --> 00:43:05.977
+<v Andrea Velasquez>el ingeniero es el que en la estructura
+de ellos el ingeniero es el que debe</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/226-2
+00:43:05.977 --> 00:43:10.514
+<v Andrea Velasquez>solicitar la facturación,
+lo vamos a trabajar de esa misma forma,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/226-3
+00:43:10.514 --> 00:43:12.783
+<v Andrea Velasquez>como yo soy la líder del proyecto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/227-0
+00:43:13.103 --> 00:43:19.094
+<v Andrea Velasquez>y necesito que me facturen entonces yo
+pongo aquí la facturación pues solicitar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/227-1
+00:43:19.094 --> 00:43:25.084
+<v Andrea Velasquez>facturación el sistema toma todo lo que
+ya está ejecutado hasta hoy y ya que la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/227-2
+00:43:25.084 --> 00:43:31.149
+<v Andrea Velasquez>persona administrativa entre y solamente
+facture sobre eso y haga la factura que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/227-3
+00:43:31.149 --> 00:43:31.823
+<v Andrea Velasquez>te genera</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/228-0
+00:43:32.463 --> 00:43:38.737
+<v Andrea Velasquez>Ellos no le genera como un resumen de
+todo lo que se ha cumplido hasta hoy y ya</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/228-1
+00:43:38.737 --> 00:43:42.422
+<v Andrea Velasquez>de ahí ella mira, bueno,
+hay 5000000 de pesos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/228-2
+00:43:42.422 --> 00:43:48.460
+<v Andrea Velasquez>vamos a facturarle sobre los 5000000 de
+pesos. Sí, o sea, no lo hacemos así,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/228-3
+00:43:48.460 --> 00:43:54.263
+<v Andrea Velasquez>pero es muy interesante que es un reporte,
+es un reporte de en que vamos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/229-0
+00:43:55.103 --> 00:43:59.339
+<v Andrea Velasquez>a mí no me parece o sea esa función
+específica si bien no es para facturar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/229-1
+00:43:59.339 --> 00:44:03.801
+<v Andrea Velasquez>porque no funciona así porque si es dar
+un trabajo más donde la administración</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/229-2
+00:44:03.801 --> 00:44:08.093
+<v Andrea Velasquez>hace un trabajo de cobro y hay unas
+fechas más estipuladas que de pronto un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/229-3
+00:44:08.093 --> 00:44:12.554
+<v Andrea Velasquez>avance que es que después del proyecto
+pues ustedes no están no están así pero</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/229-4
+00:44:12.554 --> 00:44:16.903
+<v Andrea Velasquez>es un parece muy interesante que se
+genere un reporte de cómo va el proyecto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/230-0
+00:44:17.023 --> 00:44:23.811
+<v Andrea Velasquez>Sí, pero eso sí está abierta, o sea,
+no hay otro módulo donde, o sea,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/230-1
+00:44:23.811 --> 00:44:26.623
+<v Andrea Velasquez>eso ya no es más un café ahí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/231-0
+00:44:28.303 --> 00:44:31.541
+<v Andrea Velasquez>Es un proyecto como... No, no,
+pero incluso yo no...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/231-1
+00:44:31.541 --> 00:44:34.841
+<v Andrea Velasquez>¿Cuánto se ha emputado?
+Pues a nivel de la... Sí, no,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/231-2
+00:44:34.841 --> 00:44:39.179
+<v Andrea Velasquez>él está por ahí, pero es un corte.
+Porque el KPI siempre se va a estar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/231-3
+00:44:39.179 --> 00:44:42.417
+<v Andrea Velasquez>actualizando.
+En cambio que es el corte hasta ahora.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/231-4
+00:44:42.417 --> 00:44:45.533
+<v Andrea Velasquez>O sea que un PDF.
+Puede ser un PDF con un resumen.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/231-5
+00:44:45.533 --> 00:44:50.482
+<v Andrea Velasquez>Pues es que es más un reporte móvil que
+incluso se lo puedes enviar al cliente y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/231-6
+00:44:50.482 --> 00:44:52.743
+<v Andrea Velasquez>de pronto no para cobrar o no para...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/232-0
+00:44:53.263 --> 00:44:59.357
+<v Andrea Velasquez>para hacer gestiones de cobro pero aquí
+de pronto activa tu proyecto a mí no me</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/232-1
+00:44:59.357 --> 00:45:05.222
+<v Andrea Velasquez>parece loco y que lo pueda sacar el
+ingeniero el líder perdón y no tener que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/232-2
+00:45:05.222 --> 00:45:09.183
+<v Andrea Velasquez>esperar a que el administrativo le tenga
+el espacio</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/233-0
+00:45:11.823 --> 00:45:14.907
+<v Andrea Velasquez>Es que yo entiendo la utilidad,
+pero como deporte,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/233-1
+00:45:14.907 --> 00:45:18.354
+<v Andrea Velasquez>pero nosotros no le cobramos hacia ahora
+a los clientes,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/233-2
+00:45:18.354 --> 00:45:22.709
+<v Andrea Velasquez>es como que nosotros les cobremos en
+relación a lo que hemos ejecutado,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/233-3
+00:45:22.709 --> 00:45:26.942
+<v Andrea Velasquez>que a veces sí, que a veces sí,
+pero no es el no es el deber ser y no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/233-4
+00:45:26.942 --> 00:45:29.663
+<v Andrea Velasquez>funciona así,
+ya lo estamos haciendo más por</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/234-0
+00:45:29.903 --> 00:45:36.611
+<v Andrea Velasquez>por fechas o por una por un pago más
+periódico por un feed mensual por ejemplo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/234-1
+00:45:36.611 --> 00:45:43.490
+<v Andrea Velasquez>porque suelen ser como mensualmente pago
+tanto pero pero si sirve el de sacar un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/234-2
+00:45:43.490 --> 00:45:49.943
+<v Andrea Velasquez>reporte de interés Sí pues ya o sea ya no
+vamos a hacer eso como un reporte</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/235-0
+00:45:52.303 --> 00:45:55.202
+<v Andrea Velasquez>Y más fácil. O sea,
+¿quién pediría algo así?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/235-1
+00:45:55.202 --> 00:45:59.970
+<v Andrea Velasquez>Más que la contadora administrativa,
+eso le pide más dirección ejecutiva.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/235-2
+00:45:59.970 --> 00:46:04.996
+<v Andrea Velasquez>Pues él le da el interés a como... Sí,
+son preguntas que suelen hacer como de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/235-3
+00:46:04.996 --> 00:46:09.892
+<v Andrea Velasquez>ahí. ¿Cuánto hemos hecho en esta placa?
+Sí, a mí me parece muy interesante.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/235-4
+00:46:09.892 --> 00:46:11.503
+<v Andrea Velasquez>Para la dirección. Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/236-0
+00:46:15.263 --> 00:46:15.663
+<v Andrea Velasquez>Punto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/237-0
+00:46:17.023 --> 00:46:23.941
+<v Andrea Velasquez>Y de igual forma hay que mientras se hace
+el enlace con logro,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/237-1
+00:46:23.941 --> 00:46:32.397
+<v Andrea Velasquez>si toca agregar los valores manual,
+mientras pues se logró si sacar el lápiz</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/237-2
+00:46:32.397 --> 00:46:34.703
+<v Andrea Velasquez>que pueda conectarlo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/238-0
+00:46:36.543 --> 00:46:40.227
+<v Andrea Velasquez>para poder tener esa información de los
+valores.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/238-1
+00:46:40.227 --> 00:46:43.535
+<v Andrea Velasquez>¿Un logro no tiene API en este momento?
+No,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/238-2
+00:46:43.535 --> 00:46:49.023
+<v Andrea Velasquez>según lo que explicó a mi 18 días era
+porque el que sí tiene lápiz es la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/238-3
+00:46:49.023 --> 00:46:53.985
+<v Andrea Velasquez>versión de restaurantes,
+pero las otras versiones no tiene opción</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/238-4
+00:46:53.985 --> 00:46:55.263
+<v Andrea Velasquez>de uno conectarse</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/239-0
+00:46:55.503 --> 00:46:55.983
+<v Andrea Velasquez>Okay.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/240-0
+00:46:59.503 --> 00:47:05.131
+<v Andrea Velasquez>No, Miguel, Miguel lo llamó, llamó,
+estuvo hablando con la operada. Para no,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/240-1
+00:47:05.131 --> 00:47:11.051
+<v Andrea Velasquez>para no utilizar las API sino conectarlo
+con N8N o algo por el sitio. Ah, bueno.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/240-2
+00:47:11.051 --> 00:47:16.825
+<v Andrea Velasquez>Estamos en el medio, para el look. Claro.
+Va a ser como la diligencia. De uno.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/240-3
+00:47:16.825 --> 00:47:17.263
+<v Andrea Velasquez>Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/241-0
+00:47:18.543 --> 00:47:28.882
+<v Andrea Velasquez>¿Y ustedes por qué no están comiendo? No,
+ya, ya vienen, ya vienen, sino que si,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/241-1
+00:47:28.882 --> 00:47:37.562
+<v Andrea Velasquez>yo no, ya compartamos todo.
+Pues como que salió de una y no miro el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/241-2
+00:47:37.562 --> 00:47:38.583
+<v Andrea Velasquez>celular.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/243-0
+00:47:53.423 --> 00:48:00.270
+<v Andrea Velasquez>el otro listo entonces ahí por el momento
+sería los hitos de pago que vayan</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/243-1
+00:48:00.270 --> 00:48:03.423
+<v Andrea Velasquez>registrando cuánto van pagando para</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/244-0
+00:48:04.983 --> 00:48:05.703
+<v Andrea Velasquez>Te pago.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/245-0
+00:48:07.823 --> 00:48:13.303
+<v Andrea Velasquez>Para ver qué datos nos pide, no,
+ahí está cargando, es diferente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/248-0
+00:48:20.223 --> 00:48:26.686
+<v Andrea Velasquez>Esa es la información que nos solicita,
+pues automáticamente nos va a poner el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/248-1
+00:48:26.686 --> 00:48:30.449
+<v Andrea Velasquez>proyecto,
+el tipo de concepto se pone manual,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/248-2
+00:48:30.449 --> 00:48:31.103
+<v Andrea Velasquez>el valor</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/249-0
+00:48:32.383 --> 00:48:38.125
+<v Andrea Velasquez>Y pues toda esa información de descuentos
+de porcentaje de incidencia.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/249-1
+00:48:38.125 --> 00:48:43.058
+<v Andrea Velasquez>No sé si está bien así,
+queremos cambiar algo en esta parte.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/249-2
+00:48:43.058 --> 00:48:49.204
+<v Andrea Velasquez>Sería bueno, que ya ni lo vieron.
+Si de momento yo no tengo mi voz en esto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/249-3
+00:48:49.204 --> 00:48:54.137
+<v Andrea Velasquez>¿Qué es esta cita?
+Es que yo digo que tiene un problema como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/249-4
+00:48:54.137 --> 00:48:54.703
+<v Andrea Velasquez>para...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/250-0
+00:48:55.943 --> 00:49:01.620
+<v Andrea Velasquez>Conectarte estaba. No, no, no.
+Datos como relevantes ahora que no sé en</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/250-1
+00:49:01.620 --> 00:49:06.903
+<v Andrea Velasquez>dónde te metís. Ay, aquí está,
+como así estamos avanzando, viendo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/250-2
+00:49:06.903 --> 00:49:12.264
+<v Andrea Velasquez>Incidencia. Estábamos revisando.
+Ahí es como vamos a registrar una,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/250-3
+00:49:12.264 --> 00:49:17.783
+<v Andrea Velasquez>pues que se facturó algo para que el
+sistema sepa que ya hay un pago.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/251-0
+00:49:21.343 --> 00:49:27.180
+<v Andrea Velasquez>Para saber el avance de pagos de.
+Por eso no debería ser como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/251-1
+00:49:27.180 --> 00:49:32.547
+<v Andrea Velasquez>automáticamente.
+Entonces como que relacione el total de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/251-2
+00:49:32.547 --> 00:49:36.783
+<v Andrea Velasquez>los.
+Porque pues por el momento toca manual.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/252-0
+00:49:38.383 --> 00:49:42.543
+<v Andrea Velasquez>Entonces,
+hay que decirle al sistema cuánto pagó la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/252-1
+00:49:42.543 --> 00:49:46.543
+<v Andrea Velasquez>persona,
+si en este pago se le hizo un descuento,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/252-2
+00:49:46.543 --> 00:49:52.943
+<v Andrea Velasquez>no sabemos si realmente cuánto va a pagar,
+cuando pongamos cuando está el loco.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/253-0
+00:49:58.223 --> 00:50:02.988
+<v Andrea Velasquez>Bueno, no sé, por ejemplo,
+¿des cuántos se hace el global o lo que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/253-1
+00:50:02.988 --> 00:50:03.343
+<v Andrea Velasquez>hace?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/254-0
+00:50:04.543 --> 00:50:11.508
+<v Andrea Velasquez>no es como que por pago se le haga un
+desconto al cliente Datos que ahora</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/254-1
+00:50:11.508 --> 00:50:18.943
+<v Andrea Velasquez>recolectamos esta como fecha de cobro,
+fecha de factura, de emisión de factura</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/255-0
+00:50:19.903 --> 00:50:25.660
+<v Andrea Velasquez>y por eso yo te decía como que si esa
+relación no es automática pues ahora la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/255-1
+00:50:25.660 --> 00:50:31.638
+<v Andrea Velasquez>tenemos así como el total del proyecto
+son 40 millones y pues ya se designan los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/255-2
+00:50:31.638 --> 00:50:37.394
+<v Andrea Velasquez>abonos y pues eso es lo cuando están
+creando el proyecto ustedes dicen cuánto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/255-3
+00:50:37.394 --> 00:50:40.863
+<v Andrea Velasquez>deberían de pagar cada pago okay eso es
+lo que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/256-0
+00:50:41.503 --> 00:50:46.779
+<v Andrea Velasquez>Entonces digamos como desde la
+contractual ya se estipula el plan de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/256-1
+00:50:46.779 --> 00:50:51.979
+<v Andrea Velasquez>pagos con el cliente. Sí,
+esos porcentajes como que ellas hablan de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/256-2
+00:50:51.979 --> 00:50:55.343
+<v Andrea Velasquez>eso.
+Entonces en la parte de facturación lo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/256-3
+00:50:55.343 --> 00:51:00.543
+<v Andrea Velasquez>que podemos hacer es un cuadrito como
+este donde se ponga anticipo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/257-0
+00:51:00.783 --> 00:51:08.572
+<v Andrea Velasquez>tales abonos y el pago final y cuando ya
+se hagan el pago solamente se chulea como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/257-1
+00:51:08.572 --> 00:51:16.268
+<v Andrea Velasquez>ya pago si hubo Alguna novedad el cliente
+dijo No yo voy a pagarle he visto los 5</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/257-2
+00:51:16.268 --> 00:51:20.303
+<v Andrea Velasquez>millones de los 20 que al final el
+recaudo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/258-0
+00:51:20.863 --> 00:51:24.006
+<v Andrea Velasquez>Sí,
+eso te va a decir el estado del recaudo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/258-1
+00:51:24.006 --> 00:51:28.476
+<v Andrea Velasquez>te va a dar una métrica. Bueno,
+entonces este queda va a quedar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/258-2
+00:51:28.476 --> 00:51:29.943
+<v Andrea Velasquez>totalmente diferente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/260-0
+00:51:31.583 --> 00:51:36.406
+<v Andrea Velasquez>es el amarillo,
+ya no lo habían compartido, yo lo busco,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/260-1
+00:51:36.406 --> 00:51:42.921
+<v Andrea Velasquez>pues nosotros lo puedo volver a compartir
+personalmente, el amarillo o este,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/260-2
+00:51:42.921 --> 00:51:47.743
+<v Andrea Velasquez>porque este sí lo he visto,
+pero el amarillo no recuerdo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/261-0
+00:51:48.943 --> 00:51:52.897
+<v Andrea Velasquez>Sí, de pronto,
+como yo entré después de una parte,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/261-1
+00:51:52.897 --> 00:51:56.463
+<v Andrea Velasquez>como sí, eso fue otra vez el link ahí,
+listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/262-0
+00:51:58.463 --> 00:52:02.744
+<v Andrea Velasquez>Pero saben que, me parece super claro,
+pero a mi me parece que la casilla de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/262-1
+00:52:02.744 --> 00:52:05.413
+<v Andrea Velasquez>descuento puede ser un estratégico
+interesante,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/262-2
+00:52:05.413 --> 00:52:09.472
+<v Andrea Velasquez>incluso por lo que venimos viviendo,
+y es que yo si siento que entre las</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/262-3
+00:52:09.472 --> 00:52:13.531
+<v Andrea Velasquez>políticas que podríamos empezar a
+implementar es un descuento por cuanto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/262-4
+00:52:13.531 --> 00:52:15.755
+<v Andrea Velasquez>pago,
+incluso clientes por ejemplo como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/262-5
+00:52:15.755 --> 00:52:19.703
+<v Andrea Velasquez>Kamapura que pagaron el proyecto antes de
+finganizar todas las etapas,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/263-0
+00:52:19.903 --> 00:52:23.165
+<v Andrea Velasquez>Yo siento que ahí podíamos hacer una
+estructura de descuentos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/263-1
+00:52:23.165 --> 00:52:27.152
+<v Andrea Velasquez>que a su vida que los clientes hagan el
+ejercicio más rápido. Pero entonces,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/263-2
+00:52:27.152 --> 00:52:30.725
+<v Andrea Velasquez>¿cuánto en cada entrega? Pues,
+más que en cada entrega y yo creo que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/263-3
+00:52:30.725 --> 00:52:34.660
+<v Andrea Velasquez>esto se lo he visto. ¿Por qué pasa?
+Y porque Simón en la negociación les ha</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/263-4
+00:52:34.660 --> 00:52:38.595
+<v Andrea Velasquez>pasado de que haces descuento pero
+después el valor final es ese y nunca se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/263-5
+00:52:38.595 --> 00:52:39.423
+<v Andrea Velasquez>vuelve más pega.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/264-0
+00:52:39.823 --> 00:52:44.599
+<v Andrea Velasquez>Pues yo creo que dar descuento es algo
+que a la gente que motive ve.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/264-1
+00:52:44.599 --> 00:52:48.337
+<v Andrea Velasquez>Si me pagas antes de esta fecha,
+te ves te descuento,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/264-2
+00:52:48.337 --> 00:52:53.736
+<v Andrea Velasquez>si no me pagas en esa fecha. Está bien,
+pues entonces digamos que el valor es</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/264-3
+00:52:53.736 --> 00:52:56.851
+<v Andrea Velasquez>otro.
+Las rojitas se están marcando como los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/264-4
+00:52:56.851 --> 00:52:59.343
+<v Andrea Velasquez>obligatorios a donde nada. Sí señor.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/265-0
+00:53:00.183 --> 00:53:06.148
+<v Andrea Velasquez>de digamos que, por ejemplo,
+los internacionales no se les cobra ahí</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/265-1
+00:53:06.148 --> 00:53:11.422
+<v Andrea Velasquez>no, que obligatorio. Se quedan cero, ¿no?
+Ah, bueno, sí. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/265-2
+00:53:11.422 --> 00:53:13.583
+<v Andrea Velasquez>tiene que estar el lleno.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/266-0
+00:53:20.183 --> 00:53:20.423
+<v Andrea Velasquez>No.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/268-0
+00:53:31.503 --> 00:53:31.823
+<v Andrea Velasquez>Ajá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/270-0
+00:53:44.463 --> 00:53:45.463
+<v Andrea Velasquez>Bueno, está bien.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/271-0
+00:53:48.063 --> 00:53:53.263
+<v Andrea Velasquez>dale en agregar porfa a ver que no sale
+abajo a ver si está acá</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/272-0
+00:53:55.983 --> 00:54:05.241
+<v Andrea Velasquez>Estancia, servicio, que regulares. Sí,
+toda esa documentación que se necesita.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/272-1
+00:54:05.241 --> 00:54:09.343
+<v Andrea Velasquez>Aquí también podríamos dejar el de.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/273-0
+00:54:11.543 --> 00:54:14.524
+<v Andrea Velasquez>La cotización,
+esos que hablábamos al principio,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/273-1
+00:54:14.524 --> 00:54:17.321
+<v Andrea Velasquez>que quedaran ahí todos listaditos de una
+vez,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/273-2
+00:54:17.321 --> 00:54:21.336
+<v Andrea Velasquez>que es toda la documentación relacionada
+al proyecto y organizar,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/273-3
+00:54:21.336 --> 00:54:23.343
+<v Andrea Velasquez>pues que este funcionen bien los.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/274-0
+00:54:24.623 --> 00:54:25.743
+<v Andrea Velasquez>Los campos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/275-0
+00:54:28.903 --> 00:54:33.788
+<v Andrea Velasquez>Pero eso es donde habíamos dicho que los
+cargábamos entre requisitos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/275-1
+00:54:33.788 --> 00:54:39.580
+<v Andrea Velasquez>Los requisitos van los obligatorios como
+tal de... De INFO, pero de pronto ahí sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/275-2
+00:54:39.580 --> 00:54:43.697
+<v Andrea Velasquez>por ejemplo, pues sí,
+la propuesta comercial, por ejemplo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/275-3
+00:54:43.697 --> 00:54:48.303
+<v Andrea Velasquez>la información que nos socializa el
+cliente, con insumos previos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/276-0
+00:54:48.703 --> 00:54:55.263
+<v Andrea Velasquez>Que no son literalmente por requisitos,
+o sea, como que bueno, porque</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/277-0
+00:54:58.223 --> 00:55:02.768
+<v Andrea Velasquez>Exacto antes me parece que estén
+separados Exacto o sea los prerrequisitos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/277-1
+00:55:02.768 --> 00:55:07.677
+<v Andrea Velasquez>son en el capítulo de los requisitos y no
+debería haber algo diferente a los pre</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/277-2
+00:55:07.677 --> 00:55:12.222
+<v Andrea Velasquez>requisitos mientras que los documentos
+son un capítulo donde justamente el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/277-3
+00:55:12.222 --> 00:55:16.827
+<v Andrea Velasquez>cliente anexas cosas que a veces son
+puntuales en el proyecto pero ahora le</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/277-4
+00:55:16.827 --> 00:55:20.463
+<v Andrea Velasquez>voy a mencionar un contrato no no
+contrato en prerrequisito</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/278-0
+00:55:21.023 --> 00:55:25.869
+<v Andrea Velasquez>pero sí la propuesta comercial por
+ejemplo en documento Pues no sé para</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/278-1
+00:55:25.869 --> 00:55:30.781
+<v Andrea Velasquez>tener digamos los documentos a la mano
+porque ahí en el contrato pues se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/278-2
+00:55:30.781 --> 00:55:35.963
+<v Andrea Velasquez>significa la pregunta actual en nivel
+detalle ya jurídica pero siento que si</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/278-3
+00:55:35.963 --> 00:55:40.943
+<v Andrea Velasquez>uno necesita revisar la propuesta y no
+tiene después podría ser pues como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/279-0
+00:55:42.063 --> 00:55:45.308
+<v Andrea Velasquez>Que si quieren podemos pues como hacer un
+lista,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/279-1
+00:55:45.308 --> 00:55:50.605
+<v Andrea Velasquez>cuáles son los documentos que realmente
+nos nos funciona tener ahí y hacer como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/279-2
+00:55:50.605 --> 00:55:51.863
+<v Andrea Velasquez>con esa estructura.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/280-0
+00:55:53.583 --> 00:55:54.143
+<v Andrea Velasquez>Igual.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/281-0
+00:55:57.743 --> 00:56:01.258
+<v Andrea Velasquez>Si los prerrequisitos van a estar
+asociados a las categorías,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/281-1
+00:56:01.258 --> 00:56:04.092
+<v Andrea Velasquez>pero los documentos no nos van a estar
+asociados,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/281-2
+00:56:04.092 --> 00:56:08.230
+<v Andrea Velasquez>es información que se pueda tener,
+ya sea que el cliente nos los envíe a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/281-3
+00:56:08.230 --> 00:56:12.935
+<v Andrea Velasquez>nosotros y nosotros tenerlo en la hoja de
+vida pues del proyecto o que nosotros de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/281-4
+00:56:12.935 --> 00:56:17.243
+<v Andrea Velasquez>pronto le queramos enviar al cliente
+también los podamos dejar ahí para que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/281-5
+00:56:17.243 --> 00:56:17.583
+<v Andrea Velasquez>cuando</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/282-0
+00:56:19.663 --> 00:56:24.359
+<v Andrea Velasquez>Está una persona y deja los entregables,
+los pueda dejar en este lugar,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/282-1
+00:56:24.359 --> 00:56:29.120
+<v Andrea Velasquez>pero mañana no vino por x o y motivo y el
+cliente necesita algo urgente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/282-2
+00:56:29.120 --> 00:56:33.555
+<v Andrea Velasquez>Entonces tú puedas entrar y enviarle
+tranquilamente los documentos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/282-3
+00:56:33.555 --> 00:56:38.903
+<v Andrea Velasquez>como lo utiliza como repositorio de toda
+la información, lo pueden tener también.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/283-0
+00:56:39.303 --> 00:56:43.252
+<v Andrea Velasquez>Pues lo pueden tener como repositorio de
+toda la información.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/283-1
+00:56:43.252 --> 00:56:48.348
+<v Andrea Velasquez>Pero entonces acá podemos agregar como
+una base a un filtro quizá como externo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/283-2
+00:56:48.348 --> 00:56:51.214
+<v Andrea Velasquez>interno,
+pues como un documento externo y un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/283-3
+00:56:51.214 --> 00:56:54.972
+<v Andrea Velasquez>documento interno,
+y yo puedo filtrar y luego porque ahora</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/283-4
+00:56:54.972 --> 00:56:57.583
+<v Andrea Velasquez>mencionas acá y el cliente me lo interno.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/284-0
+00:56:58.623 --> 00:57:02.673
+<v Andrea Velasquez>Sí,
+eso es como la carpeta que se está en el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/284-1
+00:57:02.673 --> 00:57:04.023
+<v Andrea Velasquez>último momento.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/285-0
+00:57:14.783 --> 00:57:22.665
+<v Andrea Velasquez>este dentro a cual no alcance a ver el
+Okay yo creo que esto sería interesante</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/285-1
+00:57:22.665 --> 00:57:30.847
+<v Andrea Velasquez>como que se asocia directamente Solo que
+hay que arreglar el el formulismo por el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/285-2
+00:57:30.847 --> 00:57:32.543
+<v Andrea Velasquez>cual surge el RPI</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/286-0
+00:57:32.703 --> 00:57:33.343
+<v Andrea Velasquez>Eso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/289-0
+00:57:49.503 --> 00:57:50.103
+<v Andrea Velasquez>Por uno.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/290-0
+00:57:51.343 --> 00:57:55.463
+<v Andrea Velasquez>Aquí pues automáticamente con los.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/291-0
+00:57:56.423 --> 00:58:01.738
+<v Andrea Velasquez>Cuando asignemos a en el cronograma que
+nos aparezcan todas las personas del</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/291-1
+00:58:01.738 --> 00:58:06.915
+<v Andrea Velasquez>equipo que van a participar en algún
+momento, así sean una sola actividad,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/291-2
+00:58:06.915 --> 00:58:11.954
+<v Andrea Velasquez>pues ahí va apareciendo tener la
+trazabilidad de quienes participaron en</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/291-3
+00:58:11.954 --> 00:58:16.303
+<v Andrea Velasquez>el proyecto o si también vamos a asignar
+un recurso desde acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/292-0
+00:58:16.543 --> 00:58:22.278
+<v Andrea Velasquez>Pues creo que lo veo más lógico y del
+cronograma. Y acá se totalizaría.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/292-1
+00:58:22.278 --> 00:58:27.217
+<v Andrea Velasquez>Pues por ejemplo la incidencia de esa
+persona en el proyecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/292-2
+00:58:27.217 --> 00:58:31.917
+<v Andrea Velasquez>Eso me parecía interesante.
+¿Pero en qué métrica? ¿En qué?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/292-3
+00:58:31.917 --> 00:58:35.023
+<v Andrea Velasquez>¿En qué unidad se mide eso? ¿Entiendes?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/293-0
+00:58:35.743 --> 00:58:43.109
+<v Andrea Velasquez>asignación de Cuántos de entidad de ese
+proyecto Michael tiene las 50 cosas como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/293-1
+00:58:43.109 --> 00:58:50.384
+<v Andrea Velasquez>para ver la importancia Pues si el peso
+digamos operativo de paso pues no sé un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/293-2
+00:58:50.384 --> 00:58:57.023
+<v Andrea Velasquez>comentario que haría Juan Paula que
+digamos que si puede asociar la cara</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/294-0
+00:58:59.103 --> 00:59:01.103
+<v Andrea Velasquez>Desde el usuario lo podemos poner.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/295-0
+00:59:07.023 --> 00:59:07.343
+<v Andrea Velasquez>DOP.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/296-0
+00:59:11.503 --> 00:59:15.965
+<v Andrea Velasquez>Sí, esa sería la encuesta de satisfacción,
+pero ya harían directamente con el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/296-1
+00:59:15.965 --> 00:59:16.423
+<v Andrea Velasquez>cliente.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/297-0
+00:59:21.823 --> 00:59:27.748
+<v Andrea Velasquez>Las muestras la hace el líder junto con
+el cliente o la hace o que el líder le</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/297-1
+00:59:27.748 --> 00:59:32.623
+<v Andrea Velasquez>pueda enviar un link que el cliente la
+llene y ya le llegue acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/298-0
+00:59:38.863 --> 00:59:41.423
+<v Andrea Velasquez>O que tenga las 2 opciones, pero.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/299-0
+00:59:44.263 --> 00:59:48.703
+<v Andrea Velasquez>Algo me gustaría que tuviera las dos
+opciones porque tenemos como esas dos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/299-1
+00:59:48.703 --> 00:59:51.249
+<v Andrea Velasquez>teorías,
+cuando uno le manda al cliente la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/299-2
+00:59:51.249 --> 00:59:54.209
+<v Andrea Velasquez>encuesta, él la llena,
+pero a veces no es como...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/299-3
+00:59:54.209 --> 00:59:59.241
+<v Andrea Velasquez>a veces el cliente viva indirecto te dice
+unas cosas y la comunicación es no verbal,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/299-4
+00:59:59.241 --> 01:00:03.503
+<v Andrea Velasquez>también dice muchas otras cosas que de
+pronto no se alcanza a percibir.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/300-0
+01:00:04.663 --> 01:00:09.269
+<v Andrea Velasquez>Las niñas fue que en su individualidad
+son capaces de decir más cosas que...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/300-1
+01:00:09.269 --> 01:00:13.635
+<v Andrea Velasquez>Pero... Sí, de acuerdo. Bueno,
+y ya que estamos implementando los bots y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/300-2
+01:00:13.635 --> 01:00:16.387
+<v Andrea Velasquez>todo eso,
+¿por qué no hacemos el punto medio?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/300-3
+01:00:16.387 --> 01:00:20.335
+<v Andrea Velasquez>Hacemos la encuesta a través de WhatsApp
+y luego alimentamos eso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/300-4
+01:00:20.335 --> 01:00:24.103
+<v Andrea Velasquez>Si usted me dejan ahí la puerta abierta,
+yo ya conecté el bot.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/301-0
+01:00:26.143 --> 01:00:31.310
+<v Andrea Velasquez>le decimos a Miguel del acceso de igual
+forma tú tienes el acceso al código no no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/301-1
+01:00:31.310 --> 01:00:36.162
+<v Andrea Velasquez>todavía no tienes el repositorio yo
+tampoco te lo puedo te puedo dar también</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/301-2
+01:00:36.162 --> 01:00:40.761
+<v Andrea Velasquez>el usuario ahorita me regalan los
+usuarios y yo les doy el acceso ya con</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/301-3
+01:00:40.761 --> 01:00:45.424
+<v Andrea Velasquez>eso pues yo creo que con eso es
+suficiente o necesitan otra cosa no no no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/301-4
+01:00:45.424 --> 01:00:47.503
+<v Andrea Velasquez>con eso ya okay miro como lo pego</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/302-0
+01:00:50.303 --> 01:00:53.463
+<v Andrea Velasquez>Y que me te lo de.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/303-0
+01:01:00.863 --> 01:01:09.583
+<v Andrea Velasquez>los clientes sí tenemos Dame un momentito
+de nuevo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/304-0
+01:01:11.583 --> 01:01:21.247
+<v Andrea Velasquez>Es que creo que dale en tipo de relación.
+Ahí está, que va, mira, no es piña. Ah,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/304-1
+01:01:21.247 --> 01:01:22.543
+<v Andrea Velasquez>no es piña.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/305-0
+01:01:22.583 --> 01:01:22.863
+<v Andrea Velasquez>¿Qué más?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/306-0
+01:01:28.103 --> 01:01:28.423
+<v Andrea Velasquez>Ajá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/307-0
+01:01:31.383 --> 01:01:31.703
+<v Andrea Velasquez>Por.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/308-0
+01:01:37.823 --> 01:01:42.303
+<v Andrea Velasquez>Abrir eso, es que es así,
+abrir la vuelta arriba.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/309-0
+01:01:44.343 --> 01:01:44.663
+<v Andrea Velasquez>Eso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/310-0
+01:01:50.343 --> 01:01:53.956
+<v Andrea Velasquez>Qué moto,
+mira los tipos de relación para los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/310-1
+01:01:53.956 --> 01:01:54.663
+<v Andrea Velasquez>terceros.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/312-0
+01:01:56.863 --> 01:02:01.143
+<v Andrea Velasquez>Ay, no había visto que tu camisa decía,
+contesto, eso es muy geniales.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/313-0
+01:02:07.343 --> 01:02:10.583
+<v Andrea Velasquez>Comprometido de todos los colegios.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/314-0
+01:02:13.743 --> 01:02:14.023
+<v Andrea Velasquez>Mhm.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/315-0
+01:02:15.183 --> 01:02:15.503
+<v Andrea Velasquez>Ajá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/316-0
+01:02:18.223 --> 01:02:18.943
+<v Andrea Velasquez>Todo bien.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/317-0
+01:02:21.263 --> 01:02:21.543
+<v Andrea Velasquez>No.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/318-0
+01:02:26.903 --> 01:02:29.769
+<v Andrea Velasquez>Pues lo digo porque algo que me pasó
+ahora,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/318-1
+01:02:29.769 --> 01:02:32.700
+<v Andrea Velasquez>también si se le puede cargar
+documentación,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/318-2
+01:02:32.700 --> 01:02:36.999
+<v Andrea Velasquez>pues por ejemplo tan la cédula,
+pues yo por ejemplo ahora llegue,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/318-3
+01:02:36.999 --> 01:02:41.233
+<v Andrea Velasquez>le pedí la cédula de Santiago,
+para la copulación del proveedor,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/318-4
+01:02:41.233 --> 01:02:46.444
+<v Andrea Velasquez>entonces como que el historial de eso.
+Me vas como al listado de documentos que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/318-5
+01:02:46.444 --> 01:02:48.463
+<v Andrea Velasquez>necesitas. Dale por favor en...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/319-0
+01:02:48.783 --> 01:02:50.863
+<v Andrea Velasquez>En ver el tercero, te devuelves.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/320-0
+01:02:52.863 --> 01:02:59.783
+<v Andrea Velasquez>Y le hace a no en editar,
+no está creada la lista.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/321-0
+01:03:02.063 --> 01:03:08.343
+<v Andrea Velasquez>Se puede decir la documentación que se
+requiera del tercero, que si de.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/322-0
+01:03:09.263 --> 01:03:14.909
+<v Andrea Velasquez>dependiendo si es cliente se necesita una
+documentación diferente a si es tercero</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/322-1
+01:03:14.909 --> 01:03:20.417
+<v Andrea Velasquez>estoy recordando en otra empresa También
+tenemos la relación comercial entonces</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/322-2
+01:03:20.417 --> 01:03:25.787
+<v Andrea Velasquez>que si es a crédito a 45 días 30 días
+también se podría complementar con toda</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/322-3
+01:03:25.787 --> 01:03:29.023
+<v Andrea Velasquez>esa información porque creo que un logro
+no se</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/323-0
+01:03:29.583 --> 01:03:36.128
+<v Andrea Velasquez>específica tanto pero aquí sí podrían
+tenerla tan específica como la necesite</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/323-1
+01:03:36.128 --> 01:03:42.841
+<v Andrea Velasquez>yo voy a ver si a cambiar el otro que no
+recuerdo cuáles son los campos pero me</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/323-2
+01:03:42.841 --> 01:03:45.023
+<v Andrea Velasquez>parece que es muy completa</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/324-0
+01:03:49.583 --> 01:03:53.703
+<v Andrea Velasquez>pero no necesariamente como estaba
+suplicado</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/325-0
+01:03:58.823 --> 01:04:06.295
+<v Andrea Velasquez>un servidor para cada uno o cómo sí un
+repositorio O sea que yo por ejemplo de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/325-1
+01:04:06.295 --> 01:04:13.106
+<v Andrea Velasquez>amarillo hasta me metí Necesito el nip
+para pedir una cotización a otro</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/325-2
+01:04:13.106 --> 01:04:15.943
+<v Andrea Velasquez>proveedor del diseño eléctrico</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/326-0
+01:04:16.303 --> 01:04:19.043
+<v Andrea Velasquez>Siempre me van a pedir mi referencia
+bancaria,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/326-1
+01:04:19.043 --> 01:04:23.474
+<v Andrea Velasquez>pues yo tener a la mano como líder esa
+información y no tener que pasar por</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/326-2
+01:04:23.474 --> 01:04:27.263
+<v Andrea Velasquez>relación administrativa a pedírsela,
+que va de un nido a tienen.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/327-0
+01:04:30.703 --> 01:04:32.383
+<v Andrea Velasquez>No, pero yo lo que haría es no.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-0
+01:04:33.383 --> 01:04:35.929
+<v Andrea Velasquez>Pues no sé,
+no sé qué tan necesario que sea el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-1
+01:04:35.929 --> 01:04:38.801
+<v Andrea Velasquez>documento per se, pero yo lo quería es,
+por ejemplo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-2
+01:04:38.801 --> 01:04:43.189
+<v Andrea Velasquez>una especie de voz ser que cuando suban
+el documento lo que haga es que analice,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-3
+01:04:43.189 --> 01:04:45.681
+<v Andrea Velasquez>lo que traiga la información y la
+diligencia.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-4
+01:04:45.681 --> 01:04:50.231
+<v Andrea Velasquez>También gana de la mano y quede más bien
+en la base de datos en el servidor. No sé,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-5
+01:04:50.231 --> 01:04:52.832
+<v Andrea Velasquez>pues no, nunca lo había.
+Sé que se puede hacer,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-6
+01:04:52.832 --> 01:04:57.003
+<v Andrea Velasquez>pero nunca lo había hecho y no lo he
+visto en ninguno de nuestros proyectos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/328-7
+01:04:57.003 --> 01:04:58.303
+<v Andrea Velasquez>pero se podría analizar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/329-0
+01:04:58.383 --> 01:04:59.103
+<v Andrea Velasquez>Add color.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/330-0
+01:05:01.743 --> 01:05:05.743
+<v Andrea Velasquez>Porque pues lo digo porque es que luego
+es más filtrable toda esa información,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/330-1
+01:05:05.743 --> 01:05:08.831
+<v Andrea Velasquez>o sea, para buscarla,
+que la tengas más datos mucho más útil</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/330-2
+01:05:08.831 --> 01:05:11.463
+<v Andrea Velasquez>que tenerla en un documento cargado en un
+servidor.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/331-0
+01:05:12.983 --> 01:05:13.343
+<v Andrea Velasquez>Okay.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/332-0
+01:05:14.463 --> 01:05:19.043
+<v Andrea Velasquez>Listo.
+Porque si ahí tenemos clientes que les</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/332-1
+01:05:19.043 --> 01:05:26.412
+<v Andrea Velasquez>gusta manejar toda esa información
+comercial o los contactos porque yo en</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/332-2
+01:05:26.412 --> 01:05:34.079
+<v Andrea Velasquez>una empresa puedo tener varios tipos de
+contactos. Si, por ejemplo, AA, que,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/332-3
+01:05:34.079 --> 01:05:37.663
+<v Andrea Velasquez>Alianza de incultánea por estadilla.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/334-0
+01:05:48.823 --> 01:05:50.423
+<v Andrea Velasquez>Empecemos con el pricing.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/337-0
+01:06:04.623 --> 01:06:07.263
+<v Andrea Velasquez>El primero categorismo de los primeros.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/338-0
+01:06:10.583 --> 01:06:10.823
+<v Andrea Velasquez>No.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/339-0
+01:06:12.063 --> 01:06:13.583
+<v Andrea Velasquez>Ay, ahí están las paces.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/340-0
+01:06:16.703 --> 01:06:20.783
+<v Andrea Velasquez>Dentro de un pricing pueden tener
+diferentes fases.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/341-0
+01:06:22.063 --> 01:06:27.768
+<v Andrea Velasquez>Sí, y que en el otro lado,
+devolviéndonos un poquito en el otro lado,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/341-1
+01:06:27.768 --> 01:06:32.983
+<v Andrea Velasquez>me muestres por fases,
+filtrados por fases. Listo, presidentes.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/342-0
+01:06:39.263 --> 01:06:40.303
+<v Andrea Velasquez>Y.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/343-0
+01:06:45.263 --> 01:06:46.543
+<v Andrea Velasquez>Acá era como lo que.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/344-0
+01:06:47.983 --> 01:06:54.423
+<v Andrea Velasquez>Simón consultado la vez pasada de la
+posibilidad de crear como prepaquetes.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/345-0
+01:06:55.863 --> 01:06:56.303
+<v Andrea Velasquez>Mhm.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/346-0
+01:07:00.943 --> 01:07:03.892
+<v Andrea Velasquez>Sí,
+de lo que hablamos de los padres y los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/346-1
+01:07:03.892 --> 01:07:04.303
+<v Andrea Velasquez>hijos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/347-0
+01:07:06.223 --> 01:07:10.799
+<v Andrea Velasquez>Yo creo que sí. Por decir,
+va a haber un paquete que se llama</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/347-1
+01:07:10.799 --> 01:07:14.563
+<v Andrea Velasquez>arquitectura y va a tener los dos de
+arquitectura,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/347-2
+01:07:14.563 --> 01:07:20.172
+<v Andrea Velasquez>entonces que siempre que yo llame
+arquitectura al cuadrado me traiga de una</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/347-3
+01:07:20.172 --> 01:07:25.412
+<v Andrea Velasquez>arquitectura y arquitectura,
+pues viendo estos ejemplos que tiene acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/347-4
+01:07:25.412 --> 01:07:27.183
+<v Andrea Velasquez>¿En el cuadrado es como?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/348-0
+01:07:27.783 --> 01:07:32.192
+<v Andrea Velasquez>una parte donde yo pueda tener unos
+pre-menú ya listos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/348-1
+01:07:32.192 --> 01:07:37.546
+<v Andrea Velasquez>por ejemplo uno se llama vivienda
+campestre esenshark que ahí tiene</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/348-2
+01:07:37.546 --> 01:07:41.797
+<v Andrea Velasquez>correlación con el nivel que te contaba
+ahora Juanpa,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/348-3
+01:07:41.797 --> 01:07:48.332
+<v Andrea Velasquez>entonces ya sé que la vivienda campestre
+esenshark tiene estos servicios de visual</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/348-4
+01:07:48.332 --> 01:07:50.143
+<v Andrea Velasquez>y estos de diseño y ya.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/349-0
+01:07:55.983 --> 01:08:03.390
+<v Andrea Velasquez>como plantillas una plantilla de pricing
+listo y también hay que agregarle un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/349-1
+01:08:03.390 --> 01:08:07.663
+<v Andrea Velasquez>botoncito de que puedan crear nuevos
+pricing</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/350-0
+01:08:08.703 --> 01:08:15.569
+<v Andrea Velasquez>Porque de pronto entra un servicio nuevo
+en el futuro, que ustedes puedan crearlo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/350-1
+01:08:15.569 --> 01:08:20.533
+<v Andrea Velasquez>crear unos servicios,
+incluso esas plantillas que se puedan</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/350-2
+01:08:20.533 --> 01:08:23.263
+<v Andrea Velasquez>modificar, yo no sé si es fácil o</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/351-0
+01:08:29.823 --> 01:08:36.762
+<v Andrea Velasquez>Que lo que hace. Que es de cronograma.
+Se le puedo editar solo a este sin</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/351-1
+01:08:36.762 --> 01:08:44.263
+<v Andrea Velasquez>afectar el global del país, ¿cierto?
+Hay dos opciones. Ay, pero espere, espere.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/351-2
+01:08:44.263 --> 01:08:47.263
+<v Andrea Velasquez>Tome. Me voy a respirar. Charro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/352-0
+01:08:49.823 --> 01:08:50.463
+<v Andrea Velasquez>Espire.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/355-0
+01:09:01.183 --> 01:09:05.802
+<v Andrea Velasquez>Listo, sí,
+hay varios lugares donde uno puede editar,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/355-1
+01:09:05.802 --> 01:09:10.164
+<v Andrea Velasquez>yo lo explico mucho de esta forma y es,
+tú tienes,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/355-2
+01:09:10.164 --> 01:09:17.091
+<v Andrea Velasquez>este es como el papá o la base con la que
+tú vas a ayudarte a mejorar el proceso</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/355-3
+01:09:17.091 --> 01:09:21.368
+<v Andrea Velasquez>más adelante,
+pero resulta que para un cliente en</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/355-4
+01:09:21.368 --> 01:09:22.223
+<v Andrea Velasquez>específico</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/356-0
+01:09:22.463 --> 01:09:28.166
+<v Andrea Velasquez>Él no quiere que le vamos a decir que el
+precio son 10000000 de pesos para</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/356-1
+01:09:28.166 --> 01:09:30.903
+<v Andrea Velasquez>decirles, pues que hay un descuento.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/357-0
+01:09:32.623 --> 01:09:37.916
+<v Andrea Velasquez>pero la idea es no afectar el pricing
+sino que este siempre nos va a traer nos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/357-1
+01:09:37.916 --> 01:09:43.343
+<v Andrea Velasquez>va a seguir trayendo los 8 millones de
+pesos pero cuando estemos en la parte del</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/357-2
+01:09:43.343 --> 01:09:48.904
+<v Andrea Velasquez>cliente yo le pueda evitar esos 8 por los
+10 y ya ahí sí hacerle el descuento o es</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/357-3
+01:09:48.904 --> 01:09:54.063
+<v Andrea Velasquez>un cliente muy querido y no le va a
+cobrar ocho sino que le va a cobrar seis</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/358-0
+01:09:54.183 --> 01:10:00.263
+<v Andrea Velasquez>Entonces que yo desde el proyecto yo
+pueda modificar todo sin que me afecte lo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/358-1
+01:10:00.263 --> 01:10:04.804
+<v Andrea Velasquez>que yo tengo atrás,
+porque no debería de modificarme nada.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/358-2
+01:10:04.804 --> 01:10:10.115
+<v Andrea Velasquez>Entonces esta es la opción.
+Si yo necesito que se medite para que de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/358-3
+01:10:10.115 --> 01:10:15.810
+<v Andrea Velasquez>ahora en adelante me aparezca los 10
+millones de pesos porque los precios</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/358-4
+01:10:15.810 --> 01:10:16.503
+<v Andrea Velasquez>subieron.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/359-0
+01:10:16.703 --> 01:10:20.975
+<v Andrea Velasquez>Entonces vengo y lo dicto desde acá,
+pero si eso lo necesito para el proyecto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/359-1
+01:10:20.975 --> 01:10:22.543
+<v Andrea Velasquez>pues lo dicto en el proyecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/360-0
+01:10:24.943 --> 01:10:28.366
+<v Andrea Velasquez>Y solamente me van a afectar,
+yo lo dicto acá en el pricing,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/360-1
+01:10:28.366 --> 01:10:32.293
+<v Andrea Velasquez>pero ya me va a afectar los proyectos que
+yo creé de hoy en adelante,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/360-2
+01:10:32.293 --> 01:10:33.303
+<v Andrea Velasquez>no los anteriores.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/362-0
+01:10:46.223 --> 01:10:46.903
+<v Andrea Velasquez>Extensos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/363-0
+01:10:53.183 --> 01:11:04.039
+<v Andrea Velasquez>Ahora de pronto pues no sé qué,
+murió el estado. Se murió el cuerpo. No,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/363-1
+01:11:04.039 --> 01:11:11.623
+<v Andrea Velasquez>no sé, yo creo que pasó pues, no sé.
+Tranquilidad.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/364-0
+01:11:11.823 --> 01:11:18.072
+<v Andrea Velasquez>Lo que le pasa es que es lindo.
+Ya tiene todo el... Es algo más gráfico.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/364-1
+01:11:18.072 --> 01:11:22.780
+<v Andrea Velasquez>Por ejemplo. No,
+porque es el cartográfico está Pima y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/364-2
+01:11:22.780 --> 01:11:28.172
+<v Andrea Velasquez>fuera de lo que es el sitio.
+Yo creo que por ejemplo es más...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/364-3
+01:11:28.172 --> 01:11:32.623
+<v Andrea Velasquez>Yo no entiendo qué es eso.
+¿Por qué esqueletos ahí?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/365-0
+01:11:33.743 --> 01:11:38.797
+<v Andrea Velasquez>Cuántos esqueletos encontramos?
+Digamos que nosotros también ya le</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/365-1
+01:11:38.797 --> 01:11:44.077
+<v Andrea Velasquez>habíamos contado algo acerca de la
+organización. Mirale. Que tenemos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/365-2
+01:11:44.077 --> 01:11:49.885
+<v Andrea Velasquez>Básicamente nosotros somos una empresa
+por proceso sino funcional, es decir,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/365-3
+01:11:49.885 --> 01:11:55.617
+<v Andrea Velasquez>no somos una jerarquía de nueva en el
+centro ejecutivo y digamos que es una</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/365-4
+01:11:55.617 --> 01:11:57.503
+<v Andrea Velasquez>estructura piramidal sino</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/367-0
+01:11:57.583 --> 01:12:02.925
+<v Andrea Velasquez>todo lo lo creamos por proceso y digamos
+que a nivel de concepto y la tecnología</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/367-1
+01:12:02.925 --> 01:12:07.542
+<v Andrea Velasquez>utilizamos el cuerpo humano,
+porque el cuerpo humano digamos que para</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/367-2
+01:12:07.542 --> 01:12:10.576
+<v Andrea Velasquez>el ejercicio arquitectónico es como,
+digamos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/367-3
+01:12:10.576 --> 01:12:14.533
+<v Andrea Velasquez>como la base para todos los que hacemos a
+nivel de hábitos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/367-4
+01:12:14.533 --> 01:12:19.743
+<v Andrea Velasquez>a nivel de las dimensiones espaciales,
+a nivel de un montón de cosas. Entonces</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/368-0
+01:12:20.943 --> 01:12:24.972
+<v Andrea Velasquez>digamos que hay varias empresas que lo
+hemos tenido como referencia,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/368-1
+01:12:24.972 --> 01:12:29.527
+<v Andrea Velasquez>hay un podcast que se llama Trohora y
+digamos que ellos utilizan el universo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/368-2
+01:12:29.527 --> 01:12:33.497
+<v Andrea Velasquez>por decirlo de alguna manera,
+nosotros utilizamos el cuerpo humano,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/368-3
+01:12:33.497 --> 01:12:38.227
+<v Andrea Velasquez>entonces el área financiera tiene digamos
+en el ejemplo una relación con el tema</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/368-4
+01:12:38.227 --> 01:12:39.103
+<v Andrea Velasquez>digamos como de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/369-0
+01:12:40.543 --> 01:12:44.352
+<v Andrea Velasquez>De red y de y de y de cash que
+básicamente hablan de los sistemas del</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/369-1
+01:12:44.352 --> 01:12:46.855
+<v Andrea Velasquez>cuerpo humano y cómo eso representa,
+digamos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/369-2
+01:12:46.855 --> 01:12:50.066
+<v Andrea Velasquez>como el rol que tiene cada una de las
+áreas de la empresa.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/369-3
+01:12:50.066 --> 01:12:53.059
+<v Andrea Velasquez>Entonces Neo es el cerebro,
+es el sistema estratégico,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/369-4
+01:12:53.059 --> 01:12:57.358
+<v Andrea Velasquez>entonces digamos que tiene actividades
+que tienen que ver con el cerebro. Red,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/369-5
+01:12:57.358 --> 01:13:01.276
+<v Andrea Velasquez>que es digamos como el sistema que atrae
+a los clientes y que hace esas</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/369-6
+01:13:01.276 --> 01:13:01.983
+<v Andrea Velasquez>conversiones.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/370-0
+01:13:02.063 --> 01:13:05.390
+<v Andrea Velasquez>es el sistema circulatorio,
+es lo que le permite, digamos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/370-1
+01:13:05.390 --> 01:13:08.717
+<v Andrea Velasquez>tener como sangre del corazón y seguir
+bombeando, digamos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/370-2
+01:13:08.717 --> 01:13:13.172
+<v Andrea Velasquez>como a nivel de la correlación, digamos,
+el área comercial y el área, digamos,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/370-3
+01:13:13.172 --> 01:13:17.233
+<v Andrea Velasquez>de captación de clientes que permite que
+la empresa siga operando. Bom,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/370-4
+01:13:17.233 --> 01:13:21.349
+<v Andrea Velasquez>que es la estructura, entonces,
+digamos que tiene que ver el esquelegio.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/370-5
+01:13:21.349 --> 01:13:23.943
+<v Andrea Velasquez>Sí,
+está contando la estructura organización.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/371-0
+01:13:24.943 --> 01:13:28.263
+<v Andrea Velasquez>Ya en serio, pero la entra en el yo,
+no lo veo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/372-0
+01:13:29.503 --> 01:13:33.663
+<v Andrea Velasquez>Me encanta,
+pero ese podría hacer los roles.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/373-0
+01:13:36.623 --> 01:13:40.441
+<v Andrea Velasquez>O parte de los roles,
+el esqueleto solamente tiene por qué</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/373-1
+01:13:40.441 --> 01:13:41.023
+<v Andrea Velasquez>entrar a.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/374-0
+01:13:42.143 --> 01:13:45.103
+<v Andrea Velasquez>A las cosas que tienen que ver con el
+esqueleto. mhm.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/375-0
+01:13:46.543 --> 01:13:50.069
+<v Andrea Velasquez>Sí, en teoría sí.
+Pues viendo lo desde otra. O sea,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/375-1
+01:13:50.069 --> 01:13:55.223
+<v Andrea Velasquez>realmente esto puede tener los ingresos
+que esperamos, incluso por ejemplo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/376-0
+01:13:56.303 --> 01:13:59.363
+<v Andrea Velasquez>sino que no hemos llevado cosas a nivel
+detalle,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/376-1
+01:13:59.363 --> 01:14:03.359
+<v Andrea Velasquez>pero no podría decir de cada actividad
+que sistema corresponde.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/376-2
+01:14:03.359 --> 01:14:07.356
+<v Andrea Velasquez>Pero hay actividades que hay que hacer
+que dentro del proyecto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/376-3
+01:14:07.356 --> 01:14:12.539
+<v Andrea Velasquez>que tienen que ver con un tema jurídico,
+hay actividades que tienen que ver con el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/376-4
+01:14:12.539 --> 01:14:15.536
+<v Andrea Velasquez>caso,
+hay actividades que tienen que ver con de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/376-5
+01:14:15.536 --> 01:14:16.223
+<v Andrea Velasquez>pronto hay.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/377-0
+01:14:16.623 --> 01:14:22.305
+<v Andrea Velasquez>Yo lo vería, digamos, como más relevante,
+pero en este momento sí es como es como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/377-1
+01:14:22.305 --> 01:14:24.383
+<v Andrea Velasquez>simplemente como por claridad.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/378-0
+01:14:25.583 --> 01:14:27.983
+<v Andrea Velasquez>No sé,
+sino que es que yo creo que yo no podría</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/378-1
+01:14:27.983 --> 01:14:29.583
+<v Andrea Velasquez>tener una opción visita de esto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/379-0
+01:14:30.863 --> 01:14:35.191
+<v Andrea Velasquez>Pues lo dejamos así,
+después miramos como lo integramos. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/379-1
+01:14:35.191 --> 01:14:38.809
+<v Andrea Velasquez>si quieres,
+yo lo converso con él y igual ahí este</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/379-2
+01:14:38.809 --> 01:14:40.583
+<v Andrea Velasquez>capítulo lo socializamos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/380-0
+01:14:45.823 --> 01:14:53.143
+<v Andrea Velasquez>y ver dónde va.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/381-0
+01:15:05.103 --> 01:15:08.303
+<v Andrea Velasquez>Pero ya es como un perfume que viene el
+día de allá escuchando.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/382-0
+01:15:17.103 --> 01:15:32.263
+<v Andrea Velasquez>este verificó si no tenemos acceso como
+que si alguien</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/383-0
+01:15:32.863 --> 01:15:36.425
+<v Andrea Velasquez>Le digo, sí,
+como que lo verificado de revisar el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/383-1
+01:15:36.425 --> 01:15:38.063
+<v Andrea Velasquez>sistema, lo verificó y.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/384-0
+01:15:40.623 --> 01:15:45.041
+<v Andrea Velasquez>Pero entonces debe ser que se hace en
+otro mo en otro módulo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/384-1
+01:15:45.041 --> 01:15:47.463
+<v Andrea Velasquez>pues dale a mi no quiero otra vez.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/385-0
+01:15:51.023 --> 01:15:53.983
+<v Andrea Velasquez>Dale en rentabilidad leal.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/389-0
+01:16:11.343 --> 01:16:13.223
+<v Andrea Velasquez>Tampoco hay opción de entrar acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/390-0
+01:16:18.703 --> 01:16:19.063
+<v Andrea Velasquez>Mi.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/391-0
+01:16:21.223 --> 01:16:28.075
+<v Andrea Velasquez>Hagamos algo, sí, pero más fácil,
+a ver cómo funciona el equipo reporta su</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/391-1
+01:16:28.075 --> 01:16:29.263
+<v Andrea Velasquez>distribución.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/394-0
+01:16:39.863 --> 01:16:43.173
+<v Andrea Velasquez>A veces solo es para mostrar la
+información,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/394-1
+01:16:43.173 --> 01:16:47.955
+<v Andrea Velasquez>pero como todavía no hemos hecho ejemplos
+o pruebas, todavía no,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/394-2
+01:16:47.955 --> 01:16:52.663
+<v Andrea Velasquez>si quieres dejemos ese de últimos y vamos
+a dar de operaciones.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/395-0
+01:17:04.103 --> 01:17:04.983
+<v Andrea Velasquez>Sí, señora.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/399-0
+01:17:26.023 --> 01:17:29.343
+<v Andrea Velasquez>A lo que estamos hablando el chiste.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/400-0
+01:17:31.743 --> 01:17:32.183
+<v Andrea Velasquez>Super.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/401-0
+01:17:33.463 --> 01:17:35.783
+<v Andrea Velasquez>Ay,
+ese era el tailand que hablamos con qué.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/402-0
+01:17:37.383 --> 01:17:40.663
+<v Andrea Velasquez>¿Qué hubiera quedó el proyecto? Sí,
+ese es el general.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/403-0
+01:17:42.503 --> 01:17:45.275
+<v Andrea Velasquez>Si tú le,
+¿Cómo es la que le estabas dando hace 8</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/403-1
+01:17:45.275 --> 01:17:48.934
+<v Andrea Velasquez>días? Es probable, pero ese no es,
+pues no me funcionaba en esto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/403-2
+01:17:48.934 --> 01:17:53.424
+<v Andrea Velasquez>me funcionaban de cada proyecto si hacía
+eso Ah bueno entonces hay que habilitar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/403-3
+01:17:53.424 --> 01:17:58.081
+<v Andrea Velasquez>para que funcione en este momento Y no sé
+si cuando le das click por ejemplo ahí te</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/403-4
+01:17:58.081 --> 01:17:59.023
+<v Andrea Velasquez>lleva al proyecto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/404-0
+01:18:03.783 --> 01:18:07.383
+<v Andrea Velasquez>Te dejo a ver el proceso o que me esté
+más información acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/405-0
+01:18:09.703 --> 01:18:13.224
+<v Andrea Velasquez>No, yo creo que es más real,
+que lo revisen al proyecto. Okay.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/405-1
+01:18:13.224 --> 01:18:17.359
+<v Andrea Velasquez>Que ya es más de funcionalidad.
+A mí me parece interesante que uno le den</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/405-2
+01:18:17.359 --> 01:18:20.823
+<v Andrea Velasquez>clic y pueda ver el proyecto.
+No sé si ella es más detalle o.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/406-0
+01:18:32.063 --> 01:18:32.383
+<v Andrea Velasquez>Ajá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/407-0
+01:18:36.903 --> 01:18:36.943
+<v Andrea Velasquez>O.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/409-0
+01:18:44.183 --> 01:18:45.383
+<v Andrea Velasquez>Yo creo que.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/410-0
+01:18:46.823 --> 01:18:52.156
+<v Andrea Velasquez>Lo mismo, pues yo no lo he dicho,
+que por ejemplo le ha sido gastada en el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/410-1
+01:18:52.156 --> 01:18:55.783
+<v Andrea Velasquez>cabeza. Ay,
+que te baje al lugar donde de detalle.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/411-0
+01:18:58.583 --> 01:18:59.383
+<v Andrea Velasquez>De ese papel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/412-0
+01:19:08.023 --> 01:19:12.583
+<v Andrea Velasquez>Agent plus meeting in the game to come on
+in the project.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/413-0
+01:19:22.103 --> 01:19:23.503
+<v Andrea Velasquez>Antes llegó el proyecto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/419-0
+01:20:00.263 --> 01:20:01.583
+<v Andrea Velasquez>El primero que vimos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/420-0
+01:20:03.623 --> 01:20:04.503
+<v Andrea Velasquez>Me voy al hotel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/421-0
+01:20:06.583 --> 01:20:07.143
+<v Andrea Velasquez>Es muy.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/425-0
+01:20:20.943 --> 01:20:21.183
+<v Andrea Velasquez>No.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/429-0
+01:20:49.223 --> 01:20:49.823
+<v Andrea Velasquez>Así que.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/430-0
+01:20:52.623 --> 01:20:54.063
+<v Andrea Velasquez>Es como unas fichas.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/431-0
+01:20:57.143 --> 01:21:00.686
+<v Andrea Velasquez>Pero, bueno,
+ahí vi una oportunidad de mejora y es que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/431-1
+01:21:00.686 --> 01:21:03.649
+<v Andrea Velasquez>el avance no está funcionando,
+de la barrita.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/431-2
+01:21:03.649 --> 01:21:07.385
+<v Andrea Velasquez>Mira que el de allá está el 51 y pues
+está todas iguales.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/431-3
+01:21:07.385 --> 01:21:11.700
+<v Andrea Velasquez>Pues será que los otros no están... No,
+porque me deja, claro. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/431-4
+01:21:11.700 --> 01:21:14.535
+<v Andrea Velasquez>todas están en el color de la barra,
+o sea,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/431-5
+01:21:14.535 --> 01:21:19.623
+<v Andrea Velasquez>yo siempre lo presenta que le monta la
+barra. ¿Y que ese avance cómo funciona?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/432-0
+01:21:20.183 --> 01:21:24.063
+<v Andrea Velasquez>Cuando se van llenando las actividades.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/433-0
+01:21:30.663 --> 01:21:31.863
+<v Andrea Velasquez>Y tampoco está.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/434-0
+01:21:35.783 --> 01:21:38.103
+<v Andrea Velasquez>Sí, le puse acá el centro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/435-0
+01:21:40.503 --> 01:21:46.863
+<v Andrea Velasquez>No está bueno, no te dando el chavo,
+ya pica el piso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/436-0
+01:21:49.143 --> 01:21:50.743
+<v Andrea Velasquez>Listo, ya se le falla ahí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/437-0
+01:21:52.583 --> 01:21:53.223
+<v Andrea Velasquez>Vale.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/438-0
+01:21:59.223 --> 01:21:59.783
+<v Andrea Velasquez>Hey.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/439-0
+01:22:07.943 --> 01:22:09.823
+<v Andrea Velasquez>Y es muy estado a todos los problemas.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/441-0
+01:22:14.823 --> 01:22:16.743
+<v Andrea Velasquez>Hola, les veré entre sí y el otro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/442-0
+01:22:19.183 --> 01:22:20.343
+<v Andrea Velasquez>Un poquito reenlace.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/443-0
+01:22:26.743 --> 01:22:29.023
+<v Andrea Velasquez>bueno, te está mostrando cómo es.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/444-0
+01:22:30.343 --> 01:22:30.703
+<v Andrea Velasquez>O K.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/447-0
+01:22:45.943 --> 01:22:49.570
+<v Andrea Velasquez>Aquí lo que lo hiciste.
+Pensaste que ya está el café.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/447-1
+01:22:49.570 --> 01:22:53.263
+<v Andrea Velasquez>Le gustaría que en esto ya uno pudiera
+haber todo eso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/448-0
+01:22:55.823 --> 01:23:05.383
+<v Andrea Velasquez>Entonces unificarlos o que el entre a ver
+este.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/449-0
+01:23:06.343 --> 01:23:08.423
+<v Andrea Velasquez>Porque el otro es más de.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/450-0
+01:23:09.823 --> 01:23:13.338
+<v Andrea Velasquez>Puede ser más para los líderes,
+los ingenieros,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/450-1
+01:23:13.338 --> 01:23:18.903
+<v Andrea Velasquez>toda esa parte más operativa y que ya él
+solamente entre a ver los números.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/451-0
+01:23:20.583 --> 01:23:21.103
+<v Andrea Velasquez>Ok.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/452-0
+01:23:23.743 --> 01:23:26.743
+<v Andrea Velasquez>¿Pero el otro usted no está en mi valores,
+no?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/453-0
+01:23:29.063 --> 01:23:31.696
+<v Andrea Velasquez>Aunque sí está la columna porque tenga
+valores,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/453-1
+01:23:31.696 --> 01:23:34.383
+<v Andrea Velasquez>tiene revisión está con valores en este
+momento.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/455-0
+01:23:42.343 --> 01:23:44.775
+<v Andrea Velasquez>Sí,
+esa sería la opción de pronto por el tipo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/455-1
+01:23:44.775 --> 01:23:45.303
+<v Andrea Velasquez>de filtro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/456-0
+01:23:47.623 --> 01:23:50.183
+<v Andrea Velasquez>That's a player in Bakma Tuman Tuman.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/458-0
+01:24:05.863 --> 01:24:06.583
+<v Andrea Velasquez>A todos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/459-0
+01:24:07.383 --> 01:24:07.943
+<v Andrea Velasquez>Pedro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/460-0
+01:24:14.343 --> 01:24:23.583
+<v Andrea Velasquez>Vea Juan Pablo que yo lo soy. Sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/461-0
+01:24:30.023 --> 01:24:36.696
+<v Andrea Velasquez>No, ese no. Exactamente no.
+Vimos un aprendido que era el de calor.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/461-1
+01:24:36.696 --> 01:24:41.799
+<v Andrea Velasquez>De calor, ¿no?
+Y este se actualiza con lo llenador.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/461-2
+01:24:41.799 --> 01:24:47.295
+<v Andrea Velasquez>Por ellos, ok.
+Hay que organizar este que las letras de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/461-3
+01:24:47.295 --> 01:24:53.183
+<v Andrea Velasquez>este que la letras. Ajá. La french.
+Lo azul, sí, es verdad.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/462-0
+01:24:53.863 --> 01:24:56.343
+<v Andrea Velasquez>también sea pobre Carolina la tienen pero</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/463-0
+01:25:01.143 --> 01:25:09.477
+<v Andrea Velasquez>y entonces acá lo que decías es por
+ejemplo que eh Juan Pablo va a ver lo de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/463-1
+01:25:09.477 --> 01:25:10.343
+<v Andrea Velasquez>Carolina</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/464-0
+01:25:14.743 --> 01:25:17.499
+<v Andrea Velasquez>Pues sí,
+Juan Pablo tiene un rol que no puede,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/464-1
+01:25:17.499 --> 01:25:19.903
+<v Andrea Velasquez>no le permita ver nada más y entonces sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/465-0
+01:25:20.783 --> 01:25:21.023
+<v Andrea Velasquez>No.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/467-0
+01:25:30.343 --> 01:25:31.223
+<v Andrea Velasquez>Va a ser mismo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/468-0
+01:25:33.503 --> 01:25:34.623
+<v Andrea Velasquez>Como bailona.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/469-0
+01:25:38.143 --> 01:25:47.715
+<v Andrea Velasquez>me va a superar el la semana de Juan
+Pablo ponerle al cinco Ah esa ya es para</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/469-1
+01:25:47.715 --> 01:25:56.919
+<v Andrea Velasquez>que cada uno lo parametrice cómo voy a
+distribuir el tiempo entonces voy a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/469-2
+01:25:56.919 --> 01:25:58.023
+<v Andrea Velasquez>brincarme</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/470-0
+01:25:58.423 --> 01:26:02.103
+<v Andrea Velasquez>En Torre Residencial Parque Central le
+voy a dar tanto porcentaje.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/473-0
+01:26:18.983 --> 01:26:19.863
+<v Andrea Velasquez>Productividad.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/474-0
+01:26:21.623 --> 01:26:23.423
+<v Andrea Velasquez>No le aparezcas un montón.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/475-0
+01:26:29.983 --> 01:26:34.301
+<v Andrea Velasquez>Listo. Y ya enviar semana.
+La verdad que sí supera el cien.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/475-1
+01:26:34.301 --> 01:26:40.203
+<v Andrea Velasquez>Pero entonces eso lo íbamos a cambiar, no?
+No. No, no, que vamos a hacer. Ah, sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/475-2
+01:26:40.203 --> 01:26:45.888
+<v Andrea Velasquez>porque es que la planeada. Pero no,
+es real que eso no está bien. Dale. Ya va,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/475-3
+01:26:45.888 --> 01:26:48.623
+<v Andrea Velasquez>sí, porque está haciendo una relación.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/476-0
+01:26:51.343 --> 01:26:57.463
+<v Andrea Velasquez>¿Y a dónde llegó? Miguel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/477-0
+01:27:01.703 --> 01:27:04.797
+<v Andrea Velasquez>Sí,
+de pronto puedo ver el resumen de cada</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/477-1
+01:27:04.797 --> 01:27:08.467
+<v Andrea Velasquez>persona. Lo organizo mejor,
+pues como lo planeado.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/477-2
+01:27:08.467 --> 01:27:14.223
+<v Andrea Velasquez>Que debería estar entonces en gestión.
+Que no vean que le metió una persona ya.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/478-0
+01:27:15.703 --> 01:27:17.303
+<v Andrea Velasquez>Yo les organizo ese panel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/479-0
+01:27:19.623 --> 01:27:19.863
+<v Andrea Velasquez>Listo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/480-0
+01:27:22.823 --> 01:27:27.223
+<v Andrea Velasquez>Bueno, acá entramos al Google, calentar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/481-0
+01:27:29.863 --> 01:27:34.485
+<v Andrea Velasquez>Que se puede importar las a bueno,
+crear un proyecto abajo están las</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/481-1
+01:27:34.485 --> 01:27:35.423
+<v Andrea Velasquez>instrucciones.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/482-0
+01:27:37.383 --> 01:27:41.503
+<v Andrea Velasquez>No, todavía no lo han conectado, Miguel.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/483-0
+01:27:45.743 --> 01:27:47.903
+<v Andrea Velasquez>Bueno,
+entonces lo que va a pasar es que cuando.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/484-0
+01:27:49.463 --> 01:27:56.494
+<v Andrea Velasquez>La idea es que lo muestre cuánto pues la
+relación o de acá tengo que preguntarle a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/484-1
+01:27:56.494 --> 01:28:02.593
+<v Andrea Velasquez>Miguel cómo vas a quedar bien esa
+relación y se las digo la otra semana</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/484-2
+01:28:02.593 --> 01:28:06.743
+<v Andrea Velasquez>bueno cuando nos volvamos a reunir de
+calendario</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/485-0
+01:28:12.023 --> 01:28:12.663
+<v Andrea Velasquez>No, ya.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/486-0
+01:28:14.583 --> 01:28:18.607
+<v Andrea Velasquez>Ya lo revisamos todo.
+Pues hasta lo que llevamos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/486-1
+01:28:18.607 --> 01:28:24.561
+<v Andrea Velasquez>Hay que crear es un botón que puedan
+crear más porque no está habilitado.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/486-2
+01:28:24.561 --> 01:28:28.343
+<v Andrea Velasquez>Pues si entro yo a trabajar no me puedo
+crear.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/487-0
+01:28:29.423 --> 01:28:32.943
+<v Andrea Velasquez>Poner la foto y poner la foto,
+no se me puede olvidar.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/488-0
+01:28:34.663 --> 01:28:38.623
+<v Andrea Velasquez>La foto,
+dale por favor en editar el Andrés, porfa,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/488-1
+01:28:38.623 --> 01:28:40.983
+<v Andrea Velasquez>en alguno de los que tenga rol.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/489-0
+01:28:43.823 --> 01:28:44.183
+<v Andrea Velasquez>Sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/490-0
+01:28:45.463 --> 01:28:47.783
+<v Andrea Velasquez>Solamente le permite editar el rol.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/491-0
+01:28:52.423 --> 01:28:52.863
+<v Andrea Velasquez>Sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/492-0
+01:28:56.423 --> 01:29:00.190
+<v Andrea Velasquez>Pero hay que organizarlo para que pueda
+tomar la foto.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/492-1
+01:29:00.190 --> 01:29:04.983
+<v Andrea Velasquez>¿Qué otra información les gustaría tener
+ahí? Pues el nombre, correo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/493-0
+01:29:06.543 --> 01:29:10.449
+<v Andrea Velasquez>Correo importante, sí,
+por si de pronto más adelante enlazamos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/493-1
+01:29:10.449 --> 01:29:13.983
+<v Andrea Velasquez>correos que ya los tengan de una vez ahí
+parametrizados.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/494-0
+01:29:16.023 --> 01:29:21.869
+<v Andrea Velasquez>Pargo muy ñoño. Ah, bueno, actívalos. Ah,
+eres muy ñoño.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/494-1
+01:29:21.869 --> 01:29:30.280
+<v Andrea Velasquez>Cumpleaños y que mande a leer, por favor.
+Somos los únicos que han hecho eso. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/494-2
+01:29:30.280 --> 01:29:35.100
+<v Andrea Velasquez>por el momento sí. No,
+pero eso es importante.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/494-3
+01:29:35.100 --> 01:29:40.023
+<v Andrea Velasquez>Pongo por lo general es cultura,
+colaboradores.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/495-0
+01:29:41.063 --> 01:29:48.404
+<v Andrea Velasquez>ponerla eh puesto fecha de inicio y fecha
+de fin porque fecha de fin si de pronto</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/495-1
+01:29:48.404 --> 01:29:55.476
+<v Andrea Velasquez>en algún momento se va pues pone cuando
+se fue para no tener que eliminarlo no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/495-2
+01:29:55.476 --> 01:29:59.863
+<v Andrea Velasquez>quita la trazabilidad y y ya sabe que
+pues tener</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/496-0
+01:29:59.903 --> 01:30:02.663
+<v Andrea Velasquez>que esa persona trabajó desde de esta
+fecha hasta esta fecha</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/497-0
+01:30:05.623 --> 01:30:10.493
+<v Andrea Velasquez>Y poner fecha de fin,
+pues automáticamente se va a inactivar y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/497-1
+01:30:10.493 --> 01:30:14.745
+<v Andrea Velasquez>ya no me va a permitir seleccionarlo en
+otro proyecto,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/497-2
+01:30:14.745 --> 01:30:21.162
+<v Andrea Velasquez>sino que ya tengo que seleccionar a otra
+persona para evitar y que no pueda volver</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/497-3
+01:30:21.162 --> 01:30:26.805
+<v Andrea Velasquez>a acceder al sistema. Otra cosa.
+Yo creo que estoy pensando en todas las</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/497-4
+01:30:26.805 --> 01:30:28.583
+<v Andrea Velasquez>problemáticas actuales.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/498-0
+01:30:29.823 --> 01:30:35.263
+<v Andrea Velasquez>Pues si asociado a lo del calendario,
+si se puede como reservar la sala.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/499-0
+01:30:37.823 --> 01:30:45.354
+<v Andrea Velasquez>Voy a buscar la forma de que se pueda
+reservar reservar esta zona Pues porque</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/499-1
+01:30:45.354 --> 01:30:51.050
+<v Andrea Velasquez>estamos saliendo muchos conflictos de
+acuerdo, de acuerdo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/499-2
+01:30:51.050 --> 01:30:56.263
+<v Andrea Velasquez>Primero hay que integrar el calendar para
+poder decir</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/500-0
+01:30:57.143 --> 01:31:06.188
+<v Andrea Velasquez>esa parte igual a mí no me parece Pues yo
+creo que sí se puede hacer y si crean un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/500-1
+01:31:06.188 --> 01:31:14.907
+<v Andrea Velasquez>correo para la sala pero sigue no no se
+fijan bien pues yo no sé qué fue lo que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/500-2
+01:31:14.907 --> 01:31:18.503
+<v Andrea Velasquez>pasó pero hay que ver pues uno no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/501-0
+01:31:20.183 --> 01:31:24.743
+<v Andrea Velasquez>Pero sí, hasta me voy todo, okay, todo,
+vamos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/502-0
+01:31:28.103 --> 01:31:32.503
+<v Andrea Velasquez>Antes vamos a puedes volver un segundo a
+proyectos.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/503-0
+01:31:35.463 --> 01:31:42.023
+<v Andrea Velasquez>¿Dónde es que aparece el check que yo ya
+dije que ejecuté ese proyecto?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/504-0
+01:31:43.703 --> 01:31:49.703
+<v Andrea Velasquez>Hm, darle en los teléfonos por actividad,
+sí, darle en el detalle.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/506-0
+01:31:51.543 --> 01:31:58.209
+<v Andrea Velasquez>y bajas un poquito porfa no debe ser
+entonces en el cronograma pero como no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/506-1
+01:31:58.209 --> 01:31:58.823
+<v Andrea Velasquez>tenemos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/507-0
+01:32:00.503 --> 01:32:01.023
+<v Andrea Velasquez>Sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/508-0
+01:32:02.423 --> 01:32:08.338
+<v Andrea Velasquez>¿Cómo vamos a manejar esa parte que sea
+solo el check o que yo tenga que poner un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/508-1
+01:32:08.338 --> 01:32:11.223
+<v Andrea Velasquez>check y una evidencia de lo que ejecuté?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/509-0
+01:32:12.663 --> 01:32:20.733
+<v Andrea Velasquez>y pues la verdad es que si alguien por el
+checking es muy fácil darse cuenta que no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/509-1
+01:32:20.733 --> 01:32:28.323
+<v Andrea Velasquez>lo hizo si no lo chequeaste y yo veo pero
+la entrega no llegaste pues no tiene</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/509-2
+01:32:28.323 --> 01:32:34.183
+<v Andrea Velasquez>sentido al menos como una validación de
+que yo puse el check</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/510-0
+01:32:34.663 --> 01:32:39.014
+<v Andrea Velasquez>bueno dije entregado pero también me
+pongo la fecha y la hora de cuando lo</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/510-1
+01:32:39.014 --> 01:32:43.654
+<v Andrea Velasquez>entregué Eso estaría muy bueno porque no
+pues si yo pongo que registré la fecha</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/510-2
+01:32:43.654 --> 01:32:48.295
+<v Andrea Velasquez>del check Ajá eso sí estaría muy bueno
+porque ahí te diría el check real y allá</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/510-3
+01:32:48.295 --> 01:32:52.819
+<v Andrea Velasquez>te puedes hacer la comparación entre
+cuando lo tenía que entregar y cuando sí</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/510-4
+01:32:52.819 --> 01:32:53.863
+<v Andrea Velasquez>eso sí sería bueno</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/511-0
+01:32:54.743 --> 01:32:59.932
+<v Andrea Velasquez>y Y si para hacer el cheque necesita
+subir algún alguna evidencia una vaina no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/511-1
+01:32:59.932 --> 01:33:05.186
+<v Andrea Velasquez>no por eso no le damos tanto abuso por
+eso porque la audiencia es para que como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/511-2
+01:33:05.186 --> 01:33:10.440
+<v Andrea Velasquez>para saber si lo Pues sí sí es verdad
+creo que sí porque no por eso pero es que</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/511-3
+01:33:10.440 --> 01:33:14.183
+<v Andrea Velasquez>la captura de YouTube no por eso pero es
+que la la forma</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/512-0
+01:33:14.583 --> 01:33:19.167
+<v Andrea Velasquez>es que si no llegas a la entrega con las
+cosas pues así haya chequeado no importa</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/512-1
+01:33:19.167 --> 01:33:23.807
+<v Andrea Velasquez>Yo creo que eso es muy interiorizado que
+pues no es como que chequeo y ya todos me</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/512-2
+01:33:23.807 --> 01:33:28.391
+<v Andrea Velasquez>ven como que voy bien no uno chequea como
+para llevar la trazabilidad Entonces no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/512-3
+01:33:28.391 --> 01:33:32.864
+<v Andrea Velasquez>hay esa cultura pues de chequear algo que
+no se ha hecho no creo que eso vaya a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/512-4
+01:33:32.864 --> 01:33:33.143
+<v Andrea Velasquez>pasar</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/513-0
+01:33:33.863 --> 01:33:38.715
+<v Andrea Velasquez>Pero como para ir adelantando trabajos,
+si yo quiero subir algo, entregable,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/513-1
+01:33:38.715 --> 01:33:41.613
+<v Andrea Velasquez>una foto,
+que yo pueda darle check y tenga la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/513-2
+01:33:41.613 --> 01:33:46.969
+<v Andrea Velasquez>opción y que de una se vaya a la parte de
+documentación para llevar la trazabilidad.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/513-3
+01:33:46.969 --> 01:33:50.812
+<v Andrea Velasquez>Ah no, eso es hermoso,
+pero pues como que tenía que hacer un</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/513-4
+01:33:50.812 --> 01:33:53.900
+<v Andrea Velasquez>plano,
+termine el plano y subo el pdf del plano.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/513-5
+01:33:53.900 --> 01:33:57.743
+<v Andrea Velasquez>Bueno, eso es muy hermoso, pues. Ok,
+lo que es la comunidad.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/514-0
+01:33:57.823 --> 01:34:03.228
+<v Andrea Velasquez>Te lo ponen los niños y si eso lo hace.
+Pues si tú lo subes, normal, yo le doy.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/514-1
+01:34:03.228 --> 01:34:06.741
+<v Andrea Velasquez>Ah, ya terminé esta tarea.
+Que me registre la hora,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/514-2
+01:34:06.741 --> 01:34:11.673
+<v Andrea Velasquez>la fecha y si necesito subir algo,
+pues lo dejo ahí en pa' que queden la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/514-3
+01:34:11.673 --> 01:34:15.523
+<v Andrea Velasquez>trazabilidad. Ah,
+tenía que ser el plano de la meta. No,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/514-4
+01:34:15.523 --> 01:34:18.023
+<v Andrea Velasquez>mentira. Pues no me parece algo malo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/515-0
+01:34:18.583 --> 01:34:24.660
+<v Andrea Velasquez>pero pues no sé si por el tema de espacio
+sobre todo de que no son menores los la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/515-1
+01:34:24.660 --> 01:34:30.070
+<v Andrea Velasquez>cantidad de archivos pues una entrega
+podría generar 40 gigas de entrega</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/515-2
+01:34:30.070 --> 01:34:36.073
+<v Andrea Velasquez>tranquilamente o un link al Google Drive
+puede ser eso sí puede ser termine este</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/515-3
+01:34:36.073 --> 01:34:37.703
+<v Andrea Velasquez>servicio y acá está el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/516-0
+01:34:38.623 --> 01:34:45.128
+<v Andrea Velasquez>Y es muy bueno porque te quería mostrar
+la idea de esto es que después por</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/516-1
+01:34:45.128 --> 01:34:50.678
+<v Andrea Velasquez>ejemplo en un futuro un poquito lejano el
+cliente pueda entrar,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/516-2
+01:34:50.678 --> 01:34:57.703
+<v Andrea Velasquez>se bloquee y vea que el líder ya terminó
+este producto y tenga acceso al online.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/517-0
+01:34:58.503 --> 01:35:00.583
+<v Andrea Velasquez>El día me parece internet, sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/518-0
+01:35:02.263 --> 01:35:07.437
+<v Andrea Velasquez>Entonces es más fácil que yo le le marque
+como terminada y me pida pues me me ponga</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/518-1
+01:35:07.437 --> 01:35:12.241
+<v Andrea Velasquez>automáticamente la fecha, la hora,
+alguna observación, tuve algún problema...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/518-2
+01:35:12.241 --> 01:35:16.922
+<v Andrea Velasquez>Pero que no sea obligatorio lo subir,
+porque hay actividades que no generan</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/518-3
+01:35:16.922 --> 01:35:19.878
+<v Andrea Velasquez>nada,
+hay una actividad como bajar puntos y una</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/518-4
+01:35:19.878 --> 01:35:23.143
+<v Andrea Velasquez>topografía,
+eso me genera que el modelo ya tiene los</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/518-5
+01:35:23.143 --> 01:35:25.914
+<v Andrea Velasquez>puntos,
+pero yo no tengo donde dejarte nada,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/518-6
+01:35:25.914 --> 01:35:27.023
+<v Andrea Velasquez>porque está ahí en</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/519-0
+01:35:27.463 --> 01:35:33.782
+<v Andrea Velasquez>sí no pues me hace me abre como un
+cuadrito chiquito me pone automáticamente</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/519-1
+01:35:33.782 --> 01:35:40.183
+<v Andrea Velasquez>la fecha la hora el si necesito poner
+alguna nota ir el link al al entregable</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/520-0
+01:35:44.023 --> 01:35:46.983
+<v Andrea Velasquez>Y ya guardaron con eso,
+ya chequearían todo.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/521-0
+01:35:49.743 --> 01:35:55.493
+<v Andrea Velasquez>¿Y no alguna otra cosa que se les ocurra?
+No, pero ahora estamos...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/521-1
+01:35:55.493 --> 01:36:00.143
+<v Andrea Velasquez>Salga pero hay una vaca volando.
+A ver si me puedes...</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/522-0
+01:36:02.503 --> 01:36:04.463
+<v Andrea Velasquez>Voy a ver si tengo acceso.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/523-0
+01:36:07.223 --> 01:36:11.411
+<v Andrea Velasquez>Yo tengo una duda entre ya,
+como con el tema gráfico de esos detalles</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/523-1
+01:36:11.411 --> 01:36:14.941
+<v Andrea Velasquez>que hemos hablado,
+en algún momento por ejemplo coger como</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/523-2
+01:36:14.941 --> 01:36:19.608
+<v Andrea Velasquez>este insumo de los lookers como base,
+empezar a revisar de pronto los colores</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/523-3
+01:36:19.608 --> 01:36:23.557
+<v Andrea Velasquez>de la tipografía y algunas cosas,
+incluso con el que nos veníamos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/523-4
+01:36:23.557 --> 01:36:27.267
+<v Andrea Velasquez>correlacionando a eso,
+como podemos empezar a trabajar en ese</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/523-5
+01:36:27.267 --> 01:36:28.583
+<v Andrea Velasquez>norte o en ese alcance</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/524-0
+01:36:28.823 --> 01:36:33.789
+<v Andrea Velasquez>Pues para que de pronto no dependa 100%
+de de que se ejecute por parte de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/524-1
+01:36:33.789 --> 01:36:39.023
+<v Andrea Velasquez>Ingunova o si con el equipo de texto
+podemos ir actualizando esa información.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/524-2
+01:36:39.023 --> 01:36:44.324
+<v Andrea Velasquez>Pero yo creo que a mí me gustaría que
+primero esto lo dejamos funcionando full</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/524-3
+01:36:44.324 --> 01:36:48.216
+<v Andrea Velasquez>y luego pasar a eso.
+Yo he estado como también viendo esa</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/524-4
+01:36:48.216 --> 01:36:51.303
+<v Andrea Velasquez>parte porque yo sé que esa parte no
+interesa.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/525-0
+01:36:51.943 --> 01:36:55.885
+<v Andrea Velasquez>y de pronto que eh Miguel y esa Andrea
+¿Cierto se llama? Sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/525-1
+01:36:55.885 --> 01:37:00.797
+<v Andrea Velasquez>Eh puedan seguir trabajando todas estas
+funciones que que enfocarnos en las</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/525-2
+01:37:00.797 --> 01:37:04.545
+<v Andrea Velasquez>funcionalidades.
+Y nosotros ir que te voy a mostrar acá y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/525-3
+01:37:04.545 --> 01:37:09.263
+<v Andrea Velasquez>le voy a mostrar que terminen de montar
+la casa ahorita la pintamos. Sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/526-0
+01:37:11.703 --> 01:37:17.448
+<v Andrea Velasquez>Todavía me dejan los usuarios en el grupo
+y yo apenas pueda porque yo no,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/526-1
+01:37:17.448 --> 01:37:22.184
+<v Andrea Velasquez>como yo no, yo tengo mi github,
+pero no tengo el de empresa,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/526-2
+01:37:22.184 --> 01:37:26.299
+<v Andrea Velasquez>entonces para poderlo hacer me toca desde
+otro lado.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/526-3
+01:37:26.299 --> 01:37:30.103
+<v Andrea Velasquez>Eso obviamente se llama el grupo,
+no tiene nada.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/527-0
+01:37:31.543 --> 01:37:41.426
+<v Andrea Velasquez>transformación digital HTML que entonces
+siempre te le dije la marca eso es uno de</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/527-1
+01:37:41.426 --> 01:37:50.594
+<v Andrea Velasquez>los colores categoría hasta las tres de
+la tarde pero yo no tengo requisitos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/527-2
+01:37:50.594 --> 01:37:52.023
+<v Andrea Velasquez>asignar esos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/528-0
+01:37:55.463 --> 01:38:00.178
+<v Andrea Velasquez>O sea,
+yo sé que yo lo podemos integrar con el</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/528-1
+01:38:00.178 --> 01:38:05.194
+<v Andrea Velasquez>código que se llama comparta,
+lo pasamos por acá.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/528-2
+01:38:05.194 --> 01:38:10.009
+<v Andrea Velasquez>Pero las bases están en el.
+Fábricas tranquila.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/528-3
+01:38:10.009 --> 01:38:14.423
+<v Andrea Velasquez>Se llama transformación. Se llama.
+Gracias.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/529-0
+01:38:14.983 --> 01:38:20.396
+<v Andrea Velasquez>Sino que ya me dijo que no Seguro que
+hacemos una transformación digital y no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/529-1
+01:38:20.396 --> 01:38:26.017
+<v Andrea Velasquez>fábricas de productividad A ver Fábricas
+de Productividad Ay qué pena Yo escribí</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/529-2
+01:38:26.017 --> 01:38:31.430
+<v Andrea Velasquez>que iba a llegar tarde en el grupo que no
+era Esta capa no escucha segura No,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/529-3
+01:38:31.430 --> 01:38:36.149
+<v Andrea Velasquez>Juan pues incluso podemos incluso le
+podemos hacer una cosita en la</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/529-4
+01:38:36.149 --> 01:38:38.023
+<v Andrea Velasquez>configuración donde podamos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/530-0
+01:38:38.983 --> 01:38:45.934
+<v Andrea Velasquez>cambiar los colores poner ahí una una
+paletica para editarlo o sea ponerle</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/530-1
+01:38:45.934 --> 01:38:52.143
+<v Andrea Velasquez>skins lo que usted quiera Ah bueno no el
+usuario es de lo que pasa</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/531-0
+01:38:54.023 --> 01:39:00.352
+<v Andrea Velasquez>Anyorita escribí en un grupo que iba a
+llegar 5 minutos tarde y ya me no era</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/531-1
+01:39:00.352 --> 01:39:06.682
+<v Andrea Velasquez>este y como venía todo encartada en la
+moto no me fijé bien en el nombre del</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/531-2
+01:39:06.682 --> 01:39:08.983
+<v Andrea Velasquez>grupo y no te dieron nada no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/532-0
+01:39:12.103 --> 01:39:12.903
+<v Andrea Velasquez>aún no</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/533-0
+01:39:19.383 --> 01:39:21.703
+<v Andrea Velasquez>Beast Singh in Fitch Market.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/534-0
+01:39:29.223 --> 01:39:33.047
+<v Andrea Velasquez>Yo en la tarde apenas tenga acceso al
+otro agosto explicativo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/534-1
+01:39:33.047 --> 01:39:34.503
+<v Andrea Velasquez>les mando la invitación.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/535-0
+01:39:40.103 --> 01:39:43.370
+<v Andrea Velasquez>¿Qué sigue?
+¿Cuándo nos volvemos a ver para eso?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/535-1
+01:39:43.370 --> 01:39:48.170
+<v Andrea Velasquez>Pues la otra semana es una reunioncita,
+pero es muy importe como... Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/535-2
+01:39:48.170 --> 01:39:52.236
+<v Andrea Velasquez>eso es para... Sí,
+es Miguel y es para hablar de otras cosas</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/535-3
+01:39:52.236 --> 01:39:54.103
+<v Andrea Velasquez>diferente Asus consultorías.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/536-0
+01:39:56.703 --> 01:40:00.695
+<v Andrea Velasquez>No sé.
+Pues yo la otra semana trabajo normal.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/536-1
+01:40:00.695 --> 01:40:07.204
+<v Andrea Velasquez>No sé si ustedes van a trabajar. Ah,
+si yo entiendo que es festivo y puede</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/536-2
+01:40:07.204 --> 01:40:12.672
+<v Andrea Velasquez>vivir. O nos vemos o después.
+Pues nosotros podemos de lunes a</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/536-3
+01:40:12.672 --> 01:40:17.185
+<v Andrea Velasquez>miércoles.
+Yo creo que el lunes a miércoles estamos</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/536-4
+01:40:17.185 --> 01:40:20.743
+<v Andrea Velasquez>acá full. Pero me puedo cargar un jueves.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/537-0
+01:40:21.063 --> 01:40:27.276
+<v Andrea Velasquez>yo no tengo problema si no no no no era
+porque no tenían el mapa que no sé por</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/537-1
+01:40:27.276 --> 01:40:32.938
+<v Andrea Velasquez>qué por eso dije que si si iban a
+trabajar la otra semana unas martes y</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/537-2
+01:40:32.938 --> 01:40:39.543
+<v Andrea Velasquez>miércoles todo este miércoles yo creo que
+el miércoles si quieres a esta hora ¿Qué?</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/538-0
+01:40:40.463 --> 01:40:48.423
+<v Andrea Velasquez>por favor para rezar? Sí, para</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/539-0
+01:40:54.583 --> 01:40:55.303
+<v Andrea Velasquez>He's done the floor.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/540-0
+01:40:57.983 --> 01:41:00.303
+<v Andrea Velasquez>Pero para poner un parque en de sangre.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/543-0
+01:41:10.303 --> 01:41:14.251
+<v Andrea Velasquez>La verdad que escuché la relación con
+Michael. Sí claro, yo estaba ahí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/543-1
+01:41:14.251 --> 01:41:17.321
+<v Andrea Velasquez>Pues no hay como nada así relevante la
+verdad. Pues no,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/543-2
+01:41:17.321 --> 01:41:21.159
+<v Andrea Velasquez>me dijo que le había usado mucho y tal.
+Pero el video, pero yo no sé,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/543-3
+01:41:21.159 --> 01:41:25.052
+<v Andrea Velasquez>yo descargué la carpeta y...
+Pero igual ese no va a ser el video pues,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/543-4
+01:41:25.052 --> 01:41:29.383
+<v Andrea Velasquez>y de hecho esas no van a ser las imágenes,
+están actualizando en este momento.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/544-0
+01:41:29.423 --> 01:41:32.679
+<v Andrea Velasquez>Eso era como para que se nos lleve
+apelado, pues. Sí,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/544-1
+01:41:32.679 --> 01:41:35.935
+<v Andrea Velasquez>nosotros entre hoy y mañana vamos a tener.
+Ah, bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/544-2
+01:41:35.935 --> 01:41:40.155
+<v Andrea Velasquez>Naty si tiene unos comentarios de pronto
+de funcionalidad. Sí, claro.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/544-3
+01:41:40.155 --> 01:41:45.341
+<v Andrea Velasquez>Aprovechemos para que hablemos de eso. Sí,
+pues es un voto que no se quiere. Pues sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/544-4
+01:41:45.341 --> 01:41:48.175
+<v Andrea Velasquez>Eso se puede quitar, pues incluso. Ajá.
+Bueno,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/544-5
+01:41:48.175 --> 01:41:51.310
+<v Andrea Velasquez>digo como que esto no estaba rotando. Ah,
+sí, mira,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/544-6
+01:41:51.310 --> 01:41:54.023
+<v Andrea Velasquez>pues mira que siempre se queda en
+evolución.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/545-0
+01:41:54.223 --> 01:41:54.943
+<v Andrea Velasquez>Pues sí.</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/546-0
+01:41:57.263 --> 01:42:01.625
+<v Andrea Velasquez>Bueno,
+este es un país que existan en el ciclo,</v>
+
+e15e148e-68b1-44ff-970d-77d8c4f97079/546-1
+01:42:01.625 --> 01:42:04.623
+<v Andrea Velasquez>ojalá invertir, poner estos datos</v>

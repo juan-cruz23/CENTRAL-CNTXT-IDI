@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Seguimiento Actividad 4 — Marzo 2026</title>
+<style>
+  @page { size: A4; margin: 14mm 18mm 14mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #2C2C2C; background: white; }
+
+  .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 3px solid #E8680D; margin-bottom: 14px; }
+  .header-left .prog { font-size: 7.5pt; font-weight: 700; color: #E8680D; text-transform: uppercase; letter-spacing: 1px; }
+  .header-left h1 { font-size: 12pt; color: #1A3A5C; font-weight: 700; margin-top: 3px; }
+  .header-left h2 { font-size: 9pt; color: #555; font-weight: 400; margin-top: 2px; }
+  .header-right img { height: 44px; }
+
+  .act-header { background: #1A3A5C; color: white; padding: 14px 18px; border-radius: 4px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .act-header .left .num { font-size: 8pt; opacity: 0.75; margin-bottom: 4px; }
+  .act-header .left h2 { font-size: 12pt; font-weight: 700; line-height: 1.3; }
+  .status-ok { background: #1E8449; color: white; padding: 4px 12px; border-radius: 12px; font-size: 8pt; font-weight: 700; white-space: nowrap; }
+
+  .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .info-card { background: #F5F7FA; padding: 9px 12px; border-radius: 4px; border-left: 3px solid #E8680D; }
+  .info-card .lbl { font-size: 7pt; color: #999; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-card .val { font-size: 9pt; color: #1A3A5C; font-weight: 700; margin-top: 3px; }
+
+  .section { margin-bottom: 12px; }
+  .stitle { font-size: 8.5pt; font-weight: 700; color: #1A3A5C; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 2px solid #E8680D; padding-bottom: 4px; margin-bottom: 8px; }
+
+  .obj-box { background: #EFF4FB; border-left: 4px solid #1A3A5C; padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 9.5pt; line-height: 1.6; color: #333; }
+
+  table.ipt-table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+  .ipt-table th { background: #1A3A5C; color: white; padding: 6px 9px; text-align: left; font-size: 7.5pt; font-weight: 600; }
+  .ipt-table td { padding: 6px 9px; border-bottom: 1px solid #E5E5E5; font-size: 8pt; vertical-align: middle; }
+  .ipt-table tr:nth-child(even) td { background: #F8F9FB; }
+  .tag-fijo { background: #D5E8F5; color: #1A3A5C; padding: 2px 6px; border-radius: 10px; font-size: 6.5pt; font-weight: 700; }
+  .tag-var { background: #FEE8D5; color: #C0550A; padding: 2px 6px; border-radius: 10px; font-size: 6.5pt; font-weight: 700; }
+  .tag-amb { background: #D5F5E3; color: #1E8449; padding: 2px 6px; border-radius: 10px; font-size: 6.5pt; font-weight: 700; }
+  .neg { color: #C0392B; font-weight: 700; }
+  .meta { color: #1E8449; font-weight: 700; }
+  .lb { font-weight: 700; color: #E8680D; }
+
+  .act-list { list-style: none; padding: 0; }
+  .act-list li { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid #F0F0F0; font-size: 9pt; line-height: 1.5; }
+  .act-list li .num { background: #E8680D; color: white; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7.5pt; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 8px; }
+  .kpi-card { background: #F5F7FA; border-radius: 4px; padding: 9px 12px; border-top: 3px solid #1A3A5C; text-align: center; }
+  .kpi-card .kl { font-size: 7pt; color: #888; font-weight: 700; text-transform: uppercase; }
+  .kpi-card .kv { font-size: 14pt; font-weight: 800; color: #E8680D; }
+  .kpi-card .ku { font-size: 7.5pt; color: #555; }
+
+  .images-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .img-container { text-align: center; }
+  .img-container img { max-width: 100%; border: 1px solid #DDD; border-radius: 4px; max-height: 150px; object-fit: contain; }
+  .img-caption { font-size: 7.5pt; color: #777; margin-top: 4px; font-style: italic; }
+
+  .obs-box { background: #FEF9E7; border-left: 4px solid #F39C12; padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 9pt; line-height: 1.6; }
+
+  .footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #DDD; display: flex; justify-content: space-between; font-size: 7.5pt; color: #999; }
+
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="prog">Fábricas de Productividad · Colombia Productiva · Productividad Operacional</div>
+    <h1>Seguimiento de Actividad — Marzo 2026</h1>
+    <h2>CONTEXTO ARQUITECTURA S.A.S. (CNTXT Casa de Diseño) · NIT 900.948.892-7</h2>
+  </div>
+  <div class="header-right">
+    <img src="file:///home/mrodriguez/proyectos/Contexto/media/avatars/LOGOS_INDUNNOVA_ORIGINALES-01.png" alt="INDUNNOVA">
+  </div>
+</div>
+
+<!-- ACTIVIDAD HEADER -->
+<div class="act-header">
+  <div class="left">
+    <div class="num">ACTIVIDAD 4 DE 4</div>
+    <h2>Cuantificación de líneas base y validación<br>del mapeo de proceso</h2>
+  </div>
+  <div class="status-ok">✓ Completada</div>
+</div>
+
+<!-- INFO GRID -->
+<div class="info-grid">
+  <div class="info-card">
+    <div class="lbl">Tipo</div>
+    <div class="val">Diagnóstico · Medición</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Período</div>
+    <div class="val">2 – 7 mar. 2026</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Consultor</div>
+    <div class="val">M. B. Rodríguez T.</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Metodología</div>
+    <div class="val">VSM + Cronometría</div>
+  </div>
+</div>
+
+<!-- OBJETIVO -->
+<div class="section">
+  <div class="stitle">Objetivo</div>
+  <div class="obj-box">
+    Medir mediante cronometraje directo los tiempos reales de las actividades identificadas (transcripción, búsqueda, consolidación, actualización, reconciliación). Calcular los indicadores de línea base: <strong>TNVA, TCP, costo de desperdicios por perfil, costo unitario por proyecto, puntos de contacto y consumo de papel</strong>. Validar el mapa de proceso actual con el equipo directivo e identificar las principales oportunidades de mejora.
+  </div>
+</div>
+
+<!-- INDICADORES - TODOS -->
+<div class="section">
+  <div class="stitle">Resumen de los 6 indicadores — Línea base medida marzo 2026</div>
+  <table class="ipt-table">
+    <tr>
+      <th>#</th>
+      <th>Indicador</th>
+      <th>Tipo</th>
+      <th>Unidad</th>
+      <th>Línea base</th>
+      <th>Meta</th>
+      <th>Variación</th>
+    </tr>
+    <tr>
+      <td><strong>IPT-1</strong></td>
+      <td>Tiempo que No Agrega Valor (TNVA)</td>
+      <td><span class="tag-fijo">Fijo</span></td>
+      <td>Min / semana</td>
+      <td class="lb">280</td>
+      <td class="meta">196</td>
+      <td class="neg">-30,00 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-2</strong></td>
+      <td>Tiempo de Ciclo de Gestión Operativa (TCP)</td>
+      <td><span class="tag-fijo">Fijo</span></td>
+      <td>Horas hábiles</td>
+      <td class="lb">48</td>
+      <td class="meta">16</td>
+      <td class="neg">-66,67 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-3</strong></td>
+      <td>Ahorro en Desperdicios Operativos (AD)</td>
+      <td><span class="tag-var">Variable</span></td>
+      <td>COP / mes</td>
+      <td class="lb">$ 1.050.000</td>
+      <td class="meta">$ 682.500</td>
+      <td class="neg">-35,00 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-4</strong></td>
+      <td>Costo Unitario Gestión por Proyecto (CU)</td>
+      <td><span class="tag-var">Variable</span></td>
+      <td>COP / proy / mes</td>
+      <td class="lb">$ 81.923</td>
+      <td class="meta">$ 53.250</td>
+      <td class="neg">-35,00 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-5</strong></td>
+      <td>Optimización de Puntos de Contacto (OPC)</td>
+      <td><span class="tag-var">Variable</span></td>
+      <td>Handoffs / ciclo</td>
+      <td class="lb">7</td>
+      <td class="meta">3</td>
+      <td class="neg">-57,14 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-6</strong></td>
+      <td>Impacto Ambiental — Consumo de papel (IA)</td>
+      <td><span class="tag-amb">Ambiental</span></td>
+      <td>Hojas / mes</td>
+      <td class="lb">170</td>
+      <td class="meta">145</td>
+      <td class="neg">-14,71 %</td>
+    </tr>
+  </table>
+</div>
+
+<!-- KPIs RESUMEN -->
+<div class="section">
+  <div class="stitle">Métricas clave del diagnóstico</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kl">TNVA medido</div>
+      <div class="kv">280</div>
+      <div class="ku">min / semana · 5 actividades NVA</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kl">TCP medido</div>
+      <div class="kv">48 h</div>
+      <div class="ku">hábiles · 6 hitos del ciclo</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kl">Costo desperdicios</div>
+      <div class="kv">$1,05M</div>
+      <div class="ku">COP / mes · 3 perfiles</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kl">Costo unitario</div>
+      <div class="kv">$81.923</div>
+      <div class="ku">COP / proyecto / mes · 13 proyectos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kl">Puntos de contacto</div>
+      <div class="kv">7</div>
+      <div class="ku">handoffs / ciclo de reporte</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kl">Consumo de papel</div>
+      <div class="kv">170</div>
+      <div class="ku">hojas / mes · 5 tipos de documento</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVIDADES REALIZADAS -->
+<div class="section">
+  <div class="stitle">Actividades realizadas</div>
+  <ul class="act-list">
+    <li><span class="num">1</span><span>Levantamiento del VSM del proceso actual: 12 subprocesos mapeados (5 VA + 7 NVA), Lead Time total 700 min/sem, eficiencia del proceso 60 %.</span></li>
+    <li><span class="num">2</span><span>Medición cronometrada de las 5 actividades NVA: transcripción (75 min/sem), búsqueda (100 min/sem), consolidación (45 min/sem), actualización (30 min/sem) y reconciliación (30 min/sem). Total: 280 min/sem.</span></li>
+    <li><span class="num">3</span><span>Medición del ciclo TCP por hitos: registro (12 h), consolidación tabla gruesa (12 h), preparación reporte (16 h), revisión directiva (4 h), escalamiento (4 h). Total: 48 h hábiles.</span></li>
+    <li><span class="num">4</span><span>Cálculo del costo de desperdicios por perfil con honorarios reales: Líder $727.750 (68 %), Director Ejecutivo $270.836 (26 %), Director Creativo $67.813 (6 %). Total: $1.066.399 COP/mes.</span></li>
+    <li><span class="num">5</span><span>Inventario físico de consumo de papel: 5 tipos de documento, 170 hojas/mes. Identificación de los reportes ejecutivos impresos (40 hojas/mes) como principal objetivo de digitalización.</span></li>
+    <li><span class="num">6</span><span>Validación del VSM con el equipo directivo (Simón y Juan Pablo) e identificación de las 3 principales oportunidades de mejora priorizadas por impacto y factibilidad.</span></li>
+  </ul>
+</div>
+
+<!-- EVIDENCIAS VSM -->
+<div class="section">
+  <div class="stitle">Evidencias — VSM del proceso de gestión de proyectos</div>
+  <div class="images-grid">
+    <div class="img-container">
+      <img src="file:///home/mrodriguez/proyectos/Contexto/fabricas/VSM_Proceso_Actual_CNTXT.png" alt="VSM Proceso Actual">
+      <div class="img-caption">VSM Proceso Actual — 12 subprocesos, TNVA 280 min/sem, Lead Time 700 min/sem, eficiencia del proceso VA = 60 %</div>
+    </div>
+    <div class="img-container">
+      <img src="file:///home/mrodriguez/proyectos/Contexto/fabricas/VSM_TCP_CNTXT.png" alt="VSM Ciclo TCP">
+      <div class="img-caption">VSM Ciclo de Gestión Operativa — TCP 48 h hábiles medidas en 6 hitos, desde ocurrencia del evento hasta decisión correctiva</div>
+    </div>
+  </div>
+</div>
+
+<!-- OBSERVACIONES -->
+<div class="section">
+  <div class="stitle">Observaciones</div>
+  <div class="obs-box">
+    <strong>1.</strong> Las mediciones se realizaron mediante cronometraje directo en 2 sesiones de trabajo con el Líder de Proyecto (Mike), validadas con registros históricos de Google Sheets.<br><br>
+    <strong>2.</strong> La búsqueda de información dispersa en múltiples plataformas (100 min/sem) es la actividad NVA de mayor volumen — impacta directamente al Líder de Proyecto, quien concentra el 68 % del costo total de desperdicios ($727.750 COP/mes).<br><br>
+    <strong>3.</strong> Todos los indicadores superan el umbral mínimo de variación del 8 % exigido por el programa: TNVA -30 %, TCP -66,67 %, AD -35 %, CU -35 %, OPC -57,14 %, IA -14,71 %.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>Consultor: Miguel Bernardo Rodríguez Torres · mrodriguez@indunnova.com · 318 847 1799</span>
+  <span>Extensionista: INDUNNOVA S.A.S. · Intervención: 09/04/2026 – 18/06/2026</span>
+  <span>Reporte generado: 31 de marzo de 2026</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cómo funciona el Prorrateo — CNTXT</title>
+<style>
+  :root {
+    --brand:   #1d4ed8;
+    --brand-lt:#dbeafe;
+    --made:    #7c3aed;
+    --made-lt: #ede9fe;
+    --sel:     #0891b2;
+    --sel-lt:  #cffafe;
+    --ok:      #16a34a;
+    --ok-lt:   #dcfce7;
+    --warn:    #d97706;
+    --warn-lt: #fef3c7;
+    --gray:    #374151;
+    --border:  #e5e7eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    color: var(--gray);
+    background: #f8fafc;
+    line-height: 1.7;
+  }
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Cover */
+  .cover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    color: #fff;
+    border-radius: 16px;
+    padding: 48px 40px 40px;
+    margin-bottom: 48px;
+  }
+  .cover h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+  .cover p  { opacity: .85; font-size: 16px; max-width: 580px; }
+  .cover .meta {
+    margin-top: 28px; display: flex; gap: 32px; flex-wrap: wrap;
+    font-size: 13px; opacity: .7;
+  }
+  .cover .meta span b { display: block; color: #fff; opacity: 1; font-size: 14px; }
+
+  /* Section */
+  h2 {
+    font-size: 21px; font-weight: 800;
+    color: #111827;
+    margin: 52px 0 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .num {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: var(--brand); color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800;
+  }
+  h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; color: #111827; }
+
+  /* Cards */
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .card p + p { margin-top: 12px; }
+
+  /* Step flow */
+  .steps-h {
+    display: flex; flex-wrap: wrap; align-items: stretch; gap: 0;
+    margin: 8px 0 24px;
+  }
+  .step-h {
+    flex: 1; min-width: 160px;
+    background: var(--brand-lt);
+    border: 2px solid var(--brand);
+    border-radius: 12px;
+    padding: 18px 16px;
+    text-align: center;
+    position: relative;
+  }
+  .step-h .ico  { font-size: 28px; margin-bottom: 8px; }
+  .step-h .lbl  { font-weight: 700; font-size: 14px; color: var(--brand); }
+  .step-h .desc { font-size: 12px; color: #6b7280; margin-top: 4px; }
+  .step-arrow {
+    display: flex; align-items: center; padding: 0 6px;
+    color: #9ca3af; font-size: 22px; flex-shrink: 0;
+  }
+
+  /* Two-column split */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .cols { grid-template-columns: 1fr; } }
+
+  /* Unit boxes */
+  .unit-box {
+    border-radius: 12px; padding: 20px;
+    border: 2px solid;
+  }
+  .unit-box.made { background: var(--made-lt); border-color: var(--made); }
+  .unit-box.sel  { background: var(--sel-lt);  border-color: var(--sel); }
+  .unit-box h4   { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .unit-box.made h4 { color: var(--made); }
+  .unit-box.sel  h4 { color: var(--sel); }
+  .unit-box p    { font-size: 13px; }
+
+  /* Formula (friendly) */
+  .formula {
+    background: #f1f5f9;
+    border-left: 4px solid var(--brand);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .formula .line { margin: 4px 0; }
+  .formula .result { font-weight: 800; color: var(--ok); font-size: 16px; }
+  .formula .note { font-size: 12px; color: #6b7280; margin-top: 8px; }
+
+  /* Example table */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+  th {
+    background: #f9fafb; text-align: left;
+    padding: 10px 14px; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .05em;
+    border-bottom: 2px solid var(--border); font-weight: 700;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: #f9fafb; }
+  .made-tag { display:inline-block; background:var(--made-lt); color:var(--made); border-radius:99px; padding:2px 10px; font-size:12px; font-weight:700; }
+  .sel-tag  { display:inline-block; background:var(--sel-lt);  color:var(--sel);  border-radius:99px; padding:2px 10px; font-size:12px; font-weight:700; }
+  .total-row td { font-weight: 800; background: var(--ok-lt); }
+
+  /* Alert */
+  .alert {
+    border-left: 4px solid var(--warn); background: var(--warn-lt);
+    border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 16px 0;
+    font-size: 14px;
+  }
+  .alert.ok   { border-color: var(--ok); background: var(--ok-lt); }
+  .alert.info { border-color: var(--brand); background: var(--brand-lt); }
+
+  /* Checklist */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-num {
+    width: 30px; height: 30px; flex-shrink: 0;
+    background: var(--brand); color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px;
+  }
+  .checklist li .body strong { display: block; font-size: 15px; margin-bottom: 3px; }
+  .checklist li .body p { font-size: 13px; color: #6b7280; }
+
+  /* quarter badge */
+  .q { display:inline-block; background:#e0e7ff; color:#3730a3; border-radius:6px; padding:2px 10px; font-size:13px; font-weight:700; margin:2px; }
+
+  /* Big number */
+  .big { font-size: 26px; font-weight: 800; color: var(--brand); }
+
+  /* Tree visual */
+  .tree-total {
+    text-align: center; background: var(--brand-lt);
+    border: 2px solid var(--brand); border-radius: 12px;
+    padding: 14px; font-size: 18px; font-weight: 800; color: var(--brand);
+    margin-bottom: 12px;
+  }
+  .tree-arrow-row { text-align: center; font-size: 26px; color: #9ca3af; margin-bottom: 8px; }
+  .project-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,.7); border-radius: 8px;
+    padding: 8px 12px; margin-top: 8px; font-size: 13px;
+  }
+  .project-row .name { font-weight: 600; }
+  .project-row .amount { font-weight: 800; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <h1>¿Cómo funciona el Prorrateo?</h1>
+    <p>Guía práctica para entender cómo se distribuyen los costos mensuales de la empresa entre los proyectos MADE y SELECT.</p>
+    <div class="meta">
+      <span><b>Empresa</b>CNTXT — Casa de Diseño S.A.S.</span>
+      <span><b>Módulo</b>Financiero → Prorrateo</span>
+      <span><b>Fecha</b>Abril 2026</span>
+    </div>
+  </div>
+
+  <!-- ¿QUÉ ES? -->
+  <h2><span class="num">→</span> La idea en una frase</h2>
+  <div class="card">
+    <p style="font-size:17px;">
+      Cada mes la empresa tiene gastos reales: nómina, arriendo, servicios, honorarios…
+      El prorrateo toma ese total y lo <strong>distribuye entre los proyectos activos</strong>
+      para saber cuánto le costó a la empresa cada proyecto en ese mes.
+    </p>
+    <div class="alert info" style="margin-top:20px;">
+      <strong>¿Para qué sirve?</strong> Para conocer la rentabilidad real de cada proyecto.
+      Sin este cálculo, solo se ven los ingresos — no el costo real de la operación.
+    </div>
+  </div>
+
+  <!-- FLUJO -->
+  <h2><span class="num">1</span> El proceso paso a paso</h2>
+  <div class="card">
+    <div class="steps-h">
+      <div class="step-h">
+        <div class="ico">📥</div>
+        <div class="lbl">Cargar gastos</div>
+        <div class="desc">Importar el reporte mensual de Loggro</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-h">
+        <div class="ico">⚖️</div>
+        <div class="lbl">Definir pesos</div>
+        <div class="desc">¿Qué % va a MADE y cuánto a SELECT?</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-h">
+        <div class="ico">👁️</div>
+        <div class="lbl">Revisar</div>
+        <div class="desc">Ver cómo quedaría el reparto antes de confirmar</div>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step-h" style="background:var(--ok-lt); border-color:var(--ok);">
+        <div class="ico">✅</div>
+        <div class="lbl" style="color:var(--ok);">Confirmar</div>
+        <div class="desc">El sistema guarda los resultados</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 1: GASTOS -->
+  <h2><span class="num">2</span> Paso 1 — ¿De dónde vienen los gastos?</h2>
+  <div class="card">
+    <p>
+      Loggro (el sistema contable de CNTXT) genera cada mes un reporte en Excel
+      con todos los movimientos: salarios pagados, arriendos, servicios de internet,
+      honorarios, etc.
+    </p>
+    <p>
+      Ese Excel se importa en el sistema desde la sección <strong>Importar → Loggro</strong>.
+      El sistema lee automáticamente cuánto se gastó en total durante el mes.
+    </p>
+    <div class="alert" style="margin-top:16px;">
+      <strong>¿Qué gastos se incluyen?</strong> Solo los gastos operativos de las cuentas 5, 6 y 7
+      del plan contable (nómina, arriendos, honorarios, servicios). Los ingresos y los
+      movimientos de balance no entran.
+    </div>
+  </div>
+
+  <!-- PASO 2: PESOS -->
+  <h2><span class="num">3</span> Paso 2 — Definir cuánto le corresponde a cada unidad</h2>
+  <div class="card">
+    <p>
+      No todos los gastos de la empresa son 50/50 entre MADE y SELECT.
+      Un trimestre puede tener muchos más proyectos activos en SELECT que en MADE,
+      y eso cambia la proporción.
+    </p>
+    <p>
+      Por eso, <strong>una vez por trimestre</strong>, el cliente define el porcentaje
+      que le corresponde a cada unidad:
+    </p>
+
+    <div class="cols" style="margin-top:20px;">
+      <div class="unit-box made">
+        <h4>MADE</h4>
+        <p>Porcentaje del costo total que absorbe esta unidad de negocio.</p>
+        <p style="font-size:22px; font-weight:800; margin-top:10px;">Ej. 30 %</p>
+      </div>
+      <div class="unit-box sel">
+        <h4>SELECT</h4>
+        <p>Porcentaje del costo total que absorbe esta unidad de negocio.</p>
+        <p style="font-size:22px; font-weight:800; margin-top:10px;">Ej. 70 %</p>
+      </div>
+    </div>
+
+    <div class="alert ok" style="margin-top:8px;">
+      Los dos porcentajes siempre deben sumar exactamente 100 %. El sistema no permite guardar si no es así.
+    </div>
+
+    <h3>¿Cada cuánto se cambia?</h3>
+    <p>Los pesos se configuran por trimestre y aplican a los tres meses de ese trimestre:</p>
+    <div style="margin:12px 0; display:flex; flex-wrap:wrap; gap:8px;">
+      <span class="q">2026-Q1 → Enero, Febrero, Marzo</span>
+      <span class="q">2026-Q2 → Abril, Mayo, Junio</span>
+      <span class="q">2026-Q3 → Julio, Agosto, Septiembre</span>
+      <span class="q">2026-Q4 → Octubre, Noviembre, Diciembre</span>
+    </div>
+    <p style="font-size:13px; color:#6b7280;">
+      Si en el Q1 se definió 30/70 y no se cambia nada, enero, febrero y marzo usarán ese mismo porcentaje.
+      En Q2 se puede ajustar si la carga cambió.
+    </p>
+
+    <h3>¿Y si no los configuro?</h3>
+    <p>
+      El sistema propone automáticamente los porcentajes según las horas de trabajo
+      estimadas en cada unidad. Si MADE tiene proyectos con 300 horas estimadas y SELECT
+      con 700, el sistema propone 30 % / 70 %. El cliente puede aceptarlo o ajustarlo.
+    </p>
+  </div>
+
+  <!-- PASO 3: CÁLCULO -->
+  <h2><span class="num">4</span> Cómo se calcula el reparto</h2>
+  <div class="card">
+    <p>
+      El cálculo se hace en <strong>dos etapas</strong>. Primero se divide el costo total
+      entre MADE y SELECT según los pesos. Luego, dentro de cada unidad, se reparte
+      entre los proyectos según las horas de trabajo que tiene programadas cada uno.
+    </p>
+
+    <h3 style="margin-top:24px;">Etapa 1 — ¿Cuánto le toca a cada unidad?</h3>
+    <div class="formula">
+      <div class="line">Costo total del mes × Peso de la unidad = <span class="result">Monto de la unidad</span></div>
+      <div class="note">Ejemplo con costo total $10.000.000, pesos 30/70:</div>
+      <div class="line" style="margin-top:8px;">$10.000.000 × 30% = <strong>$3.000.000 para MADE</strong></div>
+      <div class="line">$10.000.000 × 70% = <strong>$7.000.000 para SELECT</strong></div>
+    </div>
+
+    <h3 style="margin-top:24px;">Etapa 2 — ¿Cuánto le toca a cada proyecto?</h3>
+    <p>
+      Dentro de MADE (o SELECT), los proyectos no reciben partes iguales.
+      El que tiene <strong>más horas de trabajo estimadas</strong> recibe más,
+      porque consume más recursos de la empresa.
+    </p>
+    <div class="formula">
+      <div class="line">Horas del proyecto ÷ Total horas de la unidad = % del proyecto</div>
+      <div class="line">% del proyecto × Monto de la unidad = <span class="result">Monto del proyecto</span></div>
+      <div class="note">Ejemplo dentro de MADE ($3.000.000), con 3 proyectos:</div>
+      <div class="line" style="margin-top:8px;">Proyecto A: 200h de 374h totales → 53.5% → <strong>$1.604.278</strong></div>
+      <div class="line">Proyecto B: 100h de 374h totales → 26.7% → <strong>$ 802.139</strong></div>
+      <div class="line">Proyecto C:  74h de 374h totales → 19.8% → <strong>$ 593.583</strong></div>
+    </div>
+  </div>
+
+  <!-- EJEMPLO COMPLETO -->
+  <h2><span class="num">5</span> Ejemplo completo</h2>
+  <div class="card">
+    <p style="margin-bottom:20px;">
+      Mes: <strong>marzo 2026</strong>. Gastos importados desde Loggro: <strong>$10.000.000</strong>.
+      Pesos del Q1 configurados: MADE 30 % / SELECT 70 %.
+    </p>
+
+    <!-- Visual tree -->
+    <div class="tree-total">💰 Costo total del mes: $10.000.000</div>
+    <div class="tree-arrow-row">↙&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↘</div>
+    <div class="cols">
+      <div class="unit-box made">
+        <h4>MADE — 30%</h4>
+        <p style="font-size:20px; font-weight:800; margin:6px 0;">$3.000.000</p>
+        <p style="font-size:12px; margin-bottom:8px;">374 horas estimadas en total</p>
+        <div class="project-row">
+          <span class="name">Proyecto A</span>
+          <span>200h · 53.5%</span>
+          <span class="amount">$1.604.278</span>
+        </div>
+        <div class="project-row">
+          <span class="name">Proyecto B</span>
+          <span>100h · 26.7%</span>
+          <span class="amount">$802.139</span>
+        </div>
+        <div class="project-row">
+          <span class="name">Proyecto C</span>
+          <span>74h · 19.8%</span>
+          <span class="amount">$593.583</span>
+        </div>
+      </div>
+      <div class="unit-box sel">
+        <h4>SELECT — 70%</h4>
+        <p style="font-size:20px; font-weight:800; margin:6px 0;">$7.000.000</p>
+        <p style="font-size:12px; margin-bottom:8px;">260 horas estimadas en total</p>
+        <div class="project-row">
+          <span class="name">Proyecto D</span>
+          <span>160h · 61.5%</span>
+          <span class="amount">$4.307.692</span>
+        </div>
+        <div class="project-row">
+          <span class="name">Proyecto E</span>
+          <span>100h · 38.5%</span>
+          <span class="amount">$2.692.308</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result table -->
+    <h3 style="margin-top:28px;">Resultado final</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Proyecto</th>
+          <th>Unidad</th>
+          <th style="text-align:right">Horas estimadas</th>
+          <th style="text-align:right">% dentro de su unidad</th>
+          <th style="text-align:right">Costo asignado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Proyecto A</strong></td>
+          <td><span class="made-tag">MADE</span></td>
+          <td style="text-align:right">200 h</td>
+          <td style="text-align:right">53.5%</td>
+          <td style="text-align:right"><strong>$1.604.278</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Proyecto B</strong></td>
+          <td><span class="made-tag">MADE</span></td>
+          <td style="text-align:right">100 h</td>
+          <td style="text-align:right">26.7%</td>
+          <td style="text-align:right"><strong>$802.139</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Proyecto C</strong></td>
+          <td><span class="made-tag">MADE</span></td>
+          <td style="text-align:right">74 h</td>
+          <td style="text-align:right">19.8%</td>
+          <td style="text-align:right"><strong>$593.583</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Proyecto D</strong></td>
+          <td><span class="sel-tag">SELECT</span></td>
+          <td style="text-align:right">160 h</td>
+          <td style="text-align:right">61.5%</td>
+          <td style="text-align:right"><strong>$4.307.692</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Proyecto E</strong></td>
+          <td><span class="sel-tag">SELECT</span></td>
+          <td style="text-align:right">100 h</td>
+          <td style="text-align:right">38.5%</td>
+          <td style="text-align:right"><strong>$2.692.308</strong></td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="4" style="text-align:right">Total distribuido</td>
+          <td style="text-align:right">$10.000.000</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REGLAS IMPORTANTES -->
+  <h2><span class="num">6</span> Cosas importantes a tener en cuenta</h2>
+  <div class="card">
+    <div style="display:flex; flex-direction:column; gap:16px;">
+
+      <div style="display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:24px; flex-shrink:0;">⏱️</span>
+        <div>
+          <strong>Las horas que importan son las horas estimadas del cronograma</strong>
+          <p style="font-size:13px; color:#6b7280; margin-top:3px;">
+            Si un proyecto no tiene horas cargadas en el cronograma, no participa en el reparto.
+            Es importante mantener los cronogramas actualizados.
+          </p>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:24px; flex-shrink:0;">🏢</span>
+        <div>
+          <strong>Solo entran proyectos activos con unidad asignada</strong>
+          <p style="font-size:13px; color:#6b7280; margin-top:3px;">
+            Un proyecto sin unidad de negocio (MADE o SELECT) asignada queda fuera del reparto automáticamente.
+          </p>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:24px; flex-shrink:0;">🔁</span>
+        <div>
+          <strong>Se puede volver a ejecutar el prorrateo del mismo mes</strong>
+          <p style="font-size:13px; color:#6b7280; margin-top:3px;">
+            Si se importaron datos incorrectos o se cambiaron los pesos, se puede correr de nuevo.
+            El sistema reemplaza el resultado anterior con el nuevo.
+          </p>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:24px; flex-shrink:0;">👀</span>
+        <div>
+          <strong>Siempre hay una previsualización antes de confirmar</strong>
+          <p style="font-size:13px; color:#6b7280; margin-top:3px;">
+            El sistema muestra exactamente cómo quedaría el reparto antes de guardarlo.
+            Nada se graba hasta que el cliente confirma.
+          </p>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:24px; flex-shrink:0;">📊</span>
+        <div>
+          <strong>Los resultados se ven en la sección de Rentabilidad Real</strong>
+          <p style="font-size:13px; color:#6b7280; margin-top:3px;">
+            Una vez ejecutado el prorrateo, los costos operativos asignados quedan
+            reflejados en el módulo de rentabilidad de cada proyecto.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <h2><span class="num">7</span> Qué hacer cada mes</h2>
+  <div class="card">
+    <ul class="checklist">
+      <li>
+        <div class="check-num">1</div>
+        <div class="body">
+          <strong>Exportar el reporte de Loggro</strong>
+          <p>Pedir el libro diario del mes cerrado en Excel e importarlo en el sistema (Importar → Loggro).</p>
+        </div>
+      </li>
+      <li>
+        <div class="check-num">2</div>
+        <div class="body">
+          <strong>Revisar que los proyectos tengan horas en el cronograma</strong>
+          <p>Si algún proyecto activo no tiene servicios con horas estimadas, no recibirá costo operativo.</p>
+        </div>
+      </li>
+      <li>
+        <div class="check-num">3</div>
+        <div class="body">
+          <strong>Configurar (o confirmar) los pesos del trimestre</strong>
+          <p>Solo se hace una vez por trimestre. Si ya están del mes anterior, no es necesario cambiarlos
+          a menos que la carga de trabajo haya cambiado mucho.</p>
+        </div>
+      </li>
+      <li>
+        <div class="check-num">4</div>
+        <div class="body">
+          <strong>Revisar la previsualización</strong>
+          <p>Verificar que los montos por proyecto y por unidad se vean razonables antes de confirmar.</p>
+        </div>
+      </li>
+      <li>
+        <div class="check-num">5</div>
+        <div class="body">
+          <strong>Confirmar y ejecutar</strong>
+          <p>Clic en "Confirmar y Ejecutar". El sistema distribuye los costos y actualiza la rentabilidad.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div style="text-align:center; color:#9ca3af; font-size:12px; margin-top:48px;">
+    CNTXT — Casa de Diseño S.A.S. &nbsp;·&nbsp; Central Contexto 2.0 &nbsp;·&nbsp; Abril 2026
+  </div>
+
+</div>
+</body>
+</html>

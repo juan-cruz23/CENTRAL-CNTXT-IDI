@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Seguimiento Actividad 2 — Abril 2026</title>
+<style>
+  @page { size: A4; margin: 14mm 18mm 14mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #2C2C2C; background: white; }
+
+  .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 3px solid #E8680D; margin-bottom: 14px; }
+  .header-left .prog { font-size: 7.5pt; font-weight: 700; color: #E8680D; text-transform: uppercase; letter-spacing: 1px; }
+  .header-left h1 { font-size: 12pt; color: #1A3A5C; font-weight: 700; margin-top: 3px; }
+  .header-left h2 { font-size: 9pt; color: #555; font-weight: 400; margin-top: 2px; }
+  .header-right img { height: 44px; }
+
+  .act-header { background: #1A3A5C; color: white; padding: 14px 18px; border-radius: 4px; margin-bottom: 14px; }
+  .act-header .num { font-size: 8pt; opacity: 0.75; margin-bottom: 4px; }
+  .act-header h2 { font-size: 12pt; font-weight: 700; line-height: 1.3; }
+
+  .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .info-card { background: #F5F7FA; padding: 9px 12px; border-radius: 4px; border-left: 3px solid #E8680D; }
+  .info-card .lbl { font-size: 7pt; color: #999; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-card .val { font-size: 9pt; color: #1A3A5C; font-weight: 700; margin-top: 3px; }
+
+  .section { margin-bottom: 13px; }
+  .stitle { font-size: 8.5pt; font-weight: 700; color: #1A3A5C; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 2px solid #E8680D; padding-bottom: 4px; margin-bottom: 8px; }
+
+  .obj-box { background: #EFF4FB; border-left: 4px solid #1A3A5C; padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 9.5pt; line-height: 1.6; color: #333; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+  th { background: #1A3A5C; color: white; padding: 7px 10px; text-align: left; font-size: 8pt; font-weight: 600; }
+  td { padding: 7px 10px; border-bottom: 1px solid #E5E5E5; font-size: 8.5pt; }
+  tr:nth-child(even) td { background: #F8F9FB; }
+  .tag-fijo { background: #D5E8F5; color: #1A3A5C; padding: 2px 7px; border-radius: 10px; font-size: 7pt; font-weight: 700; }
+  .neg { color: #C0392B; font-weight: 700; }
+  .meta { color: #1E8449; font-weight: 700; }
+
+  .act-list { list-style: none; padding: 0; }
+  .act-list li { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid #F0F0F0; font-size: 9.5pt; line-height: 1.5; }
+  .act-list li .num { background: #E8680D; color: white; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8pt; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .result-card { background: #F5F7FA; border-radius: 4px; padding: 10px 14px; border-top: 3px solid #1A3A5C; }
+  .result-card .rl { font-size: 7.5pt; color: #888; font-weight: 700; text-transform: uppercase; }
+  .result-card .rv { font-size: 13pt; font-weight: 800; color: #E8680D; }
+  .result-card .rd { font-size: 8pt; color: #555; margin-top: 2px; }
+
+  .umbrales-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .umbral-card { background: #F5F7FA; border-radius: 4px; padding: 10px 12px; border-top: 3px solid #E8680D; text-align: center; }
+  .umbral-card .un { font-size: 8.5pt; font-weight: 700; color: #1A3A5C; }
+  .umbral-card .ur { font-size: 7.5pt; color: #888; }
+  .umbral-card .uv { font-size: 12pt; font-weight: 800; color: #E8680D; margin-top: 4px; }
+  .umbral-card .ud { font-size: 7.5pt; color: #777; margin-top: 2px; }
+
+  .images-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .img-container { text-align: center; }
+  .img-container img { max-width: 100%; border: 1px solid #DDD; border-radius: 4px; max-height: 160px; object-fit: contain; }
+  .img-caption { font-size: 7.5pt; color: #777; margin-top: 4px; font-style: italic; }
+
+  .obs-box { background: #FEF9E7; border-left: 4px solid #F39C12; padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 9pt; line-height: 1.6; }
+
+  .footer { margin-top: 18px; padding-top: 8px; border-top: 1px solid #DDD; display: flex; justify-content: space-between; font-size: 7.5pt; color: #999; }
+
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="prog">Fábricas de Productividad · Colombia Productiva · Productividad Operacional</div>
+    <h1>Seguimiento de Actividad — Abril 2026</h1>
+    <h2>CONTEXTO ARQUITECTURA S.A.S. (CNTXT Casa de Diseño) · NIT 900.948.892-7</h2>
+  </div>
+  <div class="header-right">
+    <img src="file:///home/mrodriguez/proyectos/Contexto/media/avatars/LOGOS_INDUNNOVA_ORIGINALES-01.png" alt="INDUNNOVA">
+  </div>
+</div>
+
+<!-- ACTIVIDAD HEADER -->
+<div class="act-header">
+  <div class="num">ACTIVIDAD 2 DE 4 — ABRIL</div>
+  <h2>Implementación de indicadores operativos<br>estándar (SPI, CPI, EVM)</h2>
+</div>
+
+<!-- INFO GRID -->
+<div class="info-grid">
+  <div class="info-card">
+    <div class="lbl">Tipo</div>
+    <div class="val">Implementación</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Período</div>
+    <div class="val">1 – 30 abr. 2026</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Consultor</div>
+    <div class="val">M. B. Rodríguez T.</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Portafolio</div>
+    <div class="val">13 proyectos activos</div>
+  </div>
+</div>
+
+<!-- OBJETIVO -->
+<div class="section">
+  <div class="stitle">Objetivo</div>
+  <div class="obj-box">
+    Configurar el <strong>cálculo automático de SPI, CPI y valor ganado (EVM)</strong> para cada proyecto activo, definir <strong>umbrales de alerta temprana</strong> ante desviaciones de cronograma (SPI < 0,9) y presupuesto (CPI < 0,9), e implementar los <strong>protocolos de respuesta</strong> con tiempos máximos de reacción ante alertas, reduciendo el ciclo de gestión operativa de 48 a 16 horas hábiles.
+  </div>
+</div>
+
+<!-- INDICADORES -->
+<div class="section">
+  <div class="stitle">Indicadores impactados</div>
+  <table>
+    <tr>
+      <th>Indicador</th>
+      <th>Tipo</th>
+      <th>Unidad</th>
+      <th>Línea base</th>
+      <th>Meta</th>
+      <th>Variación</th>
+    </tr>
+    <tr>
+      <td><strong>IPT-2</strong> — Tiempo de Ciclo de Gestión Operativa (TCP)</td>
+      <td><span class="tag-fijo">Fijo</span></td>
+      <td>Horas hábiles</td>
+      <td>48</td>
+      <td class="meta">16</td>
+      <td class="neg">-66,67 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-1</strong> — Tiempo que No Agrega Valor (TNVA)</td>
+      <td><span class="tag-fijo">Fijo</span></td>
+      <td>Min / semana</td>
+      <td>280</td>
+      <td class="meta">196</td>
+      <td class="neg">-30,00 %</td>
+    </tr>
+  </table>
+</div>
+
+<!-- UMBRALES -->
+<div class="section">
+  <div class="stitle">Umbrales de alerta temprana configurados</div>
+  <div class="umbrales-grid">
+    <div class="umbral-card">
+      <div class="un">SPI — Cronograma</div>
+      <div class="ur">Schedule Performance Index</div>
+      <div class="uv">&lt; 0,90</div>
+      <div class="ud">Desviación crítica · alerta automática al Líder de Proyecto</div>
+    </div>
+    <div class="umbral-card">
+      <div class="un">CPI — Presupuesto</div>
+      <div class="ur">Cost Performance Index</div>
+      <div class="uv">&lt; 0,90</div>
+      <div class="ud">Sobrecosto · alerta al Director Ejecutivo y al Líder de Proyecto</div>
+    </div>
+    <div class="umbral-card">
+      <div class="un">EVM — Valor ganado</div>
+      <div class="ur">Earned Value Management</div>
+      <div class="uv">Auto</div>
+      <div class="ud">Cálculo por proyecto a partir de avance reportado y costos del cronograma</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVIDADES REALIZADAS -->
+<div class="section">
+  <div class="stitle">Actividades realizadas</div>
+  <ul class="act-list">
+    <li><span class="num">1</span><span>Configuración del cálculo automático de SPI, CPI y valor ganado (EVM) por proyecto en el módulo de métricas, alimentado desde el cronograma (avance, fechas planeadas/reales) y el módulo financiero (costos planeados vs reales).</span></li>
+    <li><span class="num">2</span><span>Definición de umbrales de alerta temprana: SPI menor a 0,9 para desviaciones de cronograma y CPI menor a 0,9 para desviaciones presupuestales, con notificación automática a Líder de Proyecto y Director Ejecutivo.</span></li>
+    <li><span class="num">3</span><span>Implementación de protocolos de respuesta con tiempos máximos de reacción: detección automática (1,5 h), revisión por Líder de Proyecto (3 h), escalamiento y decisión por equipo directivo (11,5 h) — ciclo total 16 h hábiles.</span></li>
+    <li><span class="num">4</span><span>Pruebas con datos reales de los 13 proyectos activos: validación del cálculo de SPI/CPI/EVM, simulación de escenarios de alerta y verificación de los flujos de notificación.</span></li>
+    <li><span class="num">5</span><span>Capacitación operativa al Líder de Proyecto y al Director Ejecutivo en interpretación de indicadores, lectura de alertas y aplicación de los protocolos de respuesta.</span></li>
+  </ul>
+</div>
+
+<!-- RESULTADOS -->
+<div class="section">
+  <div class="stitle">Resultados obtenidos</div>
+  <div class="result-grid">
+    <div class="result-card">
+      <div class="rl">Indicadores configurados</div>
+      <div class="rv">3 / 3</div>
+      <div class="rd">SPI, CPI y EVM operando automáticamente para los 13 proyectos activos del portafolio</div>
+    </div>
+    <div class="result-card">
+      <div class="rl">Reducción ciclo de gestión (TCP)</div>
+      <div class="rv">−32 h</div>
+      <div class="rd">De 48 a 16 horas hábiles · meta IPT-2 alcanzada en diseño (-66,67 %)</div>
+    </div>
+    <div class="result-card">
+      <div class="rl">Umbrales activos</div>
+      <div class="rv">2 alertas</div>
+      <div class="rd">SPI &lt; 0,9 y CPI &lt; 0,9 con notificación automática a roles definidos</div>
+    </div>
+    <div class="result-card">
+      <div class="rl">Reducción TNVA por reconciliación</div>
+      <div class="rv">−24 min/sem</div>
+      <div class="rd">Reconciliación manual de costos reducida a 6 min/sem (de 30 a 6) por automatización de CPI</div>
+    </div>
+  </div>
+</div>
+
+<!-- EVIDENCIAS APP -->
+<div class="section">
+  <div class="stitle">Evidencias — Central Contexto 2.0</div>
+  <div class="images-grid">
+    <div class="img-container">
+      <img src="file:///home/mrodriguez/proyectos/Contexto/Grabaciones/Captura de pantalla 2026-04-01 090144.png" alt="Módulo de proyectos con indicadores">
+      <div class="img-caption">Módulo de proyectos: campos que alimentan SPI/CPI desde cronograma y registro financiero del proyecto</div>
+    </div>
+    <div class="img-container">
+      <img src="file:///home/mrodriguez/proyectos/Contexto/Grabaciones/Captura de pantalla 2026-04-01 083748.png" alt="Fechas y municipio">
+      <div class="img-caption">Fechas planeada y real por proyecto: insumo para el cálculo automático de SPI y desviación de cronograma</div>
+    </div>
+  </div>
+</div>
+
+<!-- OBSERVACIONES -->
+<div class="section">
+  <div class="stitle">Observaciones</div>
+  <div class="obs-box">
+    <strong>1.</strong> El cálculo de EVM se alimenta del avance reportado por acción en el módulo de cronograma y de los costos planeados/reales del módulo financiero; no requiere intervención manual del Líder de Proyecto, lo que elimina la reconciliación semanal.<br><br>
+    <strong>2.</strong> Los umbrales de SPI < 0,9 y CPI < 0,9 corresponden a la práctica estándar de PMI para alertas tempranas. Se mantendrán constantes durante el período piloto y se ajustarán por categoría de proyecto al cierre de la intervención si los datos lo justifican.<br><br>
+    <strong>3.</strong> El protocolo de respuesta de 16 h hábiles se midió contra el ciclo línea base de 48 h y exige disponibilidad del Líder de Proyecto en jornada laboral (Ley 2101 de 2021); las alertas fuera de jornada se acumulan al inicio del siguiente día hábil.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>Consultor: Miguel Bernardo Rodríguez Torres · mrodriguez@indunnova.com · 318 847 1799</span>
+  <span>Extensionista: INDUNNOVA S.A.S. · Intervención: 09/04/2026 – 18/06/2026</span>
+  <span>Reporte generado: 30 de abril de 2026</span>
+</div>
+
+</body>
+</html>

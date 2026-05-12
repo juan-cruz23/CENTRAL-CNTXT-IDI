@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Seguimiento Actividad 4 — Abril 2026</title>
+<style>
+  @page { size: A4; margin: 14mm 18mm 14mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; color: #2C2C2C; background: white; }
+
+  .header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 10px; border-bottom: 3px solid #E8680D; margin-bottom: 14px; }
+  .header-left .prog { font-size: 7.5pt; font-weight: 700; color: #E8680D; text-transform: uppercase; letter-spacing: 1px; }
+  .header-left h1 { font-size: 12pt; color: #1A3A5C; font-weight: 700; margin-top: 3px; }
+  .header-left h2 { font-size: 9pt; color: #555; font-weight: 400; margin-top: 2px; }
+  .header-right img { height: 44px; }
+
+  .act-header { background: #1A3A5C; color: white; padding: 14px 18px; border-radius: 4px; margin-bottom: 14px; }
+  .act-header .num { font-size: 8pt; opacity: 0.75; margin-bottom: 4px; }
+  .act-header h2 { font-size: 12pt; font-weight: 700; line-height: 1.3; }
+
+  .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .info-card { background: #F5F7FA; padding: 9px 12px; border-radius: 4px; border-left: 3px solid #E8680D; }
+  .info-card .lbl { font-size: 7pt; color: #999; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-card .val { font-size: 9pt; color: #1A3A5C; font-weight: 700; margin-top: 3px; }
+
+  .section { margin-bottom: 13px; }
+  .stitle { font-size: 8.5pt; font-weight: 700; color: #1A3A5C; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 2px solid #E8680D; padding-bottom: 4px; margin-bottom: 8px; }
+
+  .obj-box { background: #EFF4FB; border-left: 4px solid #1A3A5C; padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 9.5pt; line-height: 1.6; color: #333; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+  th { background: #1A3A5C; color: white; padding: 7px 10px; text-align: left; font-size: 8pt; font-weight: 600; }
+  td { padding: 7px 10px; border-bottom: 1px solid #E5E5E5; font-size: 8.5pt; }
+  tr:nth-child(even) td { background: #F8F9FB; }
+  .tag-fijo { background: #D5E8F5; color: #1A3A5C; padding: 2px 7px; border-radius: 10px; font-size: 7pt; font-weight: 700; }
+  .tag-var { background: #FEE8D5; color: #C0550A; padding: 2px 7px; border-radius: 10px; font-size: 7pt; font-weight: 700; }
+  .neg { color: #C0392B; font-weight: 700; }
+  .meta { color: #1E8449; font-weight: 700; }
+
+  .act-list { list-style: none; padding: 0; }
+  .act-list li { display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid #F0F0F0; font-size: 9.5pt; line-height: 1.5; }
+  .act-list li .num { background: #E8680D; color: white; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8pt; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .result-card { background: #F5F7FA; border-radius: 4px; padding: 10px 14px; border-top: 3px solid #1A3A5C; }
+  .result-card .rl { font-size: 7.5pt; color: #888; font-weight: 700; text-transform: uppercase; }
+  .result-card .rv { font-size: 13pt; font-weight: 800; color: #E8680D; }
+  .result-card .rd { font-size: 8pt; color: #555; margin-top: 2px; }
+
+  .tablero-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+  .tablero-card { background: #F5F7FA; border-radius: 4px; padding: 10px 12px; border-top: 3px solid #E8680D; text-align: center; }
+  .tablero-card .tn { font-size: 8.5pt; font-weight: 700; color: #1A3A5C; }
+  .tablero-card .tv { font-size: 11pt; font-weight: 800; color: #E8680D; margin-top: 4px; }
+  .tablero-card .td { font-size: 7.5pt; color: #777; margin-top: 2px; }
+
+  .images-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .img-container { text-align: center; }
+  .img-container img { max-width: 100%; border: 1px solid #DDD; border-radius: 4px; max-height: 160px; object-fit: contain; }
+  .img-caption { font-size: 7.5pt; color: #777; margin-top: 4px; font-style: italic; }
+
+  .obs-box { background: #FEF9E7; border-left: 4px solid #F39C12; padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 9pt; line-height: 1.6; }
+
+  .footer { margin-top: 18px; padding-top: 8px; border-top: 1px solid #DDD; display: flex; justify-content: space-between; font-size: 7.5pt; color: #999; }
+
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="prog">Fábricas de Productividad · Colombia Productiva · Productividad Operacional</div>
+    <h1>Seguimiento de Actividad — Abril 2026</h1>
+    <h2>CONTEXTO ARQUITECTURA S.A.S. (CNTXT Casa de Diseño) · NIT 900.948.892-7</h2>
+  </div>
+  <div class="header-right">
+    <img src="file:///home/mrodriguez/proyectos/Contexto/media/avatars/LOGOS_INDUNNOVA_ORIGINALES-01.png" alt="INDUNNOVA">
+  </div>
+</div>
+
+<!-- ACTIVIDAD HEADER -->
+<div class="act-header">
+  <div class="num">ACTIVIDAD 4 DE 4 — ABRIL</div>
+  <h2>Implementación del mecanismo de gestión visual<br>de portafolio y capacidad del equipo</h2>
+</div>
+
+<!-- INFO GRID -->
+<div class="info-grid">
+  <div class="info-card">
+    <div class="lbl">Tipo</div>
+    <div class="val">Implementación</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Período</div>
+    <div class="val">1 – 30 abr. 2026</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Consultor</div>
+    <div class="val">M. B. Rodríguez T.</div>
+  </div>
+  <div class="info-card">
+    <div class="lbl">Portafolio</div>
+    <div class="val">13 proyectos activos</div>
+  </div>
+</div>
+
+<!-- OBJETIVO -->
+<div class="section">
+  <div class="stitle">Objetivo</div>
+  <div class="obj-box">
+    Configurar el <strong>tablero de gestión visual</strong> que muestra simultáneamente los 13 proyectos activos con su estado, la <strong>carga por persona</strong>, la <strong>capacidad disponible</strong> y las <strong>alertas de sobrecarga</strong>, y definir los procedimientos operativos para la <strong>reasignación de recursos</strong> entre proyectos y la <strong>gestión de pausas/reactivaciones</strong> de clientes.
+  </div>
+</div>
+
+<!-- INDICADORES -->
+<div class="section">
+  <div class="stitle">Indicadores impactados</div>
+  <table>
+    <tr>
+      <th>Indicador</th>
+      <th>Tipo</th>
+      <th>Unidad</th>
+      <th>Línea base</th>
+      <th>Meta</th>
+      <th>Variación</th>
+    </tr>
+    <tr>
+      <td><strong>IPT-3</strong> — Ahorro en Desperdicios Operativos (AD)</td>
+      <td><span class="tag-var">Variable</span></td>
+      <td>COP / mes</td>
+      <td>$ 1.050.000</td>
+      <td class="meta">$ 682.500</td>
+      <td class="neg">-35,00 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-4</strong> — Costo Unitario Gestión por Proyecto (CU)</td>
+      <td><span class="tag-var">Variable</span></td>
+      <td>COP / proy / mes</td>
+      <td>$ 81.923</td>
+      <td class="meta">$ 53.250</td>
+      <td class="neg">-35,00 %</td>
+    </tr>
+    <tr>
+      <td><strong>IPT-2</strong> — Tiempo de Ciclo de Gestión Operativa (TCP)</td>
+      <td><span class="tag-fijo">Fijo</span></td>
+      <td>Horas hábiles</td>
+      <td>48</td>
+      <td class="meta">16</td>
+      <td class="neg">-66,67 %</td>
+    </tr>
+  </table>
+</div>
+
+<!-- TABLERO -->
+<div class="section">
+  <div class="stitle">Componentes del tablero visual de portafolio</div>
+  <div class="tablero-grid">
+    <div class="tablero-card">
+      <div class="tn">Estado portafolio</div>
+      <div class="tv">13 / 13</div>
+      <div class="td">Proyectos activos visibles en tiempo real</div>
+    </div>
+    <div class="tablero-card">
+      <div class="tn">Carga por persona</div>
+      <div class="tv">3 perfiles</div>
+      <div class="td">Líder, Director Ejecutivo, Director Creativo</div>
+    </div>
+    <div class="tablero-card">
+      <div class="tn">Capacidad disponible</div>
+      <div class="tv">182 h/mes</div>
+      <div class="td">Base Ley 2101/2021 · 42 h/sem por persona</div>
+    </div>
+    <div class="tablero-card">
+      <div class="tn">Alertas de sobrecarga</div>
+      <div class="tv">Auto</div>
+      <div class="td">Notificación al Director Ejecutivo si carga &gt; capacidad</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVIDADES REALIZADAS -->
+<div class="section">
+  <div class="stitle">Actividades realizadas</div>
+  <ul class="act-list">
+    <li><span class="num">1</span><span>Configuración del tablero de gestión visual con vista simultánea de los 13 proyectos activos: estado, fase, avance, indicadores SPI/CPI y responsables, alimentado en tiempo real desde el módulo de proyectos y el cronograma.</span></li>
+    <li><span class="num">2</span><span>Implementación de la vista de carga por persona y capacidad disponible: cálculo automático de horas asignadas vs capacidad de jornada (182 h/mes según Ley 2101/2021) por cada perfil del equipo.</span></li>
+    <li><span class="num">3</span><span>Configuración de alertas de sobrecarga: notificación automática al Director Ejecutivo cuando la carga proyectada de un perfil supera su capacidad disponible, con detalle de los proyectos asignados.</span></li>
+    <li><span class="num">4</span><span>Definición y documentación de los procedimientos operativos para la reasignación de recursos entre proyectos cuando se detecta sobrecarga, incluyendo criterios de prioridad y protocolo de comunicación.</span></li>
+    <li><span class="num">5</span><span>Definición y documentación del procedimiento para la gestión de pausas y reactivaciones de clientes: registro del estado del proyecto, liberación temporal de capacidad y mecanismo de reactivación con recálculo de cronograma.</span></li>
+  </ul>
+</div>
+
+<!-- RESULTADOS -->
+<div class="section">
+  <div class="stitle">Resultados obtenidos</div>
+  <div class="result-grid">
+    <div class="result-card">
+      <div class="rl">Visibilidad del portafolio</div>
+      <div class="rv">13 / 13</div>
+      <div class="rd">100 % del portafolio activo en el tablero visual con estado en tiempo real</div>
+    </div>
+    <div class="result-card">
+      <div class="rl">Ahorro mensual esperado (AD)</div>
+      <div class="rv">$ 367.500</div>
+      <div class="rd">COP/mes al alcanzar la meta IPT-3 (-35 %) por reducción de búsqueda y reconciliación</div>
+    </div>
+    <div class="result-card">
+      <div class="rl">Reducción CU por proyecto</div>
+      <div class="rv">$ 28.673</div>
+      <div class="rd">COP/proy/mes · habilita expansión sin incremento proporcional de costos operativos</div>
+    </div>
+    <div class="result-card">
+      <div class="rl">Procedimientos definidos</div>
+      <div class="rv">2 protocolos</div>
+      <div class="rd">Reasignación de recursos y gestión de pausas/reactivaciones con criterios de prioridad</div>
+    </div>
+  </div>
+</div>
+
+<!-- EVIDENCIAS APP -->
+<div class="section">
+  <div class="stitle">Evidencias — Central Contexto 2.0</div>
+  <div class="images-grid">
+    <div class="img-container">
+      <img src="file:///home/mrodriguez/proyectos/Contexto/Grabaciones/Captura de pantalla 2026-04-01 090144.png" alt="Módulo de proyectos">
+      <div class="img-caption">Vista de proyecto que alimenta el tablero visual: estado, responsables y campos clave del portafolio</div>
+    </div>
+    <div class="img-container">
+      <img src="file:///home/mrodriguez/proyectos/Contexto/Grabaciones/Captura de pantalla 2026-04-01 083748.png" alt="Campos de proyecto">
+      <div class="img-caption">Campos de fechas y responsables que alimentan el cálculo de carga por persona y capacidad disponible</div>
+    </div>
+  </div>
+</div>
+
+<!-- OBSERVACIONES -->
+<div class="section">
+  <div class="stitle">Observaciones</div>
+  <div class="obs-box">
+    <strong>1.</strong> El tablero de gestión visual integra los datos del módulo de proyectos, cronograma e indicadores SPI/CPI/EVM configurados en la actividad 2, consolidando una única fuente de verdad para la toma de decisiones del equipo directivo durante el Coffee semanal.<br><br>
+    <strong>2.</strong> La capacidad disponible se calcula con base en 182 horas laborales mensuales por perfil (Ley 2101/2021, 42 h/semana). Las pausas de cliente liberan capacidad temporalmente y el sistema recalcula el cronograma del proyecto al reactivarlo.<br><br>
+    <strong>3.</strong> Los procedimientos de reasignación de recursos y gestión de pausas/reactivaciones se documentaron como instructivos operativos y se socializaron con el equipo de liderazgo; la primera aplicación práctica se realizará durante el seguimiento del piloto en mayo.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>Consultor: Miguel Bernardo Rodríguez Torres · mrodriguez@indunnova.com · 318 847 1799</span>
+  <span>Extensionista: INDUNNOVA S.A.S. · Intervención: 09/04/2026 – 18/06/2026</span>
+  <span>Reporte generado: 30 de abril de 2026</span>
+</div>
+
+</body>
+</html>
