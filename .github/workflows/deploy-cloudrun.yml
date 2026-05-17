@@ -44,6 +44,7 @@ jobs:
       - name: Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
+          platforms: linux/amd64
           context: .
           file: docker/Dockerfile
           push: true
@@ -69,7 +70,7 @@ jobs:
           GOOGLE_CLOUD_PROJECT: "appsindunnova"
           GS_BUCKET_NAME: "contexto-media"
           EOF
-          sed -i 's/^          //' /tmp/env-vars.yaml
+          sed -i.bak 's/^          //' /tmp/env-vars.yaml && rm -f /tmp/env-vars.yaml.bak
 
       - name: Run Migrations
         run: |
