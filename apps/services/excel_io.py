@@ -5,6 +5,7 @@ Formato: una fila por acción, columnas de servicio repetidas.
 from collections import OrderedDict
 from decimal import Decimal, InvalidOperation
 
+from django.db import transaction
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
@@ -380,18 +381,22 @@ def import_services(file_obj, inactivate_missing=True):
             is_active=True,
         )
 
+        # Savepoint por servicio: con ATOMIC_REQUESTS=True un error envenena
+        # toda la transacción del request; transaction.atomic() anidado crea
+        # un savepoint que se puede rollback sin afectar el resto del import.
         try:
-            st, is_new = ServiceTemplate.objects.get_or_create(code=code, defaults=st_defaults)
-            if is_new:
-                created += 1
-            else:
-                for k, v in st_defaults.items():
-                    setattr(st, k, v)
-                st.save()
-                updated += 1
-                # Reconstruir árbol completo: actividades primero (key_activity SET_NULL)
-                st.activities.all().delete()
-                st.deliverables.all().delete()
+            with transaction.atomic():
+                st, is_new = ServiceTemplate.objects.get_or_create(code=code, defaults=st_defaults)
+                if is_new:
+                    created += 1
+                else:
+                    for k, v in st_defaults.items():
+                        setattr(st, k, v)
+                    st.save()
+                    updated += 1
+                    # Reconstruir árbol completo: actividades primero (key_activity SET_NULL)
+                    st.activities.all().delete()
+                    st.deliverables.all().delete()
         except Exception as exc:
             errors.append(f"[{code}] Error al guardar servicio: {exc}")
             continue
@@ -410,13 +415,14 @@ def import_services(file_obj, inactivate_missing=True):
 
         for d_order, ((d_name, d_unit, d_qty_str), d_rows) in enumerate(deliv_groups.items(), 1):
             try:
-                deliv = Deliverable.objects.create(
-                    service_template=st,
-                    name=d_name,
-                    unit=d_unit,
-                    quantity=Decimal(d_qty_str),
-                    order=d_order,
-                )
+                with transaction.atomic():
+                    deliv = Deliverable.objects.create(
+                        service_template=st,
+                        name=d_name,
+                        unit=d_unit,
+                        quantity=Decimal(d_qty_str),
+                        order=d_order,
+                    )
             except Exception as exc:
                 errors.append(f"[{code}] Error entregable '{d_name}': {exc}")
                 continue
@@ -431,9 +437,10 @@ def import_services(file_obj, inactivate_missing=True):
 
             for ka_order, (ka_name, ka_rows) in enumerate(kact_groups.items(), 1):
                 try:
-                    kact = KeyActivity.objects.create(
-                        deliverable=deliv, name=ka_name, order=ka_order
-                    )
+                    with transaction.atomic():
+                        kact = KeyActivity.objects.create(
+                            deliverable=deliv, name=ka_name, order=ka_order
+                        )
                 except Exception as exc:
                     errors.append(f"[{code}/{d_name}] Error actividad '{ka_name}': {exc}")
                     continue
@@ -447,14 +454,15 @@ def import_services(file_obj, inactivate_missing=True):
                     hours     = get_dec(row, "TIEMPO (HORAS)")
 
                     try:
-                        ServiceActivity.objects.create(
-                            service_template=st,
-                            key_activity=kact,
-                            name=act_name,
-                            order=act_order,
-                            responsible_role=role,
-                            estimated_hours=hours,
-                        )
+                        with transaction.atomic():
+                            ServiceActivity.objects.create(
+                                service_template=st,
+                                key_activity=kact,
+                                name=act_name,
+                                order=act_order,
+                                responsible_role=role,
+                                estimated_hours=hours,
+                            )
                     except Exception as exc:
                         errors.append(f"[{code}/{ka_name}] Error acción '{act_name}': {exc}")
 

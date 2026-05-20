@@ -685,8 +685,7 @@ class ServiceActivity(TimeStampedModel):
         default=1,
         verbose_name="orden",
     )
-    name = models.CharField(
-        max_length=300,
+    name = models.TextField(
         verbose_name="nombre",
     )
     responsible_role = models.ForeignKey(
@@ -724,8 +723,7 @@ class Deliverable(TimeStampedModel):
         related_name="deliverables",
         verbose_name="servicio",
     )
-    name = models.CharField(
-        max_length=400,
+    name = models.TextField(
         verbose_name="nombre del entregable",
     )
     unit = models.CharField(
@@ -766,8 +764,7 @@ class KeyActivity(TimeStampedModel):
         related_name="key_activities",
         verbose_name="entregable",
     )
-    name = models.CharField(
-        max_length=300,
+    name = models.TextField(
         verbose_name="nombre",
     )
     order = models.PositiveIntegerField(
