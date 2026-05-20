@@ -1,4 +1,5 @@
 from decimal import Decimal
+from functools import cached_property
 
 from django.db import models
 
@@ -487,26 +488,29 @@ class ServiceTemplate(TimeStampedModel):
     def subtotal_honorarios(self) -> Decimal:
         return (self.effective_hourly_rate * self.estimated_hours).quantize(self._Q)
 
-    @property
+    # cached_property + iterar `.all()` (no `.filter()`): así el prefetch
+    # cache de `hardwares` se respeta cuando el caller hace prefetch_related;
+    # sin cache, list/export caían en N+1 contra hardwares × softwares.
+    @cached_property
     def effective_hardware_cost_per_hour(self) -> Decimal:
         """Suma de depreciación/hora del hardware seleccionado; si no hay
         selección, cae al valor manual de hardware_cost_per_hour."""
         if self.pk:
-            selected = self.hardwares.filter(is_active=True)
-            if selected.exists():
+            selected = [h for h in self.hardwares.all() if h.is_active]
+            if selected:
                 return sum(
                     (h.depreciation_per_hour or Decimal("0") for h in selected),
                     Decimal("0"),
                 )
         return self.hardware_cost_per_hour or Decimal("0")
 
-    @property
+    @cached_property
     def effective_software_cost_per_hour(self) -> Decimal:
         """Suma de costo/hora del software seleccionado; si no hay selección,
         cae al valor manual de software_cost_per_hour."""
         if self.pk:
-            selected = self.softwares.filter(is_active=True)
-            if selected.exists():
+            selected = [s for s in self.softwares.all() if s.is_active]
+            if selected:
                 return sum(
                     (s.hourly_value or Decimal("0") for s in selected),
                     Decimal("0"),
@@ -529,7 +533,11 @@ class ServiceTemplate(TimeStampedModel):
     def costo_directo(self) -> Decimal:
         return (self.subtotal_honorarios + self.hardware_total + self.software_total + self.consumables_total + self.subcontracts).quantize(self._Q)
 
-    @property
+    # cached_property: get_current_prorrateo_rate hace 3 queries por llamada;
+    # la cascada la invoca via prorrateo_gastos varias veces por fila. Caller
+    # batch (excel_io.export_services) pre-puebla `__dict__` para evitar las
+    # queries cross-instance cuando la línea operativa se repite.
+    @cached_property
     def effective_prorrateo_rate(self) -> Decimal:
         """Tarifa de prorrateo desde el motor real; fallback a constante si no hay datos."""
         from domain.financials.cost_allocation import get_current_prorrateo_rate

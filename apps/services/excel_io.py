@@ -82,6 +82,7 @@ COL_WIDTHS = [
 def export_services(queryset=None):
     """Genera un Workbook openpyxl con todos los servicios del queryset."""
     from apps.services.models import ServiceTemplate
+    from domain.financials.cost_allocation import get_current_prorrateo_rate
 
     if queryset is None:
         queryset = ServiceTemplate.objects.all()
@@ -89,9 +90,26 @@ def export_services(queryset=None):
     qs = (
         queryset
         .select_related("phase", "category", "subcategory", "responsible_role", "operative_line")
-        .prefetch_related("deliverables__key_activities__actions__responsible_role")
+        .prefetch_related(
+            "deliverables__key_activities__actions__responsible_role",
+            "hardwares",
+            "softwares",
+        )
         .order_by("code")
     )
+
+    # Materializa una vez para que cached_property persista a lo largo del
+    # loop (si iteráramos `qs` dos veces, cada pasada daría instancias nuevas).
+    services = list(qs)
+
+    # Pre-cachea la tarifa de prorrateo por línea operativa única: evita 3
+    # queries × N plantillas dentro del motor de cost_allocation.
+    rate_cache: dict = {}
+    for st in services:
+        line_code = st.operative_line.code if st.operative_line_id else None
+        if line_code not in rate_cache:
+            rate_cache[line_code] = get_current_prorrateo_rate(line_code)
+        st.__dict__["effective_prorrateo_rate"] = rate_cache[line_code]
 
     wb = Workbook()
     ws = wb.active
@@ -101,7 +119,7 @@ def export_services(queryset=None):
     _write_header(ws)
 
     row_num = 2
-    for st in qs:
+    for st in services:
         deliverables = sorted(st.deliverables.all(), key=lambda d: (d.order, d.name))
         if not deliverables:
             _write_row(ws, row_num, st, None, None, None, None)
