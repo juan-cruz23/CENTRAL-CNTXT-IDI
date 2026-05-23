@@ -61,7 +61,7 @@
           {% for user in users %}
           <option value="{{ user.pk }}"
             {% if action.assigned_professional_id == user.pk %}selected{% endif %}>
-            {{ user.get_full_name }}
+            {{ user.get_full_name|default:user.username }}
           </option>
           {% endfor %}
         </select>

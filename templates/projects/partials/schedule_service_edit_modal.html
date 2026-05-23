@@ -64,7 +64,7 @@
               <option value="">— Sin asignar —</option>
               {% for user in service_users %}
               <option value="{{ user.pk }}" {% if si.assigned_professional_id == user.pk %}selected{% endif %}>
-                {{ user.get_full_name }}
+                {{ user.get_full_name|default:user.username }}
               </option>
               {% endfor %}
             </select>
@@ -116,7 +116,7 @@
                             {% for user in item.users %}
                             <option value="{{ user.pk }}"
                               {% if act.assigned_professional_id == user.pk %}selected{% endif %}>
-                              {{ user.get_full_name }}
+                              {{ user.get_full_name|default:user.username }}
                             </option>
                             {% endfor %}
                             {% if not item.users %}

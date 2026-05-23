@@ -63,21 +63,27 @@ def rollup_phase_progress(sender, instance, **kwargs):
 
 def _update_project_schedule_dates(project):
     """
-    Recalculate planned/actual dates, total_value y avance global del Project
-    a partir de los ServiceInstance del cronograma (phase_instance=None).
+    Recalculate planned/actual dates, total_value y avance global del Project.
+
+    El total_value del proyecto suma TODOS los ServiceInstance (cronograma +
+    fases), porque el valor del proyecto debe reflejar todo lo cobrable.
+    Las fechas/horas/avance siguen tomándose del cronograma (phase_instance
+    null) que es donde el equipo programa el trabajo real.
     """
     from django.db.models import Max, Min, Sum
 
     qs = project.service_instances.filter(phase_instance__isnull=True)
+    all_si_qs = project.service_instances.all()
     agg = qs.aggregate(
         min_planned=Min("projected_start_date"),
         max_planned=Max("projected_end_date"),
         min_actual=Min("actual_start_date"),
         max_actual=Max("actual_end_date"),
-        total=Sum("total_value"),
         sum_projected_hours=Sum("projected_hours"),
         sum_actual_hours=Sum("actual_hours"),
     )
+    total_agg = all_si_qs.aggregate(total=Sum("total_value"))
+    agg["total"] = total_agg["total"]
     update_fields = []
     for model_field, agg_key in (
         ("planned_start_date", "min_planned"),
@@ -132,16 +138,20 @@ def _update_project_schedule_dates(project):
 
 @receiver(post_save, sender="projects.ServiceInstance")
 def sync_schedule_dates_on_save(sender, instance, **kwargs):
-    """Update project schedule dates when a cronograma service is saved."""
-    if instance.phase_instance is None:
-        _update_project_schedule_dates(instance.project)
+    """Refresca métricas del proyecto al guardar cualquier ServiceInstance.
+
+    Antes solo se disparaba para servicios del cronograma (phase_instance=None),
+    pero el total_value del proyecto debe reflejar también los services en
+    fases. Ahora se recalcula siempre (la función internamente diferencia
+    qué métricas vienen de cronograma vs total).
+    """
+    _update_project_schedule_dates(instance.project)
 
 
 @receiver(post_delete, sender="projects.ServiceInstance")
 def sync_schedule_dates_on_delete(sender, instance, **kwargs):
-    """Update project schedule dates when a cronograma service is deleted."""
-    if instance.phase_instance is None:
-        _update_project_schedule_dates(instance.project)
+    """Refresca métricas del proyecto al borrar cualquier ServiceInstance."""
+    _update_project_schedule_dates(instance.project)
 
 
 @receiver(post_save, sender="projects.ProjectPhaseInstance")

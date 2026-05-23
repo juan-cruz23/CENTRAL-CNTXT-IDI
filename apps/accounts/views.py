@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView, View
 
@@ -80,7 +81,25 @@ class UserManagementView(LoginRequiredMixin, StaffRequiredMixin, ListView):
 
 
 class UserRoleUpdateView(LoginRequiredMixin, StaffRequiredMixin, View):
-    """HTMX endpoint: update roles for a user."""
+    """Display & update roles for a user."""
+
+    template_name = "accounts/user_role_form.html"
+
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        all_roles = Role.objects.filter(is_active=True).order_by("code")
+        current_role_ids = set(
+            UserRole.objects.filter(user=user).values_list("role_id", flat=True)
+        )
+        return TemplateResponse(
+            request,
+            self.template_name,
+            {
+                "target_user": user,
+                "all_roles": all_roles,
+                "current_role_ids": current_role_ids,
+            },
+        )
 
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)

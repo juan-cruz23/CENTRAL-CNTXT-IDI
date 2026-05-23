@@ -146,10 +146,19 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
         project = self.object
 
         # --- Cronograma: servicios agrupados por fase ---
+        # Ordenar cronológicamente (fecha planeada de inicio) dentro de cada
+        # fase; fallback a code para servicios sin fecha aún. Antes salía
+        # alfanumérico por code, lo que confundía al equipo que espera ver
+        # primero lo que arranca antes.
+        from datetime import date as _date
+        _MAX_DATE = _date(9999, 12, 31)
         schedule_services = [
             si for si in project.service_instances.all()
             if si.phase_instance is None
         ]
+        schedule_services.sort(
+            key=lambda s: (s.projected_start_date or _MAX_DATE, s.code or "")
+        )
         phase_groups_dict = {}
         for si in schedule_services:
             phase = si.service_template.phase if si.service_template else None
@@ -1156,10 +1165,24 @@ class ScheduleServiceEditView(LoginRequiredMixin, View):
         else:
             si.assigned_professional = None
 
+        # Helper: preservar las horas existentes si el campo no llega o llega
+        # vacío. Antes se forzaba a 0 con `or "0"`, lo que borraba las horas
+        # cuando el usuario solo cambiaba el responsable (#21 nota 10a).
+        actions_qs = list(si.action_assignments.order_by("order"))
+
+        def _hours_for(i, fallback):
+            raw = request.POST.get(f"act-{i}-hours")
+            if raw is None or str(raw).strip() == "":
+                return Decimal(str(fallback or 0))
+            try:
+                return Decimal(str(raw))
+            except Exception:
+                return Decimal(str(fallback or 0))
+
         # Recalcular horas totales y fecha fin a partir de las acciones editadas
         if act_total:
             total_hours = sum(
-                Decimal(request.POST.get(f"act-{i}-hours") or "0")
+                _hours_for(i, actions_qs[i].estimated_hours if i < len(actions_qs) else 0)
                 for i in range(act_total)
             )
         else:
@@ -1179,18 +1202,20 @@ class ScheduleServiceEditView(LoginRequiredMixin, View):
         ])
 
         # Actualizar ServiceInstanceAction (horas + profesional)
-        actions = list(si.action_assignments.order_by("order"))
-        for i, act in enumerate(actions):
-            new_hours = Decimal(request.POST.get(f"act-{i}-hours") or "0")
-            pro_id    = request.POST.get(f"act-{i}-professional")
+        for i, act in enumerate(actions_qs):
+            new_hours = _hours_for(i, act.estimated_hours)
+            pro_raw   = request.POST.get(f"act-{i}-professional")
             act.estimated_hours = new_hours
-            if pro_id:
-                try:
-                    act.assigned_professional = _User.objects.get(pk=int(pro_id), is_active=True)
-                except (_User.DoesNotExist, ValueError):
+            # Si la clave no llegó al POST, NO tocar el profesional asignado.
+            # Solo si llegó (incluyendo string vacío como "sin asignar") se actualiza.
+            if pro_raw is not None:
+                if pro_raw:
+                    try:
+                        act.assigned_professional = _User.objects.get(pk=int(pro_raw), is_active=True)
+                    except (_User.DoesNotExist, ValueError):
+                        act.assigned_professional = None
+                else:
                     act.assigned_professional = None
-            else:
-                act.assigned_professional = None
             act.save(update_fields=["estimated_hours", "assigned_professional"])
 
         response = HttpResponse("")

@@ -1,0 +1,53 @@
+{% extends "base/base.html" %}
+{% block title %}Asignar Roles{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-8">
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <h2 class="text-xl font-bold">Asignar Roles</h2>
+      <p class="text-sm text-base-content/70 mb-2">
+        Usuario: <span class="font-medium">{{ target_user.get_full_name|default:target_user.username }}</span>
+        <span class="text-xs text-base-content/50">({{ target_user.username }})</span>
+      </p>
+      <p class="text-xs text-base-content/50 mb-4">
+        El primer rol marcado (alfabético por código) queda como principal.
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+        {% if all_roles %}
+        <div class="flex flex-col gap-2 max-h-96 overflow-y-auto border border-base-300/40 rounded-lg p-3">
+          {% for role in all_roles %}
+          <label class="flex items-start gap-3 cursor-pointer hover:bg-base-200/40 rounded p-2">
+            <input type="checkbox" name="roles" value="{{ role.pk }}"
+                   class="checkbox checkbox-sm mt-0.5"
+                   {% if role.pk in current_role_ids %}checked{% endif %}>
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-xs badge badge-ghost">{{ role.code }}</span>
+                <span class="font-medium text-sm">{{ role.name }}</span>
+              </div>
+              {% if role.description %}
+              <p class="text-xs text-base-content/60 mt-0.5">{{ role.description }}</p>
+              {% endif %}
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-sm">
+          No hay roles activos definidos. Cree roles primero en Maestros &rarr; Roles.
+        </div>
+        {% endif %}
+
+        <div class="flex justify-end gap-3 mt-6">
+          <a href="{% url 'accounts:user_management' %}" class="btn btn-ghost btn-sm">Cancelar</a>
+          <button type="submit" class="btn btn-primary btn-sm" {% if not all_roles %}disabled{% endif %}>
+            Guardar roles
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -48,12 +48,17 @@ class PaymentMilestoneForm(DaisyUIFormMixin, forms.ModelForm):
 
 
 class CostCenterMappingForm(DaisyUIFormMixin, forms.ModelForm):
+    """Solo permite editar la asignación (proyecto / unidad de negocio).
+
+    code/name se rellenan desde Loggro y no se editan desde la UI; al excluirlos
+    del form evitamos que su ausencia en el template haga fallar la validación
+    como required.
+    """
+
     class Meta:
         model = CostCenterMapping
-        fields = ["cost_center_code", "cost_center_name", "project", "business_unit"]
+        fields = ["project", "business_unit"]
         widgets = {
-            "cost_center_code": forms.TextInput(attrs={"readonly": True}),
-            "cost_center_name": forms.TextInput(attrs={"readonly": True}),
             "project": forms.Select(),
             "business_unit": forms.Select(),
         }
