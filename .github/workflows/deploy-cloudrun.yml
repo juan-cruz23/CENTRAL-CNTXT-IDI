@@ -58,7 +58,7 @@ jobs:
 
       - name: Create env-vars file
         run: |
-          cat > /tmp/env-vars.yaml << EOF
+          cat > "$RUNNER_TEMP/env-vars.yaml" << EOF
           DJANGO_SETTINGS_MODULE: "config.settings.production"
           DEBUG: "False"
           ALLOWED_HOSTS: "*"
@@ -74,7 +74,7 @@ jobs:
           GOOGLE_CLOUD_PROJECT: "appsindunnova"
           GS_BUCKET_NAME: "contexto-media"
           EOF
-          sed -i.bak 's/^          //' /tmp/env-vars.yaml && rm -f /tmp/env-vars.yaml.bak
+          sed -i.bak 's/^          //' "$RUNNER_TEMP/env-vars.yaml" && rm -f "$RUNNER_TEMP/env-vars.yaml".bak
 
       - name: Run Migrations
         run: |
@@ -82,7 +82,7 @@ jobs:
             --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --tasks 1 \
-            --env-vars-file=/tmp/env-vars.yaml \
+            --env-vars-file="$RUNNER_TEMP/env-vars.yaml" \
             --set-cloudsql-instances ${{ env.CLOUD_SQL_INSTANCE }} \
             --command "python" \
             --args "manage.py,migrate,--noinput" \
@@ -100,7 +100,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --add-cloudsql-instances ${{ env.CLOUD_SQL_INSTANCE }} \
-            --env-vars-file=/tmp/env-vars.yaml \
+            --env-vars-file="$RUNNER_TEMP/env-vars.yaml" \
             --memory 512Mi \
             --cpu 1 \
             --timeout 300 \
