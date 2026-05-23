@@ -165,8 +165,25 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             sort_key = (phase.number if phase and hasattr(phase, 'number') else 999,
                         phase.pk if phase else 0)
             if sort_key not in phase_groups_dict:
-                phase_groups_dict[sort_key] = {"phase": phase, "services": []}
+                phase_groups_dict[sort_key] = {
+                    "phase": phase, "services": [], "milestones": [],
+                }
             phase_groups_dict[sort_key]["services"].append(si)
+
+        # Nota 12 issue #21: incluir hitos manuales del proyecto en la misma
+        # estructura, segregados por fase (usando phase_instance.phase).
+        for m in project.milestones.select_related("phase_instance__phase").order_by(
+            "planned_date", "code"
+        ):
+            phase = m.phase_instance.phase if m.phase_instance else None
+            sort_key = (phase.number if phase and hasattr(phase, 'number') else 999,
+                        phase.pk if phase else 0)
+            if sort_key not in phase_groups_dict:
+                phase_groups_dict[sort_key] = {
+                    "phase": phase, "services": [], "milestones": [],
+                }
+            phase_groups_dict[sort_key]["milestones"].append(m)
+
         context["schedule_phase_groups"] = [
             v for _, v in sorted(phase_groups_dict.items())
         ]
@@ -381,8 +398,13 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
         }
 
     def form_valid(self, form):
-        # El campo code fue excluido del form; preservar el valor existente.
-        form.instance.code = self.object.code
+        # Nota 5 issue #21: el campo `code` ahora ES editable en modo edición
+        # (ProjectForm lo mantiene en self.fields cuando self.instance.pk existe).
+        # Si el usuario lo envía vacío por error, conservamos el valor previo
+        # para no romper la unicidad. Si lo envía con valor, dejamos que el form
+        # haga su validación normal (unique=True ya está a nivel de modelo).
+        if not form.cleaned_data.get("code"):
+            form.instance.code = self.object.code
         old_category_id = self.get_object().category_id
         response = super().form_valid(form)
         # Si la categoría cambió o el proyecto no tenía prerrequisitos, cargar plantillas
@@ -647,33 +669,79 @@ class PrerequisiteDeleteView(LoginRequiredMixin, View):
 # Milestone views (Bloque 1)
 # ---------------------------------------------------------------------------
 class MilestoneCreateView(LoginRequiredMixin, View):
-    """HTMX endpoint: show form / create a new milestone."""
+    """HTMX endpoint: show form / create a new milestone.
+
+    Nota 12 issue #21: ahora soporta dos contextos:
+    - Schedule modal (default): renderiza `milestone_modal.html`, en POST exitoso
+      cierra el modal y dispara `scheduleChanged` para refrescar el cronograma.
+    - Legacy partial fila (`?legacy=1`): mantiene comportamiento anterior
+      (milestone_form.html / milestone_row.html) para no romper otras vistas.
+    """
+
+    def _is_legacy(self, request):
+        return request.GET.get("legacy") == "1" or request.POST.get("__legacy__") == "1"
 
     def get(self, request, pk):
         project = get_object_or_404(Project, pk=pk)
         form = MilestoneForm()
+        if self._is_legacy(request):
+            return TemplateResponse(
+                request,
+                "projects/partials/milestone_form.html",
+                {"form": form, "project": project},
+            )
+        phase_instances = project.phase_instances.select_related("phase").order_by(
+            "phase__number", "order"
+        )
         return TemplateResponse(
             request,
-            "projects/partials/milestone_form.html",
-            {"form": form, "project": project},
+            "projects/partials/milestone_modal.html",
+            {"form": form, "project": project, "phase_instances": phase_instances},
         )
 
     def post(self, request, pk):
         project = get_object_or_404(Project, pk=pk)
         form = MilestoneForm(request.POST)
+        legacy = self._is_legacy(request)
+        # Aceptar phase_instance opcional desde el modal nuevo
+        phase_instance_id = request.POST.get("phase_instance") or None
         if form.is_valid():
             milestone = form.save(commit=False)
             milestone.project = project
+            if phase_instance_id:
+                from apps.projects.models import ProjectPhaseInstance
+                try:
+                    pi = ProjectPhaseInstance.objects.get(
+                        pk=int(phase_instance_id), project=project,
+                    )
+                    milestone.phase_instance = pi
+                except (ValueError, ProjectPhaseInstance.DoesNotExist):
+                    pass
             milestone.save()
+            if legacy:
+                return TemplateResponse(
+                    request,
+                    "projects/partials/milestone_row.html",
+                    {"milestone": milestone, "project": project},
+                )
+            # Modal flow: cerrar modal y refrescar cronograma vía HX-Trigger
+            response = HttpResponse("")
+            response["HX-Trigger"] = "scheduleChanged"
+            return response
+        # Errores de validación → repintar template correspondiente
+        if legacy:
             return TemplateResponse(
                 request,
-                "projects/partials/milestone_row.html",
-                {"milestone": milestone, "project": project},
+                "projects/partials/milestone_form.html",
+                {"form": form, "project": project},
             )
+        phase_instances = project.phase_instances.select_related("phase").order_by(
+            "phase__number", "order"
+        )
         return TemplateResponse(
             request,
-            "projects/partials/milestone_form.html",
-            {"form": form, "project": project},
+            "projects/partials/milestone_modal.html",
+            {"form": form, "project": project, "phase_instances": phase_instances},
         )
 
 
@@ -1491,7 +1559,13 @@ class ServiceApprovalView(LoginRequiredMixin, View):
 
 
 class ScheduleTableView(LoginRequiredMixin, View):
-    """HTMX: retorna el contenido del tbody del cronograma (servicios agrupados por fase)."""
+    """HTMX: retorna el contenido del tbody del cronograma (servicios + hitos agrupados por fase).
+
+    Nota 12 issue #21: ahora incluye Milestones manuales (reuniones cliente,
+    tiempo de revisión, cambios) segregados visualmente por la columna FASE.
+    Los hitos se agrupan por su phase_instance.phase si tienen, o se incluyen
+    en el bucket "Sin Fase" si están sueltos.
+    """
 
     def get(self, request, pk):
         project = get_object_or_404(Project, pk=pk)
@@ -1504,16 +1578,36 @@ class ScheduleTableView(LoginRequiredMixin, View):
             )
             .order_by("service_template__phase__number", "projected_start_date")
         )
+        # Hitos del proyecto (Nota 12)
+        milestones = list(
+            project.milestones.select_related("phase_instance__phase")
+            .order_by("planned_date", "code")
+        )
+
         phase_groups_dict = {}
-        for si in schedule_services:
-            phase = si.service_template.phase if si.service_template else None
+
+        def _ensure_bucket(phase):
             sort_key = (
                 phase.number if phase and hasattr(phase, "number") else 999,
                 phase.pk if phase else 0,
             )
             if sort_key not in phase_groups_dict:
-                phase_groups_dict[sort_key] = {"phase": phase, "services": []}
-            phase_groups_dict[sort_key]["services"].append(si)
+                phase_groups_dict[sort_key] = {
+                    "phase": phase,
+                    "services": [],
+                    "milestones": [],
+                }
+            return phase_groups_dict[sort_key]
+
+        for si in schedule_services:
+            phase = si.service_template.phase if si.service_template else None
+            _ensure_bucket(phase)["services"].append(si)
+
+        for m in milestones:
+            # Segregación por fase: usar phase_instance.phase si existe.
+            phase = m.phase_instance.phase if m.phase_instance else None
+            _ensure_bucket(phase)["milestones"].append(m)
+
         phase_groups = [v for _, v in sorted(phase_groups_dict.items())]
 
         return TemplateResponse(

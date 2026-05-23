@@ -107,8 +107,16 @@ class ProjectPhaseForm(DaisyUIFormMixin, forms.ModelForm):
 class ServiceSubCategoryForm(DaisyUIFormMixin, forms.ModelForm):
     class Meta:
         model = ServiceSubCategory
-        fields = ["code", "name", "operative_line", "description", "is_active"]
-        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+        fields = ["code", "name", "operative_lines", "description", "is_active"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+            "operative_lines": forms.SelectMultiple(
+                attrs={"class": "form-select", "size": "5"}
+            ),
+        }
+        help_texts = {
+            "operative_lines": "Mantén Ctrl/Cmd para seleccionar varias líneas.",
+        }
 
 
 class ServiceTemplateForm(DaisyUIFormMixin, forms.ModelForm):

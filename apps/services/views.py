@@ -3,10 +3,11 @@ from datetime import date, timedelta
 from decimal import Decimal
 from math import ceil
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Count, Sum
+from django.db.models import Count, ProtectedError, Sum
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.views import View
@@ -310,6 +311,43 @@ class ProjectPhaseDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView)
     model = ProjectPhase
     template_name = "services/projectphase_confirm_delete.html"
     success_url = reverse_lazy("services:phase_list")
+
+    def get_context_data(self, **kwargs):
+        """Expose related instances so the confirm template can warn the user."""
+        ctx = super().get_context_data(**kwargs)
+        phase = self.object
+        # Recolectar referencias bloqueantes / cascadables sin contar duplicados
+        from apps.projects.models import ProjectPhaseInstance
+        ctx["phase_instance_count"] = ProjectPhaseInstance.objects.filter(
+            phase=phase
+        ).count()
+        ctx["service_template_count"] = phase.service_templates.count()
+        return ctx
+
+    def form_valid(self, form):
+        """Wrap delete() with try/except so we surface PROTECT errors instead of
+        rendering a generic 500. Returns the user to the list view with a
+        descriptive `messages.error` if the delete can't be completed.
+        """
+        try:
+            return super().form_valid(form)
+        except ProtectedError as exc:
+            protected_repr = ", ".join(str(o)[:80] for o in list(exc.protected_set)[:5])
+            messages.error(
+                self.request,
+                "No se puede eliminar la fase porque tiene registros protegidos asociados: "
+                f"{protected_repr}. Reasigna o elimina esos registros primero.",
+            )
+            return redirect(self.success_url)
+        except Exception as exc:  # pragma: no cover - defensive
+            # Capturamos cualquier otro error en cascada (signals, FK indirecta)
+            # y mostramos un mensaje claro al usuario en vez de un 500.
+            messages.error(
+                self.request,
+                f"Error al eliminar la fase: {type(exc).__name__}: {exc}. "
+                "Verifica que no haya proyectos activos usándola.",
+            )
+            return redirect(self.success_url)
 
 
 class DeliverableListView(LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -730,9 +768,11 @@ class ServiceTemplateUpdateView(LoginRequiredMixin, UpdateView):
             context["form_categories"] = ProjectCategory.objects.filter(
                 operative_line_id=st.operative_line_id
             ).order_by("code")
+            # Subcategorías ahora soportan múltiples líneas operativas (M2M).
+            # Filtramos por las que contienen la línea del template.
             context["form_subcategories"] = ServiceSubCategory.objects.filter(
-                operative_line_id=st.operative_line_id, is_active=True
-            ).order_by("code")
+                operative_lines__id=st.operative_line_id, is_active=True
+            ).distinct().order_by("code")
         else:
             context["form_categories"] = ProjectCategory.objects.none()
             context["form_subcategories"] = ServiceSubCategory.objects.none()
@@ -886,9 +926,10 @@ class FiltrarClasificacionView(LoginRequiredMixin, View):
 
         if line_id:
             categories = ProjectCategory.objects.filter(operative_line_id=line_id).order_by("code")
+            # Subcategorías ahora se filtran por su M2M operative_lines.
             subcategories = ServiceSubCategory.objects.filter(
-                operative_line_id=line_id, is_active=True
-            ).order_by("code")
+                operative_lines__id=line_id, is_active=True
+            ).distinct().order_by("code")
         else:
             categories = ProjectCategory.objects.none()
             subcategories = ServiceSubCategory.objects.none()

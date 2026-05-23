@@ -1,19 +1,76 @@
 {% load common_tags %}
-{# Contenido del tbody del cronograma — servicios agrupados por fase #}
+{# Contenido del tbody del cronograma — servicios agrupados por fase, colapsables (Nota 11 issue #21) #}
 
 {% if phase_groups %}
   {% for group in phase_groups %}
-  <tr class="bg-primary/10 border-b border-primary/20">
+  {% with phase_id=group.phase.pk|default:0 %}
+  <tr class="bg-primary/10 border-b border-primary/20 cursor-pointer hover:bg-primary/20"
+      onclick="(function(btn){
+        const target = btn.dataset.phaseGroup;
+        document.querySelectorAll('[data-phase-row=' + target + ']').forEach(el => el.classList.toggle('hidden'));
+        const icon = btn.querySelector('.phase-toggle-icon');
+        if (icon) icon.classList.toggle('rotate-90');
+      })(this)"
+      data-phase-group="phase-{{ phase_id }}">
     <td colspan="10" class="py-1.5 px-3">
-      <span class="font-semibold text-xs text-primary uppercase tracking-wider">
-        {% if group.phase %}{{ group.phase.name }}{% else %}Sin Fase{% endif %}
-      </span>
-      <span class="text-xs text-base-content/40 ml-2">{{ group.services|length }} servicio{{ group.services|length|pluralize:"s" }}</span>
+      <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="phase-toggle-icon h-3 w-3 text-primary transition-transform duration-150 rotate-90"
+             viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+        </svg>
+        <span class="font-semibold text-xs text-primary uppercase tracking-wider">
+          {% if group.phase %}{{ group.phase.name }}{% else %}Sin Fase{% endif %}
+        </span>
+        <span class="text-xs text-base-content/40 ml-2">
+          {{ group.services|length }} servicio{{ group.services|length|pluralize:"s" }}
+          {% if group.milestones %}· {{ group.milestones|length }} hito{{ group.milestones|length|pluralize:"s" }}{% endif %}
+        </span>
+      </div>
     </td>
   </tr>
   {% for si in group.services %}
-  {% include "projects/partials/schedule_service_row.html" with si=si project=project %}
+  <tbody data-phase-row="phase-{{ phase_id }}" class="contents">
+    {% include "projects/partials/schedule_service_row.html" with si=si project=project %}
+  </tbody>
   {% endfor %}
+  {# Nota 12 issue #21: hitos manuales segregados por fase #}
+  {% for m in group.milestones %}
+    <tr data-phase-row="phase-{{ phase_id }}"
+        id="schedule-milestone-{{ m.pk }}"
+        class="hover:bg-warning/5 border-l-2 border-warning/40">
+      <td class="w-8 pr-0">
+        <span class="badge badge-warning badge-xs">H</span>
+      </td>
+      <td class="font-mono text-sm">{{ m.code }}</td>
+      <td class="text-sm">
+        <span class="font-medium">{{ m.name }}</span>
+        <span class="badge badge-outline badge-xs ml-1">{{ m.get_milestone_type_display }}</span>
+        {% if m.notes %}<span class="block text-xs text-base-content/50">{{ m.notes|truncatewords:18 }}</span>{% endif %}
+      </td>
+      <td class="text-sm text-center text-base-content/40">—</td>
+      <td class="text-sm text-center text-base-content/40">—</td>
+      <td class="text-sm font-medium">
+        {% if m.planned_date %}{{ m.planned_date|date:"d/m/Y" }}{% else %}—{% endif %}
+      </td>
+      <td class="text-sm font-medium">
+        {% if m.actual_date %}<span class="badge badge-success badge-sm">{{ m.actual_date|date:"d/m/Y" }}</span>{% else %}—{% endif %}
+      </td>
+      <td class="text-sm text-base-content/40">—</td>
+      <td class="text-center text-xs text-base-content/40">Hito</td>
+      <td class="text-right">
+        <button class="btn btn-ghost btn-xs text-error"
+                hx-delete="{% url 'projects:milestone_delete' project.pk m.pk %}"
+                hx-target="#schedule-milestone-{{ m.pk }}"
+                hx-swap="outerHTML"
+                hx-confirm="¿Eliminar este hito del cronograma?"
+                title="Eliminar hito">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        </button>
+      </td>
+    </tr>
+  {% endfor %}
+  {% endwith %}
   {% endfor %}
 {% else %}
 <tr id="schedule-empty">

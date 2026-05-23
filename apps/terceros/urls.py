@@ -9,4 +9,5 @@ urlpatterns = [
     path("<int:pk>/", views.ThirdPartyDetailView.as_view(), name="detail"),
     path("crear/", views.ThirdPartyCreateView.as_view(), name="create"),
     path("<int:pk>/editar/", views.ThirdPartyUpdateView.as_view(), name="update"),
+    path("<int:pk>/eliminar/", views.ThirdPartyDeleteView.as_view(), name="delete"),
 ]

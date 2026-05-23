@@ -36,12 +36,20 @@
     <script>document.getElementById('form-errors-banner').scrollIntoView({behavior:'smooth', block:'start'});</script>
     {% endif %}
 
-    <!-- Código solo lectura en edición -->
-    {% if form.instance.pk %}
+    <!-- Nota 5 issue #21: código EDITABLE en modo edición -->
+    {% if form.instance.pk and form.code %}
     <div class="card bg-base-100 shadow-sm border border-base-300/30">
-      <div class="card-body py-3 px-5 flex flex-row items-center gap-3">
-        <span class="text-base-content/50 text-sm">Código</span>
-        <span class="font-mono font-bold text-lg">{{ form.instance.code }}</span>
+      <div class="card-body py-3 px-5">
+        <label class="label py-1">
+          <span class="label-text text-sm font-medium">Código del proyecto</span>
+        </label>
+        {{ form.code }}
+        {% if form.code.help_text %}
+          <span class="text-xs text-base-content/50 mt-1">{{ form.code.help_text }}</span>
+        {% endif %}
+        {% if form.code.errors %}
+          <span class="text-xs text-error mt-1">{{ form.code.errors.0 }}</span>
+        {% endif %}
       </div>
     </div>
     {% endif %}

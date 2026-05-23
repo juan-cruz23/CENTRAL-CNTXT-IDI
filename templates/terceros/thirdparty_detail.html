@@ -16,7 +16,12 @@
       {% if not third_party.is_active %}<span class="badge badge-error badge-sm">Inactivo</span>{% endif %}
     </p>
   </div>
-  <a href="{% url 'terceros:update' third_party.pk %}" class="btn btn-outline btn-sm">Editar</a>
+  <div class="flex items-center gap-2">
+    <a href="{% url 'terceros:update' third_party.pk %}" class="btn btn-outline btn-sm">Editar</a>
+    {% if can_delete %}
+    <a href="{% url 'terceros:delete' third_party.pk %}" class="btn btn-outline btn-error btn-sm">Eliminar</a>
+    {% endif %}
+  </div>
 </div>
 
 <!-- Info -->
@@ -48,7 +53,20 @@
   <!-- Contacts -->
   <div class="card bg-base-100 shadow-sm border border-base-300/30">
     <div class="card-body">
-      <h2 class="card-title text-base">Contactos</h2>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="card-title text-base">Contactos</h2>
+        {# Nota 8 issue #21: enlace visible para ir a admin a editar contactos. #}
+        <a href="/admin/terceros/thirdpartycontact/?third_party__id__exact={{ third_party.pk }}"
+           target="_blank"
+           class="btn btn-ghost btn-xs gap-1"
+           title="Agregar, editar o eliminar contactos desde Django admin">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+          </svg>
+          Editar contactos
+        </a>
+      </div>
+      <p class="text-xs text-base-content/50 mb-2">Los contactos se administran desde el panel de administración.</p>
       {% if contacts %}
       <div class="space-y-3">
         {% for contact in contacts %}
@@ -68,7 +86,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <p class="text-sm text-base-content/60">No hay contactos registrados.</p>
+      <p class="text-sm text-base-content/60">No hay contactos registrados. Usa el botón <em>Editar contactos</em> para agregarlos.</p>
       {% endif %}
     </div>
   </div>

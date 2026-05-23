@@ -276,13 +276,22 @@ class ServiceSubCategory(TimeStampedModel):
         blank=True,
         verbose_name="descripción",
     )
+    # DEPRECATED: kept temporarily for backwards compat. Use `operative_lines` (M2M).
+    # Will be removed in a future migration once all references are updated.
     operative_line = models.ForeignKey(
         "organizations.OperativeLine",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name="subcategories_legacy",
+        verbose_name="línea operativa (legado)",
+    )
+    operative_lines = models.ManyToManyField(
+        "organizations.OperativeLine",
+        blank=True,
         related_name="subcategories",
-        verbose_name="línea operativa",
+        verbose_name="líneas operativas",
+        help_text="Una subcategoría puede pertenecer a varias líneas operativas.",
     )
     is_active = models.BooleanField(
         default=True,
@@ -296,6 +305,11 @@ class ServiceSubCategory(TimeStampedModel):
 
     def __str__(self):
         return f"{self.code} - {self.name}"
+
+    @property
+    def operative_lines_display(self):
+        """Returns comma-separated list of line codes/names for display."""
+        return ", ".join(line.name for line in self.operative_lines.all())
 
 
 class ProjectPhase(TimeStampedModel):

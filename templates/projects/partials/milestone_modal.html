@@ -1,0 +1,91 @@
+{# Modal para agregar/crear hitos manuales en el cronograma (Nota 12 issue #21). #}
+<div id="milestone-modal-overlay"
+     class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+     onclick="if(event.target===this){this.remove();}">
+  <div class="bg-base-100 rounded-lg shadow-xl w-full max-w-lg p-6"
+       onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-warning" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v1H3V4zM3 7h14v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+        Agregar Hito al Cronograma
+      </h3>
+      <button class="btn btn-ghost btn-xs"
+              onclick="document.getElementById('milestone-modal-overlay').remove()">✕</button>
+    </div>
+
+    <form hx-post="{% url 'projects:milestone_create' project.pk %}"
+          hx-target="#milestone-modal-overlay"
+          hx-swap="outerHTML"
+          class="space-y-3">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Tipo de hito *</span></label>
+          <select name="milestone_type" class="select select-bordered select-sm" required>
+            <option value="">--</option>
+            <option value="KICKOFF" {% if form.milestone_type.value == "KICKOFF" %}selected{% endif %}>Kick-off</option>
+            <option value="PHASE_DELIVERY" {% if form.milestone_type.value == "PHASE_DELIVERY" %}selected{% endif %}>Entrega de Fase</option>
+            <option value="CLIENT_REVIEW" {% if form.milestone_type.value == "CLIENT_REVIEW" %}selected{% endif %}>Revisión de Cliente</option>
+            <option value="FINAL_DELIVERY" {% if form.milestone_type.value == "FINAL_DELIVERY" %}selected{% endif %}>Entrega Final</option>
+          </select>
+        </div>
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Fase *</span></label>
+          <select name="phase_instance" class="select select-bordered select-sm" required>
+            <option value="">— Sin fase —</option>
+            {% for pi in phase_instances %}
+              <option value="{{ pi.pk }}" {% if form.phase_instance.value|stringformat:"s" == pi.pk|stringformat:"s" %}selected{% endif %}>{{ pi.phase.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Código *</span></label>
+        <input type="text" name="code" class="input input-bordered input-sm w-full"
+               value="{{ form.code.value|default:'' }}"
+               placeholder="Ej. HITO 1 / R1 / REV-CLIENTE" required>
+      </div>
+
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Nombre *</span></label>
+        <input type="text" name="name" class="input input-bordered input-sm w-full"
+               value="{{ form.name.value|default:'' }}"
+               placeholder="Ej. ENTREGA FASE 1 / REUNIÓN CLIENTE / CAMBIO ALCANCE" required>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Fecha planeada</span></label>
+          <input type="date" name="planned_date" class="input input-bordered input-sm w-full"
+                 value="{{ form.planned_date.value|date:'Y-m-d'|default:'' }}">
+        </div>
+        <div class="form-control">
+          <label class="label py-0"><span class="label-text text-xs">Fecha real</span></label>
+          <input type="date" name="actual_date" class="input input-bordered input-sm w-full"
+                 value="{{ form.actual_date.value|date:'Y-m-d'|default:'' }}">
+        </div>
+      </div>
+
+      <div class="form-control">
+        <label class="label py-0"><span class="label-text text-xs">Notas</span></label>
+        <textarea name="notes" rows="2"
+                  class="textarea textarea-bordered textarea-sm w-full"
+                  placeholder="Detalle opcional (objetivo de la reunión, alcance del cambio, etc.)">{{ form.notes.value|default:'' }}</textarea>
+      </div>
+
+      {% if form.errors %}
+      <div class="alert alert-error text-xs">
+        {% for field, errors in form.errors.items %}<div>{{ field }}: {{ errors.0 }}</div>{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="btn btn-ghost btn-sm"
+                onclick="document.getElementById('milestone-modal-overlay').remove()">Cancelar</button>
+        <button type="submit" class="btn btn-warning btn-sm">Crear hito</button>
+      </div>
+    </form>
+  </div>
+</div>

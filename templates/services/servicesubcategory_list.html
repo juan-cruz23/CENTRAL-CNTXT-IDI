@@ -21,7 +21,7 @@
         <tr>
           <th>Código</th>
           <th>Nombre</th>
-          <th>Línea Operativa</th>
+          <th>Líneas Operativas</th>
           <th>Estado</th>
           <th class="text-right">Acciones</th>
         </tr>
@@ -32,11 +32,17 @@
           <td class="font-mono font-bold">{{ sc.code }}</td>
           <td>{{ sc.name }}</td>
           <td class="text-sm">
-            {% if sc.operative_line %}
-            <span class="badge badge-outline badge-sm font-mono">{{ sc.operative_line.code }}</span>
-            {% else %}
-            <span class="text-base-content/40">—</span>
-            {% endif %}
+            {% with lines=sc.operative_lines.all %}
+              {% if lines %}
+                <div class="flex flex-wrap gap-1">
+                {% for line in lines %}
+                  <span class="badge badge-outline badge-sm font-mono">{{ line.code }}</span>
+                {% endfor %}
+                </div>
+              {% else %}
+                <span class="text-base-content/40">—</span>
+              {% endif %}
+            {% endwith %}
           </td>
           <td>
             {% if sc.is_active %}

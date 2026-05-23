@@ -401,13 +401,23 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd"/></svg>
               Cronograma del Proyecto
             </h3>
-            <button class="btn btn-primary btn-sm"
-                  hx-get="{% url 'projects:schedule_service_create' project.pk %}"
-                  hx-target="#schedule-modal-container"
-                  hx-swap="innerHTML">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
-            Agregar Servicio
-          </button>
+            <div class="flex items-center gap-2">
+              {# Nota 12 issue #21: agregar hito manual (reunión, revisión, cambio) #}
+              <button class="btn btn-warning btn-sm"
+                      hx-get="{% url 'projects:milestone_create' project.pk %}"
+                      hx-target="#schedule-modal-container"
+                      hx-swap="innerHTML">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v1H3V4zM3 7h14v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
+                Agregar Hito
+              </button>
+              <button class="btn btn-primary btn-sm"
+                      hx-get="{% url 'projects:schedule_service_create' project.pk %}"
+                      hx-target="#schedule-modal-container"
+                      hx-swap="innerHTML">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                Agregar Servicio
+              </button>
+            </div>
           </div>
 
           {# ── Resumen de avance ── #}

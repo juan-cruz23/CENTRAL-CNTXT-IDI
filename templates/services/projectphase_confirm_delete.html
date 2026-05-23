@@ -13,6 +13,21 @@
       <p class="text-base-content/80">
         ¿Confirmas que deseas eliminar la fase <strong>{{ object }}</strong>?
       </p>
+      {% if phase_instance_count or service_template_count %}
+      <div class="alert alert-warning mt-3 text-sm">
+        <div>
+          <p class="font-medium">Atención: esta fase tiene referencias.</p>
+          <ul class="list-disc list-inside mt-1">
+            {% if phase_instance_count %}
+            <li>{{ phase_instance_count }} instancia{{ phase_instance_count|pluralize:"s" }} de proyecto (se eliminarán en cascada junto con sus servicios)</li>
+            {% endif %}
+            {% if service_template_count %}
+            <li>{{ service_template_count }} plantilla{{ service_template_count|pluralize:"s" }} de servicio (quedarán con fase = vacío)</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
       <div class="flex justify-end gap-3 mt-4">
         <a href="{% url 'services:phase_list' %}" class="btn btn-ghost">Cancelar</a>
         <form method="post">

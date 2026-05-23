@@ -1,0 +1,48 @@
+{% extends "base/base.html" %}
+{% block title %}Eliminar Tercero{% endblock %}
+{% block breadcrumb %}
+{% url 'terceros:detail' third_party.pk as detail_url %}
+{% include "components/breadcrumb.html" with grandparent_url="/terceros/" grandparent_label="Terceros" parent_url=detail_url parent_label=third_party.name current="Eliminar" %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-lg">
+  {% include "components/page_header.html" with title="Eliminar Tercero" %}
+
+  <div class="card bg-base-100 shadow-sm border border-base-300/30">
+    <div class="card-body">
+      <p class="text-base-content/80">
+        ¿Confirmas que deseas eliminar el tercero <strong>{{ third_party.name }}</strong>?
+      </p>
+
+      {% if project_count or contact_count %}
+      <div class="alert alert-warning mt-3 text-sm">
+        <div>
+          <p class="font-medium">Atención: este tercero tiene referencias.</p>
+          <ul class="list-disc list-inside mt-1">
+            {% if project_count %}
+            <li><strong>{{ project_count }}</strong> proyecto{{ project_count|pluralize:"s" }} asociado{{ project_count|pluralize:"s" }}.
+              {% if project_count %}<br><span class="text-xs">El borrado se bloqueará si hay proyectos. Reasígnalos o elimínalos primero.</span>{% endif %}
+            </li>
+            {% endif %}
+            {% if contact_count %}
+            <li>{{ contact_count }} contacto{{ contact_count|pluralize:"s" }} (se eliminarán en cascada).</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+
+      <p class="text-xs text-base-content/60 mt-3">Esta acción no se puede deshacer.</p>
+
+      <div class="flex justify-end gap-3 mt-4">
+        <a href="{% url 'terceros:detail' third_party.pk %}" class="btn btn-ghost">Cancelar</a>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-error">Eliminar definitivamente</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

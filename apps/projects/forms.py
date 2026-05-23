@@ -136,10 +136,22 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
                 is_active=True,
             ).distinct().order_by("first_name", "last_name")
 
-        # En ambos casos (crear y editar) el código no lo llena el usuario:
-        # en creación se genera automáticamente; en edición se preserva en el view.
+        # Nota 5 issue #21: el código DEBE ser editable en modo edición para
+        # que el equipo pueda corregir códigos asignados manualmente
+        # (especialmente cuando se migran proyectos legacy desde Google Sheets).
+        # En creación, el código se autogenera en `form_valid` del CreateView,
+        # por lo que el campo se oculta para no confundir al usuario.
         if "code" in self.fields:
-            self.fields.pop("code")
+            if not self.instance or not self.instance.pk:
+                # Creación: ocultar (autogenera)
+                self.fields.pop("code")
+            else:
+                # Edición: mantener editable, con help text claro
+                self.fields["code"].help_text = (
+                    "Código único del proyecto. Puedes editarlo manualmente; "
+                    "asegúrate de no duplicarlo con otro proyecto existente."
+                )
+                self.fields["code"].widget.attrs.setdefault("class", "form-input")
 
     def clean_iva_rate(self):
         value = self.cleaned_data.get("iva_rate")
