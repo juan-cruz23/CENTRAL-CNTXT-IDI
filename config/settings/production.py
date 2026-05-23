@@ -72,6 +72,10 @@ STORAGES = {
     },
 }
 
+# Tolerar entradas faltantes en el manifest (sirve sin hash en vez de 500).
+# Mitiga errores intermitentes tipo "Missing staticfiles manifest entry for 'admin/css/base.css'".
+WHITENOISE_MANIFEST_STRICT = False
+
 # ---------------------------------------------------------------------------
 # Email  --  SMTP
 # ---------------------------------------------------------------------------
