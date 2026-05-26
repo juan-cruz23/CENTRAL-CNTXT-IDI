@@ -203,6 +203,13 @@ class Project(TimeStampedModel):
         blank=True,
         verbose_name="notas",
     )
+    cover_image = models.ImageField(
+        upload_to="projects/covers/",
+        null=True,
+        blank=True,
+        verbose_name="imagen de portada",
+        help_text="Foto representativa del proyecto (fachada, render, etc.).",
+    )
 
     class Meta:
         ordering = ["-created_at"]

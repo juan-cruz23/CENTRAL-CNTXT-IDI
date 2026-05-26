@@ -20,7 +20,7 @@
   </div>
   {% endif %}
 
-  <form method="post" class="space-y-6">
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
     {% csrf_token %}
     {% if form.errors %}
     <div id="form-errors-banner" class="alert alert-error">
@@ -173,7 +173,74 @@
       </div>
     </div>
 
-    <!-- ── Sección 6: Notas ── -->
+    <!-- ── Sección 6: Imagen de portada ── -->
+    <div class="card bg-base-100 shadow-sm border border-base-300/30"
+         x-data="{
+           preview: '{% if form.instance.cover_image %}{{ form.instance.cover_image.url }}{% endif %}',
+           onFile(e) {
+             const f = e.target.files[0];
+             if (!f) return;
+             this.preview = URL.createObjectURL(f);
+           }
+         }">
+      <div class="card-body">
+        <h2 class="card-title text-base mb-4 pb-2 border-b border-base-300/40">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Imagen de portada
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+
+          <!-- Upload zone -->
+          <div>
+            <label class="label"><span class="label-text font-medium">Foto del proyecto</span></label>
+            <label class="flex flex-col items-center justify-center w-full h-36 rounded-xl cursor-pointer transition-all duration-200"
+                   style="border: 2px dashed rgba(200,168,122,0.3); background:rgba(200,168,122,0.04);"
+                   onmouseover="this.style.borderColor='rgba(200,168,122,0.6)'; this.style.background='rgba(200,168,122,0.08)'"
+                   onmouseout="this.style.borderColor='rgba(200,168,122,0.3)'; this.style.background='rgba(200,168,122,0.04)'">
+              <div class="flex flex-col items-center gap-2 pointer-events-none">
+                <svg class="h-8 w-8" style="color:rgba(200,168,122,0.5);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                </svg>
+                <span class="text-xs font-medium" style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.7);">Subir imagen</span>
+                <span class="text-xs" style="color:rgba(255,255,255,0.25);">JPG, PNG, WEBP · máx 5MB</span>
+              </div>
+              <input type="file" name="cover_image" accept="image/*" class="hidden" @change="onFile($event)" />
+            </label>
+            {% if form.cover_image.errors %}
+            <span class="text-xs text-error mt-1">{{ form.cover_image.errors.0 }}</span>
+            {% endif %}
+            <p class="text-xs mt-2" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">{{ form.cover_image.help_text }}</p>
+          </div>
+
+          <!-- Preview -->
+          <div>
+            <label class="label"><span class="label-text font-medium">Vista previa</span></label>
+            <template x-if="preview">
+              <div class="relative overflow-hidden rounded-xl" style="height:9rem;">
+                <img :src="preview" class="w-full h-full object-cover" />
+                <div class="absolute inset-0" style="background:linear-gradient(to top,rgba(0,0,0,0.5) 0%,transparent 60%);"></div>
+                <button type="button"
+                        @click="preview=''; $el.closest('[x-data]').querySelector('input[type=file]').value=''"
+                        class="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all"
+                        style="background:rgba(0,0,0,0.6); color:rgba(255,255,255,0.7);"
+                        title="Quitar imagen">✕</button>
+              </div>
+            </template>
+            <template x-if="!preview">
+              <div class="flex items-center justify-center rounded-xl" style="height:9rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);">
+                <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.2);">Sin imagen seleccionada</span>
+              </div>
+            </template>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sección 7: Notas ── -->
     <div class="card bg-base-100 shadow-sm border border-base-300/30">
       <div class="card-body">
         <h2 class="card-title text-base mb-4 pb-2 border-b border-base-300/40">

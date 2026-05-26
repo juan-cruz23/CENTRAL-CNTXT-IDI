@@ -77,6 +77,7 @@ class ProjectForm(DaisyUIFormMixin, forms.ModelForm):
             "actual_end_date",
             "iva_rate",
             "notes",
+            "cover_image",
         ]
         widgets = {
             "planned_start_date": forms.DateInput(
