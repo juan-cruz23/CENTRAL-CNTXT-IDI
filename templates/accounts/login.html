@@ -1,92 +1,165 @@
 <!DOCTYPE html>
-<html lang="es" :data-theme="$store.theme.current" x-data data-theme="dark">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión | CNTXT</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script defer src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js"></script>
-  <script>
-    document.addEventListener('alpine:init', () => {
-      Alpine.store('theme', {
-        current: localStorage.getItem('theme') || 'dark',
-        toggle() {
-          this.current = this.current === 'light' ? 'dark' : 'light';
-          localStorage.setItem('theme', this.current);
-        },
-        get isDark() { return this.current === 'dark'; }
-      });
-      document.documentElement.setAttribute('data-theme', Alpine.store('theme').current);
-    });
-  </script>
-  <style>[x-cloak] { display: none !important; }</style>
+
+  <style>
+    [x-cloak] { display: none !important; }
+
+    [data-theme="dark"] {
+      --color-primary:         oklch(0.725 0.072 63.5);
+      --color-primary-content: oklch(0.12  0     0);
+      --color-base-100:        oklch(0.065 0     0);
+      --color-base-200:        oklch(0.10  0     0);
+      --color-base-content:    oklch(0.86  0.019 63.5);
+    }
+
+    body { font-family: 'Manrope', sans-serif; }
+    .font-headline { font-family: 'Space Grotesk', sans-serif; }
+    .font-label    { font-family: 'Inter', sans-serif; }
+
+    /* Custom input — no daisyUI class, full control */
+    .cntxt-input {
+      width: 100%;
+      background: #111111;
+      border: 1px solid #2a2a2a;
+      color: #e0d5c8;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      font-family: 'Manrope', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .cntxt-input::placeholder { color: rgba(255,255,255,0.2); }
+    .cntxt-input:focus { border-color: #C8A87A; }
+
+    /* Animated grain overlay */
+    .grain::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-base-200 transition-colors duration-200">
-  <!-- Dark mode toggle -->
-  <div class="absolute top-4 right-4 z-10">
-    <button @click="$store.theme.toggle()" class="btn btn-ghost btn-sm btn-square">
-      <svg x-show="!$store.theme.isDark" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-      <svg x-show="$store.theme.isDark" x-cloak xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-    </button>
-  </div>
 
-  <div class="flex min-h-screen">
-    <!-- Brand Panel (left) -->
-    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-secondary items-center justify-center p-12">
-      <div class="text-center text-primary-content max-w-md">
-        <h1 class="text-5xl font-bold mb-4">CNTXT</h1>
-        <h2 class="text-2xl font-light mb-6">Casa de Diseño</h2>
-        <div class="divider divider-primary before:bg-primary-content/30 after:bg-primary-content/30"></div>
-        <p class="text-lg opacity-90">Central de Gestión de Proyectos</p>
-        <p class="text-sm opacity-70 mt-2">Control integral de proyectos, capacidad, finanzas y métricas EVM</p>
-      </div>
+<body class="min-h-screen bg-black flex" x-data="{ showPass: false }">
+
+  <!-- ── Left: Brand Panel ─────────────────────────────── -->
+  <div class="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center overflow-hidden grain">
+
+    <!-- Background layers -->
+    <div class="absolute inset-0" style="background: #080808;"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse at 20% 80%, rgba(51,45,37,0.6) 0%, transparent 60%);"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse at 80% 20%, rgba(200,168,122,0.06) 0%, transparent 50%);"></div>
+
+    <!-- Decorative line -->
+    <div class="absolute left-0 top-0 bottom-0 w-px" style="background: linear-gradient(to bottom, transparent, rgba(200,168,122,0.3) 40%, rgba(200,168,122,0.3) 60%, transparent);"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 px-16 w-full max-w-lg">
+      <h1 class="font-headline font-bold leading-none mb-6" style="font-size: 7rem; color: #ffffff; letter-spacing: -0.03em;">CNTXT</h1>
+
+      <div class="mb-8" style="width: 3rem; height: 2px; background: #C8A87A;"></div>
+
+      <p class="font-label text-sm" style="color: rgba(255,255,255,0.35); letter-spacing: 0.1em;">Casa de Diseño</p>
+
     </div>
 
-    <!-- Form Panel (right) -->
-    <div class="flex-1 flex items-center justify-center p-6 bg-base-100">
-      <div class="w-full max-w-sm" x-data="{ showPass: false }">
-        <!-- Mobile brand -->
-        <div class="text-center mb-8 lg:hidden">
-          <h1 class="text-3xl font-bold text-base-content">CNTXT <span class="text-primary">Central</span></h1>
-          <p class="text-base-content/60 mt-1">Gestión de Proyectos</p>
-        </div>
-
-        <div class="hidden lg:block mb-8">
-          <h2 class="text-2xl font-bold text-base-content">Bienvenido</h2>
-          <p class="text-base-content/60 mt-1">Ingrese sus credenciales para continuar</p>
-        </div>
-
-        {% if form.errors %}
-        <div class="alert alert-error mb-6 shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          <span>Usuario o contraseña incorrectos.</span>
-        </div>
-        {% endif %}
-
-        <form method="post">
-          {% csrf_token %}
-          <div class="form-control mb-4">
-            <label class="label"><span class="label-text font-medium text-base-content">Usuario</span></label>
-            <input type="text" name="username" class="input input-bordered w-full" placeholder="nombre.usuario" required autofocus />
-          </div>
-          <div class="form-control mb-6">
-            <label class="label"><span class="label-text font-medium text-base-content">Contraseña</span></label>
-            <div class="relative">
-              <input :type="showPass ? 'text' : 'password'" name="password" class="input input-bordered w-full pr-10" placeholder="Contraseña" required />
-              <button type="button" @click="showPass = !showPass" class="absolute right-2 top-1/2 -translate-y-1/2 btn btn-ghost btn-xs btn-square">
-                <svg x-show="!showPass" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                <svg x-show="showPass" x-cloak xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-              </button>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary w-full">Ingresar</button>
-        </form>
-
-        <p class="text-center text-base-content/40 text-xs mt-8">CNTXT Casa de Diseño &copy; 2026</p>
-      </div>
+    <!-- Bottom credit -->
+    <div class="absolute bottom-8 left-16 z-10">
+      <p class="font-label text-xs" style="color: rgba(255,255,255,0.15);">© 2026 CNTXT Casa de Diseño S.A.S.</p>
     </div>
   </div>
+
+  <!-- ── Right: Form Panel ──────────────────────────────── -->
+  <div class="flex-1 flex items-center justify-center relative" style="background: #000000;">
+
+    <!-- Subtle top-right glow -->
+    <div class="absolute top-0 right-0 w-96 h-96 pointer-events-none" style="background: radial-gradient(ellipse at top right, rgba(200,168,122,0.04) 0%, transparent 60%);"></div>
+
+    <div class="w-full max-w-xs px-2">
+
+      <!-- Mobile brand -->
+      <div class="text-center mb-10 lg:hidden">
+        <h1 class="font-headline font-bold text-5xl text-white mb-2">CNTXT</h1>
+        <p class="font-label text-xs tracking-[0.3em] uppercase" style="color: rgba(255,255,255,0.3);">Casa de Diseño</p>
+      </div>
+
+      <!-- Heading -->
+      <div class="mb-8">
+        <h2 class="font-headline font-semibold text-2xl text-white mb-2">Bienvenido</h2>
+        <p class="font-label text-sm" style="color: rgba(255,255,255,0.35);">Ingrese sus credenciales para continuar</p>
+      </div>
+
+      <!-- Error -->
+      {% if form.errors %}
+      <div class="flex items-center gap-3 rounded-lg p-3 mb-6"
+           style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);">
+        <svg class="h-4 w-4 shrink-0" style="color: #f87171;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span class="font-label text-sm" style="color: #f87171;">Usuario o contraseña incorrectos.</span>
+      </div>
+      {% endif %}
+
+      <!-- Form -->
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+
+        <div>
+          <label class="font-label text-xs tracking-widest uppercase block mb-2" style="color: rgba(255,255,255,0.4);">Usuario</label>
+          <input type="text" name="username" class="cntxt-input" placeholder="nombre.usuario" required autofocus />
+        </div>
+
+        <div>
+          <label class="font-label text-xs tracking-widest uppercase block mb-2" style="color: rgba(255,255,255,0.4);">Contraseña</label>
+          <div class="relative">
+            <input :type="showPass ? 'text' : 'password'" name="password"
+                   class="cntxt-input" style="padding-right: 2.75rem;"
+                   placeholder="••••••••" required />
+            <button type="button" @click="showPass = !showPass"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                    style="color: rgba(255,255,255,0.25);">
+              <svg x-show="!showPass" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              <svg x-show="showPass" x-cloak class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit"
+                  class="w-full font-label font-semibold text-sm py-3 rounded-lg transition-all duration-200"
+                  style="background: #C8A87A; color: #0a0a0a; letter-spacing: 0.03em;"
+                  onmouseover="this.style.background='#b8956a'"
+                  onmouseout="this.style.background='#C8A87A'">
+            Ingresar
+          </button>
+        </div>
+      </form>
+
+      <p class="text-center font-label text-xs mt-10" style="color: rgba(255,255,255,0.15);">
+        CNTXT Casa de Diseño &copy; 2026
+      </p>
+    </div>
+  </div>
+
 </body>
 </html>

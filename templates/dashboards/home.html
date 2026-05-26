@@ -1,13 +1,164 @@
 {% extends "base/base.html" %}
 {% load common_tags %}
-{% block title %}Dashboard Ejecutivo{% endblock %}
+{% block title %}{% if can_view_financials or user.is_staff %}Dashboard Ejecutivo{% else %}Inicio{% endif %}{% endblock %}
+
 {% block extra_head %}
+{% if can_view_financials or user.is_staff %}
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+{% endif %}
+<style>
+/* ── Project card palette system ──────────────────────────── */
+.project-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.project-card:hover { transform: translateY(-5px); box-shadow: 0 28px 56px rgba(0,0,0,0.55); }
+
+/* Noise texture overlay */
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Palette 0 — Amber dark (brand) */
+[data-cp="0"] .cp-bg   { background: linear-gradient(140deg,#1c1408 0%,#2e200a 45%,#3a2810 75%,#1c1408 100%); }
+[data-cp="0"] .cp-glow { background: radial-gradient(ellipse at 25% 25%,rgba(200,168,122,0.22) 0%,transparent 55%); }
+[data-cp="0"] .cp-grid {
+  background-image: repeating-linear-gradient(0deg,rgba(200,168,122,0.05) 0,transparent 1px,transparent 40px),
+                    repeating-linear-gradient(90deg,rgba(200,168,122,0.05) 0,transparent 1px,transparent 40px);
+}
+
+/* Palette 1 — Navy slate */
+[data-cp="1"] .cp-bg   { background: linear-gradient(140deg,#0d1117 0%,#1a2332 45%,#0f1923 75%,#0d1117 100%); }
+[data-cp="1"] .cp-glow { background: radial-gradient(ellipse at 80% 20%,rgba(100,140,200,0.16) 0%,transparent 50%); }
+[data-cp="1"] .cp-grid {
+  background-image: repeating-linear-gradient(0deg,rgba(80,120,200,0.05) 0,transparent 1px,transparent 40px),
+                    repeating-linear-gradient(90deg,rgba(80,120,200,0.05) 0,transparent 1px,transparent 40px);
+}
+
+/* Palette 2 — Deep teal */
+[data-cp="2"] .cp-bg   { background: linear-gradient(140deg,#081414 0%,#0d2020 45%,#142a2a 75%,#081414 100%); }
+[data-cp="2"] .cp-glow { background: radial-gradient(ellipse at 60% 75%,rgba(60,180,130,0.14) 0%,transparent 50%); }
+[data-cp="2"] .cp-grid {
+  background-image: repeating-linear-gradient(0deg,rgba(60,180,130,0.05) 0,transparent 1px,transparent 40px),
+                    repeating-linear-gradient(90deg,rgba(60,180,130,0.05) 0,transparent 1px,transparent 40px);
+}
+
+/* Palette 3 — Warm ochre */
+[data-cp="3"] .cp-bg   { background: linear-gradient(140deg,#14100a 0%,#231a0c 45%,#2e2210 75%,#14100a 100%); }
+[data-cp="3"] .cp-glow { background: radial-gradient(ellipse at 20% 80%,rgba(200,150,80,0.18) 0%,transparent 52%); }
+[data-cp="3"] .cp-grid {
+  background-image: repeating-linear-gradient(0deg,rgba(200,150,80,0.05) 0,transparent 1px,transparent 40px),
+                    repeating-linear-gradient(90deg,rgba(200,150,80,0.05) 0,transparent 1px,transparent 40px);
+}
+
+/* Palette 4 — Deep indigo */
+[data-cp="4"] .cp-bg   { background: linear-gradient(140deg,#0f0f18 0%,#1a1a2e 45%,#1f1f38 75%,#0f0f18 100%); }
+[data-cp="4"] .cp-glow { background: radial-gradient(ellipse at 75% 30%,rgba(140,110,200,0.14) 0%,transparent 50%); }
+[data-cp="4"] .cp-grid {
+  background-image: repeating-linear-gradient(0deg,rgba(140,110,200,0.05) 0,transparent 1px,transparent 40px),
+                    repeating-linear-gradient(90deg,rgba(140,110,200,0.05) 0,transparent 1px,transparent 40px);
+}
+</style>
 {% endblock %}
+
 {% block content %}
+
+<!-- ════════════════════════════════════════════════════════════
+     SALUDO — común a todos los roles
+═════════════════════════════════════════════════════════════ -->
+<div class="mb-8"
+     x-data="{ greeting: '', sub: '' }"
+     x-init="
+       const h = new Date().getHours();
+       if      (h >= 6  && h < 12) { greeting = 'Buenos días';   sub = 'Que sea un día productivo.'; }
+       else if (h >= 12 && h < 19) { greeting = 'Buenas tardes'; sub = 'Que sea una tarde productiva.'; }
+       else                        { greeting = 'Buenas noches'; sub = 'Que sea una noche tranquila.'; }
+     ">
+  <p class="text-xs mb-1 uppercase tracking-widest" style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.6); letter-spacing:0.12em;">
+    <span x-text="greeting"></span> · {{ user.first_name|default:user.username }}
+  </p>
+  <h1 class="text-3xl font-bold mb-1" style="font-family:'Space Grotesk',sans-serif; color:#ffffff; letter-spacing:-0.025em;">
+    {% if can_view_financials or user.is_staff %}Dashboard Ejecutivo{% else %}Mis Proyectos{% endif %}
+  </h1>
+  <p class="text-sm" style="font-family:'Manrope',sans-serif; color:rgba(255,255,255,0.3);" x-text="sub"></p>
+</div>
+
+
+{% if can_view_financials or user.is_staff %}
+<!-- ════════════════════════════════════════════════════════════
+     VISTA EJECUTIVA
+═════════════════════════════════════════════════════════════ -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8 pb-8"
+     style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+  <a href="{% url 'projects:list' %}"
+     class="flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Mis Proyectos</p>
+      <p class="text-xs mt-0.5" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">Ver estado y avance</p>
+    </div>
+  </a>
+  <a href="{% url 'timetracking:widget' %}"
+     class="flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Registrar Tiempo</p>
+      <p class="text-xs mt-0.5" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">Log de horas del día</p>
+    </div>
+  </a>
+  <a href="{% url 'dashboards:portfolio' %}"
+     class="flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Portfolio</p>
+      <p class="text-xs mt-0.5" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">Vista general de proyectos</p>
+    </div>
+  </a>
+  <a href="{% url 'notifications:list' %}"
+     class="flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Mis Alertas</p>
+      <p class="text-xs mt-0.5" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">
+        {% if unread_alert_count %}{{ unread_alert_count }} sin leer{% else %}Sin alertas nuevas{% endif %}
+      </p>
+    </div>
+  </a>
+</div>
+
 {% include "components/page_header.html" with title="Dashboard Ejecutivo" %}
 
-<!-- Filters Bar -->
 <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-6">
   <div class="card-body p-3">
     <form method="get" class="flex flex-wrap items-end gap-3">
@@ -47,7 +198,6 @@
   </div>
 </div>
 
-<!-- KPI Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
   {% include "components/stat_card.html" with title="Proyectos Activos" value=active_projects color_class="text-primary" icon="briefcase" %}
   {% include "components/stat_card.html" with title="Valor Portfolio" value=total_portfolio_value|cop_format icon="banknotes" %}
@@ -56,28 +206,19 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     </div>
     <div class="stat-title text-xs">SPI Promedio</div>
-    <div class="stat-value text-lg {% if avg_spi < 0.9 %}text-error{% elif avg_spi < 1.0 %}text-warning{% else %}text-success{% endif %}">
-      {{ avg_spi|floatformat:2 }}
-    </div>
-    <div class="stat-desc">
-      {% if avg_spi >= 1.0 %}&#9650; En tiempo{% elif avg_spi >= 0.9 %}&#9660; Leve retraso{% else %}&#9660; Retraso critico{% endif %}
-    </div>
+    <div class="stat-value text-lg {% if avg_spi < 0.9 %}text-error{% elif avg_spi < 1.0 %}text-warning{% else %}text-success{% endif %}">{{ avg_spi|floatformat:2 }}</div>
+    <div class="stat-desc">{% if avg_spi >= 1.0 %}&#9650; En tiempo{% elif avg_spi >= 0.9 %}&#9660; Leve retraso{% else %}&#9660; Retraso critico{% endif %}</div>
   </div>
   <div class="stat bg-base-100 rounded-box shadow-sm border border-base-300/50 hover:shadow-md transition-shadow">
     <div class="stat-figure text-base-content/30">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
     </div>
     <div class="stat-title text-xs">CPI Promedio</div>
-    <div class="stat-value text-lg {% if avg_cpi < 0.9 %}text-error{% elif avg_cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">
-      {{ avg_cpi|floatformat:2 }}
-    </div>
-    <div class="stat-desc">
-      {% if avg_cpi >= 1.0 %}&#9650; Bajo presupuesto{% elif avg_cpi >= 0.9 %}&#9660; Leve sobrecosto{% else %}&#9660; Sobrecosto critico{% endif %}
-    </div>
+    <div class="stat-value text-lg {% if avg_cpi < 0.9 %}text-error{% elif avg_cpi < 1.0 %}text-warning{% else %}text-success{% endif %}">{{ avg_cpi|floatformat:2 }}</div>
+    <div class="stat-desc">{% if avg_cpi >= 1.0 %}&#9650; Bajo presupuesto{% elif avg_cpi >= 0.9 %}&#9660; Leve sobrecosto{% else %}&#9660; Sobrecosto critico{% endif %}</div>
   </div>
 </div>
 
-<!-- Projects at Risk -->
 {% if projects_at_risk %}
 <div class="card bg-base-100 shadow-sm border border-base-300/30 mb-8">
   <div class="card-body p-0">
@@ -122,16 +263,13 @@
 </div>
 {% endif %}
 
-<!-- Gantt Chart -->
 {% include "dashboards/partials/gantt_chart.html" %}
 
-<!-- BU Summary + Company Cashflow -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
   <div>{% include "dashboards/partials/bu_summary.html" %}</div>
   <div>{% include "dashboards/partials/company_cashflow.html" %}</div>
 </div>
 
-<!-- Active Projects Grid -->
 <div class="card bg-base-100 shadow-sm border border-base-300/30">
   <div class="card-body">
     <h2 class="card-title">
@@ -141,4 +279,192 @@
     {% include "dashboards/partials/project_grid.html" %}
   </div>
 </div>
+
+
+{% else %}
+<!-- ════════════════════════════════════════════════════════════
+     VISTA LÍDER — feed visual bento
+═════════════════════════════════════════════════════════════ -->
+
+<!-- Quick actions del líder -->
+<div class="flex flex-wrap items-center gap-3 mb-8 pb-7" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+  <a href="{% url 'timetracking:widget' %}"
+     class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+     style="font-family:'Inter',sans-serif; background:#111111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.35)'; this.style.color='#C8A87A';"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.color='rgba(255,255,255,0.7)';">
+    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    Registrar Tiempo
+  </a>
+  <a href="{% url 'notifications:list' %}"
+     class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+     style="font-family:'Inter',sans-serif; background:#111111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.35)'; this.style.color='#C8A87A';"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.color='rgba(255,255,255,0.7)';">
+    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+    </svg>
+    Alertas
+    {% if unread_alert_count %}
+    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold shrink-0"
+          style="background:#C8A87A; color:#0a0a0a; font-family:'Inter',sans-serif;">{{ unread_alert_count }}</span>
+    {% endif %}
+  </a>
+  <a href="{% url 'projects:list' %}"
+     class="flex items-center gap-2 ml-auto text-sm font-medium px-4 py-2.5 rounded-xl transition-all duration-200"
+     style="font-family:'Inter',sans-serif; color:#C8A87A; border:1px solid rgba(200,168,122,0.2); background:rgba(200,168,122,0.06);"
+     onmouseover="this.style.background='rgba(200,168,122,0.12)'"
+     onmouseout="this.style.background='rgba(200,168,122,0.06)'">
+    Ver lista completa
+    <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+  </a>
+</div>
+
+{% if projects %}
+<!-- ─── Bento Grid — project cards ────────────────────────── -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+  {% for project in projects %}
+  {% cycle '0' '1' '2' '3' '4' as cp silent %}
+
+  <a href="{% url 'dashboards:project' project.pk %}"
+     data-cp="{{ cp }}"
+     class="project-card group relative overflow-hidden rounded-2xl block
+            {% if forloop.first %}md:col-span-2{% endif %}"
+     style="min-height: {% if forloop.first %}310px{% else %}195px{% endif %};">
+
+    <!-- Background gradient (palette via CSS) -->
+    <div class="cp-bg absolute inset-0"></div>
+
+    <!-- Accent glow (palette via CSS) -->
+    <div class="cp-glow absolute inset-0 pointer-events-none"></div>
+
+    <!-- Architectural grid lines (palette via CSS) -->
+    <div class="cp-grid absolute inset-0 pointer-events-none"></div>
+
+    <!-- Bottom-to-top fade for text readability -->
+    <div class="absolute inset-0 pointer-events-none"
+         style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.25) 50%, transparent 100%);"></div>
+
+    <!-- Content (z-index above noise ::after) -->
+    <div class="absolute inset-0 p-5 flex flex-col justify-between" style="z-index:4;">
+
+      <!-- Top: status badge + code -->
+      <div class="flex items-start justify-between gap-2">
+        <span class="inline-block text-xs font-medium px-2.5 py-1 rounded-full"
+              style="font-family:'Inter',sans-serif; letter-spacing:0.04em; backdrop-filter:blur(6px);
+                     {% if project.status == 'ACTIVE' %}background:rgba(200,168,122,0.18); color:#C8A87A; border:1px solid rgba(200,168,122,0.3);
+                     {% elif project.status == 'PAUSED' %}background:rgba(100,140,210,0.18); color:#8fb5f5; border:1px solid rgba(100,140,210,0.3);
+                     {% elif project.status == 'PLANNING' %}background:rgba(60,180,120,0.15); color:#4dc98a; border:1px solid rgba(60,180,120,0.28);
+                     {% elif project.status == 'COMPLETED' %}background:rgba(80,200,80,0.13); color:#5dca5d; border:1px solid rgba(80,200,80,0.25);
+                     {% else %}background:rgba(120,120,120,0.13); color:#888; border:1px solid rgba(120,120,120,0.25);{% endif %}">
+          {{ project.get_status_display }}
+        </span>
+        <span class="text-xs font-mono" style="color:rgba(255,255,255,0.22);">{{ project.code }}</span>
+      </div>
+
+      <!-- Bottom: client + name + progress -->
+      <div>
+        {% if project.third_party %}
+        <p class="text-xs mb-1.5 truncate uppercase tracking-wider"
+           style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.32); letter-spacing:0.07em;">
+          {{ project.third_party.name }}
+        </p>
+        {% endif %}
+
+        <h3 class="font-bold text-white leading-tight mb-4"
+            style="font-family:'Space Grotesk',sans-serif;
+                   font-size:{% if forloop.first %}1.5rem{% else %}1.05rem{% endif %};
+                   text-shadow: 0 2px 16px rgba(0,0,0,0.8);
+                   letter-spacing:-0.015em;">
+          {{ project.name }}
+        </h3>
+
+        <!-- Progress -->
+        <div class="flex items-center gap-3">
+          <div class="flex-1 rounded-full overflow-hidden" style="height:2px; background:rgba(255,255,255,0.1);">
+            <div class="h-full rounded-full"
+                 style="width:{{ project.current_progress_pct|default:0 }}%;
+                        background: linear-gradient(90deg,#C8A87A,#e8c89a);
+                        box-shadow: 0 0 8px rgba(200,168,122,0.6);"></div>
+          </div>
+          <span class="text-xs font-semibold tabular-nums shrink-0"
+                style="font-family:'Inter',sans-serif; color:#C8A87A; min-width:3rem; text-align:right;">
+            {{ project.current_progress_pct|default:0 }}%
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hover border glow -->
+    <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+         style="box-shadow: inset 0 0 0 1px rgba(200,168,122,0.4); z-index:5;"></div>
+
+  </a>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="flex flex-col items-center justify-center py-24 rounded-2xl mb-8"
+     style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.05);">
+  <svg class="h-14 w-14 mb-4" style="color:rgba(255,255,255,0.07);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+  </svg>
+  <p class="text-sm" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.2);">No hay proyectos asignados aún.</p>
+</div>
+{% endif %}
+
+
+<!-- ─── Feed de actividad reciente ────────────────────────── -->
+{% if recent_alerts %}
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-sm font-semibold uppercase tracking-widest"
+        style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.35); letter-spacing:0.12em;">
+      Actividad Reciente
+    </h2>
+    <a href="{% url 'notifications:list' %}"
+       class="text-xs transition-colors"
+       style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.55);"
+       onmouseover="this.style.color='#C8A87A'"
+       onmouseout="this.style.color='rgba(200,168,122,0.55)'">
+      Ver todas →
+    </a>
+  </div>
+  <div class="space-y-2">
+    {% for alert in recent_alerts %}
+    <div class="flex items-start gap-4 p-4 rounded-xl transition-colors duration-150"
+         style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);"
+         onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
+         onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+      <div class="mt-2 shrink-0 w-2 h-2 rounded-full"
+           style="background:{% if alert.severity == 'HIGH' %}#f87171{% elif alert.severity == 'MEDIUM' %}#C8A87A{% else %}#4dc98a{% endif %};
+                  box-shadow: 0 0 8px {% if alert.severity == 'HIGH' %}rgba(248,113,113,0.5){% elif alert.severity == 'MEDIUM' %}rgba(200,168,122,0.5){% else %}rgba(77,201,138,0.4){% endif %};">
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate"
+           style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.75);">{{ alert.title }}</p>
+        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+          {% if alert.project %}
+          <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.5);">{{ alert.project.name }}</span>
+          <span style="color:rgba(255,255,255,0.12);">·</span>
+          {% endif %}
+          <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.25);">{{ alert.created_at|timesince }}</span>
+        </div>
+      </div>
+      {% if not alert.is_read %}
+      <div class="mt-2 w-1.5 h-1.5 rounded-full shrink-0" style="background:#C8A87A;"></div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endif %}
+{# end executive / leader split #}
+
 {% endblock %}

@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Central Contexto 2.0{% endblock %} | CNTXT</title>
 
+  <!-- CNTXT Brand Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <!-- daisyUI 5 (pure CSS) + Tailwind CSS 4 browser runtime -->
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
@@ -38,8 +43,38 @@
 
   <style>
     [x-cloak] { display: none !important; }
-    /* Smooth theme transition */
     html { transition: background-color 0.2s ease, color 0.2s ease; }
+
+    /* ── CNTXT Brand Override ─────────────────────────────── */
+    [data-theme="dark"] {
+      --color-primary:          oklch(0.725 0.072 63.5);
+      --color-primary-content:  oklch(0.12  0     0);
+      --color-secondary:        oklch(0.21  0.022 63.5);
+      --color-secondary-content:oklch(0.86  0.019 63.5);
+      --color-base-100:         oklch(0.09  0     0);
+      --color-base-200:         oklch(0.115 0     0);
+      --color-base-300:         oklch(0.16  0     0);
+      --color-base-content:     oklch(0.86  0.019 63.5);
+      --color-neutral:          oklch(0.16  0     0);
+      --color-neutral-content:  oklch(0.86  0.019 63.5);
+    }
+    [data-theme="light"] {
+      --color-primary:          oklch(0.725 0.072 63.5);
+      --color-primary-content:  oklch(0.12  0     0);
+    }
+
+    /* ── Typography ───────────────────────────────────────── */
+    body { font-family: 'Manrope', sans-serif; }
+    h1, h2, h3, h4, h5, h6,
+    .card-title, .stat-value, .headline { font-family: 'Space Grotesk', sans-serif; }
+    .label-text, .menu-title, th,
+    .badge, .tab, .btn { font-family: 'Inter', sans-serif; letter-spacing: 0.01em; }
+
+    /* ── Card & surface refinements ──────────────────────── */
+    .card { border-color: oklch(0.22 0 0); }
+    .navbar { border-bottom-color: oklch(0.18 0 0) !important; }
+    .menu li > a:hover, .menu li > a:focus { color: oklch(0.725 0.072 63.5); }
+    .menu li > a.active { color: oklch(0.725 0.072 63.5); background: oklch(0.725 0.072 63.5 / 0.1); }
   </style>
 
   <!-- Tom Select (solo JS — CSS propio para no romper DaisyUI) -->
@@ -191,7 +226,7 @@
   {% include "components/sidebar.html" %}
 
   <div class="flex">
-    <main class="flex-1 p-4 lg:p-6 min-w-0 max-w-7xl mx-auto w-full">
+    <main class="flex-1 p-4 lg:p-6 min-w-0 max-w-7xl w-full lg:ml-64">
       <!-- Toast messages -->
       {% if messages %}
       <div id="toast-container" class="mb-4 space-y-2">
