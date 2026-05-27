@@ -69,7 +69,7 @@
 <!-- ════════════════════════════════════════════════════════════
      SALUDO — común a todos los roles
 ═════════════════════════════════════════════════════════════ -->
-<div class="mb-8"
+<div class="mb-8 max-w-2xl"
      x-data="{ greeting: '' }"
      x-init="
        const h = new Date().getHours();
@@ -77,17 +77,15 @@
        else if (h >= 12 && h < 19) { greeting = 'Buenas tardes'; }
        else                        { greeting = 'Buenas noches'; }
      ">
-  <p class="text-sm mb-2" style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.75); letter-spacing:0.01em;">
-    <span x-text="greeting"></span>, {{ user.first_name|default:user.username }} —
-    {% if can_view_financials or user.is_staff %}
-      <span style="color:rgba(255,255,255,0.3);">bienvenido a Central CNTXT.</span>
-    {% else %}
-      <span style="color:rgba(255,255,255,0.3);">bienvenido a Central CNTXT.</span>
-    {% endif %}
-  </p>
-  <h1 class="font-bold mb-1" style="font-family:'Space Grotesk',sans-serif; color:#ffffff; letter-spacing:-0.03em; font-size:2.6rem; line-height:1.1;">
-    ¿Qué quieres hacer<span style="color:#C8A87A;">?</span>
+  <h1 class="font-bold mb-2" style="font-family:'Space Grotesk',sans-serif; letter-spacing:-0.03em; font-size:clamp(2rem, 4.5vw, 3.6rem); line-height:1.08;">
+    <span style="color:#C8A87A;" x-text="greeting"></span><span style="color:#C8A87A;">,</span>
+    <span style="color:#ffffff;">{{ user.first_name|default:user.username }}</span>
+    <span style="color:rgba(255,255,255,0.22);">—</span>
+    <span style="color:rgba(255,255,255,0.45);">bienvenido a Central CNTXT.</span>
   </h1>
+  <p class="font-semibold" style="font-family:'Space Grotesk',sans-serif; font-size:clamp(1.5rem, 3vw, 2.4rem); color:#ffffff; letter-spacing:-0.02em; line-height:1.15;">
+    ¿Qué quieres hacer<span style="color:#C8A87A;">?</span>
+  </p>
 </div>
 
 
@@ -285,12 +283,12 @@
 </div>
 
 
-{% else %}
+{% elif user_is_project_leader %}
 <!-- ════════════════════════════════════════════════════════════
-     VISTA LÍDER — feed visual bento
+     VISTA LP — Líder de Proyecto
 ═════════════════════════════════════════════════════════════ -->
 
-<!-- Quick actions del líder -->
+<!-- Quick actions LP -->
 <div class="flex flex-wrap items-center gap-3 mb-8 pb-7" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
   <a href="{% url 'timetracking:widget' %}"
      class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
@@ -341,26 +339,20 @@
      style="min-height: {% if forloop.first %}310px{% else %}195px{% endif %};">
 
     {% if project.cover_image %}
-    <!-- Real project photo -->
     <div class="absolute inset-0">
       <img src="{{ project.cover_image.url }}" alt="{{ project.name }}"
            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
     </div>
     {% else %}
-    <!-- Gradient palette fallback -->
     <div class="cp-bg absolute inset-0"></div>
     <div class="cp-glow absolute inset-0 pointer-events-none"></div>
     <div class="cp-grid absolute inset-0 pointer-events-none"></div>
     {% endif %}
 
-    <!-- Bottom-to-top fade for text readability (always) -->
     <div class="absolute inset-0 pointer-events-none"
          style="background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.05) 100%);"></div>
 
-    <!-- Content (z-index above noise ::after) -->
     <div class="absolute inset-0 p-5 flex flex-col justify-between" style="z-index:4;">
-
-      <!-- Top: status badge + code -->
       <div class="flex items-start justify-between gap-2">
         <span class="inline-block text-xs font-medium px-2.5 py-1 rounded-full"
               style="font-family:'Inter',sans-serif; letter-spacing:0.04em; backdrop-filter:blur(6px);
@@ -373,8 +365,6 @@
         </span>
         <span class="text-xs font-mono" style="color:rgba(255,255,255,0.22);">{{ project.code }}</span>
       </div>
-
-      <!-- Bottom: client + name + progress -->
       <div>
         {% if project.third_party %}
         <p class="text-xs mb-1.5 truncate uppercase tracking-wider"
@@ -382,16 +372,12 @@
           {{ project.third_party.name }}
         </p>
         {% endif %}
-
         <h3 class="font-bold text-white leading-tight mb-4"
             style="font-family:'Space Grotesk',sans-serif;
                    font-size:{% if forloop.first %}1.5rem{% else %}1.05rem{% endif %};
-                   text-shadow: 0 2px 16px rgba(0,0,0,0.8);
-                   letter-spacing:-0.015em;">
+                   text-shadow: 0 2px 16px rgba(0,0,0,0.8); letter-spacing:-0.015em;">
           {{ project.name }}
         </h3>
-
-        <!-- Progress -->
         <div class="flex items-center gap-3">
           <div class="flex-1 rounded-full overflow-hidden" style="height:2px; background:rgba(255,255,255,0.1);">
             <div class="h-full rounded-full"
@@ -407,10 +393,8 @@
       </div>
     </div>
 
-    <!-- Hover border glow -->
     <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
          style="box-shadow: inset 0 0 0 1px rgba(200,168,122,0.4); z-index:5;"></div>
-
   </a>
   {% endfor %}
 </div>
@@ -425,8 +409,545 @@
 </div>
 {% endif %}
 
+<!-- ─── Hitos Próximos ─────────────────────────────────────── -->
+{% if upcoming_milestones %}
+<div class="mb-8">
+  <div class="flex items-center gap-3 mb-4">
+    <h2 class="text-sm font-semibold uppercase tracking-widest"
+        style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.35); letter-spacing:0.12em;">
+      Hitos Próximos
+    </h2>
+    <div class="flex-1 h-px" style="background:rgba(255,255,255,0.04);"></div>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    {% for ms in upcoming_milestones %}
+    <div class="p-4 rounded-xl flex flex-col gap-1.5 transition-colors duration-150"
+         style="background:#0d0d0d; border:1px solid rgba(255,255,255,0.05);"
+         onmouseover="this.style.borderColor='rgba(200,168,122,0.2)'"
+         onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+      <div class="flex items-center justify-between gap-1">
+        <span class="font-mono text-xs font-bold tabular-nums" style="color:#C8A87A;">
+          {{ ms.planned_date|date:"d M" }}
+        </span>
+        <span class="text-xs px-2 py-0.5 rounded-full"
+              style="font-family:'Inter',sans-serif; background:rgba(255,255,255,0.05);
+                     color:rgba(255,255,255,0.35); border:1px solid rgba(255,255,255,0.07);">
+          {{ ms.get_milestone_type_display }}
+        </span>
+      </div>
+      <p class="text-sm font-medium leading-tight"
+         style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.8);">
+        {{ ms.name }}
+      </p>
+      <p class="text-xs truncate"
+         style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">
+        {{ ms.project.name }}
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
-<!-- ─── Feed de actividad reciente ────────────────────────── -->
+<!-- ─── Actividad Reciente — LP ────────────────────────────── -->
+{% if recent_alerts %}
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-sm font-semibold uppercase tracking-widest"
+        style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.35); letter-spacing:0.12em;">
+      Actividad Reciente
+    </h2>
+    <a href="{% url 'notifications:list' %}"
+       class="text-xs transition-colors"
+       style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.55);"
+       onmouseover="this.style.color='#C8A87A'"
+       onmouseout="this.style.color='rgba(200,168,122,0.55)'">
+      Ver todas →
+    </a>
+  </div>
+  <div class="space-y-2">
+    {% for alert in recent_alerts %}
+    <div class="flex items-start gap-4 p-4 rounded-xl transition-colors duration-150"
+         style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);"
+         onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
+         onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+      <div class="mt-2 shrink-0 w-2 h-2 rounded-full"
+           style="background:{% if alert.severity == 'HIGH' %}#f87171{% elif alert.severity == 'MEDIUM' %}#C8A87A{% else %}#4dc98a{% endif %};
+                  box-shadow: 0 0 8px {% if alert.severity == 'HIGH' %}rgba(248,113,113,0.5){% elif alert.severity == 'MEDIUM' %}rgba(200,168,122,0.5){% else %}rgba(77,201,138,0.4){% endif %};">
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate"
+           style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.75);">{{ alert.title }}</p>
+        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+          {% if alert.project %}
+          <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.5);">{{ alert.project.name }}</span>
+          <span style="color:rgba(255,255,255,0.12);">·</span>
+          {% endif %}
+          <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.25);">{{ alert.created_at|timesince }}</span>
+        </div>
+      </div>
+      {% if not alert.is_read %}
+      <div class="mt-2 w-1.5 h-1.5 rounded-full shrink-0" style="background:#C8A87A;"></div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+
+{% elif can_view_executive %}
+<!-- ════════════════════════════════════════════════════════════
+     VISTA DM — Director / Manager
+═════════════════════════════════════════════════════════════ -->
+
+<!-- Quick actions DM -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8 pb-8"
+     style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+  <a href="{% url 'dashboards:portfolio' %}"
+     class="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Portfolio</p>
+      <p class="text-xs mt-0.5 hidden sm:block" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">Vista general</p>
+    </div>
+  </a>
+  <a href="{% url 'capacity:overview' %}"
+     class="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Capacidad</p>
+      <p class="text-xs mt-0.5 hidden sm:block" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">Distribución equipo</p>
+    </div>
+  </a>
+  <a href="{% url 'timetracking:widget' %}"
+     class="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Tiempo</p>
+      <p class="text-xs mt-0.5 hidden sm:block" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">Registrar horas</p>
+    </div>
+  </a>
+  <a href="{% url 'notifications:list' %}"
+     class="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
+     style="background:#111111; border:1px solid rgba(255,255,255,0.06);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.3)'"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(200,168,122,0.1);">
+      <svg class="h-5 w-5" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-medium" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.85);">Alertas</p>
+      <p class="text-xs mt-0.5 hidden sm:block" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">
+        {% if unread_alert_count %}{{ unread_alert_count }} sin leer{% else %}Sin alertas nuevas{% endif %}
+      </p>
+    </div>
+  </a>
+</div>
+
+<!-- KPIs rápidos DM -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  <div class="p-5 rounded-2xl" style="background:#0d0d0d; border:1px solid rgba(255,255,255,0.06);">
+    <p class="text-xs font-semibold uppercase tracking-wider mb-2"
+       style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3); letter-spacing:0.1em;">
+      Proyectos Activos
+    </p>
+    <p class="font-bold tabular-nums"
+       style="font-family:'Space Grotesk',sans-serif; font-size:2.4rem; color:#C8A87A; line-height:1;">
+      {{ active_projects }}
+    </p>
+  </div>
+  <div class="p-5 rounded-2xl" style="background:#0d0d0d; border:1px solid rgba(255,255,255,0.06);">
+    <p class="text-xs font-semibold uppercase tracking-wider mb-2"
+       style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3); letter-spacing:0.1em;">
+      SPI Promedio
+    </p>
+    <p class="font-bold tabular-nums"
+       style="font-family:'Space Grotesk',sans-serif; font-size:2.4rem; line-height:1;
+              color:{% if avg_spi < 0.9 %}#f87171{% elif avg_spi < 1.0 %}#fbbf24{% else %}#4dc98a{% endif %};">
+      {{ avg_spi|floatformat:2 }}
+    </p>
+    <p class="text-xs mt-1" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.22);">
+      Índice de desempeño de cronograma
+    </p>
+  </div>
+  <div class="p-5 rounded-2xl" style="background:#0d0d0d; border:1px solid rgba(255,255,255,0.06);">
+    <p class="text-xs font-semibold uppercase tracking-wider mb-2"
+       style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3); letter-spacing:0.1em;">
+      Avance Promedio
+    </p>
+    <p class="font-bold tabular-nums"
+       style="font-family:'Space Grotesk',sans-serif; font-size:2.4rem; color:rgba(255,255,255,0.85); line-height:1;">
+      {{ avg_progress|floatformat:0 }}%
+    </p>
+    <div class="mt-2 rounded-full overflow-hidden" style="height:3px; background:rgba(255,255,255,0.06);">
+      <div style="width:{{ avg_progress|floatformat:0 }}%; height:100%;
+                  background:linear-gradient(90deg,#C8A87A,#e8c89a);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Proyectos en riesgo — DM -->
+{% if projects_at_risk %}
+<div class="mb-8 p-5 rounded-2xl" style="background:#0d0d0d; border:1px solid rgba(248,113,113,0.18);">
+  <div class="flex items-center gap-2 mb-4">
+    <svg class="h-4 w-4 shrink-0" style="color:#f87171;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+    </svg>
+    <h2 class="text-sm font-semibold" style="font-family:'Inter',sans-serif; color:#f87171;">
+      {{ projects_at_risk_count }} proyecto{% if projects_at_risk_count != 1 %}s{% endif %} en riesgo
+    </h2>
+  </div>
+  <div class="space-y-1.5">
+    {% for p in projects_at_risk %}
+    <a href="{% url 'dashboards:project' p.pk %}"
+       class="flex items-center gap-4 p-3 rounded-xl transition-colors duration-150"
+       style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04);"
+       onmouseover="this.style.background='rgba(255,255,255,0.04)'"
+       onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+      <span class="font-mono text-xs shrink-0" style="color:rgba(255,255,255,0.3); min-width:5rem;">{{ p.code }}</span>
+      <p class="flex-1 text-sm font-medium truncate"
+         style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.75);">{{ p.name }}</p>
+      <div class="flex items-center gap-3 shrink-0">
+        <span class="text-xs tabular-nums"
+              style="color:{% if p.latest_spi < 0.9 %}#f87171{% elif p.latest_spi < 1.0 %}#fbbf24{% else %}#4dc98a{% endif %};">
+          SPI {{ p.latest_spi|floatformat:2 }}
+        </span>
+        <svg class="h-3.5 w-3.5 shrink-0" style="color:rgba(255,255,255,0.2);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Proyectos bento grid DM -->
+{% if projects %}
+<div class="flex items-center gap-3 mb-4">
+  <h2 class="text-sm font-semibold uppercase tracking-widest"
+      style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.35); letter-spacing:0.12em;">
+    Proyectos
+  </h2>
+  <div class="flex-1 h-px" style="background:rgba(255,255,255,0.04);"></div>
+  <a href="{% url 'projects:list' %}"
+     class="text-xs transition-colors"
+     style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.55);"
+     onmouseover="this.style.color='#C8A87A'"
+     onmouseout="this.style.color='rgba(200,168,122,0.55)'">
+    Ver todos →
+  </a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+  {% for project in projects %}
+  {% cycle '0' '1' '2' '3' '4' as cp2 silent %}
+
+  <a href="{% url 'dashboards:project' project.pk %}"
+     data-cp="{{ cp2 }}"
+     class="project-card group relative overflow-hidden rounded-2xl block
+            {% if forloop.first %}md:col-span-2{% endif %}"
+     style="min-height: {% if forloop.first %}260px{% else %}170px{% endif %};">
+
+    {% if project.cover_image %}
+    <div class="absolute inset-0">
+      <img src="{{ project.cover_image.url }}" alt="{{ project.name }}"
+           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+    </div>
+    {% else %}
+    <div class="cp-bg absolute inset-0"></div>
+    <div class="cp-glow absolute inset-0 pointer-events-none"></div>
+    <div class="cp-grid absolute inset-0 pointer-events-none"></div>
+    {% endif %}
+
+    <div class="absolute inset-0 pointer-events-none"
+         style="background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.05) 100%);"></div>
+
+    <div class="absolute inset-0 p-5 flex flex-col justify-between" style="z-index:4;">
+      <div class="flex items-start justify-between gap-2">
+        <span class="inline-block text-xs font-medium px-2.5 py-1 rounded-full"
+              style="font-family:'Inter',sans-serif; letter-spacing:0.04em; backdrop-filter:blur(6px);
+                     {% if project.status == 'ACTIVE' %}background:rgba(200,168,122,0.18); color:#C8A87A; border:1px solid rgba(200,168,122,0.3);
+                     {% elif project.status == 'PAUSED' %}background:rgba(100,140,210,0.18); color:#8fb5f5; border:1px solid rgba(100,140,210,0.3);
+                     {% elif project.status == 'PLANNING' %}background:rgba(60,180,120,0.15); color:#4dc98a; border:1px solid rgba(60,180,120,0.28);
+                     {% elif project.status == 'COMPLETED' %}background:rgba(80,200,80,0.13); color:#5dca5d; border:1px solid rgba(80,200,80,0.25);
+                     {% else %}background:rgba(120,120,120,0.13); color:#888; border:1px solid rgba(120,120,120,0.25);{% endif %}">
+          {{ project.get_status_display }}
+        </span>
+        {% if project.leader %}
+        <span class="text-xs truncate max-w-[8rem]"
+              style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">
+          {{ project.leader.get_full_name|default:project.leader.username }}
+        </span>
+        {% endif %}
+      </div>
+      <div>
+        {% if project.third_party %}
+        <p class="text-xs mb-1.5 truncate uppercase tracking-wider"
+           style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.32); letter-spacing:0.07em;">
+          {{ project.third_party.name }}
+        </p>
+        {% endif %}
+        <h3 class="font-bold text-white leading-tight mb-3"
+            style="font-family:'Space Grotesk',sans-serif;
+                   font-size:{% if forloop.first %}1.4rem{% else %}1rem{% endif %};
+                   text-shadow: 0 2px 16px rgba(0,0,0,0.8); letter-spacing:-0.015em;">
+          {{ project.name }}
+        </h3>
+        <div class="flex items-center gap-3">
+          <div class="flex-1 rounded-full overflow-hidden" style="height:2px; background:rgba(255,255,255,0.1);">
+            <div style="width:{{ project.current_progress_pct|default:0 }}%; height:100%; border-radius:9999px;
+                        background:linear-gradient(90deg,#C8A87A,#e8c89a);
+                        box-shadow:0 0 8px rgba(200,168,122,0.6);"></div>
+          </div>
+          <span class="text-xs font-semibold tabular-nums shrink-0"
+                style="font-family:'Inter',sans-serif; color:#C8A87A; min-width:3rem; text-align:right;">
+            {{ project.current_progress_pct|default:0 }}%
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+         style="box-shadow: inset 0 0 0 1px rgba(200,168,122,0.4); z-index:5;"></div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Actividad Reciente — DM -->
+{% if recent_alerts %}
+<div>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-sm font-semibold uppercase tracking-widest"
+        style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.35); letter-spacing:0.12em;">
+      Actividad Reciente
+    </h2>
+    <a href="{% url 'notifications:list' %}"
+       class="text-xs transition-colors"
+       style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.55);"
+       onmouseover="this.style.color='#C8A87A'"
+       onmouseout="this.style.color='rgba(200,168,122,0.55)'">
+      Ver todas →
+    </a>
+  </div>
+  <div class="space-y-2">
+    {% for alert in recent_alerts %}
+    <div class="flex items-start gap-4 p-4 rounded-xl transition-colors duration-150"
+         style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);"
+         onmouseover="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)';"
+         onmouseout="this.style.background='rgba(255,255,255,0.02)'; this.style.borderColor='rgba(255,255,255,0.05)';">
+      <div class="mt-2 shrink-0 w-2 h-2 rounded-full"
+           style="background:{% if alert.severity == 'HIGH' %}#f87171{% elif alert.severity == 'MEDIUM' %}#C8A87A{% else %}#4dc98a{% endif %};
+                  box-shadow: 0 0 8px {% if alert.severity == 'HIGH' %}rgba(248,113,113,0.5){% elif alert.severity == 'MEDIUM' %}rgba(200,168,122,0.5){% else %}rgba(77,201,138,0.4){% endif %};">
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate"
+           style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.75);">{{ alert.title }}</p>
+        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+          {% if alert.project %}
+          <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.5);">{{ alert.project.name }}</span>
+          <span style="color:rgba(255,255,255,0.12);">·</span>
+          {% endif %}
+          <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.25);">{{ alert.created_at|timesince }}</span>
+        </div>
+      </div>
+      {% if not alert.is_read %}
+      <div class="mt-2 w-1.5 h-1.5 rounded-full shrink-0" style="background:#C8A87A;"></div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+
+{% else %}
+<!-- ════════════════════════════════════════════════════════════
+     VISTA INT — Profesional Interno
+═════════════════════════════════════════════════════════════ -->
+
+<!-- Quick actions INT -->
+<div class="flex flex-wrap items-center gap-3 mb-8 pb-7"
+     style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+  <a href="{% url 'timetracking:widget' %}"
+     class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+     style="font-family:'Inter',sans-serif; color:#C8A87A; border:1px solid rgba(200,168,122,0.3); background:rgba(200,168,122,0.08);"
+     onmouseover="this.style.background='rgba(200,168,122,0.14)'"
+     onmouseout="this.style.background='rgba(200,168,122,0.08)'">
+    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    Registrar Tiempo
+  </a>
+  <a href="{% url 'projects:list' %}"
+     class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+     style="font-family:'Inter',sans-serif; background:#111111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.35)'; this.style.color='#C8A87A';"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.color='rgba(255,255,255,0.7)';">
+    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+    </svg>
+    Proyectos
+  </a>
+  <a href="{% url 'notifications:list' %}"
+     class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+     style="font-family:'Inter',sans-serif; background:#111111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"
+     onmouseover="this.style.borderColor='rgba(200,168,122,0.35)'; this.style.color='#C8A87A';"
+     onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'; this.style.color='rgba(255,255,255,0.7)';">
+    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+    </svg>
+    Alertas
+    {% if unread_alert_count %}
+    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold shrink-0"
+          style="background:#C8A87A; color:#0a0a0a; font-family:'Inter',sans-serif;">{{ unread_alert_count }}</span>
+    {% endif %}
+  </a>
+</div>
+
+<!-- ─── Reporte semanal + tareas ──────────────────────────── -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+  <!-- Weekly time status card -->
+  <div class="p-5 rounded-2xl flex flex-col gap-4"
+       style="background:#0d0d0d; border:1px solid {% if my_week_status == 'APPROVED' %}rgba(77,201,138,0.25){% elif my_week_status == 'SUBMITTED' %}rgba(200,168,122,0.22){% elif my_week_status == 'DRAFT' %}rgba(80,120,200,0.2){% else %}rgba(255,255,255,0.07){% endif %};">
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider mb-1.5"
+           style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3); letter-spacing:0.1em;">
+          Tiempo · Semana Actual
+        </p>
+        <p class="font-bold tabular-nums"
+           style="font-family:'Space Grotesk',sans-serif; font-size:1.9rem; line-height:1.1;
+                  color:{% if my_week_status == 'APPROVED' %}#4dc98a{% elif my_week_status == 'SUBMITTED' %}#C8A87A{% elif my_week_status == 'DRAFT' %}#8fb5f5{% else %}rgba(255,255,255,0.4){% endif %};">
+          {{ my_week_pct }}%
+        </p>
+        <p class="text-xs mt-0.5" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.28);">
+          {% if my_week_status == 'APPROVED' %}Aprobado
+          {% elif my_week_status == 'SUBMITTED' %}Enviado · pendiente aprobación
+          {% elif my_week_status == 'DRAFT' %}Borrador en progreso
+          {% else %}Sin reporte esta semana
+          {% endif %}
+        </p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+           style="background:{% if my_week_status == 'APPROVED' %}rgba(77,201,138,0.1){% elif my_week_status == 'SUBMITTED' %}rgba(200,168,122,0.1){% else %}rgba(255,255,255,0.04){% endif %};">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+             style="color:{% if my_week_status == 'APPROVED' %}#4dc98a{% elif my_week_status == 'SUBMITTED' %}#C8A87A{% else %}rgba(255,255,255,0.25){% endif %};">
+          {% if my_week_status == 'APPROVED' %}
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          {% else %}
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          {% endif %}
+        </svg>
+      </div>
+    </div>
+    <div>
+      <div class="rounded-full overflow-hidden mb-1.5" style="height:4px; background:rgba(255,255,255,0.06);">
+        <div style="width:{{ my_week_pct }}%; height:100%; border-radius:9999px;
+             background:{% if my_week_status == 'APPROVED' %}linear-gradient(90deg,#4dc98a,#7be3b0)
+                        {% elif my_week_status == 'SUBMITTED' %}linear-gradient(90deg,#C8A87A,#e8c89a)
+                        {% else %}linear-gradient(90deg,rgba(200,168,122,0.5),rgba(200,168,122,0.3))
+                        {% endif %};"></div>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.2);">0%</span>
+        <span class="text-xs" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.2);">100%</span>
+      </div>
+    </div>
+    {% if my_week_status != 'APPROVED' %}
+    <a href="{% url 'timetracking:widget' %}"
+       class="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-150"
+       style="font-family:'Inter',sans-serif; background:rgba(200,168,122,0.08); color:#C8A87A; border:1px solid rgba(200,168,122,0.18);"
+       onmouseover="this.style.background='rgba(200,168,122,0.14)'"
+       onmouseout="this.style.background='rgba(200,168,122,0.08)'">
+      {% if my_week_status %}Continuar reporte{% else %}Crear reporte{% endif %}
+      <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- My pending tasks -->
+  <div class="lg:col-span-2 p-5 rounded-2xl" style="background:#0d0d0d; border:1px solid rgba(255,255,255,0.06);">
+    <div class="flex items-center justify-between mb-3">
+      <p class="text-xs font-semibold uppercase tracking-wider"
+         style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3); letter-spacing:0.1em;">
+        Mis Tareas Pendientes
+      </p>
+      {% if my_actions %}
+      <span class="text-xs px-2 py-0.5 rounded-full"
+            style="font-family:'Inter',sans-serif; background:rgba(200,168,122,0.1); color:#C8A87A; border:1px solid rgba(200,168,122,0.2);">
+        {{ my_actions|length }}
+      </span>
+      {% endif %}
+    </div>
+    {% if my_actions %}
+    <div class="space-y-1.5 overflow-y-auto" style="max-height:224px;">
+      {% for action in my_actions %}
+      <div class="flex items-start gap-3 p-2.5 rounded-lg transition-colors duration-100"
+           style="background:rgba(255,255,255,0.02);"
+           onmouseover="this.style.background='rgba(255,255,255,0.04)'"
+           onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+        <div class="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style="background:#C8A87A;"></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm leading-tight"
+             style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.75);">{{ action.name }}</p>
+          <p class="text-xs mt-0.5 truncate"
+             style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.3);">
+            {{ action.service_instance.project.name }}
+            {% if action.service_instance.projected_end_date %}
+            <span style="color:rgba(255,255,255,0.15);">·</span>
+            {{ action.service_instance.projected_end_date|date:"d/m/Y" }}
+            {% endif %}
+          </p>
+        </div>
+        {% if action.estimated_hours %}
+        <span class="text-xs tabular-nums shrink-0 mt-1"
+              style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.22);">
+          {{ action.estimated_hours }}h
+        </span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-10 gap-2.5">
+      <svg class="h-8 w-8" style="color:rgba(255,255,255,0.07);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <p class="text-sm" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.2);">Sin tareas pendientes asignadas</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Actividad Reciente — INT -->
 {% if recent_alerts %}
 <div>
   <div class="flex items-center justify-between mb-4">
@@ -473,6 +994,6 @@
 {% endif %}
 
 {% endif %}
-{# end executive / leader split #}
+{# end role split #}
 
 {% endblock %}

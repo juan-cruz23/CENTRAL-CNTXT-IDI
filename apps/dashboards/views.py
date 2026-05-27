@@ -154,6 +154,108 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
 
         context["create_url"] = reverse_lazy("projects:create")
 
+        # ------------------------------------------------------------------
+        # Feed personalizado por rol
+        # ------------------------------------------------------------------
+        user = self.request.user
+
+        # ¿Es líder de proyecto?
+        try:
+            context["user_is_project_leader"] = user.user_roles.filter(
+                role__is_leader=True
+            ).exists()
+        except Exception:
+            context["user_is_project_leader"] = False
+
+        # Proyectos propios (cuando no es staff ni tiene acceso total)
+        try:
+            can_see_all = user.is_staff or user.user_roles.filter(
+                role__can_access_all_projects=True
+            ).exists()
+            if not can_see_all:
+                from django.db.models import Count, Subquery, OuterRef
+                latest_snap_sub2 = ProjectMetricSnapshot.objects.filter(
+                    project=OuterRef("pk")
+                ).order_by("-snapshot_date")
+                context["projects"] = Project.objects.filter(
+                    leader=user
+                ).select_related(
+                    "third_party", "leader", "category", "operative_line"
+                ).annotate(
+                    service_count=Count("service_instances"),
+                    latest_spi=Subquery(latest_snap_sub2.values("spi")[:1]),
+                    latest_cpi=Subquery(latest_snap_sub2.values("cpi")[:1]),
+                )
+        except Exception:
+            pass
+
+        # Hitos próximos del líder (30 días)
+        try:
+            from apps.projects.models import Milestone
+            context["upcoming_milestones"] = (
+                Milestone.objects.filter(
+                    project__leader=user,
+                    planned_date__gte=date.today(),
+                    actual_date__isnull=True,
+                )
+                .select_related("project", "project__third_party")
+                .order_by("planned_date")[:8]
+            )
+        except Exception:
+            context["upcoming_milestones"] = []
+
+        # Tareas asignadas al usuario (LP e INT)
+        try:
+            from apps.projects.models import ServiceInstanceAction
+            context["my_actions"] = (
+                ServiceInstanceAction.objects.filter(
+                    assigned_professional=user,
+                    is_completed=False,
+                )
+                .select_related(
+                    "service_instance__project",
+                    "service_instance__project__third_party",
+                    "responsible_role",
+                )
+                .order_by("service_instance__projected_end_date")[:10]
+            )
+        except Exception:
+            context["my_actions"] = []
+
+        # Estado del reporte semanal (INT)
+        try:
+            import datetime as dt
+            from apps.timetracking.models import WeeklyTimeDistribution
+            today_date = date.today()
+            week_start = today_date - dt.timedelta(days=today_date.weekday())
+            my_week = WeeklyTimeDistribution.objects.filter(
+                user=user, week_start=week_start
+            ).prefetch_related("entries").first()
+            context["my_week_status"] = my_week.status if my_week else None
+            context["my_week_pct"] = (
+                sum(e.percentage for e in my_week.entries.all())
+                if my_week else 0
+            )
+        except Exception:
+            context["my_week_status"] = None
+            context["my_week_pct"] = 0
+
+        # Alertas filtradas por usuario / proyectos propios
+        try:
+            from apps.notifications.models import Alert
+            from django.db.models import Q
+            if user.is_staff:
+                context["recent_alerts"] = Alert.objects.filter(
+                    is_read=False
+                ).order_by("-created_at")[:5]
+            else:
+                own_projects = Project.objects.filter(leader=user).values_list("pk", flat=True)
+                context["recent_alerts"] = Alert.objects.filter(
+                    Q(target_users=user) | Q(project__in=own_projects)
+                ).distinct().order_by("-created_at")[:5]
+        except Exception:
+            context["recent_alerts"] = []
+
         return context
 
     @staticmethod
