@@ -11,6 +11,13 @@ from .base import *  # noqa: F401, F403
 # ---------------------------------------------------------------------------
 DEBUG = False
 
+# ---------------------------------------------------------------------------
+# Axes  --  desactivado en esta instancia (re-habilitar cuando se configure Redis)
+# ---------------------------------------------------------------------------
+INSTALLED_APPS = [app for app in INSTALLED_APPS if app != "axes"]  # noqa
+MIDDLEWARE = [m for m in MIDDLEWARE if "axes" not in m.lower()]    # noqa
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
+
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 
 # ---------------------------------------------------------------------------
