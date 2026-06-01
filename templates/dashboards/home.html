@@ -7,9 +7,36 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 {% endif %}
 <style>
+/* ── Panel equipos semanales — siempre visible en pantallas ≥1280px ── */
+.teams-rail { display: none; }
+@media (min-width: 1280px) {
+  .teams-rail { display: block; flex-shrink: 0; }
+}
+
 /* ── Project card palette system ──────────────────────────── */
 .project-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
 .project-card:hover { transform: translateY(-5px); box-shadow: 0 28px 56px rgba(0,0,0,0.55); }
+
+/* ── Gantt personal ──────────────────────────────── */
+.gantt-label { width:200px; min-width:200px; padding-right:14px;
+               font-family:'Inter',sans-serif; font-size:0.7rem;
+               color:rgba(255,255,255,0.55); white-space:nowrap;
+               overflow:hidden; text-overflow:ellipsis; }
+.gantt-track { position:relative; flex:1; height:26px;
+               background:rgba(255,255,255,0.04); border-radius:6px; }
+
+/* Profile card — ancho total, rompe padding derecho */
+.profile-hero-card {
+  display: flex;
+  width: 100%;
+  margin-right: -1rem;          /* cancela p-4 móvil */
+  border-radius: 1rem 0 0 1rem;
+  border-right: 0;
+  overflow: hidden;
+}
+@media (min-width: 1024px) {
+  .profile-hero-card { margin-right: -1.5rem; } /* cancela lg:p-6 */
+}
 
 /* Noise texture overlay */
 .project-card::after {
@@ -62,14 +89,169 @@
                     repeating-linear-gradient(90deg,rgba(140,110,200,0.05) 0,transparent 1px,transparent 40px);
 }
 </style>
+<script>
+function ganttData(rawItems) {
+  return {
+    items:        rawItems,
+    showGantt:    false,
+    zoom:         60,
+    panDays:      0,
+    tooltip:      { show: false, name: '', project: '', start: '', end: '', duration: 0, x: 0, y: 0 },
+    expanded:     {},   // { [si_pk]: true/false }
+    actionsCache: {},   // { [si_pk]: html string }
+
+    /* Carga las acciones de un servicio y las muestra en el panel */
+    async expandService(item) {
+      const id = String(item.id);
+      if (this.expanded[id]) {
+        this.expanded[id] = false;
+        return;
+      }
+      this.expanded[id] = true;
+
+      // Si ya fue cargado, solo abrir
+      if (this.actionsCache[id]) {
+        this.$nextTick(() => {
+          const p = document.getElementById(`gantt-actions-${id}`);
+          if (p) { p.innerHTML = this.actionsCache[id]; if (window.htmx) htmx.process(p); }
+        });
+        return;
+      }
+
+      // Mostrar spinner mientras carga
+      this.$nextTick(() => {
+        const p = document.getElementById(`gantt-actions-${id}`);
+        if (p) p.innerHTML = '<p style="padding:8px 4px; font-family:Inter,sans-serif; font-size:0.7rem; color:rgba(255,255,255,0.3);">Cargando acciones…</p>';
+      });
+
+      try {
+        const csrf = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+        const resp = await fetch(
+          `/proyectos/${item.project_id}/cronograma/servicios/${id}/acciones/`,
+          { headers: { 'X-CSRFToken': csrf, 'HX-Request': 'true' } }
+        );
+        const html = await resp.text();
+        this.actionsCache[id] = html;
+        this.$nextTick(() => {
+          const p = document.getElementById(`gantt-actions-${id}`);
+          if (p) { p.innerHTML = html; if (window.htmx) htmx.process(p); }
+        });
+      } catch (e) {
+        this.$nextTick(() => {
+          const p = document.getElementById(`gantt-actions-${id}`);
+          if (p) p.innerHTML = '<p style="padding:8px 4px; font-family:Inter,sans-serif; font-size:0.7rem; color:#f87171;">Error cargando acciones.</p>';
+        });
+      }
+    },
+
+    /* Rango visible: zoom días centrados en hoy + panDays */
+    get range() {
+      const center = new Date();
+      center.setDate(center.getDate() + this.panDays);
+      const half = Math.floor(this.zoom / 2);
+      const s = new Date(center); s.setDate(s.getDate() - half);
+      const e = new Date(center); e.setDate(e.getDate() + (this.zoom - half));
+      return { start: s, end: e, days: this.zoom };
+    },
+
+    /* Estilo CSS de la barra — maneja clipping en los bordes */
+    barStyle(s, e) {
+      const r = this.range;
+      const sp = (new Date(s) - r.start) / 86400000 / r.days * 100;
+      const ep = (new Date(e) - r.start) / 86400000 / r.days * 100;
+      const l  = Math.max(0, sp);
+      const w  = Math.max(0, Math.min(100, ep) - l);
+      return w <= 0 ? 'display:none' : `position:absolute; top:4px; height:20px; border-radius:5px; overflow:hidden; left:${l}%; width:${w}%;`;
+    },
+
+    todayPct() {
+      const r = this.range;
+      const off = (new Date() - r.start) / 86400000;
+      return off / r.days * 100;
+    },
+
+    /* Zoom: presets en días */
+    zoomTo(d) { this.zoom = d; },
+    panLeft()  { this.panDays -= Math.max(1, Math.floor(this.zoom / 4)); },
+    panRight() { this.panDays += Math.max(1, Math.floor(this.zoom / 4)); },
+    resetPan() { this.panDays = 0; },
+
+    /* Ticks del eje de tiempo según nivel de zoom */
+    get ticks() {
+      const r = this.range;
+      const out = [];
+      let d;
+      if (this.zoom <= 21) {
+        // Días individuales
+        d = new Date(r.start); d.setDate(d.getDate() + 1); d.setHours(0,0,0,0);
+        while (d < r.end) {
+          const pct = (d - r.start) / 86400000 / r.days * 100;
+          if (pct >= 0 && pct <= 100)
+            out.push({ label: d.getDate() + ' ' + new Intl.DateTimeFormat('es',{month:'short'}).format(d), pct });
+          d.setDate(d.getDate() + 1);
+        }
+      } else if (this.zoom <= 90) {
+        // Semanas (cada lunes)
+        d = new Date(r.start);
+        const dow = d.getDay();
+        d.setDate(d.getDate() + ((8 - dow) % 7 || 7));
+        d.setHours(0,0,0,0);
+        while (d < r.end) {
+          const pct = (d - r.start) / 86400000 / r.days * 100;
+          if (pct >= 0 && pct <= 100)
+            out.push({ label: d.getDate() + ' ' + new Intl.DateTimeFormat('es',{month:'short'}).format(d), pct });
+          d.setDate(d.getDate() + 7);
+        }
+      } else {
+        // Meses
+        d = new Date(r.start); d.setDate(1); d.setMonth(d.getMonth() + 1); d.setHours(0,0,0,0);
+        while (d <= r.end) {
+          const pct = (d - r.start) / 86400000 / r.days * 100;
+          if (pct >= 0 && pct <= 100)
+            out.push({ label: new Intl.DateTimeFormat('es',{month:'short',year:'2-digit'}).format(d), pct });
+          d.setMonth(d.getMonth() + 1);
+        }
+      }
+      return out;
+    },
+
+    /* Agrupa items (solo servicios) por proyecto */
+    get projects() {
+      const map = {};
+      this.items.forEach(i => {
+        const k = i.project_code || i.project || '—';
+        if (!map[k]) map[k] = { name: i.project, code: i.project_code || k, items: [] };
+        map[k].items.push(i);
+      });
+      return Object.values(map);
+    },
+
+    /* Tooltip */
+    showTooltip(item, ev) {
+      const s = new Date(item.start), e = new Date(item.end);
+      const dur = Math.round((e - s) / 86400000) + 1;
+      const fmt = dt => dt.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' });
+      this.tooltip = { show: true, name: item.name, project: item.project,
+        start: fmt(s), end: fmt(e), duration: dur, x: ev.clientX + 14, y: ev.clientY - 10 };
+    },
+    hideTooltip() { this.tooltip.show = false; }
+  };
+}
+</script>
 {% endblock %}
 
 {% block content %}
 
+<!-- Layout: contenido principal + panel equipos derecho -->
+<div style="display:flex; align-items:flex-start; gap:0; min-width:0;">
+
+<!-- ── Columna principal ─────────────────────────────────────────────── -->
+<div style="flex:1; min-width:0;">
+
 <!-- ════════════════════════════════════════════════════════════
-     SALUDO — común a todos los roles
+     SALUDO
 ═════════════════════════════════════════════════════════════ -->
-<div class="mb-8 max-w-2xl"
+<div class="mb-6"
      x-data="{ greeting: '' }"
      x-init="
        const h = new Date().getHours();
@@ -80,14 +262,190 @@
   <h1 class="font-bold mb-2" style="font-family:'Space Grotesk',sans-serif; letter-spacing:-0.03em; font-size:clamp(2rem, 4.5vw, 3.6rem); line-height:1.08;">
     <span style="color:#C8A87A;" x-text="greeting"></span><span style="color:#C8A87A;">,</span>
     <span style="color:#ffffff;">{{ user.first_name|default:user.username }}</span>
-    <span style="color:rgba(255,255,255,0.22);">—</span>
-    <span style="color:rgba(255,255,255,0.45);">bienvenido a Central CNTXT.</span>
+    <span style="color:rgba(255,255,255,0.22);">—</span><br>
+    <span style="color:rgba(255,255,255,0.45);">bienvenid@ a Central CNTXT.</span>
   </h1>
   <p class="font-semibold" style="font-family:'Space Grotesk',sans-serif; font-size:clamp(1.5rem, 3vw, 2.4rem); color:#ffffff; letter-spacing:-0.02em; line-height:1.15;">
-    ¿Qué quieres hacer<span style="color:#C8A87A;">?</span>
+    ¿Qué quieres hacer?
   </p>
 </div>
 
+<!-- ════════════════════════════════════════════════════════════
+     PROFILE CARD — ancho total, pegada al borde derecho
+═════════════════════════════════════════════════════════════ -->
+<div class="profile-hero-card mb-10"
+     style="background:#0e0e0e; border:1px solid rgba(255,255,255,0.08); min-height:480px;">
+
+    <!-- FOTO — panel izquierdo grande -->
+    <div class="relative shrink-0" style="width:420px;">
+      {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}"
+             class="absolute inset-0 w-full h-full object-cover">
+      {% else %}
+        <!-- Iniciales sobre gradiente oscuro premium -->
+        <div class="absolute inset-0"
+             style="background:linear-gradient(160deg, #1a140a 0%, #211908 40%, #160f05 100%);">
+          <!-- Grid decorativo -->
+          <div class="absolute inset-0 pointer-events-none"
+               style="background-image:repeating-linear-gradient(0deg,rgba(200,168,122,0.04) 0,transparent 1px,transparent 52px),
+                                        repeating-linear-gradient(90deg,rgba(200,168,122,0.04) 0,transparent 1px,transparent 52px);"></div>
+          <!-- Glow central -->
+          <div class="absolute inset-0"
+               style="background:radial-gradient(ellipse at 50% 45%, rgba(200,168,122,0.18) 0%, transparent 65%);"></div>
+        </div>
+        <!-- Iniciales centradas, enormes -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span style="font-family:'Space Grotesk',sans-serif; font-size:6rem; font-weight:800;
+                       color:#C8A87A; letter-spacing:-0.06em; line-height:1;
+                       text-shadow:0 0 60px rgba(200,168,122,0.35);">
+            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+          </span>
+        </div>
+      {% endif %}
+      <!-- Gradiente derecho que funde con el panel info -->
+      <div class="absolute inset-y-0 right-0 w-16 pointer-events-none"
+           style="background:linear-gradient(to right, transparent, #0e0e0e);"></div>
+    </div>
+
+    <!-- INFO — bento grid -->
+    <div style="flex:1; display:grid; grid-template-columns:2fr 1fr 1fr; grid-template-rows:1fr 1fr auto; gap:10px; padding:16px; min-width:0;">
+
+      <!-- ① IDENTIDAD — col 1, rows 1-2 -->
+      <div style="grid-column:1; grid-row:1/3;
+                  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+                  border-radius:14px; padding:22px;
+                  display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <p style="font-family:'Space Grotesk',sans-serif; font-size:1.9rem; font-weight:800;
+                    color:#ffffff; letter-spacing:-0.04em; line-height:1.05;">
+            {{ user.get_full_name|default:user.username }}
+          </p>
+          {% if user_primary_role %}
+          <p style="font-family:'Inter',sans-serif; font-size:0.68rem; font-weight:600;
+                    color:#C8A87A; letter-spacing:0.14em; text-transform:uppercase; margin-top:8px;">
+            {{ user_primary_role }}
+          </p>
+          {% endif %}
+        </div>
+        {% if user_badges %}
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
+          {% for ub in user_badges %}
+          <span style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px;
+                       border-radius:8px; font-family:'Inter',sans-serif; font-size:0.67rem;
+                       background:rgba(200,168,122,0.07); border:1px solid rgba(200,168,122,0.18);
+                       color:{{ ub.badge.color }};">
+            {{ ub.badge.emoji }} {{ ub.badge.name }}
+          </span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      {% if cap_available is not None %}
+
+      <!-- ② DISPONIBLE — col 2, row 1 -->
+      <div style="grid-column:2; grid-row:1;
+                  background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06);
+                  border-radius:14px; padding:18px;
+                  display:flex; flex-direction:column; justify-content:space-between;">
+        <p style="font-family:'Inter',sans-serif; font-size:0.57rem; font-weight:500;
+                  color:rgba(255,255,255,0.28); letter-spacing:0.1em; text-transform:uppercase;">Disponible</p>
+        <p style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:700;
+                  color:rgba(255,255,255,0.88); line-height:1; margin-top:6px;">
+          {{ cap_available }}<span style="font-size:0.7rem; font-weight:400; color:rgba(255,255,255,0.3);">h</span>
+        </p>
+      </div>
+
+      <!-- ③ ASIGNADO/SEM — col 3, row 1 -->
+      <div style="grid-column:3; grid-row:1;
+                  background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06);
+                  border-radius:14px; padding:18px;
+                  display:flex; flex-direction:column; justify-content:space-between;">
+        <p style="font-family:'Inter',sans-serif; font-size:0.57rem; font-weight:500;
+                  color:rgba(255,255,255,0.28); letter-spacing:0.1em; text-transform:uppercase;">Asignado/sem</p>
+        <p style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:700;
+                  color:rgba(255,255,255,0.88); line-height:1; margin-top:6px;">
+          {{ cap_allocated }}<span style="font-size:0.7rem; font-weight:400; color:rgba(255,255,255,0.3);">h</span>
+        </p>
+      </div>
+
+      <!-- ④ PROYECTOS — col 2, row 2 -->
+      <div style="grid-column:2; grid-row:2;
+                  background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06);
+                  border-radius:14px; padding:18px;
+                  display:flex; flex-direction:column; justify-content:space-between;">
+        <p style="font-family:'Inter',sans-serif; font-size:0.57rem; font-weight:500;
+                  color:rgba(255,255,255,0.28); letter-spacing:0.1em; text-transform:uppercase;">Proyectos</p>
+        <p style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:700;
+                  color:rgba(255,255,255,0.88); line-height:1; margin-top:6px;">
+          {{ cap_projects }}
+        </p>
+      </div>
+
+      <!-- ⑤ PLAN/REAL — col 3, row 2 -->
+      <div style="grid-column:3; grid-row:2;
+                  background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06);
+                  border-radius:14px; padding:18px;
+                  display:flex; flex-direction:column; justify-content:space-between;">
+        <p style="font-family:'Inter',sans-serif; font-size:0.57rem; font-weight:500;
+                  color:rgba(255,255,255,0.28); letter-spacing:0.1em; text-transform:uppercase;">Plan / Real</p>
+        <p style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:700;
+                  color:rgba(255,255,255,0.88); line-height:1; margin-top:6px;">
+          {{ cap_planned }}<span style="font-size:0.62rem; color:rgba(255,255,255,0.3);">h</span>
+          <span style="color:rgba(255,255,255,0.2);">/</span>
+          {{ cap_actual }}<span style="font-size:0.62rem; color:rgba(255,255,255,0.3);">h</span>
+        </p>
+      </div>
+
+      <!-- ⑥ DEDICACIÓN — col 1-2, row 3 — acento dorado -->
+      <div style="grid-column:1/3; grid-row:3;
+                  background:rgba(200,168,122,0.06); border:1px solid rgba(200,168,122,0.14);
+                  border-radius:14px; padding:18px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <p style="font-family:'Inter',sans-serif; font-size:0.57rem; font-weight:500;
+                    color:rgba(255,255,255,0.4); letter-spacing:0.1em; text-transform:uppercase;">Dedicación</p>
+          <p style="font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; color:#C8A87A;">{{ cap_pct }}%</p>
+        </div>
+        <div style="height:4px; border-radius:9999px; background:rgba(255,255,255,0.07); overflow:hidden;">
+          <div style="width:{{ cap_pct }}%; max-width:100%; height:100%; border-radius:9999px;
+                      background:linear-gradient(90deg,#C8A87A,#e8c89a);
+                      box-shadow:0 0 10px rgba(200,168,122,0.5);"></div>
+        </div>
+      </div>
+
+      <!-- ⑦ AVANCE — col 3, row 3 -->
+      <div style="grid-column:3; grid-row:3;
+                  background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.06);
+                  border-radius:14px; padding:18px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <p style="font-family:'Inter',sans-serif; font-size:0.57rem; font-weight:500;
+                    color:rgba(255,255,255,0.28); letter-spacing:0.1em; text-transform:uppercase;">Avance</p>
+          <p style="font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:600;
+                    color:rgba(255,255,255,0.55);">{{ cap_progress }}%</p>
+        </div>
+        <div style="height:4px; border-radius:9999px; background:rgba(255,255,255,0.07); overflow:hidden;">
+          <div style="width:{{ cap_progress }}%; max-width:100%; height:100%; border-radius:9999px;
+                      background:linear-gradient(90deg,rgba(200,168,122,0.5),rgba(200,168,122,0.18));"></div>
+        </div>
+      </div>
+
+      {% endif %}
+
+    </div>
+</div>
+
+{# Lista Python → json_script la serializa correctamente como array JSON #}
+{{ user_gantt_items|json_script:"user-gantt-data" }}
+<script>
+  try {
+    window.__ganttItems = JSON.parse(
+      document.getElementById('user-gantt-data').textContent
+    );
+  } catch(e) {
+    window.__ganttItems = [];
+    console.warn('[CNTXT] gantt parse error:', e);
+  }
+</script>
 
 {% if can_view_financials or user.is_staff %}
 <!-- ════════════════════════════════════════════════════════════
@@ -288,8 +646,11 @@
      VISTA LP — Líder de Proyecto
 ═════════════════════════════════════════════════════════════ -->
 
-<!-- Quick actions LP -->
-<div class="flex flex-wrap items-center gap-3 mb-8 pb-7" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+<!-- Quick actions LP + Gantt -->
+<div x-data="ganttData(window.__ganttItems || [])"
+     x-init="console.log('[GANTT] items loaded:', items.length)">
+
+<div class="flex flex-wrap items-center gap-3 mb-4 pb-4" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
   <a href="{% url 'timetracking:widget' %}"
      class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
      style="font-family:'Inter',sans-serif; background:#111111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"
@@ -314,6 +675,20 @@
           style="background:#C8A87A; color:#0a0a0a; font-family:'Inter',sans-serif;">{{ unread_alert_count }}</span>
     {% endif %}
   </a>
+
+  <!-- ★ Mi Cronograma -->
+  <button @click="showGantt = !showGantt"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+          :style="showGantt
+            ? 'font-family:Inter,sans-serif; background:rgba(200,168,122,0.12); border:1px solid rgba(200,168,122,0.4); color:#C8A87A;'
+            : 'font-family:Inter,sans-serif; background:#111111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);'">
+    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+            d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+    </svg>
+    Mi Cronograma
+  </button>
+
   <a href="{% url 'projects:list' %}"
      class="flex items-center gap-2 ml-auto text-sm font-medium px-4 py-2.5 rounded-xl transition-all duration-200"
      style="font-family:'Inter',sans-serif; color:#C8A87A; border:1px solid rgba(200,168,122,0.2); background:rgba(200,168,122,0.06);"
@@ -326,17 +701,34 @@
   </a>
 </div>
 
+{% include "dashboards/partials/gantt_personal.html" %}
+
+</div><!-- /x-data ganttData LP -->
+
+<!-- ─── Mis Proyectos ──────────────────────────────────────── -->
+<div class="flex items-center gap-3 mb-4">
+  <h2 class="text-xs font-semibold uppercase tracking-widest shrink-0"
+      style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.35); letter-spacing:0.12em;">
+    Mis Proyectos
+  </h2>
+  <div class="flex-1 h-px" style="background:rgba(255,255,255,0.04);"></div>
+  <a href="{% url 'projects:list' %}"
+     class="text-xs shrink-0 transition-colors"
+     style="font-family:'Inter',sans-serif; color:rgba(200,168,122,0.5);"
+     onmouseover="this.style.color='#C8A87A'" onmouseout="this.style.color='rgba(200,168,122,0.5)'">
+    Ver todos →
+  </a>
+</div>
+
 {% if projects %}
-<!-- ─── Bento Grid — project cards ────────────────────────── -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-10">
   {% for project in projects %}
   {% cycle '0' '1' '2' '3' '4' as cp silent %}
 
   <a href="{% url 'dashboards:project' project.pk %}"
      data-cp="{{ cp }}"
-     class="project-card group relative overflow-hidden rounded-2xl block
-            {% if forloop.first %}md:col-span-2{% endif %}"
-     style="min-height: {% if forloop.first %}310px{% else %}195px{% endif %};">
+     class="project-card group relative overflow-hidden rounded-2xl block"
+     style="aspect-ratio: 1 / 1;">
 
     {% if project.cover_image %}
     <div class="absolute inset-0">
@@ -350,12 +742,13 @@
     {% endif %}
 
     <div class="absolute inset-0 pointer-events-none"
-         style="background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 55%, rgba(0,0,0,0.05) 100%);"></div>
+         style="background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.05) 100%);"></div>
 
-    <div class="absolute inset-0 p-5 flex flex-col justify-between" style="z-index:4;">
-      <div class="flex items-start justify-between gap-2">
-        <span class="inline-block text-xs font-medium px-2.5 py-1 rounded-full"
-              style="font-family:'Inter',sans-serif; letter-spacing:0.04em; backdrop-filter:blur(6px);
+    <div class="absolute inset-0 p-4 flex flex-col justify-between" style="z-index:4;">
+      <!-- Top: status + code -->
+      <div class="flex items-start justify-between gap-1">
+        <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full"
+              style="font-family:'Inter',sans-serif; font-size:0.65rem; letter-spacing:0.04em; backdrop-filter:blur(6px);
                      {% if project.status == 'ACTIVE' %}background:rgba(200,168,122,0.18); color:#C8A87A; border:1px solid rgba(200,168,122,0.3);
                      {% elif project.status == 'PAUSED' %}background:rgba(100,140,210,0.18); color:#8fb5f5; border:1px solid rgba(100,140,210,0.3);
                      {% elif project.status == 'PLANNING' %}background:rgba(60,180,120,0.15); color:#4dc98a; border:1px solid rgba(60,180,120,0.28);
@@ -363,30 +756,33 @@
                      {% else %}background:rgba(120,120,120,0.13); color:#888; border:1px solid rgba(120,120,120,0.25);{% endif %}">
           {{ project.get_status_display }}
         </span>
-        <span class="text-xs font-mono" style="color:rgba(255,255,255,0.22);">{{ project.code }}</span>
+        <span class="text-xs font-mono" style="color:rgba(255,255,255,0.18); font-size:0.65rem;">{{ project.code }}</span>
       </div>
+
+      <!-- Bottom: cliente + nombre + barra -->
       <div>
         {% if project.third_party %}
-        <p class="text-xs mb-1.5 truncate uppercase tracking-wider"
-           style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.32); letter-spacing:0.07em;">
+        <p class="truncate mb-1"
+           style="font-family:'Inter',sans-serif; font-size:0.65rem; color:rgba(255,255,255,0.3);
+                  text-transform:uppercase; letter-spacing:0.06em;">
           {{ project.third_party.name }}
         </p>
         {% endif %}
-        <h3 class="font-bold text-white leading-tight mb-4"
-            style="font-family:'Space Grotesk',sans-serif;
-                   font-size:{% if forloop.first %}1.5rem{% else %}1.05rem{% endif %};
-                   text-shadow: 0 2px 16px rgba(0,0,0,0.8); letter-spacing:-0.015em;">
+        <h3 class="font-bold text-white leading-tight mb-3"
+            style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem;
+                   text-shadow: 0 2px 12px rgba(0,0,0,0.9); letter-spacing:-0.015em;
+                   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
           {{ project.name }}
         </h3>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
           <div class="flex-1 rounded-full overflow-hidden" style="height:2px; background:rgba(255,255,255,0.1);">
             <div class="h-full rounded-full"
                  style="width:{{ project.current_progress_pct|default:0 }}%;
                         background: linear-gradient(90deg,#C8A87A,#e8c89a);
-                        box-shadow: 0 0 8px rgba(200,168,122,0.6);"></div>
+                        box-shadow: 0 0 6px rgba(200,168,122,0.5);"></div>
           </div>
-          <span class="text-xs font-semibold tabular-nums shrink-0"
-                style="font-family:'Inter',sans-serif; color:#C8A87A; min-width:3rem; text-align:right;">
+          <span class="tabular-nums shrink-0"
+                style="font-family:'Inter',sans-serif; font-size:0.7rem; font-weight:600; color:#C8A87A;">
             {{ project.current_progress_pct|default:0 }}%
           </span>
         </div>
@@ -400,9 +796,9 @@
 </div>
 
 {% else %}
-<div class="flex flex-col items-center justify-center py-24 rounded-2xl mb-8"
+<div class="flex flex-col items-center justify-center py-16 rounded-2xl mb-8"
      style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.05);">
-  <svg class="h-14 w-14 mb-4" style="color:rgba(255,255,255,0.07);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg class="h-12 w-12 mb-3" style="color:rgba(255,255,255,0.07);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
   </svg>
   <p class="text-sm" style="font-family:'Inter',sans-serif; color:rgba(255,255,255,0.2);">No hay proyectos asignados aún.</p>
@@ -790,8 +1186,10 @@
      VISTA INT — Profesional Interno
 ═════════════════════════════════════════════════════════════ -->
 
-<!-- Quick actions INT -->
-<div class="flex flex-wrap items-center gap-3 mb-8 pb-7"
+<!-- Quick actions INT + Gantt -->
+<div x-data="ganttData(window.__ganttItems || [])">
+
+<div class="flex flex-wrap items-center gap-3 mb-4 pb-4"
      style="border-bottom: 1px solid rgba(255,255,255,0.05);">
   <a href="{% url 'timetracking:widget' %}"
      class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
@@ -827,7 +1225,24 @@
           style="background:#C8A87A; color:#0a0a0a; font-family:'Inter',sans-serif;">{{ unread_alert_count }}</span>
     {% endif %}
   </a>
+
+  <!-- ★ Mi Cronograma -->
+  <button @click="showGantt = !showGantt"
+          class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+          :style="showGantt
+            ? 'font-family:Inter,sans-serif; background:rgba(200,168,122,0.12); border:1px solid rgba(200,168,122,0.4); color:#C8A87A;'
+            : 'font-family:Inter,sans-serif; background:#111111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);'">
+    <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"
+            d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+    </svg>
+    Mi Cronograma
+  </button>
 </div>
+
+{% include "dashboards/partials/gantt_personal.html" %}
+
+</div><!-- /x-data ganttData INT -->
 
 <!-- ─── Reporte semanal + tareas ──────────────────────────── -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -995,5 +1410,17 @@
 
 {% endif %}
 {# end role split #}
+
+</div><!-- /columna principal -->
+
+<!-- ── Panel equipos semanales ───────────────────────────────────────── -->
+<div class="teams-rail">
+  {% include "dashboards/partials/weekly_teams.html" %}
+</div>
+
+</div><!-- /layout flex -->
+
+{# Contenedor para el modal de registro de avance de acciones #}
+<div id="schedule-modal-container"></div>
 
 {% endblock %}

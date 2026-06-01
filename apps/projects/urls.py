@@ -26,6 +26,11 @@ urlpatterns = [
         views.ProjectUpdateView.as_view(),
         name="update",
     ),
+    path(
+        "<int:pk>/eliminar/",
+        views.ProjectDeleteView.as_view(),
+        name="delete",
+    ),
     # Phase services
     path(
         "<int:pk>/fases/<int:phase_pk>/servicios/",

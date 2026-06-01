@@ -64,6 +64,7 @@ LOCAL_APPS = [
     "apps.timetracking",
     "apps.calendar_sync",
     "apps.geography",
+    "apps.teams",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

@@ -1,0 +1,259 @@
+{% extends "base/base.html" %}
+{% block title %}Gestión de Equipos{% endblock %}
+
+{% block extra_head %}
+<style>
+.member-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.member-row:last-child { margin-bottom: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-1">
+    <h1 style="font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:800;
+               color:#ffffff; letter-spacing:-0.03em;">Equipos Semanales</h1>
+    <span style="font-family:'Inter',sans-serif; font-size:0.7rem; color:rgba(200,168,122,0.55);
+                 letter-spacing:0.1em; text-transform:uppercase;">Sem #{{ current_week }} · {{ current_year }}</span>
+  </div>
+  <p style="font-family:'Inter',sans-serif; font-size:0.85rem; color:rgba(255,255,255,0.3);">
+    Arma y publica los equipos de trabajo activos para cada semana.
+  </p>
+</div>
+
+{% if messages %}
+<div class="mb-6 space-y-2">
+  {% for m in messages %}
+  <div class="px-4 py-3 rounded-xl text-sm"
+       style="font-family:'Inter',sans-serif;
+              background:{% if m.tags == 'error' %}rgba(248,113,113,0.1){% else %}rgba(77,201,138,0.1){% endif %};
+              border:1px solid {% if m.tags == 'error' %}rgba(248,113,113,0.3){% else %}rgba(77,201,138,0.3){% endif %};
+              color:{% if m.tags == 'error' %}#f87171{% else %}#4dc98a{% endif %};">
+    {{ m }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ══ Formulario nuevo equipo ══════════════════════════════════════════ -->
+<div class="mb-8 p-6 rounded-2xl" style="background:#0e0e0e; border:1px solid rgba(255,255,255,0.07);"
+     x-data="{ open: false, members: [{ uid: '', occ: '' }] }">
+
+  <button @click="open = !open"
+          class="w-full flex items-center justify-between"
+          type="button">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+           style="background:rgba(200,168,122,0.1);">
+        <svg class="h-4 w-4" style="color:#C8A87A;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+      </div>
+      <span style="font-family:'Inter',sans-serif; font-size:0.9rem; font-weight:600; color:rgba(255,255,255,0.85);">
+        Crear nuevo equipo
+      </span>
+    </div>
+    <svg :class="open ? 'rotate-180' : ''" class="h-4 w-4 transition-transform duration-200"
+         style="color:rgba(255,255,255,0.25);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </button>
+
+  <div x-show="open"
+       x-transition:enter="transition ease-out duration-150"
+       x-transition:enter-start="opacity-0 -translate-y-2"
+       x-transition:enter-end="opacity-100 translate-y-0"
+       class="mt-6">
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="create">
+
+      <!-- Proyecto + Semana -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="sm:col-span-2">
+          <label style="font-family:'Inter',sans-serif; font-size:0.68rem; font-weight:600;
+                        color:rgba(255,255,255,0.35); letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:6px;">
+            Proyecto / Contexto
+          </label>
+          <input type="text" name="project_name" required placeholder="Ej. Arq. Bello, La Serena, Reunión Cliente..."
+                 style="width:100%; padding:10px 14px; border-radius:10px; font-family:'Inter',sans-serif;
+                        font-size:0.85rem; color:rgba(255,255,255,0.85);
+                        background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+                        outline:none;">
+        </div>
+        <div>
+          <label style="font-family:'Inter',sans-serif; font-size:0.68rem; font-weight:600;
+                        color:rgba(255,255,255,0.35); letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:6px;">
+            Semana #
+          </label>
+          <input type="number" name="week_number" value="{{ current_week }}" min="1" max="53"
+                 style="width:100%; padding:10px 14px; border-radius:10px; font-family:'Inter',sans-serif;
+                        font-size:0.85rem; color:rgba(255,255,255,0.85);
+                        background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+                        outline:none;">
+        </div>
+      </div>
+
+      <!-- Miembros -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <label style="font-family:'Inter',sans-serif; font-size:0.68rem; font-weight:600;
+                        color:rgba(255,255,255,0.35); letter-spacing:0.1em; text-transform:uppercase;">
+            Integrantes
+          </label>
+        </div>
+
+        <!-- Cabecera columnas -->
+        <div style="display:grid; grid-template-columns:1fr 140px 28px; gap:8px; margin-bottom:8px; padding:0 4px;">
+          <span style="font-family:'Inter',sans-serif; font-size:0.62rem; color:rgba(255,255,255,0.22); letter-spacing:0.08em; text-transform:uppercase;">Profesional</span>
+          <span style="font-family:'Inter',sans-serif; font-size:0.62rem; color:rgba(255,255,255,0.22); letter-spacing:0.08em; text-transform:uppercase;">Ocupación</span>
+          <span></span>
+        </div>
+
+        <!-- Filas dinámicas -->
+        <template x-for="(m, i) in members" :key="i">
+          <div style="display:grid; grid-template-columns:1fr 140px 28px; gap:8px; margin-bottom:8px;">
+            <!-- Usuario -->
+            <select :name="'member_user_id'"
+                    style="padding:8px 12px; border-radius:10px; font-family:'Inter',sans-serif;
+                           font-size:0.82rem; color:rgba(255,255,255,0.8);
+                           background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+                           outline:none; width:100%;">
+              <option value="">— elegir —</option>
+              {% for u in active_users %}
+              <option value="{{ u.pk }}">{{ u.get_full_name|default:u.username }}</option>
+              {% endfor %}
+            </select>
+            <!-- Ocupación -->
+            <input type="text" :name="'member_occupation'" placeholder="Renders"
+                   style="padding:8px 12px; border-radius:10px; font-family:'Inter',sans-serif;
+                          font-size:0.82rem; color:rgba(255,255,255,0.8);
+                          background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+                          outline:none;">
+            <!-- Quitar -->
+            <button type="button" @click="members.splice(i, 1)" x-show="members.length > 1"
+                    style="width:28px; height:38px; border-radius:8px; border:none;
+                           background:rgba(248,113,113,0.08); color:rgba(248,113,113,0.6);
+                           cursor:pointer; display:flex; align-items:center; justify-content:center;">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </template>
+
+        <button type="button" @click="members.push({ uid: '', occ: '' })"
+                style="margin-top:4px; font-family:'Inter',sans-serif; font-size:0.78rem;
+                       color:rgba(200,168,122,0.6); background:none; border:none;
+                       cursor:pointer; padding:4px 0; display:flex; align-items:center; gap:6px;"
+                onmouseover="this.style.color='#C8A87A'"
+                onmouseout="this.style.color='rgba(200,168,122,0.6)'">
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Agregar integrante
+        </button>
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex items-center justify-end gap-3">
+        <button type="button" @click="open = false"
+                style="font-family:'Inter',sans-serif; font-size:0.82rem; color:rgba(255,255,255,0.35);
+                       background:none; border:none; cursor:pointer; padding:8px 16px; border-radius:10px;"
+                onmouseover="this.style.color='rgba(255,255,255,0.6)'"
+                onmouseout="this.style.color='rgba(255,255,255,0.35)'">
+          Cancelar
+        </button>
+        <button type="submit"
+                style="font-family:'Inter',sans-serif; font-size:0.82rem; font-weight:600;
+                       color:#0a0a0a; background:#C8A87A; border:none; cursor:pointer;
+                       padding:8px 22px; border-radius:10px; transition:opacity 0.15s;"
+                onmouseover="this.style.opacity='0.85'"
+                onmouseout="this.style.opacity='1'">
+          Guardar equipo
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ Lista de equipos ═════════════════════════════════════════════════ -->
+{% if teams %}
+<div class="space-y-4">
+  {% for team in teams %}
+  <div class="p-5 rounded-2xl" style="background:#0d0d0d; border:1px solid rgba(255,255,255,0.06);">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <p style="font-family:'Inter',sans-serif; font-size:0.62rem; font-weight:600;
+                  color:rgba(200,168,122,0.5); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:3px;">
+          Semana #{{ team.week_number }} · {{ team.year }}
+        </p>
+        <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700;
+                   color:#ffffff; letter-spacing:-0.02em;">
+          {{ team.project_name }}
+        </h3>
+      </div>
+      <!-- Eliminar -->
+      <form method="post" onsubmit="return confirm('¿Eliminar este equipo?');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="team_id" value="{{ team.pk }}">
+        <button type="submit"
+                style="font-family:'Inter',sans-serif; font-size:0.72rem; color:rgba(248,113,113,0.4);
+                       background:none; border:1px solid rgba(248,113,113,0.15); border-radius:8px;
+                       cursor:pointer; padding:4px 12px; transition:all 0.15s;"
+                onmouseover="this.style.borderColor='rgba(248,113,113,0.4)'; this.style.color='#f87171'"
+                onmouseout="this.style.borderColor='rgba(248,113,113,0.15)'; this.style.color='rgba(248,113,113,0.4)'">
+          Eliminar
+        </button>
+      </form>
+    </div>
+
+    <!-- Integrantes -->
+    <div class="space-y-2">
+      {% for m in team.members.all %}
+      <div class="flex items-center gap-3">
+        <!-- Avatar -->
+        <div class="w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center"
+             style="background:rgba(200,168,122,0.12); border:1px solid rgba(200,168,122,0.2);">
+          {% if m.user.avatar %}
+          <img src="{{ m.user.avatar.url }}" alt="" class="w-full h-full object-cover">
+          {% else %}
+          <span style="font-family:'Inter',sans-serif; font-size:0.65rem; font-weight:700; color:#C8A87A;">
+            {{ m.user.first_name|first|upper }}{{ m.user.last_name|first|upper }}
+          </span>
+          {% endif %}
+        </div>
+        <!-- Nombre + ocupación -->
+        <div class="flex items-center gap-2 min-w-0">
+          <span style="font-family:'Inter',sans-serif; font-size:0.82rem; color:rgba(255,255,255,0.75); white-space:nowrap;">
+            {{ m.user.get_full_name|default:m.user.username }}
+          </span>
+          <span style="font-family:'Inter',sans-serif; font-size:0.72rem;
+                       color:rgba(255,255,255,0.28); font-style:italic;">
+            {{ m.occupation }}
+          </span>
+        </div>
+      </div>
+      {% empty %}
+      <p style="font-family:'Inter',sans-serif; font-size:0.8rem; color:rgba(255,255,255,0.2);">Sin integrantes.</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="flex flex-col items-center justify-center py-20 rounded-2xl"
+     style="background:#080808; border:1px solid rgba(255,255,255,0.05);">
+  <svg class="h-12 w-12 mb-3" style="color:rgba(255,255,255,0.07);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+          d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+  </svg>
+  <p style="font-family:'Inter',sans-serif; font-size:0.88rem; color:rgba(255,255,255,0.2);">
+    No hay equipos creados este año. ¡Crea el primero!
+  </p>
+</div>
+{% endif %}
+
+{% endblock %}

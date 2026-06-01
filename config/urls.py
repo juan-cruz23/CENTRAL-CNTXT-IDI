@@ -46,6 +46,7 @@ urlpatterns = [
     path("tiempos/", include("apps.timetracking.urls", namespace="timetracking")),
     path("calendario/", include("apps.calendar_sync.urls", namespace="calendar_sync")),
     path("herramientas/maestros/", include("apps.geography.urls", namespace="geography")),
+    path("equipos/", include("apps.teams.urls", namespace="teams")),
     # -----------------------------------------------------------------------
     # REST API
     # -----------------------------------------------------------------------

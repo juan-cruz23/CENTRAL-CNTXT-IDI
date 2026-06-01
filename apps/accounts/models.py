@@ -103,6 +103,78 @@ class Role(models.Model):
         verbose_name="ve todos los proyectos",
         help_text="Si está activo, ve todos los proyectos. Si no, solo los asignados.",
     )
+    can_create_projects = models.BooleanField(
+        default=False,
+        verbose_name="puede crear proyectos",
+        help_text="Puede crear nuevos proyectos en el sistema.",
+    )
+    can_edit_projects = models.BooleanField(
+        default=False,
+        verbose_name="puede editar proyectos",
+        help_text="Puede editar y eliminar proyectos existentes.",
+    )
+    can_manage_third_parties = models.BooleanField(
+        default=False,
+        verbose_name="puede gestionar terceros",
+        help_text="Puede crear y editar clientes, proveedores y terceros.",
+    )
+    can_manage_allocations = models.BooleanField(
+        default=False,
+        verbose_name="puede gestionar capacidad",
+        help_text="Puede asignar y modificar la distribución de capacidad del equipo.",
+    )
+
+    # Visibility flags — controlan qué secciones del sidebar son visibles
+    can_view_terceros = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Terceros",
+        help_text="Puede acceder al módulo de clientes y terceros.",
+    )
+    can_view_services = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Servicios",
+        help_text="Puede acceder al catálogo de servicios.",
+    )
+    can_view_pricing = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Pricing",
+        help_text="Puede acceder al dashboard de tarifas y precios.",
+    )
+    can_view_organization = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Organización",
+        help_text="Puede acceder a la configuración organizacional.",
+    )
+    can_view_portfolio = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Portfolio",
+        help_text="Puede acceder a la vista general de proyectos (Portfolio).",
+    )
+    can_view_capacity = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Capacidad / Heatmap",
+        help_text="Puede acceder a los módulos de capacidad y heatmap del equipo.",
+    )
+    can_view_timetracking = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Mi Tiempo",
+        help_text="Puede acceder al registro y reporte de tiempo.",
+    )
+    can_view_calendar = models.BooleanField(
+        default=False,
+        verbose_name="ve sección Calendario",
+        help_text="Puede acceder a la sincronización y vista de calendario.",
+    )
+    can_import_data = models.BooleanField(
+        default=False,
+        verbose_name="puede importar datos",
+        help_text="Puede usar el asistente de importación masiva de datos.",
+    )
+    can_manage_teams = models.BooleanField(
+        default=False,
+        verbose_name="puede gestionar equipos semanales",
+        help_text="Puede crear y editar equipos de trabajo semanales por proyecto.",
+    )
     is_active = models.BooleanField(
         default=True,
         verbose_name="activo",
@@ -115,6 +187,50 @@ class Role(models.Model):
 
     def __str__(self):
         return f"{self.code} - {self.name}"
+
+
+class Badge(models.Model):
+    """Medallas personalizadas que el admin otorga a los usuarios."""
+
+    name = models.CharField(max_length=120, verbose_name="nombre", help_text='Ej. "Experta en parcelaciones"')
+    emoji = models.CharField(max_length=10, default="🏅", verbose_name="emoji")
+    color = models.CharField(max_length=7, default="#C8A87A", verbose_name="color (hex)", help_text="Color de acento, ej. #C8A87A")
+    description = models.TextField(blank=True, verbose_name="descripción")
+    is_active = models.BooleanField(default=True, verbose_name="activa")
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "medalla"
+        verbose_name_plural = "medallas"
+
+    def __str__(self):
+        return f"{self.emoji} {self.name}"
+
+
+class UserBadge(models.Model):
+    """Asignación de una medalla a un usuario, otorgada por el admin."""
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="user_badges", verbose_name="usuario"
+    )
+    badge = models.ForeignKey(
+        Badge, on_delete=models.CASCADE, related_name="user_badges", verbose_name="medalla"
+    )
+    granted_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="badges_granted", verbose_name="otorgada por",
+    )
+    granted_at = models.DateTimeField(auto_now_add=True, verbose_name="otorgada el")
+    note = models.TextField(blank=True, verbose_name="nota / motivo")
+
+    class Meta:
+        unique_together = ("user", "badge")
+        ordering = ["granted_at"]
+        verbose_name = "medalla de usuario"
+        verbose_name_plural = "medallas de usuarios"
+
+    def __str__(self):
+        return f"{self.user} — {self.badge}"
 
 
 class WorkSchedule(models.Model):

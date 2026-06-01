@@ -1,0 +1,90 @@
+{% comment %}
+Panel lateral de equipos semanales — se incluye en home.html.
+Requiere: weekly_teams (queryset WeeklyTeam con prefetch members__user)
+          current_week (int)
+{% endcomment %}
+
+<div style="width:260px; min-width:260px; padding-left:24px;">
+
+  <!-- Cabecera -->
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <p style="font-family:'Inter',sans-serif; font-size:0.6rem; font-weight:700;
+                color:rgba(200,168,122,0.5); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:2px;">
+        Semana #{{ current_week }}
+      </p>
+      <p style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:700;
+                color:rgba(255,255,255,0.75); letter-spacing:-0.02em;">
+        Equipos
+      </p>
+    </div>
+    {% if can_manage_teams %}
+    <a href="{% url 'teams:list' %}"
+       style="font-family:'Inter',sans-serif; font-size:0.65rem; color:rgba(200,168,122,0.45);
+              text-decoration:none; padding:4px 8px; border-radius:8px;
+              border:1px solid rgba(200,168,122,0.15);"
+       onmouseover="this.style.color='#C8A87A'; this.style.borderColor='rgba(200,168,122,0.35)'"
+       onmouseout="this.style.color='rgba(200,168,122,0.45)'; this.style.borderColor='rgba(200,168,122,0.15)'">
+      Gestionar →
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Sin equipos -->
+  {% if not weekly_teams %}
+  <div class="flex flex-col items-center justify-center py-8 rounded-xl"
+       style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);">
+    <svg class="h-7 w-7 mb-2" style="color:rgba(255,255,255,0.08);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+            d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+    </svg>
+    <p style="font-family:'Inter',sans-serif; font-size:0.73rem; color:rgba(255,255,255,0.18); text-align:center;">
+      Sin equipos<br>esta semana
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Tarjetas por equipo -->
+  <div class="space-y-3">
+    {% for team in weekly_teams %}
+    <div class="p-4 rounded-xl" style="background:#0d0d0d; border:1px solid rgba(255,255,255,0.06);">
+
+      <!-- Nombre proyecto -->
+      <p style="font-family:'Space Grotesk',sans-serif; font-size:0.82rem; font-weight:700;
+                color:rgba(255,255,255,0.82); letter-spacing:-0.01em; margin-bottom:10px;
+                white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+         title="{{ team.project_name }}">
+        {{ team.project_name }}
+      </p>
+
+      <!-- Lista nombre + ocupación -->
+      <div class="space-y-1.5">
+        {% for m in team.members.all %}
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded-full overflow-hidden shrink-0 flex items-center justify-center"
+               style="background:rgba(255,255,255,0.05);">
+            {% if m.user.avatar %}
+            <img src="{{ m.user.avatar.url }}" alt="" class="w-full h-full object-cover">
+            {% else %}
+            <span style="font-family:'Inter',sans-serif; font-size:0.5rem; font-weight:700; color:rgba(255,255,255,0.4);">
+              {{ m.user.first_name|first|upper }}{{ m.user.last_name|first|upper }}
+            </span>
+            {% endif %}
+          </div>
+          <span style="font-family:'Inter',sans-serif; font-size:0.75rem; color:rgba(255,255,255,0.65);
+                       flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            {{ m.user.first_name }}
+          </span>
+          <span style="font-family:'Inter',sans-serif; font-size:0.65rem; color:rgba(255,255,255,0.25);
+                       white-space:nowrap; font-style:italic; flex-shrink:0;">
+            {{ m.occupation }}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+</div>

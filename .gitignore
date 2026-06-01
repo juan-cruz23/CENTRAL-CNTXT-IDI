@@ -62,3 +62,8 @@ celerybeat.pid
 
 # Sentry
 .sentryclirc
+
+# Claude Code sessions
+.claude/
+Grabaciones/
+Documentacion/

@@ -1,11 +1,13 @@
 from decimal import Decimal
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from apps.common.mixins import RoleFlagRequiredMixin
 from django.db.models import Q, Sum, Value, DecimalField
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -351,8 +353,10 @@ def _third_party_data():
     }
 
 
-class ProjectCreateView(LoginRequiredMixin, CreateView):
+class ProjectCreateView(LoginRequiredMixin, RoleFlagRequiredMixin, CreateView):
     """Create a new project."""
+
+    required_role_flag = "can_create_projects"
 
     model = Project
     form_class = ProjectForm
@@ -383,8 +387,10 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("projects:detail", kwargs={"pk": self.object.pk})
 
 
-class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+class ProjectUpdateView(LoginRequiredMixin, RoleFlagRequiredMixin, UpdateView):
     """Update an existing project."""
+
+    required_role_flag = "can_edit_projects"
 
     model = Project
     form_class = ProjectForm
@@ -417,6 +423,23 @@ class ProjectUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy("projects:detail", kwargs={"pk": self.object.pk})
+
+
+# ---------------------------------------------------------------------------
+# Project delete — solo staff
+# ---------------------------------------------------------------------------
+class ProjectDeleteView(LoginRequiredMixin, View):
+    """Elimina un proyecto completo. Exclusivo para staff/admin."""
+
+    def post(self, request, pk):
+        if not request.user.is_staff:
+            from django.http import HttpResponseForbidden
+            return HttpResponseForbidden()
+        project = get_object_or_404(Project, pk=pk)
+        code = project.code
+        project.delete()
+        messages.success(request, f"Proyecto {code} eliminado correctamente.")
+        return redirect("projects:list")
 
 
 # ---------------------------------------------------------------------------

@@ -105,8 +105,8 @@
         <p class="font-label text-sm" style="color: rgba(255,255,255,0.35);">Ingrese sus credenciales para continuar</p>
       </div>
 
-      <!-- Error -->
       {% if form.errors %}
+      <script>sessionStorage.removeItem('cntxt_login');</script>
       <div class="flex items-center gap-3 rounded-lg p-3 mb-6"
            style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);">
         <svg class="h-4 w-4 shrink-0" style="color: #f87171;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,7 +117,8 @@
       {% endif %}
 
       <!-- Form -->
-      <form method="post" class="space-y-5">
+      <form method="post" class="space-y-5"
+            onsubmit="sessionStorage.setItem('cntxt_login','1')">
         {% csrf_token %}
 
         <div>

@@ -27,6 +27,14 @@
         <li><a href="{% url 'dashboards:project' project.pk %}">Dashboard</a></li>
         <li><a href="{% url 'projects:detail' project.pk %}">Detalle</a></li>
         <li><a href="{% url 'projects:update' project.pk %}">Editar</a></li>
+        {% if user.is_staff %}
+        <li class="border-t border-base-300/40 mt-1 pt-1">
+          <button type="button" class="text-error font-medium"
+                  onclick="openDeleteModal({{ project.pk }}, '{{ project.code }}')">
+            Eliminar
+          </button>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </td>

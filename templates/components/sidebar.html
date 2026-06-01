@@ -80,8 +80,7 @@
           <span style="font-family:'Inter',sans-serif; font-size:0.845rem; font-weight:500;">Proyectos</span>
         </a>
 
-        <!-- Terceros — solo roles con acceso financiero o staff -->
-        {% if can_view_financials or user.is_staff %}
+        {% if can_view_terceros %}
         <a href="{% url 'terceros:list' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                   {% if request.resolver_match.namespace == 'terceros' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
@@ -94,19 +93,20 @@
         </a>
         {% endif %}
 
+        {% if can_view_services %}
         <!-- Servicios -->
         <a href="{% url 'services:servicetemplate_list' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                   {% if request.resolver_match.namespace == 'services' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
            {% if request.resolver_match.namespace == 'services' %}style="background:rgba(200,168,122,0.1);"{% endif %}>
-          <!-- Squares / modules icon -->
           <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
           </svg>
           <span style="font-family:'Inter',sans-serif; font-size:0.845rem; font-weight:500;">Servicios</span>
         </a>
+        {% endif %}
 
-        {% if can_view_financials %}
+        {% if can_view_pricing %}
         <!-- Pricing -->
         <a href="{% url 'services:pricing_dashboard' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
@@ -120,7 +120,21 @@
         </a>
         {% endif %}
 
-        {% if user.is_staff %}
+        {% if can_manage_teams %}
+        <!-- Gestión de Equipos -->
+        <a href="{% url 'teams:list' %}" @click="sidebarOpen = false"
+           class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
+                  {% if request.resolver_match.namespace == 'teams' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
+           {% if request.resolver_match.namespace == 'teams' %}style="background:rgba(200,168,122,0.1);"{% endif %}>
+          <!-- Users/team icon -->
+          <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+          </svg>
+          <span style="font-family:'Inter',sans-serif; font-size:0.845rem; font-weight:500;">Equipos</span>
+        </a>
+        {% endif %}
+
+        {% if can_view_organization %}
         <!-- Organización -->
         <a href="{% url 'organizations:system_list' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
@@ -217,8 +231,8 @@
     <div class="my-3" style="height:1px; background:rgba(255,255,255,0.05);"></div>
     {% endif %}
 
-    <!-- ── OPERACIONES — solo roles directivos/staff ──── -->
-    {% if can_view_financials or user.is_staff %}
+    <!-- ── OPERACIONES ────────────────────────────────── -->
+    {% if can_view_portfolio or can_view_capacity or can_view_timetracking or can_view_calendar %}
     <div x-data="{ open: true }">
       <button @click="open = !open"
               class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 mb-1">
@@ -235,24 +249,25 @@
            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
            class="space-y-0.5">
 
+        {% if can_view_portfolio %}
         <!-- Portfolio -->
         <a href="{% url 'dashboards:portfolio' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                   {% if request.resolver_match.url_name == 'portfolio' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
            {% if request.resolver_match.url_name == 'portfolio' %}style="background:rgba(200,168,122,0.1);"{% endif %}>
-          <!-- Chart bars -->
           <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
           </svg>
           <span style="font-family:'Inter',sans-serif; font-size:0.845rem; font-weight:500;">Portfolio</span>
         </a>
+        {% endif %}
 
+        {% if can_view_capacity %}
         <!-- Capacidad -->
         <a href="{% url 'capacity:overview' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                   {% if request.resolver_match.namespace == 'capacity' and request.resolver_match.url_name == 'overview' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
            {% if request.resolver_match.namespace == 'capacity' and request.resolver_match.url_name == 'overview' %}style="background:rgba(200,168,122,0.1);"{% endif %}>
-          <!-- People/team icon -->
           <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
           </svg>
@@ -264,37 +279,39 @@
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                   {% if request.resolver_match.url_name == 'heatmap' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
            {% if request.resolver_match.url_name == 'heatmap' %}style="background:rgba(200,168,122,0.1);"{% endif %}>
-          <!-- Fire/heat icon -->
           <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z"/>
           </svg>
           <span style="font-family:'Inter',sans-serif; font-size:0.845rem; font-weight:500;">Heatmap</span>
         </a>
+        {% endif %}
 
+        {% if can_view_timetracking %}
         <!-- Mi Tiempo -->
         <a href="{% url 'timetracking:widget' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                   {% if request.resolver_match.namespace == 'timetracking' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
            {% if request.resolver_match.namespace == 'timetracking' %}style="background:rgba(200,168,122,0.1);"{% endif %}>
-          <!-- Stopwatch icon -->
           <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           <span style="font-family:'Inter',sans-serif; font-size:0.845rem; font-weight:500;">Mi Tiempo</span>
         </a>
+        {% endif %}
 
+        {% if can_view_calendar %}
         <!-- Calendario -->
         <a href="{% url 'calendar_sync:dashboard' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150
                   {% if request.resolver_match.namespace == 'calendar_sync' %}text-[#C8A87A]{% else %}text-white/50 hover:text-white/90 hover:bg-white/5{% endif %}"
            {% if request.resolver_match.namespace == 'calendar_sync' %}style="background:rgba(200,168,122,0.1);"{% endif %}>
-          <!-- Calendar icon -->
           <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"/>
           </svg>
           <span style="font-family:'Inter',sans-serif; font-size:0.845rem; font-weight:500;">Calendario</span>
         </a>
+        {% endif %}
 
       </div>
     </div>
@@ -319,7 +336,7 @@
            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
            class="space-y-0.5">
 
-        {% if user.is_staff %}
+        {% if can_import_data %}
         <!-- Importar Datos -->
         <a href="{% url 'imports:wizard' %}" @click="sidebarOpen = false"
            class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-150

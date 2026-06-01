@@ -133,7 +133,17 @@ class UserRoleUpdateView(LoginRequiredMixin, StaffRequiredMixin, View):
 class RoleForm(django_forms.ModelForm):
     class Meta:
         model = Role
-        fields = ["code", "name", "description", "default_hourly_rate", "is_leader", "can_access_financials", "can_access_all_projects", "is_active"]
+        fields = [
+            "code", "name", "description", "default_hourly_rate",
+            "is_leader", "can_access_financials", "can_access_all_projects",
+            "can_create_projects", "can_edit_projects",
+            "can_manage_third_parties", "can_manage_allocations",
+            "can_view_terceros", "can_view_services", "can_view_pricing",
+            "can_view_organization", "can_view_portfolio", "can_view_capacity",
+            "can_view_timetracking", "can_view_calendar", "can_import_data",
+            "can_manage_teams",
+            "is_active",
+        ]
         widgets = {"description": django_forms.Textarea(attrs={"rows": 3, "class": "textarea textarea-bordered w-full"})}
 
     def __init__(self, *args, **kwargs):

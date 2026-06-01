@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from django.contrib import messages
@@ -173,7 +173,6 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
                 role__can_access_all_projects=True
             ).exists()
             if not can_see_all:
-                from django.db.models import Count, Subquery, OuterRef
                 latest_snap_sub2 = ProjectMetricSnapshot.objects.filter(
                     project=OuterRef("pk")
                 ).order_by("-snapshot_date")
@@ -243,7 +242,6 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
         # Alertas filtradas por usuario / proyectos propios
         try:
             from apps.notifications.models import Alert
-            from django.db.models import Q
             if user.is_staff:
                 context["recent_alerts"] = Alert.objects.filter(
                     is_read=False
@@ -255,6 +253,182 @@ class ExecutiveDashboardView(LoginRequiredMixin, TemplateView):
                 ).distinct().order_by("-created_at")[:5]
         except Exception:
             context["recent_alerts"] = []
+
+        # ------------------------------------------------------------------
+        # Perfil del usuario — para la profile card del home
+        # ------------------------------------------------------------------
+        try:
+            primary_ur = user.user_roles.filter(is_primary=True).select_related("role").first() \
+                         or user.user_roles.select_related("role").first()
+            context["user_primary_role"] = primary_ur.role.name if primary_ur else None
+        except Exception:
+            context["user_primary_role"] = None
+
+        try:
+            from apps.accounts.models import UserBadge
+            context["user_badges"] = list(
+                UserBadge.objects.filter(user=user, badge__is_active=True)
+                .select_related("badge")
+                .order_by("granted_at")
+            )
+        except Exception:
+            context["user_badges"] = []
+
+        # ------------------------------------------------------------------
+        # Capacidad operativa — mismos cálculos que CapacityOverviewView
+        # ------------------------------------------------------------------
+        try:
+            from apps.capacity.models import ProjectAllocation, TeamMemberCapacity
+
+            today_c = date.today()
+            w_start = today_c - timedelta(days=today_c.weekday())
+            w_end   = w_start + timedelta(days=6)
+            DEFAULT = Decimal("40")
+
+            def _share(s, e, h):
+                if not s or not e or not h:
+                    return Decimal("0")
+                td = (e - s).days + 1
+                if td <= 0:
+                    return Decimal("0")
+                ov_s = max(s, w_start)
+                ov_e = min(e, w_end)
+                if ov_s > ov_e:
+                    return Decimal("0")
+                return Decimal(str(h)) / Decimal(td) * Decimal((ov_e - ov_s).days + 1)
+
+            # Horas disponibles configuradas (o default 40h)
+            cap_obj = TeamMemberCapacity.objects.filter(
+                user=user, effective_from__lte=today_c,
+            ).filter(Q(effective_until__isnull=True) | Q(effective_until__gte=today_c)).first()
+            avail = Decimal(str(cap_obj.weekly_available_hours)) if cap_obj else DEFAULT
+
+            # Alocaciones manuales
+            allocs = ProjectAllocation.objects.filter(
+                user=user, start_date__lte=w_end,
+            ).filter(Q(end_date__isnull=True) | Q(end_date__gte=w_start))
+            manual_weekly = allocs.aggregate(t=Sum("weekly_hours"))["t"] or Decimal("0")
+
+            # Servicios del cronograma
+            sis = ServiceInstance.objects.filter(assigned_professional=user)
+            sched_planned = sis.aggregate(t=Sum("projected_hours"))["t"] or Decimal("0")
+            sched_actual  = sis.aggregate(t=Sum("actual_hours"))["t"]  or Decimal("0")
+
+            # Acciones del cronograma
+            from apps.projects.models import ServiceInstanceAction as _SIA
+            acts = _SIA.objects.filter(assigned_professional=user)
+            acts_planned = acts.aggregate(t=Sum("estimated_hours"))["t"] or Decimal("0")
+            acts_actual  = acts.aggregate(t=Sum("actual_hours"))["t"]   or Decimal("0")
+
+            # Prorrateo semanal de cronograma
+            sched_weekly = Decimal("0")
+            for si in sis.filter(projected_start_date__lte=w_end, projected_end_date__gte=w_start):
+                sched_weekly += _share(si.projected_start_date, si.projected_end_date, si.projected_hours)
+            for act in acts.filter(
+                service_instance__projected_start_date__lte=w_end,
+                service_instance__projected_end_date__gte=w_start,
+            ).select_related("service_instance"):
+                si = act.service_instance
+                sched_weekly += _share(si.projected_start_date, si.projected_end_date, act.estimated_hours)
+
+            total_planned = sched_planned + acts_planned
+            total_actual  = sched_actual  + acts_actual
+            alloc_hours   = manual_weekly + sched_weekly
+
+            # Proyectos únicos con asignación
+            proj_ids = set(allocs.values_list("project_id", flat=True)) | \
+                       set(sis.values_list("project_id", flat=True))
+
+            context["cap_available"]  = int(avail)
+            context["cap_allocated"]  = round(float(alloc_hours), 1)
+            context["cap_pct"]        = min(round((alloc_hours / avail * 100) if avail else 0), 999)
+            context["cap_planned"]    = int(total_planned)
+            context["cap_actual"]     = int(total_actual)
+            context["cap_progress"]   = round((total_actual / total_planned * 100) if total_planned else 0)
+            context["cap_projects"]   = len(proj_ids)
+        except Exception:
+            context["cap_available"]  = None
+            context["cap_allocated"]  = None
+            context["cap_pct"]        = None
+            context["cap_planned"]    = None
+            context["cap_actual"]     = None
+            context["cap_progress"]   = None
+            context["cap_projects"]   = None
+
+        # ------------------------------------------------------------------
+        # Gantt personal — cronograma del usuario
+        # Fuentes: (1) SI/acciones con assigned_professional=user
+        #          (2) SI en proyectos donde user es el líder (LP)
+        # ------------------------------------------------------------------
+        try:
+            import json as _json
+            from apps.projects.models import ServiceInstanceAction as _SIA2
+
+            seen_si   = set()
+            gantt_items = []
+
+            def _add_si(si):
+                if si.pk in seen_si:
+                    return
+                if not si.projected_start_date or not si.projected_end_date:
+                    return
+                seen_si.add(si.pk)
+                gantt_items.append({
+                    "id":           si.pk,
+                    "name":         si.name,
+                    "project":      si.project.name if si.project else "",
+                    "project_code": si.project.code if si.project else "",
+                    "project_id":   si.project.pk  if si.project else None,
+                    "start":        si.projected_start_date.isoformat(),
+                    "end":          si.projected_end_date.isoformat(),
+                    "progress":     float(si.progress_pct or 0),
+                    "type":         "service",
+                })
+
+            # Ventana relevante: 30 días atrás → 180 días adelante
+            _today = date.today()
+            _w_from = _today - timedelta(days=30)
+            _w_to   = _today + timedelta(days=180)
+
+            # Solo servicios — las acciones no se muestran en el gantt personal
+            for si in ServiceInstance.objects.filter(
+                assigned_professional=user,
+                projected_start_date__isnull=False,
+                projected_end_date__isnull=False,
+                projected_end_date__gte=_w_from,
+                projected_start_date__lte=_w_to,
+            ).select_related("project").order_by("projected_start_date"):
+                _add_si(si)
+
+            # Ordenar por fecha de inicio
+            gantt_items.sort(key=lambda x: x["start"])
+
+            # Pasar la lista Python directamente — json_script la serializa
+            context["user_gantt_items"] = gantt_items
+        except Exception as _gantt_err:
+            import logging as _log
+            _log.getLogger(__name__).error("Gantt error: %s", _gantt_err, exc_info=True)
+            context["user_gantt_items"] = []
+
+        # ------------------------------------------------------------------
+        # Equipos semanales — panel derecho del home
+        # ------------------------------------------------------------------
+        try:
+            from apps.teams.models import WeeklyTeam
+            today_t = date.today()
+            iso_t = today_t.isocalendar()
+            context["current_week"] = iso_t[1]
+            context["weekly_teams"] = (
+                WeeklyTeam.objects.filter(
+                    week_number=iso_t[1],
+                    year=iso_t[0],
+                )
+                .prefetch_related("members__user")
+                .order_by("project_name")
+            )
+        except Exception:
+            context["current_week"] = date.today().isocalendar()[1]
+            context["weekly_teams"] = []
 
         return context
 
