@@ -16,3 +16,5 @@ openpyxl>=3,<4
 sentry-sdk[django]>=2,<3
 gunicorn>=22,<26
 django-storages[google]>=1.14,<2
+cloudinary>=1.36,<2
+django-cloudinary-storage>=0.3,<1

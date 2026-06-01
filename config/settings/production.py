@@ -56,21 +56,37 @@ if not config("CELERY_BROKER_URL", default=""):
 # ---------------------------------------------------------------------------
 # WhiteNoise  --  compressed + hashed static files
 # ---------------------------------------------------------------------------
-STORAGES = {
-    "default": {
-        "BACKEND": "apps.common.storage.IAMSignedGoogleCloudStorage",
-        "OPTIONS": {
-            "bucket_name": config("GS_BUCKET_NAME", default="contexto-media"),
-            "project_id": config("GOOGLE_CLOUD_PROJECT", default="appsindunnova"),
-            "default_acl": None,
-            "querystring_auth": True,
-            "expiration": 3600,
+
+# Media storage: Cloudinary si CLOUDINARY_URL está definida, si no Google Cloud Storage
+_cloudinary_url = config("CLOUDINARY_URL", default="")
+
+if _cloudinary_url:
+    CLOUDINARY_STORAGE = {"CLOUDINARY_URL": _cloudinary_url}
+    INSTALLED_APPS = INSTALLED_APPS + ["cloudinary_storage", "cloudinary"]  # noqa
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "apps.common.storage.IAMSignedGoogleCloudStorage",
+            "OPTIONS": {
+                "bucket_name": config("GS_BUCKET_NAME", default="contexto-media"),
+                "project_id": config("GOOGLE_CLOUD_PROJECT", default="appsindunnova"),
+                "default_acl": None,
+                "querystring_auth": True,
+                "expiration": 3600,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 # Tolerar entradas faltantes en el manifest (sirve sin hash en vez de 500).
 # Mitiga errores intermitentes tipo "Missing staticfiles manifest entry for 'admin/css/base.css'".
